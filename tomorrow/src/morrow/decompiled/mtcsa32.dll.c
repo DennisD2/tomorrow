@@ -17463,6 +17463,8 @@ int32_t function_1000d700(char * a1, int32_t a2, int32_t a3) {
     return result;
 }
 
+/* DD: big comment starts */
+/*
 // Address range: 0x1000d740 - 0x1000d83d
 int32_t function_1000d740(char * a1, int32_t a2, uint32_t a3) {
     int32_t v1 = a3; // ecx
@@ -45174,6 +45176,9 @@ void _RtlUnwind(int32_t * TargetFrame, int32_t * TargetIp, struct _EXCEPTION_REC
     // 0x10015060
     RtlUnwind(TargetFrame, TargetIp, ExceptionRecord, ReturnValue);
 }
+
+*/
+/* DD: big comment ends here */
 
 // --------------- Statically Linked Functions ----------------
 
