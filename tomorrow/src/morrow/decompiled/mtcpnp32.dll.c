@@ -2786,16 +2786,16 @@ int32_t mr90xx_FindNextPeak(int32_t a1, int32_t a2, int32_t a3, uint16_t a4, int
 }
 
 // Address range: 0x10002fa0 - 0x10003118
-int32_t mr90xx_init(int32_t a1, int32_t a2, int32_t a3, int32_t * a4) {
-    int32_t v1 = (int32_t)a4;
-    *a4 = 0;
-    if (a1 == 0) {
+int32_t mr90xx_init(int32_t session_string, int32_t query_flag, int32_t reset_flag, int32_t * session_id) {
+    int32_t v1 = (int32_t)session_id;
+    *session_id = 0;
+    if (session_string == 0) {
         // 0x10002fb5
         // branch -> 0x10003115
         // 0x10003115
         return -0x4003ffff;
     }
-    int32_t v2 = a2 & 0xffff; // 0x10002fc2
+    int32_t v2 = query_flag & 0xffff; // 0x10002fc2
     if (v2 != 1) {
         // 0x10002fcd
         if (v2 != 0) {
@@ -2805,7 +2805,7 @@ int32_t mr90xx_init(int32_t a1, int32_t a2, int32_t a3, int32_t * a4) {
             return -0x4003fffe;
         }
     }
-    int32_t v3 = a3 & 0xffff; // 0x10002fe7
+    int32_t v3 = reset_flag & 0xffff; // 0x10002fe7
     if (v3 != 1) {
         // 0x10002ff1
         if (v3 != 0) {
@@ -2815,28 +2815,28 @@ int32_t mr90xx_init(int32_t a1, int32_t a2, int32_t a3, int32_t * a4) {
             return -0x4003fffd;
         }
     }
-    int32_t result = mr90xx_OpenSession(a1, a4); // 0x10003020
+    int32_t result = mr90xx_OpenSession(session_string, session_id); // 0x10003020
     if (result != 0) {
         // 0x10003031
         // branch -> 0x10003115
         // 0x10003115
         return result;
     }
-    int32_t v4 = *a4; // 0x10003041
+    int32_t v4 = *session_id; // 0x10003041
     g7 = v4;
     int32_t result2 = mr90xx_SetEngineModel(v4, 256, 0); // 0x10003044
     if (result2 != 0) {
         // 0x10003055
-        mr90xx_CloseSession(*a4);
+        mr90xx_CloseSession(*session_id);
         // branch -> 0x10003115
         // 0x10003115
         return result2;
     }
     // 0x1000306b
     g7 = v1;
-    int32_t result3 = mr90xx_InitEngine(*a4, 0); // 0x10003071
+    int32_t result3 = mr90xx_InitEngine(*session_id, 0); // 0x10003071
     if (result3 != 0x3ffc0811) {
-        int32_t v5 = *a4; // 0x10003088
+        int32_t v5 = *session_id; // 0x10003088
         g7 = v5;
         mr90xx_CloseSession(v5);
         // branch -> 0x10003115
@@ -2853,10 +2853,10 @@ int32_t mr90xx_init(int32_t a1, int32_t a2, int32_t a3, int32_t * a4) {
         if (v3 != 0) {
             // 0x100030e9
             g7 = v1;
-            result4 = mr90xx_reset(*a4);
+            result4 = mr90xx_reset(*session_id);
             if (result4 < 0) {
                 // 0x10003100
-                v6 = *a4;
+                v6 = *session_id;
                 g7 = v6;
                 mr90xx_CloseSession(v6);
                 // branch -> 0x10003115
@@ -2871,7 +2871,7 @@ int32_t mr90xx_init(int32_t a1, int32_t a2, int32_t a3, int32_t * a4) {
         // 0x100030a4
         g7 = v1;
         int16_t v7; // bp-8
-        if (function_100037d0(*a4, (int32_t)&v7, 0x3ffc0811) == 0) {
+        if (function_100037d0(*session_id, (int32_t)&v7, 0x3ffc0811) == 0) {
             // 0x100030bf
             if (v7 != 0) {
                 // 0x100030dc
@@ -2879,10 +2879,10 @@ int32_t mr90xx_init(int32_t a1, int32_t a2, int32_t a3, int32_t * a4) {
                 if (v3 != 0) {
                     // 0x100030e9
                     g7 = v1;
-                    result4 = mr90xx_reset(*a4);
+                    result4 = mr90xx_reset(*session_id);
                     if (result4 < 0) {
                         // 0x10003100
-                        v6 = *a4;
+                        v6 = *session_id;
                         g7 = v6;
                         mr90xx_CloseSession(v6);
                         // branch -> 0x10003115
@@ -2898,7 +2898,7 @@ int32_t mr90xx_init(int32_t a1, int32_t a2, int32_t a3, int32_t * a4) {
         }
         // 0x100030c7
         g7 = v1;
-        mr90xx_CloseSession(*a4);
+        mr90xx_CloseSession(*session_id);
         result5 = -0x4003f7f3;
         // branch -> 0x10003115
     }
