@@ -95,212 +95,212 @@ struct _cpinfo {
 
 // ------------------- Function Prototypes --------------------
 
-int32_t _BreakSweep(int32_t deviceId, int32_t a2);
-int32_t _CommInterrupts(int32_t deviceId, int32_t a2);
-int32_t _CommTrigDetect(int32_t deviceId, int32_t a2);
-int32_t _GetFuncStatusCode(int32_t deviceId);
-int32_t _IeTimer(int32_t deviceId);
-int32_t _IeTimerFrom(int32_t deviceId, int32_t a2);
-int32_t _imported_function_ord_129(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6);
-int32_t _imported_function_ord_130(int32_t deviceId, int32_t a2);
-int32_t _imported_function_ord_131(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5);
-int32_t _imported_function_ord_132(int32_t deviceId);
-int32_t _imported_function_ord_133(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t _imported_function_ord_134(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t _imported_function_ord_141(int32_t deviceId);
-int32_t _imported_function_ord_261(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4);
-int32_t _imported_function_ord_262(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4);
-int32_t _imported_function_ord_267(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t _InitTimeoutLoop(int32_t deviceId);
-int32_t _RdErrorStatus(int32_t deviceId);
-int32_t _RdSessionHandle(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t _RdTimeoutWait(int32_t deviceId);
+int32_t _BreakSweep(int32_t a1, int32_t a2);
+int32_t _CommInterrupts(int32_t a1, int32_t a2);
+int32_t _CommTrigDetect(int32_t a1, int32_t a2);
+int32_t _GetFuncStatusCode(int32_t a1);
+int32_t _IeTimer(int32_t a1);
+int32_t _IeTimerFrom(int32_t a1, int32_t a2);
+int32_t _imported_function_ord_129(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6);
+int32_t _imported_function_ord_130(int32_t a1, int32_t a2);
+int32_t _imported_function_ord_131(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5);
+int32_t _imported_function_ord_132(int32_t a1);
+int32_t _imported_function_ord_133(int32_t a1, int32_t a2, int32_t a3);
+int32_t _imported_function_ord_134(int32_t a1, int32_t a2, int32_t a3);
+int32_t _imported_function_ord_141(int32_t a1);
+int32_t _imported_function_ord_261(int32_t a1, int32_t a2, int32_t a3, int32_t a4);
+int32_t _imported_function_ord_262(int32_t a1, int32_t a2, int32_t a3, int32_t a4);
+int32_t _imported_function_ord_267(int32_t a1, int32_t a2, int32_t a3);
+int32_t _InitTimeoutLoop(int32_t a1);
+int32_t _RdErrorStatus(int32_t a1);
+int32_t _RdSessionHandle(int32_t a1, int32_t a2, int32_t a3);
+int32_t _RdTimeoutWait(int32_t a1);
 void _RtlUnwind(int32_t * TargetFrame, int32_t * TargetIp, struct _EXCEPTION_RECORD * ExceptionRecord, int32_t * ReturnValue);
-int32_t _SetEngineReplyCode(int32_t deviceId, int32_t a2);
-int32_t _SetErrorStatus(int32_t deviceId, int32_t a2);
-int32_t _SetFuncStatusCode(int32_t deviceId, int32_t a2);
-int32_t _SetTimeoutWait(int32_t deviceId, int32_t a2);
-int32_t _TestFuncStatusAndPtr(int32_t deviceId);
-int32_t _TestTimeoutDone(int32_t deviceId);
-int32_t entry_point(int32_t deviceId, int32_t a2, int32_t a3);
+int32_t _SetEngineReplyCode(int32_t a1, int32_t a2);
+int32_t _SetErrorStatus(int32_t a1, int32_t a2);
+int32_t _SetFuncStatusCode(int32_t a1, int32_t a2);
+int32_t _SetTimeoutWait(int32_t a1, int32_t a2);
+int32_t _TestFuncStatusAndPtr(int32_t a1);
+int32_t _TestTimeoutDone(int32_t a1);
+int32_t entry_point(int32_t a1, int32_t a2, int32_t a3);
 int32_t function_1000108e(int32_t a1);
-int32_t function_100010e1(int32_t deviceId, int32_t a2);
-int32_t function_100011fc(int32_t deviceId, int32_t a2);
-int32_t function_10001249(int32_t deviceId, uint16_t a2, int32_t a3, int32_t a4);
-int32_t function_10001297(int32_t deviceId, int16_t * a2);
+int32_t function_100010e1(int32_t a1, int32_t a2);
+int32_t function_100011fc(int32_t a1, int32_t a2);
+int32_t function_10001249(int32_t a1, uint16_t a2, int32_t a3, int32_t a4);
+int32_t function_10001297(int32_t a1, int16_t * a2);
 int32_t dd_WriteCommand(int32_t deviceId, int16_t command);
-int32_t function_10001354(int32_t deviceId, uint16_t a2, int32_t a3, int32_t a4);
-int32_t function_100015d0(int32_t deviceId, int32_t a2, int16_t a3, int32_t a4);
-int32_t function_10001654(int32_t deviceId, int16_t a2, int32_t a3);
-int32_t function_100016c8(int32_t deviceId);
-int32_t function_100017e1(int32_t deviceId, int16_t * a2);
-int32_t function_10001844(int32_t deviceId, uint32_t a2, int32_t * a3, int32_t a4);
-int32_t function_10001a0a(int32_t deviceId, int16_t a2);
-int32_t function_10001b08(int32_t deviceId);
-int32_t function_10001cca(int32_t deviceId, int16_t * a2);
-int32_t function_100025a2(int16_t deviceId, int32_t a2, int32_t a3);
-int32_t function_10002753(int16_t deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5);
-int32_t function_1000297c(char * deviceId);
-int32_t function_100029ce(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t function_10002b77(char deviceId, int32_t a2);
-int32_t function_10002c8f(int32_t deviceId, int32_t a2, char * a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
-int32_t function_100033d0(unsigned char deviceId, int32_t a2, int32_t result);
-int32_t function_10003405(int32_t deviceId, int32_t result, int32_t a3, int32_t * a4);
-int32_t function_10003436(char * deviceId, int32_t result, int32_t a3, int32_t a4);
-int32_t function_1000346e(int32_t * deviceId);
-int32_t function_1000347b(int32_t * deviceId);
-int32_t function_1000348b(int32_t * deviceId);
+int32_t function_10001354(int32_t a1, uint16_t a2, int32_t a3, int32_t a4);
+int32_t function_100015d0(int32_t a1, int32_t a2, int16_t a3, int32_t a4);
+int32_t function_10001654(int32_t a1, int16_t a2, int32_t a3);
+int32_t function_100016c8(int32_t a1);
+int32_t function_100017e1(int32_t a1, int16_t * a2);
+int32_t function_10001844(int32_t a1, uint32_t a2, int32_t * a3, int32_t a4);
+int32_t function_10001a0a(int32_t a1, int16_t a2);
+int32_t function_10001b08(int32_t a1);
+int32_t function_10001cca(int32_t a1, int16_t * a2);
+int32_t function_100025a2(int16_t a1, int32_t a2, int32_t a3);
+int32_t function_10002753(int16_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5);
+int32_t function_1000297c(char * a1);
+int32_t function_100029ce(int32_t a1, int32_t a2, int32_t a3);
+int32_t function_10002b77(char a1, int32_t a2);
+int32_t function_10002c8f(int32_t a1, int32_t a2, char * a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
+int32_t function_100033d0(unsigned char a1, int32_t a2, int32_t result);
+int32_t function_10003405(int32_t a1, int32_t result, int32_t a3, int32_t * a4);
+int32_t function_10003436(char * a1, int32_t result, int32_t a3, int32_t a4);
+int32_t function_1000346e(int32_t * a1);
+int32_t function_1000347b(int32_t * a1);
+int32_t function_1000348b(int32_t * a1);
 int32_t function_10003499(void);
-int32_t function_100034c6(int32_t deviceId);
+int32_t function_100034c6(int32_t a1);
 int32_t function_100034d7(void);
-int32_t function_100034e6(int32_t * deviceId, int32_t uExitCode, int32_t a3);
-int32_t function_10003589(int32_t deviceId);
-int32_t function_1000358b(int32_t deviceId);
+int32_t function_100034e6(int32_t * a1, int32_t uExitCode, int32_t a3);
+int32_t function_10003589(int32_t a1);
+int32_t function_1000358b(int32_t a1);
 int32_t function_10003594(void);
-int32_t function_1000359d(int32_t * deviceId, uint32_t a2);
+int32_t function_1000359d(int32_t * a1, uint32_t a2);
 int32_t function_100035b7(void);
 int32_t function_1000360b(void);
 int32_t function_10003629(int32_t result);
 int32_t function_1000363c(void);
-int32_t function_100036a3(int32_t deviceId);
+int32_t function_100036a3(int32_t a1);
 int32_t function_10003743(void);
 int32_t function_100038ff(void);
 int32_t function_10003953(void);
 int32_t function_10003a0c(void);
-int32_t function_10003aa5(char * deviceId, int32_t a2, int32_t a3, int32_t result, int32_t a5);
+int32_t function_10003aa5(char * a1, int32_t a2, int32_t a3, int32_t result, int32_t a5);
 int32_t function_10003c59(void);
-int32_t function_10003d8b(char * deviceId);
+int32_t function_10003d8b(char * a1);
 int32_t function_10003db8(void);
-int32_t function_10003f00(int32_t deviceId);
+int32_t function_10003f00(int32_t a1);
 int32_t function_10003f5d(void);
-int32_t function_10004005(int32_t deviceId, int32_t a2, int32_t a3);
+int32_t function_10004005(int32_t a1, int32_t a2, int32_t a3);
 int32_t function_1000400b(void);
-int32_t function_10004044(int32_t deviceId);
-int32_t function_10004197(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t function_100041fc(int32_t deviceId, int32_t lDistanceToMove, int32_t dwMoveMethod);
-int32_t function_1000426f(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4);
-int32_t function_100042d4(struct _OVERLAPPED * deviceId, int32_t lpBuffer, uint32_t nNumberOfBytesToWrite);
-int32_t function_1000445f(int32_t * deviceId);
-int32_t function_100044a3(uint32_t deviceId);
+int32_t function_10004044(int32_t a1);
+int32_t function_10004197(int32_t a1, int32_t a2, int32_t a3);
+int32_t function_100041fc(int32_t a1, int32_t lDistanceToMove, int32_t dwMoveMethod);
+int32_t function_1000426f(int32_t a1, int32_t a2, int32_t a3, int32_t a4);
+int32_t function_100042d4(struct _OVERLAPPED * a1, int32_t lpBuffer, uint32_t nNumberOfBytesToWrite);
+int32_t function_1000445f(int32_t * a1);
+int32_t function_100044a3(uint32_t a1);
 int32_t function_100044cc(void);
 int32_t function_10004574(void);
-int32_t function_10004588(uint32_t deviceId, int32_t a2, int32_t a3);
-int32_t function_100045b7(int32_t deviceId, int32_t a2);
-int32_t function_100045da(uint32_t deviceId);
-int32_t function_10004609(int32_t deviceId, int32_t a2);
-int32_t function_10004630(char * deviceId);
-int32_t function_100046ab(int32_t deviceId, int32_t a2);
+int32_t function_10004588(uint32_t a1, int32_t a2, int32_t a3);
+int32_t function_100045b7(int32_t a1, int32_t a2);
+int32_t function_100045da(uint32_t a1);
+int32_t function_10004609(int32_t a1, int32_t a2);
+int32_t function_10004630(char * a1);
+int32_t function_100046ab(int32_t a1, int32_t a2);
 int32_t function_10004704(char * lpMultiByteStr, int32_t a2);
 int32_t function_100047d8(void);
-int32_t function_10004855(int32_t deviceId);
+int32_t function_10004855(int32_t a1);
 int32_t function_1000487e(void);
-int32_t function_100048ea(int32_t deviceId);
-int32_t function_1000494b(int32_t deviceId);
-int32_t function_10004960(int64_t deviceId, int32_t a2);
-int32_t function_100049f9(int32_t deviceId);
+int32_t function_100048ea(int32_t a1);
+int32_t function_1000494b(int32_t a1);
+int32_t function_10004960(int64_t a1, int32_t a2);
+int32_t function_100049f9(int32_t a1);
 int32_t function_10004a02(void);
-int32_t function_10004a3c(int32_t deviceId);
+int32_t function_10004a3c(int32_t a1);
 int32_t function_10004a82(void);
 int32_t function_10004a8e(void);
-int32_t function_10004a9d(int32_t deviceId);
-int32_t function_10004b07(int32_t deviceId);
+int32_t function_10004a9d(int32_t a1);
+int32_t function_10004b07(int32_t a1);
 int32_t function_10004b10(void);
 int32_t function_10004b58(void);
 int32_t function_10004b5f(void);
-int32_t function_10004b69(int32_t deviceId);
-int32_t function_10004b86(int32_t deviceId);
-int32_t function_10004bc4(int32_t deviceId);
-int32_t function_10004c2b(int32_t deviceId);
+int32_t function_10004b69(int32_t a1);
+int32_t function_10004b86(int32_t a1);
+int32_t function_10004bc4(int32_t a1);
+int32_t function_10004c2b(int32_t a1);
 int32_t function_10004c34(void);
 int32_t function_10004c8a(void);
 int32_t function_10004c93(void);
 int32_t * function_10004ca3(int32_t * hHeap, int32_t dwFlags, int32_t dwBytes);
 int32_t function_10004cb1(void);
-int32_t function_10004cc0(int32_t deviceId, int32_t a2);
-int32_t function_10004cd0(char * deviceId, int32_t a2);
-int32_t function_10004d31(int32_t deviceId);
-int32_t function_10004db0(struct _cpinfo * deviceId);
+int32_t function_10004cc0(int32_t a1, int32_t a2);
+int32_t function_10004cd0(char * a1, int32_t a2);
+int32_t function_10004d31(int32_t a1);
+int32_t function_10004db0(struct _cpinfo * a1);
 int32_t function_10004f5d(int32_t result);
 int32_t function_10004fa7(int32_t result);
 int32_t function_10004fda(void);
 int32_t function_10005003(void);
-int32_t function_10005188(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t function_100051b0(char * deviceId, uint32_t a2);
-int32_t function_100054e5(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t function_100054fc(char * deviceId, int32_t a2, int32_t a3, int32_t a4);
-int32_t function_10005710(int32_t deviceId);
+int32_t function_10005188(int32_t a1, int32_t a2, int32_t a3);
+int32_t function_100051b0(char * a1, uint32_t a2);
+int32_t function_100054e5(int32_t a1, int32_t a2, int32_t a3);
+int32_t function_100054fc(char * a1, int32_t a2, int32_t a3, int32_t a4);
+int32_t function_10005710(int32_t a1);
 int32_t function_10005720(unsigned char result, int32_t a2);
-int32_t function_10005726(char * deviceId, int32_t a2, int32_t a3);
-int32_t function_100057e0(char * deviceId, int32_t a2);
-int32_t function_10005860(char * deviceId, int32_t a2, int32_t a3);
+int32_t function_10005726(char * a1, int32_t a2, int32_t a3);
+int32_t function_100057e0(char * a1, int32_t a2);
+int32_t function_10005860(char * a1, int32_t a2, int32_t a3);
 int32_t function_100058a0(int32_t result);
-int32_t function_100058cf(int32_t deviceId);
-int32_t function_10005917(int32_t deviceId);
-int32_t function_10005942(int32_t * deviceId, int32_t a2);
-int32_t function_10005c6b(int32_t deviceId);
+int32_t function_100058cf(int32_t a1);
+int32_t function_10005917(int32_t a1);
+int32_t function_10005942(int32_t * a1, int32_t a2);
+int32_t function_10005c6b(int32_t a1);
 int32_t function_10005f74(void);
-int32_t function_10006025(int32_t deviceId);
+int32_t function_10006025(int32_t a1);
 int32_t function_10006120(void);
-int32_t function_10006264(int32_t * deviceId);
-int32_t function_100062ba(int32_t deviceId);
-int32_t function_1000637c(int16_t deviceId, int32_t a2, int32_t a3);
-int32_t function_100063d3(int32_t deviceId, int32_t a2, char * a3);
-int32_t function_10006418(unsigned char deviceId);
-int32_t function_10006620(int32_t * deviceId, int32_t a2, int32_t a3);
-int32_t function_10006744(int32_t deviceId, int32_t * a2, int32_t a3);
-int32_t function_100067d0(char * deviceId, int32_t a2, uint32_t a3);
-int32_t function_100068ce(int32_t deviceId);
-int32_t function_10006941(int32_t deviceId);
-int32_t function_1000694a(int32_t deviceId);
-int32_t function_10006953(uint32_t deviceId);
-int32_t function_100069d2(uint32_t deviceId);
-int32_t function_10006a14(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t function_10006a73(int32_t deviceId);
+int32_t function_10006264(int32_t * a1);
+int32_t function_100062ba(int32_t a1);
+int32_t function_1000637c(int16_t a1, int32_t a2, int32_t a3);
+int32_t function_100063d3(int32_t a1, int32_t a2, char * a3);
+int32_t function_10006418(unsigned char a1);
+int32_t function_10006620(int32_t * a1, int32_t a2, int32_t a3);
+int32_t function_10006744(int32_t a1, int32_t * a2, int32_t a3);
+int32_t function_100067d0(char * a1, int32_t a2, uint32_t a3);
+int32_t function_100068ce(int32_t a1);
+int32_t function_10006941(int32_t a1);
+int32_t function_1000694a(int32_t a1);
+int32_t function_10006953(uint32_t a1);
+int32_t function_100069d2(uint32_t a1);
+int32_t function_10006a14(int32_t a1, int32_t a2, int32_t a3);
+int32_t function_10006a73(int32_t a1);
 int32_t function_10006a95(void);
-int32_t function_10006b16(int32_t deviceId);
-int32_t function_10006b44(int32_t * deviceId, int32_t a2);
+int32_t function_10006b16(int32_t a1);
+int32_t function_10006b44(int32_t * a1, int32_t a2);
 int32_t function_10006ba0(void);
-int32_t function_10006ba9(int32_t deviceId);
-int32_t function_10006c4d(int32_t deviceId);
-int32_t function_10006c56(int32_t deviceId);
-int32_t function_10006c80(char * deviceId, int32_t a2);
+int32_t function_10006ba9(int32_t a1);
+int32_t function_10006c4d(int32_t a1);
+int32_t function_10006c56(int32_t a1);
+int32_t function_10006c80(char * a1, int32_t a2);
 int32_t function_10006da5(void);
-int32_t function_10006dae(int32_t deviceId);
-int32_t function_10006db8(int32_t deviceId, int32_t a2);
-int32_t function_10006dd0(int32_t deviceId, int32_t a2, int32_t a3);
-int32_t function_10006e8d(int32_t * deviceId);
-int32_t function_10006ea8(int32_t deviceId, int32_t a2, char a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
-int32_t function_100070cc(char * deviceId, int32_t result);
-int32_t function_100070f7(char * deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7);
+int32_t function_10006dae(int32_t a1);
+int32_t function_10006db8(int32_t a1, int32_t a2);
+int32_t function_10006dd0(int32_t a1, int32_t a2, int32_t a3);
+int32_t function_10006e8d(int32_t * a1);
+int32_t function_10006ea8(int32_t a1, int32_t a2, char a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
+int32_t function_100070cc(char * a1, int32_t result);
+int32_t function_100070f7(char * a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7);
 int32_t function_10007240(int32_t result);
-int32_t function_100072af(char deviceId);
-int32_t function_1000737b(char deviceId, int32_t a2);
-int32_t function_100073f0(char * deviceId, uint32_t a2, uint32_t a3);
-int32_t function_10007725(int32_t deviceId);
-int32_t function_10007756(int32_t deviceId);
-int32_t function_100077a2(int32_t * deviceId);
-int32_t function_1000794a(int32_t deviceId);
-int32_t function_100079a7(int32_t * deviceId);
-int32_t function_10007a55(char * deviceId, int32_t a2);
-int32_t function_10007b30(char * deviceId, int32_t a2, int32_t a3);
-int32_t function_10007c31(char deviceId, int32_t a2);
-int32_t unknown_0(int32_t deviceId);
-int32_t VISA_CheckHWStatus(int32_t deviceId);
-int32_t VISA_CheckSWStatNoTO(int32_t deviceId, int16_t a2);
-int32_t VISA_CheckSWStatus(int32_t deviceId);
+int32_t function_100072af(char a1);
+int32_t function_1000737b(char a1, int32_t a2);
+int32_t function_100073f0(char * a1, uint32_t a2, uint32_t a3);
+int32_t function_10007725(int32_t a1);
+int32_t function_10007756(int32_t a1);
+int32_t function_100077a2(int32_t * a1);
+int32_t function_1000794a(int32_t a1);
+int32_t function_100079a7(int32_t * a1);
+int32_t function_10007a55(char * a1, int32_t a2);
+int32_t function_10007b30(char * a1, int32_t a2, int32_t a3);
+int32_t function_10007c31(char a1, int32_t a2);
+int32_t unknown_0(int32_t a1);
+int32_t VISA_CheckHWStatus(int32_t a1);
+int32_t VISA_CheckSWStatNoTO(int32_t a1, int16_t a2);
+int32_t VISA_CheckSWStatus(int32_t a1);
 int32_t VISA_ClearDataFIFO(int32_t a1);
-int32_t VISA_CloseSession(int32_t deviceId);
-int32_t VISA_FetchDataWord(int32_t deviceId, int16_t * a2);
-int32_t VISA_GetDataBlock(int32_t deviceId, int64_t a2, int32_t a3, int32_t a4, int32_t a5);
-int32_t VISA_IdQuery(int32_t deviceId, int16_t * a2);
-int32_t VISA_InitEngine(int32_t deviceId);
-int32_t VISA_OpenSessionStep(int32_t deviceId);
-int32_t VISA_ResetEngine(int32_t deviceId);
-int32_t VISA_SendCommand(int32_t deviceId, int16_t a2, int32_t a3, int32_t a4);
-int32_t VISA_SendDataItem(int32_t deviceId, int16_t a2);
-int32_t VISA_SendWord(int32_t deviceId, int16_t a2);
-int32_t VISA_ShutdownEngine(int32_t deviceId);
-int32_t VISA_VerDataBlock(int32_t deviceId, int32_t a2);
+int32_t VISA_CloseSession(int32_t a1);
+int32_t VISA_FetchDataWord(int32_t a1, int16_t * a2);
+int32_t VISA_GetDataBlock(int32_t a1, int64_t a2, int32_t a3, int32_t a4, int32_t a5);
+int32_t VISA_IdQuery(int32_t a1, int16_t * a2);
+int32_t VISA_InitEngine(int32_t a1);
+int32_t VISA_OpenSessionStep(int32_t a1);
+int32_t VISA_ResetEngine(int32_t a1);
+int32_t VISA_SendCommand(int32_t a1, int16_t a2, int32_t a3, int32_t a4);
+int32_t VISA_SendDataItem(int32_t a1, int16_t a2);
+int32_t VISA_SendWord(int32_t a1, int16_t a2);
+int32_t VISA_ShutdownEngine(int32_t a1);
+int32_t VISA_VerDataBlock(int32_t a1, int32_t a2);
 int32_t VISA_WaitRecvWord(int32_t a1);
 
 // --------------------- Global Variables ---------------------
@@ -428,19 +428,19 @@ int32_t * g46 = &g43;
 // ------------------------ Functions -------------------------
 
 // Address range: 0x10001000 - 0x1000108d
-int32_t VISA_CheckSWStatNoTO(int32_t deviceId, int16_t a2) {
+int32_t VISA_CheckSWStatNoTO(int32_t a1, int16_t a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = function_1000108e(deviceId); // 0x1000100a
+    int32_t v2 = function_1000108e(a1); // 0x1000100a
     int16_t v3 = v2; // bp-16
     int32_t v4 = v2 & 0xffff; // 0x1000101613
     g5 = v4;
     if (v4 != 1) {
         // 0x10001024
-        v3 = function_1000108e(deviceId);
+        v3 = function_1000108e(a1);
         // branch -> 0x10001034
     }
-    uint32_t v5 = _RdTimeoutWait(deviceId); // 0x10001038
+    uint32_t v5 = _RdTimeoutWait(a1); // 0x10001038
     int32_t v6 = _IeTimer(v5); // 0x10001043
     int16_t v7 = v3; // 0x1000104b3
     g5 = v7;
@@ -453,7 +453,7 @@ int32_t VISA_CheckSWStatNoTO(int32_t deviceId, int16_t a2) {
     int16_t v8; // 0x1000105c
     int32_t v9; // 0x1000108611
     while (true) {
-        int32_t v10 = function_1000108e(deviceId); // 0x1000105c
+        int32_t v10 = function_1000108e(a1); // 0x1000105c
         v8 = v10;
         v3 = v8;
         if (a2 == 1) {
@@ -493,13 +493,13 @@ int32_t function_1000108e(int32_t deviceId) {
 }
 
 // Address range: 0x100010e1 - 0x100011fb
-int32_t function_100010e1(int32_t deviceId, int32_t a2) {
+int32_t function_100010e1(int32_t a1, int32_t a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = _RdTimeoutWait(deviceId); // 0x100010eb
+    int32_t v2 = _RdTimeoutWait(a1); // 0x100010eb
     int16_t v3; // bp-20
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)&v3) || 0xffff) >= 0x1ffff) {
-        int32_t result = _SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001120
+    if ((0x10000 * function_100011fc(a1, (int32_t)&v3) || 0xffff) >= 0x1ffff) {
+        int32_t result = _SetErrorStatus(a1, 1) & -0x10000 | 0xfffe; // 0x10001120
         // branch -> 0x100011f8
         // 0x100011f8
         g3 = v1;
@@ -509,7 +509,7 @@ int32_t function_100010e1(int32_t deviceId, int32_t a2) {
     v3 = v4;
     int32_t v5 = v4; // 0x10001136
     g2 = v5;
-    int32_t v6 = 0x10000 * function_10001249(deviceId, v4, v5, 0); // 0x10001147
+    int32_t v6 = 0x10000 * function_10001249(a1, v4, v5, 0); // 0x10001147
     g7 = v6 / 0x10000;
     int32_t result2; // 0x100011fb
     if ((v6 || 0xffff) < 0x1ffff) {
@@ -517,13 +517,13 @@ int32_t function_100010e1(int32_t deviceId, int32_t a2) {
         _InitTimeoutLoop(0);
         // branch -> 0x1000116f
         while (true) {
-            int32_t v7 = 0x10000 * function_10001297(deviceId, &v3); // 0x1000117f
+            int32_t v7 = 0x10000 * function_10001297(a1, &v3); // 0x1000117f
             if ((v7 || 0xffff) < 0x1ffff) {
                 // 0x100011af
                 // branch -> 0x100011da
                 // 0x100011da
-                g7 = deviceId;
-                _SetErrorStatus(deviceId, v7 / 0x10000);
+                g7 = a1;
+                _SetErrorStatus(a1, v7 / 0x10000);
                 // branch -> 0x100011f8
                 // 0x100011f8
                 g3 = v1;
@@ -536,16 +536,16 @@ int32_t function_100010e1(int32_t deviceId, int32_t a2) {
             }
             // continue -> 0x1000116f
         }
-        int32_t v8 = 0x10000 * function_10001297(deviceId, &v3); // 0x100011c7
+        int32_t v8 = 0x10000 * function_10001297(a1, &v3); // 0x100011c7
         // branch -> 0x100011da
         // 0x100011da
-        g7 = deviceId;
-        _SetErrorStatus(deviceId, v8 / 0x10000);
+        g7 = a1;
+        _SetErrorStatus(a1, v8 / 0x10000);
         result2 = -2;
         // branch -> 0x100011f8
     } else {
         // 0x10001153
-        result2 = _SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
+        result2 = _SetErrorStatus(a1, 1) & -0x10000 | 0xfffe;
         // branch -> 0x100011f8
     }
     // 0x100011f8
@@ -554,31 +554,31 @@ int32_t function_100010e1(int32_t deviceId, int32_t a2) {
 }
 
 // Address range: 0x100011fc - 0x10001248
-int32_t function_100011fc(int32_t deviceId, int32_t a2) {
-    int32_t v1 = *(int32_t *)(deviceId + 468); // 0x1000120d
+int32_t function_100011fc(int32_t a1, int32_t a2) {
+    int32_t v1 = *(int32_t *)(a1 + 468); // 0x1000120d
     g7 = v1;
     int32_t v2 = _imported_function_ord_261(v1, 1, 4, a2) != 0;
-    return _SetErrorStatus(deviceId, v2) & -0x10000 | v2;
+    return _SetErrorStatus(a1, v2) & -0x10000 | v2;
 }
 
 // Address range: 0x10001249 - 0x10001296
-int32_t function_10001249(int32_t deviceId, uint16_t a2, int32_t a3, int32_t a4) {
-    int32_t v1 = *(int32_t *)(deviceId + 468); // 0x1000125b
+int32_t function_10001249(int32_t a1, uint16_t a2, int32_t a3, int32_t a4) {
+    int32_t v1 = *(int32_t *)(a1 + 468); // 0x1000125b
     int32_t v2 = _imported_function_ord_262(v1, 1, 4, g2 & -0x10000 | (int32_t)a2) != 0;
-    g5 = deviceId;
-    return _SetErrorStatus(deviceId, v2) & -0x10000 | v2;
+    g5 = a1;
+    return _SetErrorStatus(a1, v2) & -0x10000 | v2;
 }
 
 // Address range: 0x10001297 - 0x100012f9
-int32_t function_10001297(int32_t deviceId, int16_t * a2) {
+int32_t function_10001297(int32_t a1, int16_t * a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2; // 0x100012ea
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)a2) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * function_100011fc(a1, (int32_t)a2) || 0xffff) >= 0x1ffff) {
         // 0x100012b9
         // branch -> 0x100012e1
         // 0x100012e1
-        v2 = _SetErrorStatus(deviceId, 1);
+        v2 = _SetErrorStatus(a1, 1);
         g3 = v1;
         return (int32_t)1 | v2 & -0x10000;
     }
@@ -597,7 +597,7 @@ int32_t function_10001297(int32_t deviceId, int16_t * a2) {
         // branch -> 0x100012e1
     }
     // 0x100012e1
-    v2 = _SetErrorStatus(deviceId, v4);
+    v2 = _SetErrorStatus(a1, v4);
     g3 = v1;
     return (int32_t)v3 | v2 & -0x10000;
 }
@@ -840,15 +840,15 @@ int32_t function_10001654(int32_t deviceId, int16_t a2, int32_t a3) {
 }
 
 // Address range: 0x100016c8 - 0x100017e0
-int32_t function_100016c8(int32_t deviceId) {
+int32_t function_100016c8(int32_t a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = _RdTimeoutWait(deviceId); // 0x100016d2
+    int32_t v2 = _RdTimeoutWait(a1); // 0x100016d2
     int16_t v3; // bp-20
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)&v3) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * function_100011fc(a1, (int32_t)&v3) || 0xffff) >= 0x1ffff) {
         // 0x100016f9
-        g5 = deviceId;
-        int32_t result = _SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001707
+        g5 = a1;
+        int32_t result = _SetErrorStatus(a1, 1) & -0x10000 | 0xfffe; // 0x10001707
         // branch -> 0x100017dd
         // 0x100017dd
         g3 = v1;
@@ -860,20 +860,20 @@ int32_t function_100016c8(int32_t deviceId) {
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x1000171b
     g2 = v6;
     int32_t result2; // 0x100017e0
-    if ((0x10000 * function_10001249(deviceId, (int16_t)v6, v6, 0) || 0xffff) < 0x1ffff) {
+    if ((0x10000 * function_10001249(a1, (int16_t)v6, v6, 0) || 0xffff) < 0x1ffff) {
         // 0x1000174f
         _InitTimeoutLoop(0);
         // branch -> 0x10001754
         int32_t v7;
         while (true) {
-            int32_t v8 = 0x10000 * function_100017e1(deviceId, &v3); // 0x10001764
+            int32_t v8 = 0x10000 * function_100017e1(a1, &v3); // 0x10001764
             if ((v8 || 0xffff) < 0x1ffff) {
                 // 0x10001794
                 // branch -> 0x100017bf
                 // 0x100017bf
                 v7 = v8 / 0x10000;
                 g5 = v7;
-                _SetErrorStatus(deviceId, v7);
+                _SetErrorStatus(a1, v7);
                 // branch -> 0x100017dd
                 // 0x100017dd
                 g3 = v1;
@@ -886,17 +886,17 @@ int32_t function_100016c8(int32_t deviceId) {
             }
             // continue -> 0x10001754
         }
-        int32_t v9 = 0x10000 * function_100017e1(deviceId, &v3); // 0x100017ac
+        int32_t v9 = 0x10000 * function_100017e1(a1, &v3); // 0x100017ac
         // branch -> 0x100017bf
         // 0x100017bf
         v7 = v9 / 0x10000;
         g5 = v7;
-        _SetErrorStatus(deviceId, v7);
+        _SetErrorStatus(a1, v7);
         result2 = -2;
         // branch -> 0x100017dd
     } else {
         // 0x10001738
-        result2 = _SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
+        result2 = _SetErrorStatus(a1, 1) & -0x10000 | 0xfffe;
         // branch -> 0x100017dd
     }
     // 0x100017dd
@@ -905,15 +905,15 @@ int32_t function_100016c8(int32_t deviceId) {
 }
 
 // Address range: 0x100017e1 - 0x10001843
-int32_t function_100017e1(int32_t deviceId, int16_t * a2) {
+int32_t function_100017e1(int32_t a1, int16_t * a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2; // 0x10001834
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)a2) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * function_100011fc(a1, (int32_t)a2) || 0xffff) >= 0x1ffff) {
         // 0x10001803
         // branch -> 0x1000182b
         // 0x1000182b
-        v2 = _SetErrorStatus(deviceId, 1);
+        v2 = _SetErrorStatus(a1, 1);
         g3 = v1;
         return (int32_t)1 | v2 & -0x10000;
     }
@@ -932,13 +932,13 @@ int32_t function_100017e1(int32_t deviceId, int16_t * a2) {
         // branch -> 0x1000182b
     }
     // 0x1000182b
-    v2 = _SetErrorStatus(deviceId, v4);
+    v2 = _SetErrorStatus(a1, v4);
     g3 = v1;
     return (int32_t)v3 | v2 & -0x10000;
 }
 
 // Address range: 0x10001844 - 0x100019c7
-int32_t function_10001844(int32_t deviceId, uint32_t a2, int32_t * a3, int32_t a4) {
+int32_t function_10001844(int32_t a1, uint32_t a2, int32_t * a3, int32_t a4) {
     int32_t v1 = 0; // bp-24
     int32_t v2 = 0; // bp-16
     int32_t v3 = 0; // bp-8
@@ -951,7 +951,7 @@ int32_t function_10001844(int32_t deviceId, uint32_t a2, int32_t * a3, int32_t a
     // 0x1000186f
     int32_t result; // 0x100019c5
     if (a4 != 0) {
-        int32_t v4 = deviceId;
+        int32_t v4 = a1;
         int16_t v5; // bp-12
         int32_t v6; // bp-20
         int32_t v7; // bp-280
@@ -959,7 +959,7 @@ int32_t function_10001844(int32_t deviceId, uint32_t a2, int32_t * a3, int32_t a
         int32_t * v9; // 0x100018bb
         int32_t v10; // 0x100018d4
         int32_t v11; // 0x100018f12
-        if (deviceId == 0) {
+        if (a1 == 0) {
             int32_t v12 = g52; // 0x10001883
             if (v12 == 0) {
                 int32_t v13 = _imported_function_ord_141((int32_t)&g52); // 0x10001891
@@ -1073,16 +1073,16 @@ int32_t function_10001844(int32_t deviceId, uint32_t a2, int32_t * a3, int32_t a
 }
 
 // Address range: 0x100019c8 - 0x10001a09
-int32_t VISA_SendWord(int32_t deviceId, int16_t a2) {
+int32_t VISA_SendWord(int32_t a1, int16_t a2) {
     int16_t v1 = -2; // bp-8
-    g2 = deviceId;
-    int32_t v2 = function_10001a0a(deviceId, 0x7f00); // 0x100019db
+    g2 = a1;
+    int32_t v2 = function_10001a0a(a1, 0x7f00); // 0x100019db
     g2 = v2;
     if (v2 != 0) {
         // 0x10001a02
         return (int32_t)v1 | v2 & -0x10000;
     }
-    int32_t v3 = function_10001a0a(deviceId, a2); // 0x100019f0
+    int32_t v3 = function_10001a0a(a1, a2); // 0x100019f0
     if (v3 == 0) {
         // 0x100019fc
         v1 = 0;
@@ -1093,18 +1093,18 @@ int32_t VISA_SendWord(int32_t deviceId, int16_t a2) {
 }
 
 // Address range: 0x10001a0a - 0x10001a53
-int32_t function_10001a0a(int32_t deviceId, int16_t a2) {
+int32_t function_10001a0a(int32_t a1, int16_t a2) {
     // 0x10001a0a
     int32_t result;
-    if ((int16_t)function_10001354(deviceId, a2, 0, 0) > -1) {
+    if ((int16_t)function_10001354(a1, a2, 0, 0) > -1) {
         // 0x10001a42
-        g5 = deviceId;
-        _SetErrorStatus(deviceId, 0);
+        g5 = a1;
+        _SetErrorStatus(a1, 0);
         result = 0;
         // branch -> 0x10001a52
     } else {
         // 0x10001a2f
-        _SetErrorStatus(deviceId, 1);
+        _SetErrorStatus(a1, 1);
         result = -1;
         // branch -> 0x10001a52
     }
@@ -1113,11 +1113,11 @@ int32_t function_10001a0a(int32_t deviceId, int16_t a2) {
 }
 
 // Address range: 0x10001a54 - 0x10001a95
-int32_t VISA_CheckHWStatus(int32_t deviceId) {
+int32_t VISA_CheckHWStatus(int32_t a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2; // bp-8
-    int32_t v3 = function_100011fc(deviceId, (int32_t)&v2); // 0x10001a62
+    int32_t v3 = function_100011fc(a1, (int32_t)&v2); // 0x10001a62
     int32_t v4 = -256;
     int32_t v5 = v3; // 0x10001a8e
     if ((0x10000 * v3 || 0xffff) < 0x1ffff) {
@@ -1132,16 +1132,16 @@ int32_t VISA_CheckHWStatus(int32_t deviceId) {
 }
 
 // Address range: 0x10001a96 - 0x10001ac7
-int32_t VISA_VerDataBlock(int32_t deviceId, int32_t a2) {
+int32_t VISA_VerDataBlock(int32_t a1, int32_t a2) {
     // entry
     int32_t result; // 0x10001ac7
-    if ((0x10000 * _TestFuncStatusAndPtr(deviceId) || 0xffff) < 0x1ffff) {
+    if ((0x10000 * _TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
         // 0x10001aba
         result = (a2 & 0xffff) != 0;
         // branch -> 0x10001ac6
     } else {
         // 0x10001aac
-        result = _GetFuncStatusCode(deviceId);
+        result = _GetFuncStatusCode(a1);
         // branch -> 0x10001ac6
     }
     // 0x10001ac6
@@ -1149,9 +1149,9 @@ int32_t VISA_VerDataBlock(int32_t deviceId, int32_t a2) {
 }
 
 // Address range: 0x10001ac8 - 0x10001b07
-int32_t VISA_FetchDataWord(int32_t deviceId, int16_t * a2) {
-    int16_t v1 = function_10001b08(deviceId); // bp-8
-    int32_t v2 = _RdErrorStatus(deviceId); // 0x10001ae0
+int32_t VISA_FetchDataWord(int32_t a1, int16_t * a2) {
+    int16_t v1 = function_10001b08(a1); // bp-8
+    int32_t v2 = _RdErrorStatus(a1); // 0x10001ae0
     int32_t v3; // 0x10001b00
     if (v2 == 0) {
         // entry.dec_label_pc_10001b00_crit_edge
@@ -1173,21 +1173,21 @@ int32_t VISA_FetchDataWord(int32_t deviceId, int16_t * a2) {
 }
 
 // Address range: 0x10001b08 - 0x10001bcb
-int32_t function_10001b08(int32_t deviceId) {
+int32_t function_10001b08(int32_t a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = _RdTimeoutWait(deviceId); // 0x10001b1f
+    int32_t v2 = _RdTimeoutWait(a1); // 0x10001b1f
     int32_t v3; // bp-24
     int32_t v4 = &v3; // 0x10001b2a
     g5 = v4;
-    int32_t v5 = function_100015d0(deviceId, v2, 1024, v4); // 0x10001b3b
+    int32_t v5 = function_100015d0(a1, v2, 1024, v4); // 0x10001b3b
     int16_t v6 = v5; // 0x10001b3b
     int32_t v7; // 0x10001bbc
     if ((int16_t)v5 <= -1) {
         // 0x10001b08
         // branch -> 0x10001bb4
         // 0x10001bb4
-        v7 = _SetErrorStatus(deviceId, 1);
+        v7 = _SetErrorStatus(a1, 1);
         g3 = v1;
         return v7 & -0x10000 | (int32_t)v6;
     }
@@ -1196,11 +1196,11 @@ int32_t function_10001b08(int32_t deviceId) {
         // 0x10001bad
         // branch -> 0x10001bb4
         // 0x10001bb4
-        v7 = _SetErrorStatus(deviceId, 2);
+        v7 = _SetErrorStatus(a1, 2);
         g3 = v1;
         return v7 & -0x10000 | (int32_t)v6;
     }
-    int32_t v8 = *(int32_t *)(deviceId + 468); // 0x10001b78
+    int32_t v8 = *(int32_t *)(a1 + 468); // 0x10001b78
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
     if (_imported_function_ord_261(v8, 1, 14, (int32_t)&v9) == 0) {
@@ -1214,25 +1214,25 @@ int32_t function_10001b08(int32_t deviceId) {
         // branch -> 0x10001bb4
     }
     // 0x10001bb4
-    v7 = _SetErrorStatus(deviceId, v10);
+    v7 = _SetErrorStatus(a1, v10);
     g3 = v1;
     return v7 & -0x10000 | (int32_t)v9;
 }
 
 // Address range: 0x10001bcc - 0x10001c50
-int32_t VISA_CheckSWStatus(int32_t deviceId) {
+int32_t VISA_CheckSWStatus(int32_t a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = function_1000108e(deviceId); // 0x10001bd6
+    int32_t v2 = function_1000108e(a1); // 0x10001bd6
     int16_t v3 = v2; // bp-20
     int32_t v4 = v2 & 0xffff; // 0x10001be27
     g5 = v4;
     if (v4 != 1) {
         // 0x10001bf0
-        v3 = function_1000108e(deviceId);
+        v3 = function_1000108e(a1);
         // branch -> 0x10001c00
     }
-    int32_t v5 = _RdTimeoutWait(deviceId); // 0x10001c04
+    int32_t v5 = _RdTimeoutWait(a1); // 0x10001c04
     int32_t v6 = _IeTimer(v5); // 0x10001c0f
     int32_t v7 = v6; // 0x10001c496
     // branch -> 0x10001c17
@@ -1245,7 +1245,7 @@ int32_t VISA_CheckSWStatus(int32_t deviceId) {
             g3 = v1;
             return (int32_t)v9 | v7 & -0x10000;
         }
-        int32_t v10 = function_1000108e(deviceId); // 0x10001c28
+        int32_t v10 = function_1000108e(a1); // 0x10001c28
         v3 = v10;
         v8 = _IeTimerFrom(v6, 0x10000 * v10 / 0x10000);
         if (v8 > v5) {
@@ -1273,18 +1273,18 @@ int32_t VISA_WaitRecvWord(int32_t a1) {
 }
 
 // Address range: 0x10001cca - 0x10001cec
-int32_t function_10001cca(int32_t deviceId, int16_t * a2) {
+int32_t function_10001cca(int32_t a1, int16_t * a2) {
     // 0x10001cca
-    *a2 = (int16_t)function_10001b08(deviceId);
-    return _RdErrorStatus(deviceId);
+    *a2 = (int16_t)function_10001b08(a1);
+    return _RdErrorStatus(a1);
 }
 
 // Address range: 0x10001ced - 0x10001e30
-int32_t VISA_SendCommand(int32_t deviceId, int16_t a2, int32_t a3, int32_t a4) {
+int32_t VISA_SendCommand(int32_t a1, int16_t a2, int32_t a3, int32_t a4) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2 = 0; // bp-20
-    function_100010e1(deviceId, 0);
+    function_100010e1(a1, 0);
     int32_t v3;
     int16_t v4;
     int16_t v5;
@@ -1309,24 +1309,24 @@ int32_t VISA_SendCommand(int32_t deviceId, int16_t a2, int32_t a3, int32_t a4) {
                         // 0x10001d41
                         if (v5 != 4) {
                             // 0x10001e1d
-                            return (int32_t)v2 | function_100016c8(deviceId) & -0x10000;
+                            return (int32_t)v2 | function_100016c8(a1) & -0x10000;
                         }
                     }
                     // 0x10001d53
-                    VISA_SendWord(deviceId, a2);
+                    VISA_SendWord(a1, a2);
                     int32_t v7; // 0x10001da2
                     if (v3 > 0) {
                         int32_t v8 = 0;
-                        VISA_SendWord(deviceId, *(int16_t *)(2 * v8 + a4));
+                        VISA_SendWord(a1, *(int16_t *)(2 * v8 + a4));
                         while (v8 + 1 < v3 / 0x10000) {
                             // 0x10001d84
                             g5 = g5 & -0x10000 | v8 + 1 & 0xffff;
                             v8++;
-                            VISA_SendWord(deviceId, *(int16_t *)(2 * v8 + a4));
+                            VISA_SendWord(a1, *(int16_t *)(2 * v8 + a4));
                             // continue -> 0x10001d84
                         }
                         // 0x10001d9e
-                        v7 = VISA_CheckSWStatus(deviceId);
+                        v7 = VISA_CheckSWStatus(a1);
                         v2 = v7;
                         if ((v7 & 0xffff) != 1) {
                             // break -> 0x10001dc6
@@ -1337,7 +1337,7 @@ int32_t VISA_SendCommand(int32_t deviceId, int16_t a2, int32_t a3, int32_t a4) {
                         continue;
                     }
                     // 0x10001d9e
-                    v7 = VISA_CheckSWStatus(deviceId);
+                    v7 = VISA_CheckSWStatus(a1);
                     v2 = v7;
                     if ((v7 & 0xffff) != 1) {
                         // break -> 0x10001dc6
@@ -1421,20 +1421,20 @@ int32_t VISA_ClearDataFIFO(int32_t a1) {
 }
 
 // Address range: 0x10001e79 - 0x10001fa0
-int32_t VISA_SendDataItem(int32_t deviceId, int16_t a2) {
+int32_t VISA_SendDataItem(int32_t a1, int16_t a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     _IeTimer(0);
     int32_t result; // 0x10001fa0
-    if ((0x10000 * _TestFuncStatusAndPtr(deviceId) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * _TestFuncStatusAndPtr(a1) || 0xffff) >= 0x1ffff) {
         // 0x10001ea0
-        result = _GetFuncStatusCode(deviceId);
+        result = _GetFuncStatusCode(a1);
         // branch -> 0x10001f9d
         // 0x10001f9d
         return result;
     }
-    int32_t v2 = _RdTimeoutWait(deviceId); // 0x10001eb5
-    int32_t v3 = _GetFuncStatusCode(deviceId); // 0x10001ec4
+    int32_t v2 = _RdTimeoutWait(a1); // 0x10001eb5
+    int32_t v3 = _GetFuncStatusCode(a1); // 0x10001ec4
     int32_t v4 = 0x10000 * v3 / 0x10000; // 0x10001ed0
     if ((int16_t)v3 < 0) {
         // 0x10001ed8
@@ -1449,7 +1449,7 @@ int32_t VISA_SendDataItem(int32_t deviceId, int16_t a2) {
     int32_t v6; // 0x10001f8c
     while (true) {
         // 0x10001ee6
-        if (0x10000 * VISA_CheckHWStatus(deviceId) == 0x8000000) {
+        if (0x10000 * VISA_CheckHWStatus(a1) == 0x8000000) {
             // 0x10001f13
             if ((0x10000 * _TestTimeoutDone(v2) || 0xffff) >= 0x1ffff) {
                 // break -> 0x10001f2e
@@ -1459,24 +1459,24 @@ int32_t VISA_SendDataItem(int32_t deviceId, int16_t a2) {
             continue;
         }
         // 0x10001f69
-        v5 = VISA_SendWord(deviceId, a2);
+        v5 = VISA_SendWord(a1, a2);
         v6 = (int16_t)v5 == 0 ? v5 & 0xffff : 0xffff;
         // branch -> 0x10001f9d
         // 0x10001f9d
-        return _SetFuncStatusCode(deviceId, 0x10000 * v5 / 0x10000 & -0x10000 | v6);
+        return _SetFuncStatusCode(a1, 0x10000 * v5 / 0x10000 & -0x10000 | v6);
     }
-    bool v7 = 0x10000 * VISA_CheckHWStatus(deviceId) != 0x8000000;
+    bool v7 = 0x10000 * VISA_CheckHWStatus(a1) != 0x8000000;
     // branch -> 0x10001f51
     // 0x10001f51
     if (v7) {
         // 0x10001f69
-        v5 = VISA_SendWord(deviceId, a2);
+        v5 = VISA_SendWord(a1, a2);
         v6 = (int16_t)v5 == 0 ? v5 & 0xffff : 0xffff;
-        result = _SetFuncStatusCode(deviceId, 0x10000 * v5 / 0x10000 & -0x10000 | v6);
+        result = _SetFuncStatusCode(a1, 0x10000 * v5 / 0x10000 & -0x10000 | v6);
         // branch -> 0x10001f9d
     } else {
         // 0x10001f59
-        result = _SetFuncStatusCode(deviceId, -12);
+        result = _SetFuncStatusCode(a1, -12);
         // branch -> 0x10001f9d
     }
     // 0x10001f9d
@@ -1485,23 +1485,23 @@ int32_t VISA_SendDataItem(int32_t deviceId, int16_t a2) {
 
 // DD: dd_WriteCommand = write( device, command ) yippie!
 // Address range: 0x10001fa1 - 0x100020e2
-int32_t VISA_InitEngine(int32_t deviceId) {
+int32_t VISA_InitEngine(int32_t a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    _SetTimeoutWait(deviceId, 100);
-    g5 = deviceId;
+    _SetTimeoutWait(a1, 100);
+    g5 = a1;
     // DD: -0x3701 = 0xc8ff ANO
-    int32_t v2 = dd_WriteCommand(deviceId, -0x3701); // 0x10001fbe
-    int32_t v3 = _RdErrorStatus(deviceId); // 0x10001fce
+    int32_t v2 = dd_WriteCommand(a1, -0x3701); // 0x10001fbe
+    int32_t v3 = _RdErrorStatus(a1); // 0x10001fce
     int32_t v4 = v3; // 0x10001fe3
     if (v3 == 0) {
         int32_t v5 = 0x10000 * v2;
         if (v5 == -0x20000) {
             // 0x10001fec
-            g5 = deviceId;
+            g5 = a1;
             // DD: -769 = -0x301 = 0xfcff BNO
-            int32_t v6 = dd_WriteCommand(deviceId, -769); // 0x10001ff5
-            int32_t v7 = _RdErrorStatus(deviceId); // 0x10002005
+            int32_t v6 = dd_WriteCommand(a1, -769); // 0x10001ff5
+            int32_t v7 = _RdErrorStatus(a1); // 0x10002005
             if (v7 != 0) {
                 // 0x10002011
                 // branch -> 0x100020df
@@ -1516,7 +1516,7 @@ int32_t VISA_InitEngine(int32_t deviceId) {
                 // 0x100020df
                 return 0xffff;
             }
-            int32_t v8 = function_100016c8(deviceId); // 0x10002037
+            int32_t v8 = function_100016c8(a1); // 0x10002037
             if ((0x10000 * v8 || 0xffff) >= 0x1ffff) {
                 // 0x10002046
                 // branch -> 0x100020df
@@ -1525,29 +1525,29 @@ int32_t VISA_InitEngine(int32_t deviceId) {
             }
             // DD: 0x7c00 = VXI_GETVERSION 
             // 0x1000204f
-            dd_WriteCommand(deviceId, 0x7c00);
-            int32_t v9 = _RdErrorStatus(deviceId); // 0x10002064
+            dd_WriteCommand(a1, 0x7c00);
+            int32_t v9 = _RdErrorStatus(a1); // 0x10002064
             if (v9 != 0) {
                 // 0x10002070
                 // branch -> 0x100020df
                 // 0x100020df
                 return v9 | 0xffff;
             }
-            int32_t v10 = 0x10000 * _BreakSweep(deviceId, 0);
+            int32_t v10 = 0x10000 * _BreakSweep(a1, 0);
             if (v10 != 0x410000) {
                 // 0x10002091
                 // branch -> 0x100020df
                 // 0x100020df
                 return v10 / 0x10000 | 0xffff;
             }
-            int32_t v11 = 0x10000 * _CommTrigDetect(deviceId, 65);
+            int32_t v11 = 0x10000 * _CommTrigDetect(a1, 65);
             if (v11 != 0x410000) {
                 // 0x100020b0
                 // branch -> 0x100020df
                 // 0x100020df
                 return v11 / 0x10000 | 0xffff;
             }
-            int32_t v12 = 0x10000 * _CommInterrupts(deviceId, 65);
+            int32_t v12 = 0x10000 * _CommInterrupts(a1, 65);
             int32_t result; // 0x100020e2
             if (v12 == 0x410000) {
                 // 0x100020d5
@@ -1570,21 +1570,21 @@ int32_t VISA_InitEngine(int32_t deviceId) {
 }
 
 // Address range: 0x100020e3 - 0x1000217c
-int32_t VISA_ResetEngine(int32_t deviceId) {
+int32_t VISA_ResetEngine(int32_t a1) {
     // DD: 0x3701 = 0xcaff = Read Interrupters
-    int16_t v1 = dd_WriteCommand(deviceId, -0x3701); // bp-8
-    g5 = deviceId;
+    int16_t v1 = dd_WriteCommand(a1, -0x3701); // bp-8
+    g5 = a1;
     int32_t v2; // 0x10002169
     int16_t v3; // 0x1000215a
     int32_t v4; // 0x10002175
     int32_t v5; // 0x10002175
-    if (_RdErrorStatus(deviceId) == 0) {
+    if (_RdErrorStatus(a1) == 0) {
         // 0x1000210c
         if (v1 == -2) {
             // DD: -769 = -0x301 = 0xfcff BNO
             // 0x1000211d
-            v1 = dd_WriteCommand(deviceId, -769);
-            if (_RdErrorStatus(deviceId) != 0) {
+            v1 = dd_WriteCommand(a1, -769);
+            if (_RdErrorStatus(a1) != 0) {
                 // 0x10002154
                 v3 = 64;
                 // branch -> 0x1000215a
@@ -1601,7 +1601,7 @@ int32_t VISA_ResetEngine(int32_t deviceId) {
             // 0x1000215a
             if (v3 != 64) {
                 // 0x10002163
-                v2 = _BreakSweep(deviceId, 0);
+                v2 = _BreakSweep(a1, 0);
                 v5 = v2;
                 v4 = 0x10000 * v2 / 0x10000;
                 // branch -> 0x10002175
@@ -1619,7 +1619,7 @@ int32_t VISA_ResetEngine(int32_t deviceId) {
     // 0x1000215a
     if (v3 != 64) {
         // 0x10002163
-        v2 = _BreakSweep(deviceId, 0);
+        v2 = _BreakSweep(a1, 0);
         v5 = v2;
         v4 = 0x10000 * v2 / 0x10000;
         // branch -> 0x10002175
@@ -1632,29 +1632,29 @@ int32_t VISA_ResetEngine(int32_t deviceId) {
 }
 
 // Address range: 0x1000217d - 0x100021d1
-int32_t VISA_ShutdownEngine(int32_t deviceId) {
+int32_t VISA_ShutdownEngine(int32_t a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     // DD: -0x3701 = 0xc8ff ANO
-    dd_WriteCommand(deviceId, -0x3701);
-    return _RdErrorStatus(deviceId) & -0x10000;
+    dd_WriteCommand(a1, -0x3701);
+    return _RdErrorStatus(a1) & -0x10000;
 }
 
 // Address range: 0x100021d2 - 0x10002373
-int32_t VISA_OpenSessionStep(int32_t deviceId) {
+int32_t VISA_OpenSessionStep(int32_t a1) {
     // entry
-    if (deviceId == 0) {
+    if (a1 == 0) {
         // 0x100021de
         // branch -> 0x10002370
         // 0x10002370
         return g2 & -0x10000 | 0xfff6;
     }
-    int32_t * v1 = (int32_t *)(deviceId + 468); // 0x100021ea
+    int32_t * v1 = (int32_t *)(a1 + 468); // 0x100021ea
     if (*v1 != 0) {
         // 0x100021f3
         // branch -> 0x10002370
         // 0x10002370
-        return deviceId & -0x10000 | 0xffed;
+        return a1 & -0x10000 | 0xffed;
     }
     // 0x100021fc
     if (g53 == 0) {
@@ -1669,7 +1669,7 @@ int32_t VISA_OpenSessionStep(int32_t deviceId) {
     // 0x10002221
     int32_t v3; // bp-8
     int32_t v4 = &v3; // 0x10002221
-    if (_imported_function_ord_131(g52, deviceId + 210, 0, 0, v4) != 0) {
+    if (_imported_function_ord_131(g52, a1 + 210, 0, 0, v4) != 0) {
         int32_t v5 = g52; // 0x10002247
         g52 = 0;
         int32_t result = _imported_function_ord_132(v5) | 0xffff; // 0x1000225d
@@ -1679,12 +1679,12 @@ int32_t VISA_OpenSessionStep(int32_t deviceId) {
     }
     // 0x10002266
     g53++;
-    int16_t * v6 = (int16_t *)(deviceId + 208); // 0x10002278
+    int16_t * v6 = (int16_t *)(a1 + 208); // 0x10002278
     *v6 = *v6 + 1;
     int32_t v7 = _imported_function_ord_134(v3, 0x3fff001a, 0x2710); // 0x1000229b
     g2 = v7;
     if (v7 < 0) {
-        int32_t result2 = VISA_CloseSession(deviceId) | 0xffff; // 0x100022b0
+        int32_t result2 = VISA_CloseSession(a1) | 0xffff; // 0x100022b0
         // branch -> 0x10002370
         // 0x10002370
         return result2;
@@ -1692,8 +1692,8 @@ int32_t VISA_OpenSessionStep(int32_t deviceId) {
     // 0x100022b9
     if (_imported_function_ord_267(v3, 3, 4000) < 0) {
         // 0x100022cd
-        g2 = deviceId;
-        int32_t result3 = VISA_CloseSession(deviceId) | 0xffff; // 0x100022d9
+        g2 = a1;
+        int32_t result3 = VISA_CloseSession(a1) | 0xffff; // 0x100022d9
         // branch -> 0x10002370
         // 0x10002370
         return result3;
@@ -1701,7 +1701,7 @@ int32_t VISA_OpenSessionStep(int32_t deviceId) {
     int32_t v8 = _imported_function_ord_134(v3, 0x3fff002d, 1); // 0x100022ed
     g2 = v8;
     if (v8 < 0) {
-        int32_t result4 = VISA_CloseSession(deviceId) | 0xffff; // 0x10002302
+        int32_t result4 = VISA_CloseSession(a1) | 0xffff; // 0x10002302
         // branch -> 0x10002370
         // 0x10002370
         return result4;
@@ -1709,14 +1709,14 @@ int32_t VISA_OpenSessionStep(int32_t deviceId) {
     int32_t v9 = _imported_function_ord_134(v3, 0x3fff002a, 1); // 0x10002313
     g2 = v9;
     if (v9 < 0) {
-        int32_t result5 = VISA_CloseSession(deviceId) | 0xffff; // 0x10002328
+        int32_t result5 = VISA_CloseSession(a1) | 0xffff; // 0x10002328
         // branch -> 0x10002370
         // 0x10002370
         return result5;
     }
     // 0x1000232e
     *v1 = v3;
-    int32_t v10 = VISA_InitEngine(deviceId); // 0x1000233e
+    int32_t v10 = VISA_InitEngine(a1); // 0x1000233e
     int32_t result6; // 0x10002373
     if (0x10000 * v10 == 0x410000) {
         // 0x1000236d
@@ -1724,8 +1724,8 @@ int32_t VISA_OpenSessionStep(int32_t deviceId) {
         // branch -> 0x10002370
     } else {
         // 0x1000234e
-        g2 = deviceId;
-        int32_t v11 = VISA_CloseSession(deviceId); // 0x10002352
+        g2 = a1;
+        int32_t v11 = VISA_CloseSession(a1); // 0x10002352
         *v1 = 0;
         result6 = v11 | 0xffff;
         // branch -> 0x10002370
@@ -1735,15 +1735,15 @@ int32_t VISA_OpenSessionStep(int32_t deviceId) {
 }
 
 // Address range: 0x10002374 - 0x10002401
-int32_t VISA_CloseSession(int32_t deviceId) {
+int32_t VISA_CloseSession(int32_t a1) {
     // entry
-    if (deviceId == 0) {
+    if (a1 == 0) {
         // 0x1000237d
         // branch -> 0x10002400
         // 0x10002400
         return g2 & -0x10000 | 0xfff6;
     }
-    int32_t * v1 = (int32_t *)(deviceId + 468); // 0x10002386
+    int32_t * v1 = (int32_t *)(a1 + 468); // 0x10002386
     int32_t result; // 0x10002401
     if (*v1 != 0) {
         // 0x10002395
@@ -1759,13 +1759,13 @@ int32_t VISA_CloseSession(int32_t deviceId) {
         // 0x100023d0
         g52 = 0;
         *v1 = 0;
-        *(int16_t *)(deviceId + 208) = 0;
-        *(char *)(deviceId + 210) = 0;
-        result = deviceId & -0x10000;
+        *(int16_t *)(a1 + 208) = 0;
+        *(char *)(a1 + 210) = 0;
+        result = a1 & -0x10000;
         // branch -> 0x10002400
     } else {
         // 0x1000238f
-        result = deviceId & -0x10000 | 0xffed;
+        result = a1 & -0x10000 | 0xffed;
         // branch -> 0x10002400
     }
     // 0x10002400
@@ -1773,18 +1773,18 @@ int32_t VISA_CloseSession(int32_t deviceId) {
 }
 
 // Address range: 0x10002402 - 0x1000253c
-int32_t VISA_GetDataBlock(int32_t deviceId, int64_t a2, int32_t a3, int32_t a4, int32_t a5) {
+int32_t VISA_GetDataBlock(int32_t a1, int64_t a2, int32_t a3, int32_t a4, int32_t a5) {
     int64_t v1 = a3;
     int32_t v2 = g3; // bp-4
     g3 = &v2;
     int32_t result; // 0x1000253c
-    if ((0x10000 * _TestFuncStatusAndPtr(deviceId) || 0xffff) < 0x1ffff) {
+    if ((0x10000 * _TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
         // 0x1000242c
         if (a4 != 0) {
             // 0x10002432
             if (a5 != 0) {
                 int32_t v3 = v1 * 0x100000000 * a2 / 0x100000000; // 0x1000245c
-                uint32_t v4 = VISA_CheckHWStatus(deviceId) & 3840; // 0x10002472
+                uint32_t v4 = VISA_CheckHWStatus(a1) & 3840; // 0x10002472
                 int64_t v5;
                 if (v4 >= 3329) {
                     // 0x100024a1
@@ -1842,20 +1842,20 @@ int32_t VISA_GetDataBlock(int32_t deviceId, int64_t a2, int32_t a3, int32_t a4, 
                 // 0x10002509
                 *(int16_t *)a5 = 0;
                 *(int32_t *)a4 = (int32_t)((0x100000000 * (int64_t)((int32_t)v9 >> 31) | v9 & 0xffffffff) / v1);
-                _SetErrorStatus(deviceId, 0);
-                result = _SetFuncStatusCode(deviceId, 0);
+                _SetErrorStatus(a1, 0);
+                result = _SetFuncStatusCode(a1, 0);
                 // branch -> 0x10002539
                 // 0x10002539
                 return result;
             }
         }
         // 0x10002438
-        _SetErrorStatus(deviceId, 4);
-        result = _SetFuncStatusCode(deviceId, -3);
+        _SetErrorStatus(a1, 4);
+        result = _SetFuncStatusCode(a1, -3);
         // branch -> 0x10002539
     } else {
         // 0x1000241b
-        result = _GetFuncStatusCode(deviceId);
+        result = _GetFuncStatusCode(a1);
         // branch -> 0x10002539
     }
     // 0x10002539
@@ -1863,9 +1863,9 @@ int32_t VISA_GetDataBlock(int32_t deviceId, int64_t a2, int32_t a3, int32_t a4, 
 }
 
 // Address range: 0x1000253d - 0x100025a1
-int32_t VISA_IdQuery(int32_t deviceId, int16_t * a2) {
+int32_t VISA_IdQuery(int32_t a1, int16_t * a2) {
     int32_t v1 = 0; // bp-12
-    int32_t v2 = _RdSessionHandle(deviceId, 0, 0); // 0x10002553
+    int32_t v2 = _RdSessionHandle(a1, 0, 0); // 0x10002553
     int32_t v3 = _imported_function_ord_133(v2, 0x3fff00d9, (int32_t)&v1); // 0x1000256b
     int32_t result;
     if (v3 >= 0) {
@@ -1894,7 +1894,7 @@ int32_t VISA_IdQuery(int32_t deviceId, int16_t * a2) {
 }
 
 // Address range: 0x100025a2 - 0x10002752
-int32_t function_100025a2(int16_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_100025a2(int16_t a1, int32_t a2, int32_t a3) {
     int16_t * v1 = (int16_t *)a3;
     int32_t v2 = g3; // 0x100025a2
     int32_t v3 = 0; // bp-8
@@ -1958,7 +1958,7 @@ int32_t function_100025a2(int16_t deviceId, int32_t a2, int32_t a3) {
             int16_t v15 = v12;
             if (v5 == 3790) {
                 int16_t v16 = v14; // 0x100026e9
-                if (v16 > deviceId) {
+                if (v16 > a1) {
                     // 0x100026f5
                     *v6 = *v6 + 1;
                     if (v12 == 0) {
@@ -1998,12 +1998,12 @@ int32_t function_100025a2(int16_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10002753 - 0x100028df
-int32_t function_10002753(int16_t deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
+int32_t function_10002753(int16_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2; // bp-64
     int32_t v3 = &v2; // 0x10002759
-    if (function_100025a2(deviceId, a2, v3) != 0) {
+    if (function_100025a2(a1, a2, v3) != 0) {
         // 0x10002772
         // branch -> 0x100028db
         // 0x100028db
@@ -2092,186 +2092,186 @@ int32_t function_10002753(int16_t deviceId, int32_t a2, int32_t a3, int32_t a4, 
 }
 
 // Address range: 0x100028e0 - 0x100028e5
-int32_t _IeTimerFrom(int32_t deviceId, int32_t a2) {
+int32_t _IeTimerFrom(int32_t a1, int32_t a2) {
     // 0x100028e0
     return IeTimerFrom();
 }
 
 // Address range: 0x100028e6 - 0x100028eb
-int32_t _IeTimer(int32_t deviceId) {
+int32_t _IeTimer(int32_t a1) {
     // 0x100028e6
     return IeTimer();
 }
 
 // Address range: 0x100028ec - 0x100028f1
-int32_t _RdTimeoutWait(int32_t deviceId) {
+int32_t _RdTimeoutWait(int32_t a1) {
     // 0x100028ec
     return RdTimeoutWait();
 }
 
 // Address range: 0x100028f2 - 0x100028f7
-int32_t _SetEngineReplyCode(int32_t deviceId, int32_t a2) {
+int32_t _SetEngineReplyCode(int32_t a1, int32_t a2) {
     // 0x100028f2
     return SetEngineReplyCode();
 }
 
 // Address range: 0x100028f8 - 0x100028fd
-int32_t _TestTimeoutDone(int32_t deviceId) {
+int32_t _TestTimeoutDone(int32_t a1) {
     // 0x100028f8
     return TestTimeoutDone();
 }
 
 // Address range: 0x100028fe - 0x10002903
-int32_t _InitTimeoutLoop(int32_t deviceId) {
+int32_t _InitTimeoutLoop(int32_t a1) {
     // 0x100028fe
     return InitTimeoutLoop();
 }
 
 // Address range: 0x10002904 - 0x10002909
-int32_t _SetErrorStatus(int32_t deviceId, int32_t a2) {
+int32_t _SetErrorStatus(int32_t a1, int32_t a2) {
     // 0x10002904
     return SetErrorStatus();
 }
 
 // Address range: 0x1000290a - 0x1000290f
-int32_t _GetFuncStatusCode(int32_t deviceId) {
+int32_t _GetFuncStatusCode(int32_t a1) {
     // 0x1000290a
     return GetFuncStatusCode();
 }
 
 // Address range: 0x10002910 - 0x10002915
-int32_t _TestFuncStatusAndPtr(int32_t deviceId) {
+int32_t _TestFuncStatusAndPtr(int32_t a1) {
     // 0x10002910
     return TestFuncStatusAndPtr();
 }
 
 // Address range: 0x10002916 - 0x1000291b
-int32_t _RdErrorStatus(int32_t deviceId) {
+int32_t _RdErrorStatus(int32_t a1) {
     // 0x10002916
     return RdErrorStatus();
 }
 
 // Address range: 0x1000291c - 0x10002921
-int32_t _SetFuncStatusCode(int32_t deviceId, int32_t a2) {
+int32_t _SetFuncStatusCode(int32_t a1, int32_t a2) {
     // 0x1000291c
     return SetFuncStatusCode();
 }
 
 // Address range: 0x10002922 - 0x10002927
-int32_t _CommInterrupts(int32_t deviceId, int32_t a2) {
+int32_t _CommInterrupts(int32_t a1, int32_t a2) {
     // 0x10002922
     return CommInterrupts();
 }
 
 // Address range: 0x10002928 - 0x1000292d
-int32_t _CommTrigDetect(int32_t deviceId, int32_t a2) {
+int32_t _CommTrigDetect(int32_t a1, int32_t a2) {
     // 0x10002928
     return CommTrigDetect();
 }
 
 // Address range: 0x1000292e - 0x10002933
-int32_t _BreakSweep(int32_t deviceId, int32_t a2) {
+int32_t _BreakSweep(int32_t a1, int32_t a2) {
     // 0x1000292e
     return BreakSweep();
 }
 
 // Address range: 0x10002934 - 0x10002939
-int32_t _SetTimeoutWait(int32_t deviceId, int32_t a2) {
+int32_t _SetTimeoutWait(int32_t a1, int32_t a2) {
     // 0x10002934
     return SetTimeoutWait();
 }
 
 // Address range: 0x1000293a - 0x1000293f
-int32_t _RdSessionHandle(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t _RdSessionHandle(int32_t a1, int32_t a2, int32_t a3) {
     // 0x1000293a
     return RdSessionHandle();
 }
 
 // Address range: 0x10002940 - 0x10002945
-int32_t _imported_function_ord_261(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4) {
+int32_t _imported_function_ord_261(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
     // 0x10002940
     return imported_function_ord_261();
 }
 
 // Address range: 0x10002946 - 0x1000294b
-int32_t _imported_function_ord_262(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4) {
+int32_t _imported_function_ord_262(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
     // 0x10002946
     return imported_function_ord_262();
 }
 
 // Address range: 0x1000294c - 0x10002951
-int32_t _imported_function_ord_132(int32_t deviceId) {
+int32_t _imported_function_ord_132(int32_t a1) {
     // 0x1000294c
     return imported_function_ord_132();
 }
 
 // Address range: 0x10002952 - 0x10002957
-int32_t _imported_function_ord_130(int32_t deviceId, int32_t a2) {
+int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
     // 0x10002952
     return imported_function_ord_130();
 }
 
 // Address range: 0x10002958 - 0x1000295d
-int32_t _imported_function_ord_133(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t _imported_function_ord_133(int32_t a1, int32_t a2, int32_t a3) {
     // 0x10002958
     return imported_function_ord_133();
 }
 
 // Address range: 0x1000295e - 0x10002963
-int32_t _imported_function_ord_131(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
+int32_t _imported_function_ord_131(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
     // 0x1000295e
     return imported_function_ord_131();
 }
 
 // Address range: 0x10002964 - 0x10002969
-int32_t _imported_function_ord_129(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6) {
+int32_t _imported_function_ord_129(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6) {
     // 0x10002964
     return imported_function_ord_129();
 }
 
 // Address range: 0x1000296a - 0x1000296f
-int32_t _imported_function_ord_141(int32_t deviceId) {
+int32_t _imported_function_ord_141(int32_t a1) {
     // 0x1000296a
     return imported_function_ord_141();
 }
 
 // Address range: 0x10002970 - 0x10002975
-int32_t _imported_function_ord_267(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t _imported_function_ord_267(int32_t a1, int32_t a2, int32_t a3) {
     // 0x10002970
     return imported_function_ord_267();
 }
 
 // Address range: 0x10002976 - 0x1000297b
-int32_t _imported_function_ord_134(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t _imported_function_ord_134(int32_t a1, int32_t a2, int32_t a3) {
     // 0x10002976
     return imported_function_ord_134();
 }
 
 // Address range: 0x1000297c - 0x100029cd
-int32_t function_1000297c(char * deviceId) {
+int32_t function_1000297c(char * a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = (int32_t)deviceId; // 0x10002982
+    int32_t v2 = (int32_t)a1; // 0x10002982
     int32_t v3 = g8; // 0x10002985
     int32_t v4 = 0; // bp+12
     int32_t v5;
-    int32_t result = function_10002c8f((int32_t)&deviceId, v5, (char *)&v4, v3, v2, 0x7fffffff, v2, 66); // 0x100029a5
-    *deviceId = 0;
+    int32_t result = function_10002c8f((int32_t)&a1, v5, (char *)&v4, v3, v2, 0x7fffffff, v2, 66); // 0x100029a5
+    *a1 = 0;
     g8 = v3;
     g3 = v1;
     return result;
 }
 
 // Address range: 0x100029ce - 0x10002aa6
-int32_t function_100029ce(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_100029ce(int32_t a1, int32_t a2, int32_t a3) {
     // 0x100029ce
     int32_t result; // 0x10002aa4
-    if (deviceId != 1) {
+    if (a1 != 1) {
         // 0x10002a63
         g5 = 0;
-        if (deviceId != 0) {
+        if (a1 != 0) {
             // 0x10002a95
-            if (deviceId == 3) {
+            if (a1 == 3) {
                 // 0x10002a9a
                 function_100036a3(0);
                 g5 = 0;
@@ -2351,9 +2351,9 @@ int32_t function_100029ce(int32_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10002aa7 - 0x10002b43
-int32_t entry_point(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t entry_point(int32_t a1, int32_t a2, int32_t a3) {
     // entry
-    g4 = deviceId;
+    g4 = a1;
     g8 = a2;
     g6 = a3;
     int32_t v1;
@@ -2421,7 +2421,7 @@ int32_t entry_point(int32_t deviceId, int32_t a2, int32_t a3) {
         // 0x10002ac8
         if (a2 != 2) {
             // 0x10002aef
-            result = function_10004005(deviceId, a2, a3);
+            result = function_10004005(a1, a2, a3);
             if (v3 == 0) {
                 // 0x10002aff
                 if (result != 0) {
@@ -2471,7 +2471,7 @@ int32_t entry_point(int32_t deviceId, int32_t a2, int32_t a3) {
         // 0x10002acd
         // branch -> 0x10002adf
         // 0x10002adf
-        v4 = function_100029ce(deviceId, a2, a3);
+        v4 = function_100029ce(a1, a2, a3);
         // branch -> 0x10002ae9
         // 0x10002ae9
         if (v4 != 0) {
@@ -2523,7 +2523,7 @@ int32_t entry_point(int32_t deviceId, int32_t a2, int32_t a3) {
         }
     } else {
         // 0x10002ad6
-        if (unknown_0(deviceId) != 0) {
+        if (unknown_0(a1) != 0) {
             // 0x10002ad6
             // branch -> 0x10002adf
             // 0x10002adf
@@ -2586,7 +2586,7 @@ int32_t entry_point(int32_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10002b77 - 0x10002c8e
-int32_t function_10002b77(char deviceId, int32_t a2) {
+int32_t function_10002b77(char a1, int32_t a2) {
     int32_t v1 = g4; // 0x10002b7a
     int32_t v2 = g8; // 0x10002b7b
     g8 = a2;
@@ -2647,7 +2647,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
                     if ((*(int16_t *)(v11 + 12) & 264) == 0) {
                         // 0x10002c59
                         g6 = 1;
-                        v6 = function_1000426f(g4, (int32_t)&deviceId, 1, v12);
+                        v6 = function_1000426f(g4, (int32_t)&a1, 1, v12);
                         // branch -> 0x10002c6d
                     } else {
                         // 0x10002bf2
@@ -2685,7 +2685,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
                             // branch -> 0x10002c4f
                         }
                         // 0x10002c4f
-                        *(char *)*(int32_t *)(g8 + 8) = deviceId;
+                        *(char *)*(int32_t *)(g8 + 8) = a1;
                         v6 = v5;
                         // branch -> 0x10002c6d
                     }
@@ -2694,7 +2694,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
                     g6 = v7;
                     if (v6 == v20) {
                         // 0x10002c79
-                        result = deviceId;
+                        result = a1;
                         // branch -> 0x10002c8b
                     } else {
                         // 0x10002c73
@@ -2727,7 +2727,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
         if ((*(int16_t *)(v11 + 12) & 264) == 0) {
             // 0x10002c59
             g6 = 1;
-            v6 = function_1000426f(g4, (int32_t)&deviceId, 1, v12);
+            v6 = function_1000426f(g4, (int32_t)&a1, 1, v12);
             // branch -> 0x10002c6d
         } else {
             // 0x10002bf2
@@ -2765,7 +2765,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
                 // branch -> 0x10002c4f
             }
             // 0x10002c4f
-            *(char *)*(int32_t *)(g8 + 8) = deviceId;
+            *(char *)*(int32_t *)(g8 + 8) = a1;
             v6 = v5;
             // branch -> 0x10002c6d
         }
@@ -2774,7 +2774,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
         g6 = v7;
         if (v6 == v20) {
             // 0x10002c79
-            result = deviceId;
+            result = a1;
             // branch -> 0x10002c8b
         } else {
             // 0x10002c73
@@ -2834,7 +2834,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
                 if ((*(int16_t *)(v11 + 12) & 264) == 0) {
                     // 0x10002c59
                     g6 = 1;
-                    v6 = function_1000426f(g4, (int32_t)&deviceId, 1, v12);
+                    v6 = function_1000426f(g4, (int32_t)&a1, 1, v12);
                     // branch -> 0x10002c6d
                 } else {
                     // 0x10002bf2
@@ -2872,7 +2872,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
                         // branch -> 0x10002c4f
                     }
                     // 0x10002c4f
-                    *(char *)*(int32_t *)(g8 + 8) = deviceId;
+                    *(char *)*(int32_t *)(g8 + 8) = a1;
                     v6 = v5;
                     // branch -> 0x10002c6d
                 }
@@ -2881,7 +2881,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
                 g6 = v7;
                 if (v6 == v20) {
                     // 0x10002c79
-                    result = deviceId;
+                    result = a1;
                     // branch -> 0x10002c8b
                 } else {
                     // 0x10002c73
@@ -2914,7 +2914,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
     if ((*(int16_t *)(v11 + 12) & 264) == 0) {
         // 0x10002c59
         g6 = 1;
-        v6 = function_1000426f(g4, (int32_t)&deviceId, 1, v12);
+        v6 = function_1000426f(g4, (int32_t)&a1, 1, v12);
         // branch -> 0x10002c6d
     } else {
         // 0x10002bf2
@@ -2952,7 +2952,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
             // branch -> 0x10002c4f
         }
         // 0x10002c4f
-        *(char *)*(int32_t *)(g8 + 8) = deviceId;
+        *(char *)*(int32_t *)(g8 + 8) = a1;
         v6 = v5;
         // branch -> 0x10002c6d
     }
@@ -2961,7 +2961,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
     g6 = v7;
     if (v6 == v20) {
         // 0x10002c79
-        result = deviceId;
+        result = a1;
         // branch -> 0x10002c8b
     } else {
         // 0x10002c73
@@ -2979,7 +2979,7 @@ int32_t function_10002b77(char deviceId, int32_t a2) {
 }
 
 // Address range: 0x10002c8f - 0x100033cf
-int32_t function_10002c8f(int32_t deviceId, int32_t a2, char * a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
+int32_t function_10002c8f(int32_t a1, int32_t a2, char * a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
     int32_t v1 = g4; // 0x10002c98
     int32_t v2 = g6; // 0x10002c9a
     int32_t v3 = v2; // bp-600
@@ -3445,7 +3445,7 @@ int32_t function_10002c8f(int32_t deviceId, int32_t a2, char * a3, int32_t a4, i
 }
 
 // Address range: 0x100033d0 - 0x10003404
-int32_t function_100033d0(unsigned char deviceId, int32_t a2, int32_t result) {
+int32_t function_100033d0(unsigned char a1, int32_t a2, int32_t result) {
     int32_t v1 = a2; // ecx
     int32_t * v2 = (int32_t *)(a2 + 4); // 0x100033d6
     int32_t v3 = *v2 - 1; // 0x100033d6
@@ -3453,14 +3453,14 @@ int32_t function_100033d0(unsigned char deviceId, int32_t a2, int32_t result) {
     int32_t v4; // 0x100033f4
     if (v3 < 0) {
         // 0x100033e9
-        v4 = function_10002b77(deviceId, v1);
+        v4 = function_10002b77(a1, v1);
         // branch -> 0x100033f4
     } else {
         // 0x100033db
-        *(char *)*(int32_t *)v1 = deviceId;
+        *(char *)*(int32_t *)v1 = a1;
         int32_t * v5 = (int32_t *)v1; // 0x100033e2
         *v5 = *v5 + 1;
-        v4 = (g2 & -256 | (int32_t)deviceId) & 255;
+        v4 = (g2 & -256 | (int32_t)a1) & 255;
         // branch -> 0x100033f4
     }
     // 0x100033f4
@@ -3475,7 +3475,7 @@ int32_t function_100033d0(unsigned char deviceId, int32_t a2, int32_t result) {
 }
 
 // Address range: 0x10003405 - 0x10003435
-int32_t function_10003405(int32_t deviceId, int32_t result, int32_t a3, int32_t * a4) {
+int32_t function_10003405(int32_t a1, int32_t result, int32_t a3, int32_t * a4) {
     // 0x10003405
     g2 = result;
     g6 = result - 1;
@@ -3488,7 +3488,7 @@ int32_t function_10003405(int32_t deviceId, int32_t result, int32_t a3, int32_t 
     // branch -> 0x10003416
     int32_t result3; // 0x1000342c
     while (true) {
-        int32_t result2 = function_100033d0((char)deviceId, a3, v1); // 0x1000341f
+        int32_t result2 = function_100033d0((char)a1, a3, v1); // 0x1000341f
         int32_t v2 = g8; // 0x10003427
         if (*(int32_t *)v2 != -1) {
             // 0x1000342c
@@ -3515,7 +3515,7 @@ int32_t function_10003405(int32_t deviceId, int32_t result, int32_t a3, int32_t 
 }
 
 // Address range: 0x10003436 - 0x1000346d
-int32_t function_10003436(char * deviceId, int32_t result, int32_t a3, int32_t a4) {
+int32_t function_10003436(char * a1, int32_t result, int32_t a3, int32_t a4) {
     // 0x10003436
     g4 = result - 1;
     if (result < 1) {
@@ -3524,7 +3524,7 @@ int32_t function_10003436(char * deviceId, int32_t result, int32_t a3, int32_t a
     }
     // 0x10003444
     g6 = a4;
-    int32_t v1 = (int32_t)deviceId; // 0x10003450
+    int32_t v1 = (int32_t)a1; // 0x10003450
     // branch -> 0x1000344c
     while (true) {
         char v2 = *(char *)v1; // 0x1000344c
@@ -3553,24 +3553,24 @@ int32_t function_10003436(char * deviceId, int32_t result, int32_t a3, int32_t a
 }
 
 // Address range: 0x1000346e - 0x1000347a
-int32_t function_1000346e(int32_t * deviceId) {
-    int32_t v1 = *deviceId; // 0x10003472
-    *deviceId = v1 + 4;
+int32_t function_1000346e(int32_t * a1) {
+    int32_t v1 = *a1; // 0x10003472
+    *a1 = v1 + 4;
     return *(int32_t *)v1;
 }
 
 // Address range: 0x1000347b - 0x1000348a
-int32_t function_1000347b(int32_t * deviceId) {
-    int32_t v1 = *deviceId; // 0x1000347f
-    *deviceId = v1 + 8;
+int32_t function_1000347b(int32_t * a1) {
+    int32_t v1 = *a1; // 0x1000347f
+    *a1 = v1 + 8;
     return *(int32_t *)v1;
 }
 
 // Address range: 0x1000348b - 0x10003498
-int32_t function_1000348b(int32_t * deviceId) {
-    int32_t v1 = *deviceId; // 0x1000348f
+int32_t function_1000348b(int32_t * a1) {
+    int32_t v1 = *a1; // 0x1000348f
     int32_t v2 = v1 + 4; // 0x1000348f
-    *deviceId = v2;
+    *a1 = v2;
     return (int32_t)*(int16_t *)v1 | v2 & -0x10000;
 }
 
@@ -3589,9 +3589,9 @@ int32_t function_10003499(void) {
 }
 
 // Address range: 0x100034c6 - 0x100034d6
-int32_t function_100034c6(int32_t deviceId) {
+int32_t function_100034c6(int32_t a1) {
     // 0x100034c6
-    return function_100034e6((int32_t *)deviceId, 1, 0);
+    return function_100034e6((int32_t *)a1, 1, 0);
 }
 
 // Address range: 0x100034d7 - 0x100034e5
@@ -3601,8 +3601,8 @@ int32_t function_100034d7(void) {
 }
 
 // Address range: 0x100034e6 - 0x10003588
-int32_t function_100034e6(int32_t * deviceId, int32_t uExitCode, int32_t a3) {
-    int32_t uExitCode2 = (int32_t)deviceId;
+int32_t function_100034e6(int32_t * a1, int32_t uExitCode, int32_t a3) {
+    int32_t uExitCode2 = (int32_t)a1;
     function_1000358b(g6);
     g6 = 1;
     int32_t v1 = 1; // 0x10003512
@@ -3704,13 +3704,13 @@ int32_t function_100034e6(int32_t * deviceId, int32_t uExitCode, int32_t a3) {
 }
 
 // Address range: 0x10003589 - 0x1000358a
-int32_t function_10003589(int32_t deviceId) {
+int32_t function_10003589(int32_t a1) {
     // 0x10003589
     return g2;
 }
 
 // Address range: 0x1000358b - 0x10003593
-int32_t function_1000358b(int32_t deviceId) {
+int32_t function_1000358b(int32_t a1) {
     // 0x1000358b
     return function_100048ea(13);
 }
@@ -3723,8 +3723,8 @@ int32_t function_10003594(void) {
 }
 
 // Address range: 0x1000359d - 0x100035b6
-int32_t function_1000359d(int32_t * deviceId, uint32_t a2) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_1000359d(int32_t * a1, uint32_t a2) {
+    int32_t v1 = (int32_t)a1;
     int32_t v2 = g8; // bp-4
     int32_t v3 = v1; // esi
     if (v1 >= a2) {
@@ -3867,17 +3867,17 @@ int32_t function_1000363c(void) {
 }
 
 // Address range: 0x100036a3 - 0x10003742
-int32_t function_100036a3(int32_t deviceId) {
+int32_t function_100036a3(int32_t a1) {
     // 0x100036a3
     if (g25 == -1) {
         // 0x10003742
         return g25;
     }
     int32_t v1 = g8; // 0x100036b1
-    int32_t v2 = deviceId; // esi
-    int32_t v3 = deviceId; // 0x100036c7
+    int32_t v2 = a1; // esi
+    int32_t v3 = a1; // 0x100036c7
     int32_t result; // 0x1000373b
-    if (deviceId == 0) {
+    if (a1 == 0) {
         int32_t * v4 = TlsGetValue(g25); // 0x100036bb
         int32_t v5 = (int32_t)v4; // 0x100036bb
         v2 = v5;
@@ -4630,12 +4630,12 @@ int32_t function_10003a0c(void) {
 }
 
 // Address range: 0x10003aa5 - 0x10003c58
-int32_t function_10003aa5(char * deviceId, int32_t a2, int32_t a3, int32_t result, int32_t a5) {
+int32_t function_10003aa5(char * a1, int32_t a2, int32_t a3, int32_t result, int32_t a5) {
     // 0x10003aa5
     *(int32_t *)a5 = 0;
     int32_t v1 = g6; // bp-16
     *(int32_t *)result = 1;
-    int32_t v2 = (int32_t)deviceId; // 0x10003ac0
+    int32_t v2 = (int32_t)a1; // 0x10003ac0
     int32_t v3 = a2; // 0x10003ac3
     if (v3 != 0) {
         // 0x10003ac7
@@ -5520,10 +5520,10 @@ int32_t function_10003c59(void) {
 }
 
 // Address range: 0x10003d8b - 0x10003db7
-int32_t function_10003d8b(char * deviceId) {
+int32_t function_10003d8b(char * a1) {
     int32_t v1 = g8; // 0x10003d8b
-    int32_t v2 = (int32_t)deviceId; // esi
-    *(int32_t *)deviceId = 0;
+    int32_t v2 = (int32_t)a1; // esi
+    *(int32_t *)a1 = 0;
     int32_t * moduleHandle = GetModuleHandleA(NULL); // 0x10003d95
     int32_t result = (int32_t)moduleHandle; // 0x10003d95
     if (*(int16_t *)moduleHandle != 0x5a4d) {
@@ -6010,8 +6010,8 @@ int32_t function_10003db8(void) {
 }
 
 // Address range: 0x10003f00 - 0x10003f5c
-int32_t function_10003f00(int32_t deviceId) {
-    int32_t * v1 = HeapCreate((int32_t)(bool)(deviceId == 0), 0x1000, 0); // 0x10003f11
+int32_t function_10003f00(int32_t a1) {
+    int32_t * v1 = HeapCreate((int32_t)(bool)(a1 == 0), 0x1000, 0); // 0x10003f11
     g107 = (int32_t)v1;
     if (v1 == NULL) {
         // 0x10003f56
@@ -6149,7 +6149,7 @@ int32_t function_10003f5d(void) {
 }
 
 // Address range: 0x10004005 - 0x1000400a
-int32_t function_10004005(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_10004005(int32_t a1, int32_t a2, int32_t a3) {
     // 0x10004005
     return 1;
 }
@@ -6196,11 +6196,11 @@ int32_t function_1000400b(void) {
 }
 
 // Address range: 0x10004044 - 0x10004196
-int32_t function_10004044(int32_t deviceId) {
-    int32_t v1 = deviceId;
+int32_t function_10004044(int32_t a1) {
+    int32_t v1 = a1;
     int32_t lpFilename; // bp-424
     int32_t v2 = &lpFilename; // 0x10004047
-    g7 = deviceId;
+    g7 = a1;
     int32_t v3 = 0; // 0x1000405e
     int32_t v4 = &g27; // 0x1000405b
     // branch -> 0x10004057
@@ -6226,7 +6226,7 @@ int32_t function_10004044(int32_t deviceId) {
     while (true) {
         int32_t result = v4; // 0x1000419614
         int32_t v16 = v3; // 0x10004067
-        if (*(int32_t *)v4 != deviceId) {
+        if (*(int32_t *)v4 != a1) {
             // 0x1000405b
             result5 = v4 + 8;
             v9 = v3 + 1;
@@ -6243,7 +6243,7 @@ int32_t function_10004044(int32_t deviceId) {
         v6 = g8;
         v11 = 8 * v16;
         g8 = v11;
-        if (*(int32_t *)(v11 + (int32_t)&g27) != deviceId) {
+        if (*(int32_t *)(v11 + (int32_t)&g27) != a1) {
             // 0x10004194
             g8 = v6;
             return result;
@@ -6281,7 +6281,7 @@ int32_t function_10004044(int32_t deviceId) {
             }
         }
         // 0x10004097
-        if (deviceId == 252) {
+        if (a1 == 252) {
             // 0x10004194
             g8 = v6;
             return result3;
@@ -6343,7 +6343,7 @@ int32_t function_10004044(int32_t deviceId) {
     v6 = g8;
     v11 = 8 * v9;
     g8 = v11;
-    if (*(int32_t *)(v11 + (int32_t)&g27) != deviceId) {
+    if (*(int32_t *)(v11 + (int32_t)&g27) != a1) {
         // 0x10004194
         g8 = v6;
         return result5;
@@ -6382,7 +6382,7 @@ int32_t function_10004044(int32_t deviceId) {
     }
     // 0x10004097
     int32_t result6; // 0x10004196
-    if (deviceId != 252) {
+    if (a1 != 252) {
         // 0x100040a3
         if (GetModuleFileNameA(NULL, (char *)&lpFilename, 260) == 0) {
             // 0x100040bb
@@ -6427,20 +6427,20 @@ int32_t function_10004044(int32_t deviceId) {
 }
 
 // Address range: 0x10004197 - 0x100041fb
-int32_t function_10004197(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_10004197(int32_t a1, int32_t a2, int32_t a3) {
     int32_t v1 = g8; // 0x10004197
-    g8 = deviceId;
+    g8 = a1;
     int32_t v2;
-    if ((int32_t)g111 <= deviceId) {
+    if ((int32_t)g111 <= a1) {
         // 0x100041e4
         *(int32_t *)function_10006941(v2) = 9;
         *(int32_t *)function_1000694a(v2) = 0;
         g8 = v1;
         return -1;
     }
-    int32_t v3 = *(int32_t *)(4 * deviceId / 32 + (int32_t)&g109); // 0x100041ae
+    int32_t v3 = *(int32_t *)(4 * a1 / 32 + (int32_t)&g109); // 0x100041ae
     g5 = v3;
-    if ((*(char *)(36 * (deviceId & 31) + 4 + v3) & 1) == 0) {
+    if ((*(char *)(36 * (a1 & 31) + 4 + v3) & 1) == 0) {
         // 0x100041e4
         *(int32_t *)function_10006941(v2) = 9;
         *(int32_t *)function_1000694a(v2) = 0;
@@ -6448,7 +6448,7 @@ int32_t function_10004197(int32_t deviceId, int32_t a2, int32_t a3) {
         return -1;
     }
     int32_t v4 = g6; // 0x100041bf
-    function_10006a14(deviceId, v4, v1);
+    function_10006a14(a1, v4, v1);
     int32_t result = function_100041fc(g8, a2, a3); // 0x100041cf
     function_10006a73(g8);
     g6 = v4;
@@ -6457,11 +6457,11 @@ int32_t function_10004197(int32_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x100041fc - 0x1000426e
-int32_t function_100041fc(int32_t deviceId, int32_t lDistanceToMove, int32_t dwMoveMethod) {
+int32_t function_100041fc(int32_t a1, int32_t lDistanceToMove, int32_t dwMoveMethod) {
     int32_t v1 = g8; // 0x100041fc
-    g8 = deviceId;
+    g8 = a1;
     int32_t v2 = g6; // 0x10004201
-    int32_t hFile = function_100069d2(deviceId); // 0x10004203
+    int32_t hFile = function_100069d2(a1); // 0x10004203
     int32_t result;
     if (hFile != -1) {
         int32_t v3 = SetFilePointer((int32_t *)hFile, lDistanceToMove, NULL, dwMoveMethod); // 0x10004226
@@ -6490,7 +6490,7 @@ int32_t function_100041fc(int32_t deviceId, int32_t lDistanceToMove, int32_t dwM
         // branch -> 0x1000426c
     } else {
         // 0x1000420e
-        *(int32_t *)function_10006941(deviceId) = 9;
+        *(int32_t *)function_10006941(a1) = 9;
         // branch -> 0x10004248
         // 0x10004248
         result = -1;
@@ -6503,20 +6503,20 @@ int32_t function_100041fc(int32_t deviceId, int32_t lDistanceToMove, int32_t dwM
 }
 
 // Address range: 0x1000426f - 0x100042d3
-int32_t function_1000426f(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4) {
+int32_t function_1000426f(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
     int32_t v1 = g8; // 0x1000426f
-    g8 = deviceId;
+    g8 = a1;
     int32_t v2;
-    if ((int32_t)g111 <= deviceId) {
+    if ((int32_t)g111 <= a1) {
         // 0x100042bc
         *(int32_t *)function_10006941(v2) = 9;
         *(int32_t *)function_1000694a(v2) = 0;
         g8 = v1;
         return -1;
     }
-    int32_t v3 = *(int32_t *)(4 * deviceId / 32 + (int32_t)&g109); // 0x10004286
+    int32_t v3 = *(int32_t *)(4 * a1 / 32 + (int32_t)&g109); // 0x10004286
     g5 = v3;
-    if ((*(char *)(36 * (deviceId & 31) + 4 + v3) & 1) == 0) {
+    if ((*(char *)(36 * (a1 & 31) + 4 + v3) & 1) == 0) {
         // 0x100042bc
         *(int32_t *)function_10006941(v2) = 9;
         *(int32_t *)function_1000694a(v2) = 0;
@@ -6524,7 +6524,7 @@ int32_t function_1000426f(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4) 
         return -1;
     }
     int32_t v4 = g6; // 0x10004297
-    function_10006a14(deviceId, v4, v1);
+    function_10006a14(a1, v4, v1);
     int32_t result = function_100042d4((struct _OVERLAPPED *)g8, a2, a3); // 0x100042a7
     function_10006a73(g8);
     g6 = v4;
@@ -6533,13 +6533,13 @@ int32_t function_1000426f(int32_t deviceId, int32_t a2, int32_t a3, int32_t a4) 
 }
 
 // Address range: 0x100042d4 - 0x1000445e
-int32_t function_100042d4(struct _OVERLAPPED * deviceId, int32_t lpBuffer, uint32_t nNumberOfBytesToWrite) {
+int32_t function_100042d4(struct _OVERLAPPED * a1, int32_t lpBuffer, uint32_t nNumberOfBytesToWrite) {
     // 0x100042d4
     int32_t lpBuffer2; // bp-1048
     int32_t v1 = &lpBuffer2; // 0x100042d7
     int32_t v2 = g8; // 0x100042de
     g6 = 0;
-    int32_t v3 = (int32_t)deviceId;
+    int32_t v3 = (int32_t)a1;
     if (nNumberOfBytesToWrite == 0) {
         // 0x100042ed
         // branch -> 0x1000445a
@@ -6872,8 +6872,8 @@ int32_t function_100042d4(struct _OVERLAPPED * deviceId, int32_t lpBuffer, uint3
 }
 
 // Address range: 0x1000445f - 0x100044a2
-int32_t function_1000445f(int32_t * deviceId) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_1000445f(int32_t * a1) {
+    int32_t v1 = (int32_t)a1;
     g73++;
     int32_t v2 = function_10004b86(0x1000); // 0x1000446a
     *(int32_t *)(v1 + 8) = v2;
@@ -6898,14 +6898,14 @@ int32_t function_1000445f(int32_t * deviceId) {
 }
 
 // Address range: 0x100044a3 - 0x100044cb
-int32_t function_100044a3(uint32_t deviceId) {
+int32_t function_100044a3(uint32_t a1) {
     // 0x100044a3
-    if ((int32_t)g111 <= deviceId) {
+    if ((int32_t)g111 <= a1) {
         // 0x100044af
         return 0;
     }
-    int32_t v1 = *(int32_t *)(4 * deviceId / 32 + (int32_t)&g109); // 0x100044bd
-    return (int32_t)*(char *)(36 * (deviceId & 31) + 4 + v1) & 64;
+    int32_t v1 = *(int32_t *)(4 * a1 / 32 + (int32_t)&g109); // 0x100044bd
+    return (int32_t)*(char *)(36 * (a1 & 31) + 4 + v1) & 64;
 }
 
 // Address range: 0x100044cc - 0x10004573
@@ -7135,30 +7135,30 @@ int32_t function_10004574(void) {
 }
 
 // Address range: 0x10004588 - 0x100045b6
-int32_t function_10004588(uint32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_10004588(uint32_t a1, int32_t a2, int32_t a3) {
     // 0x10004588
     int32_t * v1;
-    if (deviceId < (int32_t)&g29) {
+    if (a1 < (int32_t)&g29) {
         // 0x100045ac
-        EnterCriticalSection((struct _RTL_CRITICAL_SECTION *)(deviceId + 32));
+        EnterCriticalSection((struct _RTL_CRITICAL_SECTION *)(a1 + 32));
         return (int32_t)&v1;
     }
     // 0x10004595
-    if (deviceId <= (int32_t)&g31) {
+    if (a1 <= (int32_t)&g31) {
         // 0x1000459c
-        return function_100048ea((int32_t)(deviceId - (int32_t)&g29) / 32 + 28);
+        return function_100048ea((int32_t)(a1 - (int32_t)&g29) / 32 + 28);
     }
     // 0x100045ac
-    EnterCriticalSection((struct _RTL_CRITICAL_SECTION *)(deviceId + 32));
+    EnterCriticalSection((struct _RTL_CRITICAL_SECTION *)(a1 + 32));
     return (int32_t)&v1;
 }
 
 // Address range: 0x100045b7 - 0x100045d9
-int32_t function_100045b7(int32_t deviceId, int32_t a2) {
+int32_t function_100045b7(int32_t a1, int32_t a2) {
     // 0x100045b7
-    if (deviceId < 20) {
+    if (a1 < 20) {
         // 0x100045c0
-        return function_100048ea(deviceId + 28);
+        return function_100048ea(a1 + 28);
     }
     // 0x100045cb
     EnterCriticalSection((struct _RTL_CRITICAL_SECTION *)(a2 + 32));
@@ -7167,30 +7167,30 @@ int32_t function_100045b7(int32_t deviceId, int32_t a2) {
 }
 
 // Address range: 0x100045da - 0x10004608
-int32_t function_100045da(uint32_t deviceId) {
+int32_t function_100045da(uint32_t a1) {
     // 0x100045da
     int32_t * v1;
-    if (deviceId < (int32_t)&g29) {
+    if (a1 < (int32_t)&g29) {
         // 0x100045fe
-        LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)(deviceId + 32));
+        LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)(a1 + 32));
         return (int32_t)&v1;
     }
     // 0x100045e7
-    if (deviceId <= (int32_t)&g31) {
+    if (a1 <= (int32_t)&g31) {
         // 0x100045ee
-        return function_1000494b((int32_t)(deviceId - (int32_t)&g29) / 32 + 28);
+        return function_1000494b((int32_t)(a1 - (int32_t)&g29) / 32 + 28);
     }
     // 0x100045fe
-    LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)(deviceId + 32));
+    LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)(a1 + 32));
     return (int32_t)&v1;
 }
 
 // Address range: 0x10004609 - 0x1000462f
-int32_t function_10004609(int32_t deviceId, int32_t a2) {
+int32_t function_10004609(int32_t a1, int32_t a2) {
     // 0x10004609
-    if (deviceId < 20) {
+    if (a1 < 20) {
         // 0x10004612
-        return function_1000494b(deviceId + 28);
+        return function_1000494b(a1 + 28);
     }
     // 0x1000461d
     LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)(a2 + 32));
@@ -7199,8 +7199,8 @@ int32_t function_10004609(int32_t deviceId, int32_t a2) {
 }
 
 // Address range: 0x10004630 - 0x100046aa
-int32_t function_10004630(char * deviceId) {
-    int32_t v1 = (int32_t)deviceId; // 0x10004630
+int32_t function_10004630(char * a1) {
+    int32_t v1 = (int32_t)a1; // 0x10004630
     int32_t v2 = v1; // 0x1000465e
     if ((v1 & 3) != 0) {
         int32_t v3 = v1; // 0x1000463e
@@ -7274,7 +7274,7 @@ int32_t function_10004630(char * deviceId) {
 }
 
 // Address range: 0x100046ab - 0x10004703
-int32_t function_100046ab(int32_t deviceId, int32_t a2) {
+int32_t function_100046ab(int32_t a1, int32_t a2) {
     // 0x100046ab
     g8 = &g89;
     InterlockedIncrement(&g89);
@@ -7288,7 +7288,7 @@ int32_t function_100046ab(int32_t deviceId, int32_t a2) {
         v1 = 1;
         // branch -> 0x100046db
     }
-    int32_t result = function_10004704((char *)deviceId, a2); // 0x100046e1
+    int32_t result = function_10004704((char *)a1, a2); // 0x100046e1
     if (v1 == 0) {
         // 0x100046f9
         InterlockedDecrement((int32_t *)g8);
@@ -7353,7 +7353,7 @@ int32_t function_100047d8(void) {
 }
 
 // Address range: 0x10004855 - 0x1000487d
-int32_t function_10004855(int32_t deviceId) {
+int32_t function_10004855(int32_t a1) {
     // entry
     InitializeCriticalSection((struct _RTL_CRITICAL_SECTION *)*(int32_t *)&g37);
     InitializeCriticalSection((struct _RTL_CRITICAL_SECTION *)*(int32_t *)&g36);
@@ -7456,9 +7456,9 @@ int32_t function_1000487e(void) {
 }
 
 // Address range: 0x100048ea - 0x1000494a
-int32_t function_100048ea(int32_t deviceId) {
+int32_t function_100048ea(int32_t a1) {
     int32_t v1 = g8; // 0x100048f0
-    int32_t lpCriticalSection2 = 4 * deviceId + (int32_t)&g33; // 0x100048f1
+    int32_t lpCriticalSection2 = 4 * a1 + (int32_t)&g33; // 0x100048f1
     g8 = lpCriticalSection2;
     if (*(int32_t *)lpCriticalSection2 != 0) {
         // branch -> 0x10004940
@@ -7498,22 +7498,22 @@ int32_t function_100048ea(int32_t deviceId) {
 }
 
 // Address range: 0x1000494b - 0x1000495f
-int32_t function_1000494b(int32_t deviceId) {
-    int32_t lpCriticalSection = *(int32_t *)(4 * deviceId + (int32_t)&g33); // 0x10004951
+int32_t function_1000494b(int32_t a1) {
+    int32_t lpCriticalSection = *(int32_t *)(4 * a1 + (int32_t)&g33); // 0x10004951
     LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)lpCriticalSection);
     int32_t * v1;
     return (int32_t)&v1;
 }
 
 // Address range: 0x10004960 - 0x100049f8
-int32_t function_10004960(int64_t deviceId, int32_t a2) {
+int32_t function_10004960(int64_t a1, int32_t a2) {
     // 0x10004960
     abort();
     // UNREACHABLE
 }
 
 // Address range: 0x100049f9 - 0x10004a01
-int32_t function_100049f9(int32_t deviceId) {
+int32_t function_100049f9(int32_t a1) {
     // 0x100049f9
     return function_1000494b(9);
 }
@@ -7533,7 +7533,7 @@ int32_t function_10004a02(void) {
 }
 
 // Address range: 0x10004a3c - 0x10004a81
-int32_t function_10004a3c(int32_t deviceId) {
+int32_t function_10004a3c(int32_t a1) {
     // 0x10004a3c
     function_10006c80((char *)*(int32_t *)(g3 - 32), g4);
     __pseudo_cond_branch(*(int32_t *)(g3 - 32) != g4, 0x10004a8b);
@@ -7559,14 +7559,14 @@ int32_t function_10004a8e(void) {
 }
 
 // Address range: 0x10004a9d - 0x10004b06
-int32_t function_10004a9d(int32_t deviceId) {
+int32_t function_10004a9d(int32_t a1) {
     // 0x10004a9d
     abort();
     // UNREACHABLE
 }
 
 // Address range: 0x10004b07 - 0x10004b0f
-int32_t function_10004b07(int32_t deviceId) {
+int32_t function_10004b07(int32_t a1) {
     // 0x10004b07
     return function_1000494b(9);
 }
@@ -7603,7 +7603,7 @@ int32_t function_10004b5f(void) {
 }
 
 // Address range: 0x10004b69 - 0x10004b85
-int32_t function_10004b69(int32_t deviceId) {
+int32_t function_10004b69(int32_t a1) {
     // 0x10004b69
     int32_t * lpMem;
     HeapFree((int32_t *)g107, 0, &lpMem);
@@ -7612,20 +7612,20 @@ int32_t function_10004b69(int32_t deviceId) {
 }
 
 // Address range: 0x10004b86 - 0x10004b97
-int32_t function_10004b86(int32_t deviceId) {
+int32_t function_10004b86(int32_t a1) {
     // 0x10004b86
-    return __nh_malloc(deviceId, g87);
+    return __nh_malloc(a1, g87);
 }
 
 // Address range: 0x10004bc4 - 0x10004c2a
-int32_t function_10004bc4(int32_t deviceId) {
+int32_t function_10004bc4(int32_t a1) {
     // entry
     abort();
     // UNREACHABLE
 }
 
 // Address range: 0x10004c2b - 0x10004c33
-int32_t function_10004c2b(int32_t deviceId) {
+int32_t function_10004c2b(int32_t a1) {
     // 0x10004c2b
     return function_1000494b(9);
 }
@@ -7706,15 +7706,15 @@ int32_t function_10004cb1(void) {
 }
 
 // Address range: 0x10004cc0 - 0x10004ccf
-int32_t function_10004cc0(int32_t deviceId, int32_t a2) {
+int32_t function_10004cc0(int32_t a1, int32_t a2) {
     int32_t v1 = g6; // 0x10004cc0
-    g6 = deviceId;
+    g6 = a1;
     return function_10004d31(v1);
 }
 
 // Address range: 0x10004cd0 - 0x10004d30
-int32_t function_10004cd0(char * deviceId, int32_t a2) {
-    int32_t v1 = (int32_t)deviceId; // 0x10004cd0
+int32_t function_10004cd0(char * a1, int32_t a2) {
+    int32_t v1 = (int32_t)a1; // 0x10004cd0
     int32_t v2 = g6; // 0x10004cd4
     int32_t v3 = v1; // 0x10004cfa
     int32_t * v4; // 0x10004cec
@@ -7868,7 +7868,7 @@ int32_t function_10004cd0(char * deviceId, int32_t a2) {
 }
 
 // Address range: 0x10004d31 - 0x10004daf
-int32_t function_10004d31(int32_t deviceId) {
+int32_t function_10004d31(int32_t a1) {
     // 0x10004d31
     char * v1;
     int32_t v2 = (int32_t)v1; // 0x10004d31
@@ -7884,7 +7884,7 @@ int32_t function_10004d31(int32_t deviceId) {
             if (v5 == 0) {
                 // 0x10004da8
                 *(char *)g6 = (char)v6;
-                g6 = deviceId;
+                g6 = a1;
                 return result;
             }
             // 0x10004d44
@@ -7912,14 +7912,14 @@ int32_t function_10004d31(int32_t deviceId) {
                     // branch -> 0x10004da8
                     // 0x10004da8
                     *(char *)g6 = (char)v4;
-                    g6 = deviceId;
+                    g6 = a1;
                     return result;
                 }
                 // 0x10004d74
                 if ((v4 & 0xff00) == 0) {
                     // 0x10004d9f
                     *(int16_t *)g6 = (int16_t)v4;
-                    g6 = deviceId;
+                    g6 = a1;
                     return result;
                 }
                 // 0x10004d78
@@ -7927,14 +7927,14 @@ int32_t function_10004d31(int32_t deviceId) {
                     // 0x10004d92
                     *(int16_t *)g6 = (int16_t)v4;
                     *(char *)(g6 + 2) = 0;
-                    g6 = deviceId;
+                    g6 = a1;
                     return result;
                 }
                 // 0x10004d80
                 if (v4 < 0x1000000) {
                     // 0x10004d8a
                     *(int32_t *)g6 = v4;
-                    g6 = deviceId;
+                    g6 = a1;
                     return result;
                 }
                 // 0x10004d51
@@ -7965,11 +7965,11 @@ int32_t function_10004d31(int32_t deviceId) {
 }
 
 // Address range: 0x10004db0 - 0x10004f5c
-int32_t function_10004db0(struct _cpinfo * deviceId) {
+int32_t function_10004db0(struct _cpinfo * a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     function_100048ea(25);
-    int32_t CodePage = function_10004f5d((int32_t)deviceId); // 0x10004dc3
+    int32_t CodePage = function_10004f5d((int32_t)a1); // 0x10004dc3
     if (CodePage == g97) {
         // 0x10004f4e
         function_1000494b(25);
@@ -8237,7 +8237,7 @@ int32_t function_10005003(void) {
 }
 
 // Address range: 0x10005188 - 0x100051af
-int32_t function_10005188(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_10005188(int32_t a1, int32_t a2, int32_t a3) {
     // 0x10005188
     int32_t result; // 0x10005193
     if (g113 == 0) {
@@ -8251,11 +8251,11 @@ int32_t function_10005188(int32_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x100051b0 - 0x100054e4
-int32_t function_100051b0(char * deviceId, uint32_t a2) {
+int32_t function_100051b0(char * a1, uint32_t a2) {
     int32_t v1 = g6; // 0x100051b3
     int32_t v2 = g8; // bp-12
     g8 = a2;
-    int32_t result = (int32_t)deviceId; // 0x100051bb
+    int32_t result = (int32_t)a1; // 0x100051bb
     g6 = result;
     uint32_t v3;
     if (result > a2) {
@@ -10536,7 +10536,7 @@ int32_t function_100051b0(char * deviceId, uint32_t a2) {
     } else {
         // 0x100051d8
         g7 = v3 & 3;
-        _memcpy(deviceId, (char *)a2, v3 / 4);
+        _memcpy(a1, (char *)a2, v3 / 4);
         switch ((int2_t)v3) {
             default: {
                 // 0x1000520c4
@@ -10577,17 +10577,17 @@ int32_t function_100051b0(char * deviceId, uint32_t a2) {
 }
 
 // Address range: 0x100054e5 - 0x100054fb
-int32_t function_100054e5(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_100054e5(int32_t a1, int32_t a2, int32_t a3) {
     // 0x100054e5
-    return function_100054fc((char *)deviceId, a2, a3, 0);
+    return function_100054fc((char *)a1, a2, a3, 0);
 }
 
 // Address range: 0x100054fc - 0x1000570f
-int32_t function_100054fc(char * deviceId, int32_t a2, int32_t a3, int32_t a4) {
+int32_t function_100054fc(char * a1, int32_t a2, int32_t a3, int32_t a4) {
     int32_t v1 = g8; // 0x10005507
     int32_t v2 = g6; // 0x10005508
-    int32_t v3 = (int32_t)deviceId; // 0x10005509
-    int32_t v4 = (int32_t)*deviceId | g4 & -256; // 0x1000550c
+    int32_t v3 = (int32_t)a1; // 0x10005509
+    int32_t v4 = (int32_t)*a1 | g4 & -256; // 0x1000550c
     int32_t v5 = v3;
     // branch -> 0x10005514
     while (true) {
@@ -10783,7 +10783,7 @@ int32_t function_100054fc(char * deviceId, int32_t a2, int32_t a3, int32_t a4) {
                                                 if ((v37 & 8) == 0) {
                                                     if (a2 != 0) {
                                                         // 0x1000567e
-                                                        v38 = deviceId;
+                                                        v38 = a1;
                                                         // branch -> 0x10005684
                                                     }
                                                     // 0x10005684
@@ -11292,7 +11292,7 @@ int32_t function_100054fc(char * deviceId, int32_t a2, int32_t a3, int32_t a4) {
 }
 
 // Address range: 0x10005710 - 0x1000571f
-int32_t function_10005710(int32_t deviceId) {
+int32_t function_10005710(int32_t a1) {
     // 0x10005710
     return g7 - 1;
 }
@@ -11304,8 +11304,8 @@ int32_t function_10005720(unsigned char result, int32_t a2) {
 }
 
 // Address range: 0x10005726 - 0x100057df
-int32_t function_10005726(char * deviceId, int32_t a2, int32_t a3) {
-    int32_t v1 = (int32_t)deviceId; // 0x1000572c
+int32_t function_10005726(char * a1, int32_t a2, int32_t a3) {
+    int32_t v1 = (int32_t)a1; // 0x1000572c
     int32_t result = v1; // 0x1000575646
     if ((v1 & 3) != 0) {
         int32_t v2 = g5; // 0x10005738
@@ -11437,7 +11437,7 @@ int32_t function_10005726(char * deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x100057e0 - 0x1000585f
-int32_t function_100057e0(char * deviceId, int32_t a2) {
+int32_t function_100057e0(char * a1, int32_t a2) {
     // 0x100057e0
     g5 = a2;
     int32_t v1 = g6; // 0x100057e4
@@ -11447,7 +11447,7 @@ int32_t function_100057e0(char * deviceId, int32_t a2) {
     int32_t v5 = v4; // 0x100057e7
     int32_t v6 = g7 & -256 | v5; // 0x100057e7
     g7 = v6;
-    int32_t result = (int32_t)deviceId; // 0x100057e9
+    int32_t result = (int32_t)a1; // 0x100057e9
     if (v4 == 0) {
         // 0x1000585a
         g6 = v1;
@@ -11572,7 +11572,7 @@ int32_t function_100057e0(char * deviceId, int32_t a2) {
 }
 
 // Address range: 0x10005860 - 0x1000589f
-int32_t function_10005860(char * deviceId, int32_t a2, int32_t a3) {
+int32_t function_10005860(char * a1, int32_t a2, int32_t a3) {
     int32_t v1 = g4; // 0x10005865
     if (a3 == 0) {
         // 0x10005891
@@ -11580,9 +11580,9 @@ int32_t function_10005860(char * deviceId, int32_t a2, int32_t a3) {
         return 0;
     }
     // 0x1000586b
-    _strncmp((char *)a2, deviceId, _strlen(deviceId) + 2 + a3);
+    _strncmp((char *)a2, a1, _strlen(a1) + 2 + a3);
     unsigned char v2 = *(char *)(a2 - 1); // 0x10005881
-    unsigned char v3 = *(char *)((int32_t)deviceId - 1); // 0x10005886
+    unsigned char v3 = *(char *)((int32_t)a1 - 1); // 0x10005886
     if (v2 > v3) {
         // 0x1000588f
         // branch -> 0x10005891
@@ -11632,7 +11632,7 @@ int32_t function_100058a0(int32_t result) {
 }
 
 // Address range: 0x100058cf - 0x10005916
-int32_t function_100058cf(int32_t deviceId) {
+int32_t function_100058cf(int32_t a1) {
     int32_t * v1 = HeapAlloc((int32_t *)g107, 0, 320); // 0x100058dc
     int32_t result = (int32_t)v1; // 0x100058dc
     g95 = result;
@@ -11644,13 +11644,13 @@ int32_t function_100058cf(int32_t deviceId) {
     g93 = 0;
     g94 = 0;
     g92 = result;
-    g96 = deviceId;
+    g96 = a1;
     g90 = 16;
     return 1;
 }
 
 // Address range: 0x10005917 - 0x10005941
-int32_t function_10005917(int32_t deviceId) {
+int32_t function_10005917(int32_t a1) {
     uint32_t v1 = g95 + 20 * g94; // 0x10005924
     if (g95 >= v1) {
         // 0x1000593f
@@ -11659,7 +11659,7 @@ int32_t function_10005917(int32_t deviceId) {
         int32_t result = g95; // 0x1000593a
         while (true) {
             // 0x1000592b
-            if (deviceId - *(int32_t *)(result + 12) < 0x100000) {
+            if (a1 - *(int32_t *)(result + 12) < 0x100000) {
                 // 0x10005941
                 // branch -> 0x10005941
                 // 0x10005941
@@ -11683,8 +11683,8 @@ int32_t function_10005917(int32_t deviceId) {
 }
 
 // Address range: 0x10005942 - 0x10005c6a
-int32_t function_10005942(int32_t * deviceId, int32_t a2) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_10005942(int32_t * a1, int32_t a2) {
+    int32_t v1 = (int32_t)a1;
     int32_t result = *(int32_t *)(v1 + 16); // 0x10005950
     int32_t v2 = a2 - 4; // 0x10005956
     int32_t v3 = v2; // esi
@@ -11753,7 +11753,7 @@ int32_t function_10005942(int32_t * deviceId, int32_t a2) {
                 *v29 = v30;
                 if (v30 == 0) {
                     // 0x100059ca
-                    *deviceId = v27 & *deviceId;
+                    *a1 = v27 & *a1;
                     // branch -> 0x100059f2
                 }
             }
@@ -11951,7 +11951,7 @@ int32_t function_10005942(int32_t * deviceId, int32_t a2) {
                     // branch -> bb59
                 }
                 // bb59
-                *deviceId = *deviceId | v60;
+                *a1 = *a1 | v60;
                 // branch -> 0x10005b21
             }
             // 0x10005b21
@@ -12107,7 +12107,7 @@ int32_t function_10005942(int32_t * deviceId, int32_t a2) {
                 *v90 = v91;
                 if (v91 == 0) {
                     // 0x10005a86
-                    *deviceId = v88 & *deviceId;
+                    *a1 = v88 & *a1;
                     // branch -> 0x10005aac
                 }
             }
@@ -12177,7 +12177,7 @@ int32_t function_10005942(int32_t * deviceId, int32_t a2) {
                                 // branch -> bb59
                             }
                             // bb59
-                            *deviceId = *deviceId | v60;
+                            *a1 = *a1 | v60;
                             // branch -> 0x10005b21
                         }
                         // 0x10005b21
@@ -12573,7 +12573,7 @@ int32_t function_10005942(int32_t * deviceId, int32_t a2) {
                 // branch -> bb59
             }
             // bb59
-            *deviceId = *deviceId | v60;
+            *a1 = *a1 | v60;
             // branch -> 0x10005b21
         }
         // 0x10005b21
@@ -12669,11 +12669,11 @@ int32_t function_10005942(int32_t * deviceId, int32_t a2) {
 }
 
 // Address range: 0x10005c6b - 0x10005f73
-int32_t function_10005c6b(int32_t deviceId) {
+int32_t function_10005c6b(int32_t a1) {
     int32_t v1 = g95; // 0x10005c76
     uint32_t v2 = v1 + 20 * g94; // 0x10005c82
     g6 = v2;
-    int32_t v3 = deviceId + 23; // 0x10005c8b
+    int32_t v3 = a1 + 23; // 0x10005c8b
     int32_t v4 = v3 & -16; // 0x10005c8e
     int32_t v5 = v3 / 16; // 0x10005c94
     int32_t v6;
@@ -18573,9 +18573,9 @@ int32_t function_10005f74(void) {
 }
 
 // Address range: 0x10006025 - 0x1000611f
-int32_t function_10006025(int32_t deviceId) {
-    int32_t v1 = *(int32_t *)(deviceId + 16); // 0x1000602f
-    int32_t v2 = *(int32_t *)(deviceId + 8); // 0x10006032
+int32_t function_10006025(int32_t a1) {
+    int32_t v1 = *(int32_t *)(a1 + 16); // 0x1000602f
+    int32_t v2 = *(int32_t *)(a1 + 8); // 0x10006032
     int32_t result = 0; // ebx
     int64_t v3 = 0; // 0x10006040
     if (v2 >= 0) {
@@ -18613,7 +18613,7 @@ int32_t function_10006025(int32_t deviceId) {
         v11--;
         // continue -> 0x10006055
     }
-    int32_t lpAddress = *(int32_t *)(deviceId + 12) + 0x8000 * result; // 0x10006068
+    int32_t lpAddress = *(int32_t *)(a1 + 12) + 0x8000 * result; // 0x10006068
     int32_t v12 = lpAddress; // edi
     if (VirtualAlloc((int32_t *)lpAddress, 0x8000, 0x1000, 4) != NULL) {
         int32_t v13 = v12; // 0x10006088
@@ -18667,7 +18667,7 @@ int32_t function_10006025(int32_t deviceId) {
         *(int32_t *)(v1 + 196 + 4 * result) = v12;
         char * v24 = (char *)(v1 + 67); // 0x100060f7
         char v25 = *v24; // 0x100060f7
-        v7 = deviceId;
+        v7 = a1;
         *v24 = v25 + 1;
         if (v25 == 0) {
             int32_t * v26 = (int32_t *)(v7 + 4); // 0x10006108
@@ -18829,8 +18829,8 @@ int32_t function_10006120(void) {
 }
 
 // Address range: 0x10006264 - 0x100062b9
-int32_t function_10006264(int32_t * deviceId) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_10006264(int32_t * a1) {
+    int32_t v1 = (int32_t)a1;
     int32_t v2 = g8; // bp-4
     int32_t result = VirtualFree((int32_t *)*(int32_t *)(v1 + 16), 0, 0x8000); // 0x100062b9
     if (*(int32_t *)&g46 == v1) {
@@ -18854,7 +18854,7 @@ int32_t function_10006264(int32_t * deviceId) {
 }
 
 // Address range: 0x100062ba - 0x1000637b
-int32_t function_100062ba(int32_t deviceId) {
+int32_t function_100062ba(int32_t a1) {
     // 0x100062ba
     g8 = g44;
     int32_t v1 = g44; // 0x100062d5
@@ -18862,13 +18862,13 @@ int32_t function_100062ba(int32_t deviceId) {
   lab_0x100062c7:
     while (true) {
         int32_t v2 = v1; // 0x10006365
-        int32_t v3 = deviceId;
+        int32_t v3 = a1;
         if (*(int32_t *)(v1 + 16) != -1) {
             int32_t v4 = v1 + 0x2010; // 0x100062d5
             int32_t v5 = 0x3ff000; // ebx
             int32_t v6 = 0;
             int32_t v7 = 0x3ff000; // 0x100062e8
-            int32_t v8 = deviceId;
+            int32_t v8 = a1;
             // branch -> 0x100062e0
             int32_t v9;
             int32_t v10;
@@ -18976,7 +18976,7 @@ int32_t function_100062ba(int32_t deviceId) {
                                             goto lab_0x10006377;
                                         }
                                         v1 = v2;
-                                        deviceId = v3;
+                                        a1 = v3;
                                         // continue (via goto) -> 0x100062c7
                                         goto lab_0x100062c7;
                                     } else {
@@ -19039,8 +19039,8 @@ int32_t function_100062ba(int32_t deviceId) {
 }
 
 // Address range: 0x1000637c - 0x100063d2
-int32_t function_1000637c(int16_t deviceId, int32_t a2, int32_t a3) {
-    uint32_t v1 = (int32_t)deviceId; // 0x1000637c
+int32_t function_1000637c(int16_t a1, int32_t a2, int32_t a3) {
+    uint32_t v1 = (int32_t)a1; // 0x1000637c
     int32_t v2 = g8; // 0x10006385
     int32_t v3 = &g43; // 0x100063b3
     // branch -> 0x10006388
@@ -19079,8 +19079,8 @@ int32_t function_1000637c(int16_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x100063d3 - 0x10006417
-int32_t function_100063d3(int32_t deviceId, int32_t a2, char * a3) {
-    int32_t v1 = deviceId + 24 + 8 * (a2 - *(int32_t *)(deviceId + 16)) / 0x1000; // 0x100063e1
+int32_t function_100063d3(int32_t a1, int32_t a2, char * a3) {
+    int32_t v1 = a1 + 24 + 8 * (a2 - *(int32_t *)(a1 + 16)) / 0x1000; // 0x100063e1
     g2 = v1;
     int32_t * v2 = (int32_t *)v1; // 0x100063ec
     *v2 = *v2 + (int32_t)*a3;
@@ -19103,12 +19103,12 @@ int32_t function_100063d3(int32_t deviceId, int32_t a2, char * a3) {
 }
 
 // Address range: 0x10006418 - 0x1000661f
-int32_t function_10006418(unsigned char deviceId) {
+int32_t function_10006418(unsigned char a1) {
     int32_t v1 = g4; // 0x1000641d
     int32_t v2 = g8; // 0x1000641e
     int32_t v3 = *(int32_t *)&g46; // 0x1000641f
     g8 = v3;
-    int32_t v4 = deviceId; // 0x100064d1
+    int32_t v4 = a1; // 0x100064d1
     // branch -> 0x10006426
     int32_t result; // 0x10006462
     while (true) {
@@ -19141,7 +19141,7 @@ int32_t function_10006418(unsigned char deviceId) {
                     int32_t v17 = v3; // 0x10006477
                     int32_t v18; // 0x10006474
                     int32_t v19; // 0x1000647d
-                    if ((char)v16 >= deviceId) {
+                    if ((char)v16 >= a1) {
                         // 0x1000645a
                         if (*(int32_t *)(v7 + 4) > v4) {
                             // 0x1000645f
@@ -19373,7 +19373,7 @@ int32_t function_10006418(unsigned char deviceId) {
                             // 0x100065c4
                             *(int32_t *)(v36 + 12) = (int32_t)(v37 < v39) & v37;
                             result = v4;
-                            *(char *)(v30 + 8) = deviceId;
+                            *(char *)(v30 + 8) = a1;
                             *(int32_t *)(g6 + 8) = v29;
                             v40 = (int32_t *)v29;
                             *v40 = *v40 - result;
@@ -19391,7 +19391,7 @@ int32_t function_10006418(unsigned char deviceId) {
                     // 0x100065c4
                     *(int32_t *)(v36 + 12) = (int32_t)false & v35;
                     result = v4;
-                    *(char *)(v30 + 8) = deviceId;
+                    *(char *)(v30 + 8) = a1;
                     *(int32_t *)(g6 + 8) = v29;
                     v40 = (int32_t *)v29;
                     *v40 = *v40 - result;
@@ -19443,7 +19443,7 @@ int32_t function_10006418(unsigned char deviceId) {
                     // 0x100065c4
                     *(int32_t *)(v36 + 12) = (int32_t)false & v35;
                     result = v4;
-                    *(char *)(v30 + 8) = deviceId;
+                    *(char *)(v30 + 8) = a1;
                     *(int32_t *)(g6 + 8) = v29;
                     v40 = (int32_t *)v29;
                     *v40 = *v40 - result;
@@ -19467,7 +19467,7 @@ int32_t function_10006418(unsigned char deviceId) {
                         // 0x100065c4
                         *(int32_t *)(v36 + 12) = (int32_t)(v37 < v39) & v37;
                         result = v4;
-                        *(char *)(v30 + 8) = deviceId;
+                        *(char *)(v30 + 8) = a1;
                         *(int32_t *)(g6 + 8) = v29;
                         v40 = (int32_t *)v29;
                         *v40 = *v40 - result;
@@ -19496,7 +19496,7 @@ int32_t function_10006418(unsigned char deviceId) {
                 // 0x100065c4
                 *(int32_t *)(v36 + 12) = (int32_t)false & v46;
                 result = v4;
-                *(char *)(v30 + 8) = deviceId;
+                *(char *)(v30 + 8) = a1;
                 *(int32_t *)(g6 + 8) = v29;
                 v40 = (int32_t *)v29;
                 *v40 = *v40 - result;
@@ -19545,14 +19545,14 @@ int32_t function_10006418(unsigned char deviceId) {
 }
 
 // Address range: 0x10006620 - 0x10006743
-int32_t function_10006620(int32_t * deviceId, int32_t a2, int32_t a3) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_10006620(int32_t * a1, int32_t a2, int32_t a3) {
+    int32_t v1 = (int32_t)a1;
     int32_t v2 = v1; // ecx
     int32_t v3 = 0x1000000 * a3 / 0x1000000; // 0x10006627
     int32_t v4 = g8; // bp-16
     uint32_t v5 = *(int32_t *)(v1 + 4); // 0x1000662c
     int32_t v6 = g6; // bp-20
-    int32_t v7 = *deviceId; // 0x10006630
+    int32_t v7 = *a1; // 0x10006630
     uint32_t v8 = v1 + 248; // 0x10006632
     int32_t v9 = v7; // eax
     int32_t result;
@@ -19856,7 +19856,7 @@ int32_t function_10006620(int32_t * deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10006744 - 0x100067cf
-int32_t function_10006744(int32_t deviceId, int32_t * a2, int32_t a3) {
+int32_t function_10006744(int32_t a1, int32_t * a2, int32_t a3) {
     int32_t v1 = (int32_t)a2;
     int32_t v2 = g4; // 0x10006744
     g4 = 0;
@@ -19901,7 +19901,7 @@ int32_t function_10006744(int32_t deviceId, int32_t * a2, int32_t a3) {
             }
         }
         // 0x100067b2
-        result2 = ((int32_t (*)(int32_t, int32_t, int32_t, int32_t))&g80)(v5, deviceId, v1, a3);
+        result2 = ((int32_t (*)(int32_t, int32_t, int32_t, int32_t))&g80)(v5, a1, v1, a3);
         // branch -> 0x100067c5
     } else {
         int32_t * moduleHandle = LoadLibraryA("user32.dll"); // 0x10006756
@@ -19950,7 +19950,7 @@ int32_t function_10006744(int32_t deviceId, int32_t * a2, int32_t a3) {
                         v5 = 0;
                     }
                 }
-                int32_t result = ((int32_t (*)(int32_t, int32_t, int32_t, int32_t))&g80)(v5, deviceId, v1, a3); // 0x100067bf
+                int32_t result = ((int32_t (*)(int32_t, int32_t, int32_t, int32_t))&g80)(v5, a1, v1, a3); // 0x100067bf
                 // branch -> 0x100067c5
                 // 0x100067c5
                 g4 = v2;
@@ -19967,7 +19967,7 @@ int32_t function_10006744(int32_t deviceId, int32_t * a2, int32_t a3) {
 }
 
 // Address range: 0x100067d0 - 0x100068cd
-int32_t function_100067d0(char * deviceId, int32_t a2, uint32_t a3) {
+int32_t function_100067d0(char * a1, int32_t a2, uint32_t a3) {
     int32_t v1 = a3; // ecx
     int32_t v2 = g6; // 0x100067d4
     if (a3 == 0) {
@@ -19977,7 +19977,7 @@ int32_t function_100067d0(char * deviceId, int32_t a2, uint32_t a3) {
         int32_t v3 = g8; // 0x100067d9
         int32_t v4 = g4; // 0x100067da
         int32_t v5 = a3; // ebx
-        int32_t result = (int32_t)deviceId; // 0x100067e7
+        int32_t result = (int32_t)a1; // 0x100067e7
         int32_t v6 = result; // edi
         int32_t v7; // esi
         int32_t v8; // 0x10006815
@@ -20564,20 +20564,20 @@ int32_t function_100067d0(char * deviceId, int32_t a2, uint32_t a3) {
     }
     // 0x10006853
     g6 = v2;
-    return (int32_t)deviceId;
+    return (int32_t)a1;
 }
 
 // Address range: 0x100068ce - 0x10006940
-int32_t function_100068ce(int32_t deviceId) {
+int32_t function_100068ce(int32_t a1) {
     int32_t v1 = g8; // 0x100068ce
     int32_t v2 = function_1000694a(v1); // 0x100068cf
     g8 = 0;
-    *(int32_t *)v2 = deviceId;
+    *(int32_t *)v2 = a1;
     int32_t v3 = &g48; // 0x100068e5
     // branch -> 0x100068e1
     while (true) {
         // 0x100068e1
-        if (deviceId == *(int32_t *)v3) {
+        if (a1 == *(int32_t *)v3) {
             int32_t result = function_10006941(v1); // 0x10006907
             int32_t v4 = *(int32_t *)(8 * g8 + (int32_t)&g49); // 0x1000690c
             *(int32_t *)result = v4;
@@ -20595,9 +20595,9 @@ int32_t function_100068ce(int32_t deviceId) {
     // 0x100068f0
     int32_t result3; // 0x10006927
     int32_t result2; // 0x10006934
-    if (deviceId < 19) {
+    if (a1 < 19) {
         // 0x10006917
-        if (deviceId < 188 || deviceId > 202) {
+        if (a1 < 188 || a1 > 202) {
             // 0x10006934
             result2 = function_10006941(v1);
             *(int32_t *)result2 = 22;
@@ -20609,13 +20609,13 @@ int32_t function_100068ce(int32_t deviceId) {
         return result3;
     }
     // 0x100068f5
-    if (deviceId <= 36) {
+    if (a1 <= 36) {
         int32_t result4 = function_10006941(v1); // 0x100068fa
         *(int32_t *)result4 = 13;
         return result4;
     }
     // 0x10006917
-    if (deviceId < 188 || deviceId > 202) {
+    if (a1 < 188 || a1 > 202) {
         // 0x10006934
         result2 = function_10006941(v1);
         *(int32_t *)result2 = 22;
@@ -20628,23 +20628,23 @@ int32_t function_100068ce(int32_t deviceId) {
 }
 
 // Address range: 0x10006941 - 0x10006949
-int32_t function_10006941(int32_t deviceId) {
+int32_t function_10006941(int32_t a1) {
     // 0x10006941
     return function_1000363c() + 8;
 }
 
 // Address range: 0x1000694a - 0x10006952
-int32_t function_1000694a(int32_t deviceId) {
+int32_t function_1000694a(int32_t a1) {
     // 0x1000694a
     return function_1000363c() + 12;
 }
 
 // Address range: 0x10006953 - 0x100069d1
-int32_t function_10006953(uint32_t deviceId) {
+int32_t function_10006953(uint32_t a1) {
     int32_t v1 = g8; // 0x10006957
     int32_t v2 = g6; // 0x1000695e
     int32_t v3;
-    if ((int32_t)g111 <= deviceId) {
+    if ((int32_t)g111 <= a1) {
         // 0x100069b9
         *(int32_t *)function_10006941(v3) = 9;
         *(int32_t *)function_1000694a(v3) = 0;
@@ -20654,9 +20654,9 @@ int32_t function_10006953(uint32_t deviceId) {
         g8 = v1;
         return -1;
     }
-    int32_t v4 = 4 * deviceId / 32 + (int32_t)&g109; // 0x10006966
+    int32_t v4 = 4 * a1 / 32 + (int32_t)&g109; // 0x10006966
     g6 = v4;
-    int32_t v5 = 36 * (deviceId & 31); // 0x10006977
+    int32_t v5 = 36 * (a1 & 31); // 0x10006977
     g8 = v5;
     int32_t v6 = *(int32_t *)v4 + v5; // 0x1000697a
     if ((*(char *)(v6 + 4) & 1) == 0 || *(int32_t *)v6 == -1) {
@@ -20673,9 +20673,9 @@ int32_t function_10006953(uint32_t deviceId) {
     int32_t v8 = v4; // 0x100069af
     if (g57 == 1) {
         // 0x10006990
-        if (deviceId != 0) {
+        if (a1 != 0) {
             // 0x10006996
-            if (deviceId == 1) {
+            if (a1 == 1) {
                 // 0x100069a1
                 // branch -> 0x100069a9
                 // 0x100069a9
@@ -20685,7 +20685,7 @@ int32_t function_10006953(uint32_t deviceId) {
                 // branch -> 0x100069af
             } else {
                 // 0x10006999
-                if (deviceId == 2) {
+                if (a1 == 2) {
                     // 0x1000699c
                     // branch -> 0x100069a9
                     // 0x100069a9
@@ -20724,17 +20724,17 @@ int32_t function_10006953(uint32_t deviceId) {
 }
 
 // Address range: 0x100069d2 - 0x10006a13
-int32_t function_100069d2(uint32_t deviceId) {
+int32_t function_100069d2(uint32_t a1) {
     // 0x100069d2
     int32_t * v1;
-    if ((int32_t)g111 <= deviceId) {
+    if ((int32_t)g111 <= a1) {
         // 0x100069fd
         *(int32_t *)function_10006941((int32_t)&v1) = 9;
         *(int32_t *)function_1000694a((int32_t)&v1) = 0;
         return -1;
     }
-    int32_t v2 = *(int32_t *)(4 * deviceId / 32 + (int32_t)&g109); // 0x100069e9
-    int32_t v3 = 36 * (deviceId & 31); // 0x100069f0
+    int32_t v2 = *(int32_t *)(4 * a1 / 32 + (int32_t)&g109); // 0x100069e9
+    int32_t v3 = 36 * (a1 & 31); // 0x100069f0
     if ((*(char *)(v3 + 4 + v2) & 1) != 0) {
         // 0x100069fa
         return *(int32_t *)(v2 + v3);
@@ -20746,11 +20746,11 @@ int32_t function_100069d2(uint32_t deviceId) {
 }
 
 // Address range: 0x10006a14 - 0x10006a72
-int32_t function_10006a14(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_10006a14(int32_t a1, int32_t a2, int32_t a3) {
     int32_t v1 = g8; // 0x10006a21
     int32_t v2 = g6; // 0x10006a22
-    int32_t v3 = 4 * deviceId / 32 + (int32_t)&g109; // 0x10006a23
-    int32_t v4 = 36 * (deviceId & 31); // 0x10006a34
+    int32_t v3 = 4 * a1 / 32 + (int32_t)&g109; // 0x10006a23
+    int32_t v4 = 36 * (a1 & 31); // 0x10006a34
     g6 = v4;
     int32_t v5 = *(int32_t *)v3 + v4; // 0x10006a37
     g8 = v5;
@@ -20780,10 +20780,10 @@ int32_t function_10006a14(int32_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10006a73 - 0x10006a94
-int32_t function_10006a73(int32_t deviceId) {
-    int32_t v1 = *(int32_t *)(4 * deviceId / 32 + (int32_t)&g109); // 0x10006a82
+int32_t function_10006a73(int32_t a1) {
+    int32_t v1 = *(int32_t *)(4 * a1 / 32 + (int32_t)&g109); // 0x10006a82
     g5 = v1;
-    LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)(36 * (deviceId & 31) + 12 + v1));
+    LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *)(36 * (a1 & 31) + 12 + v1));
     int32_t * v2;
     return (int32_t)&v2;
 }
@@ -20842,10 +20842,10 @@ int32_t function_10006a95(void) {
 }
 
 // Address range: 0x10006b16 - 0x10006b43
-int32_t function_10006b16(int32_t deviceId) {
+int32_t function_10006b16(int32_t a1) {
     int32_t v1 = g8; // 0x10006b16
-    g8 = deviceId;
-    if (function_10006b44((int32_t *)deviceId, v1) != 0) {
+    g8 = a1;
+    if (function_10006b44((int32_t *)a1, v1) != 0) {
         // 0x10006b26
         g8 = v1;
         return -1;
@@ -20862,8 +20862,8 @@ int32_t function_10006b16(int32_t deviceId) {
 }
 
 // Address range: 0x10006b44 - 0x10006b9f
-int32_t function_10006b44(int32_t * deviceId, int32_t a2) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_10006b44(int32_t * a1, int32_t a2) {
+    int32_t v1 = (int32_t)a1;
     int32_t v2 = g4; // 0x10006b44
     int32_t v3 = g8; // 0x10006b45
     g8 = v1;
@@ -20884,7 +20884,7 @@ int32_t function_10006b44(int32_t * deviceId, int32_t a2) {
         return result;
     }
     int32_t v7 = *(int32_t *)(v1 + 8); // 0x10006b60
-    int32_t v8 = *deviceId - v7; // 0x10006b65
+    int32_t v8 = *a1 - v7; // 0x10006b65
     g6 = v8;
     if (v8 < 1) {
         // 0x10006b91
@@ -20939,7 +20939,7 @@ int32_t function_10006ba0(void) {
 }
 
 // Address range: 0x10006ba9 - 0x10006c4c
-int32_t function_10006ba9(int32_t deviceId) {
+int32_t function_10006ba9(int32_t a1) {
     int32_t v1 = g4; // 0x10006ba9
     int32_t v2 = g8; // 0x10006baa
     int32_t v3 = g6; // 0x10006bab
@@ -20953,7 +20953,7 @@ int32_t function_10006ba9(int32_t deviceId) {
         // branch -> 0x10006c36
         // 0x10006c36
         function_1000494b(2);
-        if (deviceId != 1) {
+        if (a1 != 1) {
             // 0x10006c47
             v4 = &g6;
             // branch -> 0x10006c49
@@ -20966,7 +20966,7 @@ int32_t function_10006ba9(int32_t deviceId) {
         g4 = v1;
         return *v4;
     }
-    int32_t v5 = deviceId - 1; // 0x10006bed
+    int32_t v5 = a1 - 1; // 0x10006bed
     int32_t v6 = g106; // 0x10006c2e3
     int32_t v7 = 0; // 0x10006bd5
     // branch -> 0x10006bc2
@@ -20987,7 +20987,7 @@ int32_t function_10006ba9(int32_t deviceId) {
                     // 0x10006bed
                     if (v5 != 0) {
                         // 0x10006c03
-                        if (deviceId == 0) {
+                        if (a1 == 0) {
                             // 0x10006c0a
                             if ((v12 & 2) != 0) {
                                 int32_t v15 = function_10006b16(v11); // 0x10006c10
@@ -21063,15 +21063,15 @@ int32_t function_10006ba9(int32_t deviceId) {
 }
 
 // Address range: 0x10006c4d - 0x10006c55
-int32_t function_10006c4d(int32_t deviceId) {
+int32_t function_10006c4d(int32_t a1) {
     // 0x10006c4d
     return __amsg_exit(2);
 }
 
 // Address range: 0x10006c56 - 0x10006c7f
-int32_t function_10006c56(int32_t deviceId) {
+int32_t function_10006c56(int32_t a1) {
     // 0x10006c56
-    if (g86 == 0 || unknown_0(deviceId) == 0) {
+    if (g86 == 0 || unknown_0(a1) == 0) {
         // 0x10006c6e
         return 0;
     }
@@ -21080,11 +21080,11 @@ int32_t function_10006c56(int32_t deviceId) {
 }
 
 // Address range: 0x10006c80 - 0x10006cd7
-int32_t function_10006c80(char * deviceId, int32_t a2) {
+int32_t function_10006c80(char * a1, int32_t a2) {
     // 0x10006c80
     int32_t v1;
     g7 = v1;
-    int32_t result = (int32_t)deviceId; // 0x10006c84
+    int32_t result = (int32_t)a1; // 0x10006c84
     if (v1 == 0) {
         // 0x10006cd3
         return result;
@@ -21180,7 +21180,7 @@ int32_t function_10006da5(void) {
 }
 
 // Address range: 0x10006dae - 0x10006db7
-int32_t function_10006dae(int32_t deviceId) {
+int32_t function_10006dae(int32_t a1) {
     // 0x10006dae
     g4 = &g51;
     g5 = *(int32_t *)(g3 + 8);
@@ -21188,7 +21188,7 @@ int32_t function_10006dae(int32_t deviceId) {
 }
 
 // Address range: 0x10006db8 - 0x10006dcf
-int32_t function_10006db8(int32_t deviceId, int32_t a2) {
+int32_t function_10006db8(int32_t a1, int32_t a2) {
     // 0x10006db8
     *(int32_t *)(g4 + 8) = g5;
     *(int32_t *)(g4 + 4) = g2;
@@ -21197,11 +21197,11 @@ int32_t function_10006db8(int32_t deviceId, int32_t a2) {
 }
 
 // Address range: 0x10006dd0 - 0x10006e8c
-int32_t function_10006dd0(int32_t deviceId, int32_t a2, int32_t a3) {
+int32_t function_10006dd0(int32_t a1, int32_t a2, int32_t a3) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = &deviceId; // 0x10006dd3
-    if ((*(int32_t *)(deviceId + 4) & 6) != 0) {
+    int32_t v2 = &a1; // 0x10006dd3
+    if ((*(int32_t *)(a1 + 4) & 6) != 0) {
         // 0x10006e70
         __local_unwind2(a2, -1);
         // branch -> 0x10006e85
@@ -21290,21 +21290,21 @@ int32_t function_10006dd0(int32_t deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10006e8d - 0x10006ea7
-int32_t function_10006e8d(int32_t * deviceId) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_10006e8d(int32_t * a1) {
+    int32_t v1 = (int32_t)a1;
     return __local_unwind2(*(int32_t *)(v1 + 24), *(int32_t *)(v1 + 28));
 }
 
 // Address range: 0x10006ea8 - 0x100070cb
-int32_t function_10006ea8(int32_t deviceId, int32_t a2, char a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
+int32_t function_10006ea8(int32_t a1, int32_t a2, char a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
     // 0x10006ea8
     abort();
     // UNREACHABLE
 }
 
 // Address range: 0x100070cc - 0x100070f6
-int32_t function_100070cc(char * deviceId, int32_t result) {
-    int32_t v1 = (int32_t)deviceId; // 0x100070d0
+int32_t function_100070cc(char * a1, int32_t result) {
+    int32_t v1 = (int32_t)a1; // 0x100070d0
     int32_t v2 = v1; // 0x100070ef
     if (result == 0) {
         // 0x100070e9
@@ -21351,7 +21351,7 @@ int32_t function_100070cc(char * deviceId, int32_t result) {
 }
 
 // Address range: 0x100070f7 - 0x1000723f
-int32_t function_100070f7(char * deviceId, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7) {
+int32_t function_100070f7(char * a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7) {
     // 0x100070f7
     abort();
     // UNREACHABLE
@@ -21410,22 +21410,22 @@ int32_t function_10007240(int32_t result) {
 }
 
 // Address range: 0x100072af - 0x1000737a
-int32_t function_100072af(char deviceId) {
-    char v1 = deviceId;
+int32_t function_100072af(char a1) {
+    char v1 = a1;
     char v2 = g5; // bp-8
     int32_t v3 = &v2; // 0x100072b2
     int32_t v4 = g4; // 0x100072ba
-    int32_t result = deviceId; // 0x100072da
+    int32_t result = a1; // 0x100072da
     int32_t result2; // 0x1000737a
     if (g84 == 0) {
         // 0x100072bd
-        if (deviceId < 97) {
+        if (a1 < 97) {
             // 0x10007378
             g4 = v4;
             return result;
         }
         // 0x100072c9
-        if (deviceId == 122 || deviceId < 122 != (121 - result & result) < 0) {
+        if (a1 == 122 || a1 < 122 != (121 - result & result) < 0) {
             // 0x100072d2
             result2 = result - 32;
             // branch -> 0x10007378
@@ -21440,7 +21440,7 @@ int32_t function_100072af(char deviceId) {
     int32_t v5; // 0x10007305
     if (g50 > 1) {
         // 0x100072ee
-        v5 = function_1000737b(deviceId, 2);
+        v5 = function_1000737b(a1, 2);
         // branch -> 0x10007305
     } else {
         // 0x100072fa
@@ -21480,11 +21480,11 @@ int32_t function_100072af(char deviceId) {
 }
 
 // Address range: 0x1000737b - 0x100073ef
-int32_t function_1000737b(char deviceId, int32_t a2) {
+int32_t function_1000737b(char a1, int32_t a2) {
     int16_t v1 = a2;
     int32_t v2 = g3; // bp-4
     char v3 = g5; // bp-8
-    int32_t v4 = deviceId; // 0x1000737f
+    int32_t v4 = a1; // 0x1000737f
     int32_t v5;
     if (v4 > 255) {
         int32_t v6 = v4 / 256; // 0x100073a2
@@ -21511,10 +21511,10 @@ int32_t function_1000737b(char deviceId, int32_t a2) {
 }
 
 // Address range: 0x100073f0 - 0x10007724
-int32_t function_100073f0(char * deviceId, uint32_t a2, uint32_t a3) {
+int32_t function_100073f0(char * a1, uint32_t a2, uint32_t a3) {
     int32_t v1 = g6; // 0x100073f3
     int32_t v2 = a2; // esi
-    int32_t result = (int32_t)deviceId; // 0x100073fb
+    int32_t result = (int32_t)a1; // 0x100073fb
     g6 = result;
     if (result > a2) {
         // 0x10007408
@@ -23888,7 +23888,7 @@ int32_t function_100073f0(char * deviceId, uint32_t a2, uint32_t a3) {
         }
     } else {
         // 0x10007418
-        _memcpy(deviceId, (char *)a2, a3 / 4);
+        _memcpy(a1, (char *)a2, a3 / 4);
         switch ((int2_t)a3) {
             default: {
                 // 0x1000744c4
@@ -23925,15 +23925,15 @@ int32_t function_100073f0(char * deviceId, uint32_t a2, uint32_t a3) {
 }
 
 // Address range: 0x10007725 - 0x10007755
-int32_t function_10007725(int32_t deviceId) {
+int32_t function_10007725(int32_t a1) {
     int32_t v1 = g8; // 0x10007725
-    g8 = deviceId;
+    g8 = a1;
     int32_t v2 = g6; // 0x1000772a
     g6 = -1;
-    int32_t v3 = deviceId + 12; // 0x1000772e
+    int32_t v3 = a1 + 12; // 0x1000772e
     if ((*(char *)v3 & 64) == 0) {
         // 0x1000773a
-        function_10004588(deviceId, v2, v1);
+        function_10004588(a1, v2, v1);
         g6 = function_10007756(g8);
         function_100045da(g8);
         // branch -> 0x10007751
@@ -23949,19 +23949,19 @@ int32_t function_10007725(int32_t deviceId) {
 }
 
 // Address range: 0x10007756 - 0x100077a1
-int32_t function_10007756(int32_t deviceId) {
+int32_t function_10007756(int32_t a1) {
     int32_t v1 = g8; // 0x10007756
-    g8 = deviceId;
+    g8 = a1;
     int32_t v2 = g6; // 0x1000775b
     g6 = -1;
-    if ((*(char *)(deviceId + 12) & -125) == 0) {
+    if ((*(char *)(a1 + 12) & -125) == 0) {
         // 0x10007799
         *(int32_t *)(g8 + 12) = 0;
         g8 = v1;
         return g6;
     }
     // 0x10007765
-    g6 = function_10006b44((int32_t *)deviceId, v2);
+    g6 = function_10006b44((int32_t *)a1, v2);
     __freebuf(g8);
     if (function_1000794a(*(int32_t *)(g8 + 16)) < 0) {
         // 0x10007782
@@ -23986,14 +23986,14 @@ int32_t function_10007756(int32_t deviceId) {
 }
 
 // Address range: 0x100077a2 - 0x10007949
-int32_t function_100077a2(int32_t * deviceId) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_100077a2(int32_t * a1) {
+    int32_t v1 = (int32_t)a1;
     int32_t v2 = g4; // 0x100077a2
     g4 = v1;
     int32_t v3 = g8; // 0x100077ad
     int32_t v4 = g6; // 0x100077ae
     int32_t v5;
-    if (&g111->e0 <= deviceId) {
+    if (&g111->e0 <= a1) {
         // 0x10007823
         *(int32_t *)function_10006941(v5) = 9;
         // branch -> 0x10007831
@@ -24058,19 +24058,19 @@ int32_t function_100077a2(int32_t * deviceId) {
 }
 
 // Address range: 0x1000794a - 0x100079a6
-int32_t function_1000794a(int32_t deviceId) {
+int32_t function_1000794a(int32_t a1) {
     int32_t v1 = g8; // 0x1000794a
-    g8 = deviceId;
+    g8 = a1;
     int32_t v2;
-    if ((int32_t)g111 <= deviceId) {
+    if ((int32_t)g111 <= a1) {
         // 0x1000798f
         *(int32_t *)function_10006941(v2) = 9;
         *(int32_t *)function_1000694a(v2) = 0;
         g8 = v1;
         return -1;
     }
-    int32_t v3 = *(int32_t *)(4 * deviceId / 32 + (int32_t)&g109); // 0x10007961
-    if ((*(char *)(36 * (deviceId & 31) + 4 + v3) & 1) == 0) {
+    int32_t v3 = *(int32_t *)(4 * a1 / 32 + (int32_t)&g109); // 0x10007961
+    if ((*(char *)(36 * (a1 & 31) + 4 + v3) & 1) == 0) {
         // 0x1000798f
         *(int32_t *)function_10006941(v2) = 9;
         *(int32_t *)function_1000694a(v2) = 0;
@@ -24078,7 +24078,7 @@ int32_t function_1000794a(int32_t deviceId) {
         return -1;
     }
     int32_t v4 = g6; // 0x10007972
-    function_10006a14(deviceId, v4, v1);
+    function_10006a14(a1, v4, v1);
     int32_t result = function_100079a7((int32_t *)g8); // 0x1000797a
     function_10006a73(g8);
     g6 = v4;
@@ -24087,8 +24087,8 @@ int32_t function_1000794a(int32_t deviceId) {
 }
 
 // Address range: 0x100079a7 - 0x10007a29
-int32_t function_100079a7(int32_t * deviceId) {
-    int32_t v1 = (int32_t)deviceId;
+int32_t function_100079a7(int32_t * a1) {
+    int32_t v1 = (int32_t)a1;
     int32_t v2 = g8; // 0x100079a7
     g8 = v1;
     int32_t result;
@@ -24238,10 +24238,10 @@ int32_t function_100079a7(int32_t * deviceId) {
 }
 
 // Address range: 0x10007a55 - 0x10007b2f
-int32_t function_10007a55(char * deviceId, int32_t a2) {
+int32_t function_10007a55(char * a1, int32_t a2) {
     // entry
     g8 = a2;
-    int32_t v1 = (int32_t)deviceId; // 0x10007a69
+    int32_t v1 = (int32_t)a1; // 0x10007a69
     g6 = v1;
     if (g84 != 0) {
         int32_t v2 = g89; // 0x10007ab3
@@ -24362,14 +24362,14 @@ int32_t function_10007a55(char * deviceId, int32_t a2) {
 }
 
 // Address range: 0x10007b30 - 0x10007c30
-int32_t function_10007b30(char * deviceId, int32_t a2, int32_t a3) {
+int32_t function_10007b30(char * a1, int32_t a2, int32_t a3) {
     // 0x10007b30
     g5 = a3;
     if (a3 == 0) {
         // 0x10007c2a
         return 0;
     }
-    int32_t v1 = (int32_t)deviceId; // 0x10007b41
+    int32_t v1 = (int32_t)a1; // 0x10007b41
     g8 = v1;
     g6 = a2;
     if (g84 == 0) {
@@ -24606,24 +24606,24 @@ int32_t function_10007b30(char * deviceId, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10007c31 - 0x10007cfb
-int32_t function_10007c31(char deviceId, int32_t a2) {
-    char v1 = deviceId;
+int32_t function_10007c31(char a1, int32_t a2) {
+    char v1 = a1;
     char v2 = g5; // bp-8
     int32_t v3 = &v2; // 0x10007c34
     int32_t v4 = g8; // 0x10007c3d
     int32_t v5 = g6; // 0x10007c3e
-    int32_t result = deviceId; // 0x10007c5e
+    int32_t result = a1; // 0x10007c5e
     int32_t result2; // 0x10007cfb
     if (g84 == 0) {
         // 0x10007c41
-        if (deviceId < 65) {
+        if (a1 < 65) {
             // 0x10007cf7
             g6 = v5;
             g8 = v4;
             return result;
         }
         // 0x10007c4d
-        if (deviceId == 90 || deviceId < 90 != (89 - result & result) < 0) {
+        if (a1 == 90 || a1 < 90 != (89 - result & result) < 0) {
             // 0x10007c56
             result2 = result + 32;
             // branch -> 0x10007cf7
@@ -24645,12 +24645,12 @@ int32_t function_10007c31(char deviceId, int32_t a2) {
     int32_t v12; // 0x10007cd4
     int32_t v13; // 0x10007c9a
     int32_t v14; // 0x10007cee
-    if (deviceId < 0) {
+    if (a1 < 0) {
         // 0x10007c6d
         int32_t v15; // 0x10007c77
         if (g50 > 1) {
             // 0x10007c75
-            v15 = function_1000737b(deviceId, 1);
+            v15 = function_1000737b(a1, 1);
             g5 = 1;
             // branch -> 0x10007c8a
         } else {
