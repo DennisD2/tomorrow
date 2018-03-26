@@ -11,6 +11,8 @@
         #define MR90XX_COMPILER_BC40
     #elif defined(_CVI_)
         #define MR90XX_COMPILER_LW40
+    #elif defined(__GNUC__)
+        #define MR90XX_COMPILER_GNUC
     #else
         #error "Compiler type is unknown!"
     #endif
@@ -26,6 +28,8 @@
     #define MR90XX_NAME_COMPILER " Borland "
 #elif defined(MR90XX_COMPILER_LW40)
     #define MR90XX_NAME_COMPILER " LabWindows/CVI "
+#elif defined(MR90XX_COMPILER_GNUC)
+    #define MR90XX_NAME_COMPILER " GNU C 64Bit "
 #else 
     #define MR90XX_NAME_COMPILER " (Unknown compler) "
 #endif
@@ -41,7 +45,9 @@
         #define MR90XX_OS_WIN16
     #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) || defined(__WIN32__)
         #define MR90XX_OS_WIN32
-    #else
+     #elif defined(__GNUC__) 
+        #define MR90XX_OS_LINUX
+   #else
         #error Could not determine if DOS16, WIN16, or WIN32 compile.
     #endif
 #endif  
@@ -54,6 +60,8 @@
     #define MR90XX_NAME_OS " 16-bit Windows "
 #elif defined(MR90XX_OS_WIN32)
     #define MR90XX_NAME_OS " 32-bit Windows "
+#elif defined(MR90XX_OS_LINUX)
+    #define MR90XX_NAME_OS " 64-bit Linux "
 #else
     #define MR90XX_NAME_OS " (Unknown OS) "
 #endif
@@ -85,6 +93,9 @@
 /*===========================================================================*/
 /* Finally, DEFINE REQUIRED MACROS based upon interface type                 */
 /*===========================================================================*/
+#if defined(__GNUC__)
+    #define MR90XX_IFACE_SICL
+#endif
 
 #if defined(MR90XX_IFACE_VISA)
     /*  VISA BUILD - Define the correct National Instruments preprocessor 

@@ -19,7 +19,7 @@
         #include "sapform.h"
     #endif
 
-    /* Undefine all macro versions of the interger types */
+    /* Undefine all macro versions of the integer types */
     #ifdef int8
         #undef int8
     #endif
@@ -52,6 +52,13 @@
         typedef unsigned int    uint16;
         typedef long            int32;
         typedef unsigned long   uint32;
+    #elif defined(__GNUC__) 
+        // DD additions 
+        typedef unsigned char   uint8;
+        typedef short           int16;
+        typedef unsigned short  uint16;
+        typedef int             int32;
+        typedef unsigned int    uint32;
     #else
         #error OS Platform undefined, choose one of MR90XX_OS_DOS16, MR90XX_OS_WIN16, or MR90XX_OS_WIN32
     #endif
@@ -174,6 +181,17 @@
         #define IE_CDECL        __cdecl
         #define IE_FAR          _far
         #define IE_FUNC         _far
+        #define IE_HFREQ        FREQUENCY
+        #define IE_HLFREQ       FREQ8500
+        #define IE_HAMPL        AMPL
+        #define IE_FUNCEXP
+        #define IE_HUGE
+        // DD Additions
+    #elif defined(__GNUC__)
+        #define IE_COMPILER_NAME "GNU C on 64 Bit"
+        #define IE_CDECL        __cdecl
+        #define IE_FAR          
+        #define IE_FUNC         
         #define IE_HFREQ        FREQUENCY
         #define IE_HLFREQ       FREQ8500
         #define IE_HAMPL        AMPL
