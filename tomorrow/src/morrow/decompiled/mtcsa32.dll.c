@@ -419,7 +419,7 @@ int32_t GetDbmForAmpl(int32_t a1, int16_t a2);
 int32_t GetDbmForVoltage(int32_t a1, float64_t a2);
 int32_t GetEngineReplyCode(int32_t a1);
 int32_t GetErrorStatus(int32_t a1);
-int32_t GetFuncStatusCode(int32_t a1);
+int32_t GetFuncStatusCode(/*int32_t a1*/ SET9052 *a1);
 int32_t GetMinMaxAmpl(int32_t a1, int32_t a2, int32_t a3);
 int32_t GetMinMaxAmplWithFreqExt(void);
 int32_t GetnVForAmpl(int32_t a1, int16_t a2);
@@ -438,7 +438,7 @@ int32_t InitEngine(int16_t a1);
 int32_t InitFreqHop(int32_t a1, int16_t a2, int32_t a3, int32_t a4, int32_t a5);
 int32_t InitGuiSweep(int32_t a1, int16_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8, uint32_t a9);
 int32_t InitGuiZspan(int32_t a1, uint16_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, uint32_t a7);
-int32_t InitInstrData(int32_t a1);
+int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1);
 int32_t InitTimeoutLoop(void);
 int32_t IsCalibrated(int32_t a1);
 int32_t IsSweeping(int32_t a1);
@@ -469,7 +469,7 @@ int32_t RdDetect(int32_t a1);
 int32_t RdDetectCode(int32_t a1);
 int32_t RdDwellTime(int32_t a1);
 int32_t RdEngineModel(int32_t a1);
-int32_t RdEngOption(int32_t a1, int32_t a2);
+int32_t RdEngOption(/*int32_t a1*/ SET9052 *a1, int32_t a2);
 int32_t RdErrorStatus(int32_t a1);
 int32_t RdExternRef(int32_t a1);
 int32_t RdFiltRatio(int32_t a1, int32_t * a2);
@@ -536,7 +536,7 @@ int32_t SetEngOption(int32_t a1, int32_t a2, uint16_t a3);
 int32_t SetErrorStatus(int32_t a1, int16_t a2);
 int32_t SetExternRef(int32_t a1, int16_t a2);
 int32_t SetFiltRatio(int32_t a1, float64_t a2, int32_t a3);
-int32_t SetFuncStatusCode(int32_t a1, uint16_t a2);
+int32_t SetFuncStatusCode(/*int32_t a1*/ SET9052 *a1, uint16_t a2);
 int32_t SetHopTabCnt(int32_t a1, int32_t a2, int32_t a3);
 int32_t SetIFStepAttn(int32_t a1, int16_t a2);
 int32_t SetInterfaceType(int32_t a1, int16_t a2, int32_t a3);
@@ -565,14 +565,14 @@ int32_t SetVBWmode(int32_t a1, int16_t a2);
 int32_t SetZCellSize(int32_t a1, uint32_t a2);
 int32_t SetZSamplCnt(int32_t a1, int32_t a2, int32_t a3);
 int32_t SetZSamplDvdr(int32_t a1, uint16_t a2);
-int32_t SetZSamplRate(int32_t a1, int64_t a2);
+int32_t SetZSamplRate(/*int32_t a1*/ SET9052 *a1, int64_t a2);
 int32_t ShutdownEngine(int16_t a1);
 int32_t StartFreqHop(int32_t a1);
 int32_t StartSweep(int32_t a1);
 int32_t StartZspan(int32_t a1);
 int32_t StepSizeMode(int32_t a1, int16_t a2, int32_t a3);
 int32_t SwpTimeMode(int32_t a1, int16_t a2, int32_t a3);
-int32_t TestFuncStatusAndPtr(int32_t a1);
+int32_t TestFuncStatusAndPtr(/*int32_t a1*/ SET9052 *a1);
 int32_t TestTimeoutDone(int32_t a1);
 int32_t unknown_0(int32_t a1);
 int32_t unknown_10010a00(int32_t a1);
@@ -908,7 +908,7 @@ int32_t FuncStatusFromEngineReply(int16_t a1) {
 }
 
 // Address range: 0x10001365 - 0x100013b0
-int32_t SetFuncStatusCode(int32_t a1, uint16_t a2) {
+int32_t SetFuncStatusCode(/*int32_t a1*/ SET9052 *a1, uint16_t a2) {
     int32_t v1 = g4; // 0x10001365
     int32_t v2 = v1; // bp-4
     g4 = &v2;
@@ -953,7 +953,7 @@ int32_t SetFuncStatusCode(int32_t a1, uint16_t a2) {
 }
 
 // Address range: 0x100013b1 - 0x100013cb
-int32_t GetFuncStatusCode(int32_t a1) {
+int32_t GetFuncStatusCode(/*int32_t a1*/ SET9052 *a1) {
     // entry
     int32_t result;
     if (a1 != 0) {
@@ -970,19 +970,19 @@ int32_t GetFuncStatusCode(int32_t a1) {
 }
 
 // Address range: 0x100013cc - 0x100013e2
-int32_t ClearFuncStatusCode(int32_t result) {
+int32_t ClearFuncStatusCode(/*int32_t a1*/ SET9052 *a1) {
     // entry
-    if (result != 0) {
+    if (a1 != 0) {
         // 0x100013d5
-        *(int16_t *)(result + 204) = 0;
+        *(int16_t *)(a1 + 204) = 0;
         // branch -> 0x100013e1
     }
     // 0x100013e1
-    return result;
+    return a1;
 }
 
 // Address range: 0x100013e3 - 0x10001405
-int32_t SetEngineReplyCode(int32_t a1, uint16_t a2) {
+int32_t SetEngineReplyCode(/*int32_t a1*/ SET9052 *a1, uint16_t a2) {
     // entry
     int32_t result;
     if (a1 != 0) {
@@ -1000,7 +1000,7 @@ int32_t SetEngineReplyCode(int32_t a1, uint16_t a2) {
 }
 
 // Address range: 0x10001406 - 0x10001420
-int32_t GetEngineReplyCode(int32_t a1) {
+int32_t GetEngineReplyCode(/*int32_t a1*/ SET9052 *a1) {
     // entry
     int32_t result;
     if (a1 != 0) {
@@ -1017,7 +1017,7 @@ int32_t GetEngineReplyCode(int32_t a1) {
 }
 
 // Address range: 0x10001421 - 0x1000146f
-int32_t TestFuncStatusAndPtr(int32_t a1) {
+int32_t TestFuncStatusAndPtr(/*int32_t a1*/ SET9052 *a1) {
     // entry
     if (a1 == 0) {
         // 0x1000142b
@@ -1305,7 +1305,6 @@ int32_t function_10001718(int32_t a1) {
                     }
                     // 0x10001a8d
                     if (*(int16_t *)(a1 + 78) == 1) {
-                        // 0x10001a99
                         g8 = a1;
                         function_10001e98(a1);
                         // branch -> 0x10001af2
@@ -2729,7 +2728,7 @@ int32_t SetEngOption(int32_t a1, int32_t a2, uint16_t a3) {
 }
 
 // Address range: 0x100030a3 - 0x10003120
-int32_t RdEngOption(int32_t a1, int32_t a2) {
+int32_t RdEngOption(/*int32_t a1*/ SET9052 *a1, int32_t a2) {
     // entry
     if (a1 == 0) {
         // 0x100030ad
@@ -7043,14 +7042,14 @@ int32_t RdZSamplCnt(int32_t a1) {
 }
 
 // Address range: 0x100067d5 - 0x10006851
-int32_t SetZSamplRate(int32_t a1, int64_t a2) {
+int32_t SetZSamplRate(/*int32_t a1*/ SET9052 *a1, int64_t rate) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100067e3
     g3 = v1;
     int32_t result; // 0x10006851
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-        uint32_t v2 = (int32_t)a2; // 0x10006800
+        uint32_t v2 = (int32_t)rate; // 0x10006800
         uint64_t v3; // 0x1000683d
         if (v2 >= 306) {
             // 0x10006818
@@ -7062,12 +7061,13 @@ int32_t SetZSamplRate(int32_t a1, int64_t a2) {
             } else {
                 // 0x10006821
                 v4 = -3;
-                a2 = 0xf4240;
+                rate = 0xf4240;
                 // branch -> 0x10006836
             }
             // 0x10006836
-            v3 = 0x989680 / a2;
+            v3 = 0x989680 / rate;
             *(int16_t *)(a1 + 156) = (int16_t)v3;
+            a1->zsampl_dvdr = (int16_t)v3;
             // branch -> 0x1000684e
             // 0x1000684e
             return (int32_t)v3 & -0x10000 | (int32_t)v4;
@@ -7077,7 +7077,8 @@ int32_t SetZSamplRate(int32_t a1, int64_t a2) {
         // 0x10006836
         v3 = 0x7fa7;
         *(int16_t *)(a1 + 156) = (int16_t)v3;
-        result = (int32_t)v3 & -0x10000 | (int32_t)-3;
+        a1->zsampl_dvdr = (int16_t)v3;
+       result = (int32_t)v3 & -0x10000 | (int32_t)-3;
         // branch -> 0x1000684e
     } else {
         // 0x100067f2
