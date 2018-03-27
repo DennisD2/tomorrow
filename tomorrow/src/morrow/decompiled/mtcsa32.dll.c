@@ -4849,14 +4849,14 @@ int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
 
         //*(int32_t *)(a1 + 168) = 501;//num_step_pts
         a1->num_step_pts = 501;
-        *(int32_t *)(a1 + 172) = 501;//num_hop_pts
+        //*(int32_t *)(a1 + 172) = 501;//num_hop_pts
         a1->num_hop_pts = 501;
-        *(int16_t *)(a1 + 176) = 50;//impedance
+        //*(int16_t *)(a1 + 176) = 50;//impedance
         a1->impedance = 50;
 
-        *(int16_t *)(a1 + 184) = 0;//extern_ref
+        //*(int16_t *)(a1 + 184) = 0;//extern_ref
         a1->extern_ref = 0;
-        *(int32_t *)(a1 + 188) = 0;//err_status
+        //*(int32_t *)(a1 + 188) = 0;//err_status
         a1->err_status = 0;
 
         // start of values not settled so far
@@ -4878,11 +4878,11 @@ int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
         *(char *)(a1 + 594) = 0; // must be commInitString but offset is wrong by 6 bytes
         // end of not settled values
 
-        *(int16_t *)(a1 + 100) = 0;//PreampAvailable
+        //*(int16_t *)(a1 + 100) = 0;//PreampAvailable
         a1->PreampAvailable = 0;
-        *(int16_t *)(a1 + 102) = 0;//PreampEnabled
+        //*(int16_t *)(a1 + 102) = 0;//PreampEnabled
         a1->PreampEnabled = 0;
-        *(int16_t *)(a1 + 104) = 10;//PreampGain
+        //*(int16_t *)(a1 + 104) = 10;//PreampGain
         a1->PreampGain = 10;
         function_10001718(a1);
         result = function_10001b13(a1) & -0x10000;
