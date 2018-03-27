@@ -108,6 +108,8 @@ typedef struct SAStruct
     int16    swp_in_prog;   /* 4 Flag indicating if data is currently     */
                             /* being gathered(TRUE),or if sweep is being*/
                             /* paused or held(FALSE).                   */
+
+    /* DD: TODO: 'start' starts with 8 , not 6. Maybe alignment isue? Correct all numbers :-( */
     FREQ8500 start;         /* 6 Start frequency in Hz                    */
     FREQ8500 stop ;         /* 14-0xd Stop frequency in Hz                     */
     FREQ8500 step ;         /* 22-0x16 Step size in Hz                          */

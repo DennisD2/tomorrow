@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <windows.h>
+//#include <windows.h>
 
 // ---------------- Integer Types Definitions -----------------
 
@@ -4376,7 +4376,7 @@ int32_t function_10004411(int16_t a1) {
 }
 
 // Address range: 0x100046f3 - 0x1000495f
-int32_t mr90xx_OpenSession(int32_t a1, int32_t * a2) {
+int32_t mr90xx_OpenSession(int32_t session_string, int32_t * session_id) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = function_10004960(-1); // 0x1000470f
@@ -4399,7 +4399,7 @@ int32_t mr90xx_OpenSession(int32_t a1, int32_t * a2) {
             // 0x10004770
             _RdSessionString(*v6, v4);
             g5 = v4;
-            if (function_1000a4b0((char *)&v3, a1) == 0) {
+            if (function_1000a4b0((char *)&v3, session_string) == 0) {
                 // 0x100047a4
                 function_1000498f(v2);
                 // branch -> 0x1000495c
@@ -4425,11 +4425,11 @@ int32_t mr90xx_OpenSession(int32_t a1, int32_t * a2) {
         g3 = v1;
         return -0x4003f7ff;
     }
-    int16_t v8 = _OpenSession(v2, a1, 1); // 0x100047fb
+    int16_t v8 = _OpenSession(v2, session_string, 1); // 0x100047fb
     int32_t result; // 0x1000495f
     if (v8 == 0) {
         // 0x10004839
-        *a2 = _RdSessionHandle(v2);
+        *session_id = _RdSessionHandle(v2);
         int32_t v9 = 0; // 0x1000486810
         int16_t v10 = 0;
         // branch -> 0x10004871
@@ -4462,7 +4462,7 @@ int32_t mr90xx_OpenSession(int32_t a1, int32_t * a2) {
                 int32_t * v14 = (int32_t *)(4 * v13 + (int32_t)&g60); // 0x100048e2
                 if (*v14 != 0) {
                     // 0x100048ee
-                    if (*a2 == _RdSessionHandle(*v14)) {
+                    if (*session_id == _RdSessionHandle(*v14)) {
                         // 0x1000490b
                         function_1000498f(v2);
                         // branch -> 0x1000495c
@@ -4501,6 +4501,10 @@ int32_t mr90xx_OpenSession(int32_t a1, int32_t * a2) {
 
 // Address range: 0x10004960 - 0x1000498e
 int32_t function_10004960(int32_t a1) {
+	// DD: GlobalAlloc(_In_ UINT uFlags, _In_ SIZE_T dwBytes)
+	// See https://technet.microsoft.com/de-de/library/aa366574(v=vs.85).aspx
+	// 0x2000 is 'no flag'
+	// 736 = 0x2e0
     int32_t * hMem = GlobalAlloc(0x2000, 736); // 0x1000496e
     g58 = (int32_t)hMem;
     return (int32_t)GlobalLock(hMem);
@@ -5720,6 +5724,9 @@ int32_t function_10005052(void) {
     g31 = 0x10005685;
     return 0x10005685;
 }
+
+/** DD: begin large comment */
+/*
 
 // Address range: 0x100050b3 - 0x1000518b
 int32_t function_100050b3(int32_t a1, int32_t a2, int32_t a3) {
@@ -33338,6 +33345,7 @@ int32_t function_1000a42a(int16_t * a1, int32_t a2, int32_t a3) {
     return g2;
 }
 
+*/
 // Address range: 0x1000a4b0 - 0x1000a57f
 int32_t function_1000a4b0(char * a1, int32_t a2) {
     int32_t v1 = g6; // 0x1000a4b3
@@ -33478,6 +33486,7 @@ int32_t function_1000a4b0(char * a1, int32_t a2) {
     }
 }
 
+/*
 // Address range: 0x1000a580 - 0x1000a680
 int32_t function_1000a580(char * a1, int32_t a2, int32_t a3) {
     // 0x1000a580
@@ -33745,6 +33754,9 @@ void _RtlUnwind(int32_t * TargetFrame, int32_t * TargetIp, struct _EXCEPTION_REC
     // 0x1000a7c0
     RtlUnwind(TargetFrame, TargetIp, ExceptionRecord, ReturnValue);
 }
+
+*/
+/* DD: end large comment */
 
 // --------------- Statically Linked Functions ----------------
 

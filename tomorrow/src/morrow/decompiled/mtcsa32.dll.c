@@ -8,7 +8,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <windows.h>
+//#include <windows.h>
+
+#include "../include/sa_defin.h"
+#include "../include/str_9052.h"
 
 // ---------------- Integer Types Definitions -----------------
 
@@ -4713,37 +4716,50 @@ int32_t BreakSweep(int32_t a1, uint16_t a2) {
     return result;
 }
 
+// DD: because (a1 + 2) == engine_model, a1 must be (struct SAStruct *) = SET9052 !!! yippie 2
 // Address range: 0x10004b94 - 0x10004ee4
-int32_t InitInstrData(int32_t a1) {
+int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int32_t result;
     if (a1 != 0) {
         // 0x10004ba6
         *(int16_t *)(a1 + 196) = 0;
-        int16_t * v2 = (int16_t *)(a1 + 2); // 0x10004bb5
-        if (*v2 != 256) {
+        // DD: (int16_t *)(a1 + 2) equals a1->engine_model
+        // int16_t * v2 = (int16_t *)(a1 + 2); // 0x10004bb5
+        int16_t * v2 = (int16_t *)&(a1->engine_model); // 0x10004bb5
+        // DD: 256 = 0x100 = SA9052, 512=0x200=SA9054, 1024=0x400=SA9034, 768=0x300=SA9085
+        if (*v2 != SA9052 /*256*/) {
             // 0x10004bc1
-            if (*v2 != 512) {
+            if (*v2 != SA9054 /*512*/) {
                 // 0x10004bd0
-                if (*v2 != 1024) {
+                if (*v2 != SA9034 /*1024*/) {
                     // 0x10004bde
-                    if (*v2 != 768) {
+                    if (*v2 != SA9085 /*768*/) {
                         // 0x10004bed
-                        *v2 = 256;
+                        *v2 = SA9052 /*256*/;
                         // branch -> 0x10004bf6
                     }
                 }
             }
         }
         // 0x10004bf6
-        *(int32_t *)(a1 + 8) = 0;
-        *(int32_t *)(a1 + 12) = 0x4197d784;
-        *(int32_t *)(a1 + 16) = 0;
-        *(int32_t *)(a1 + 20) = 0x41a7d784;
+        // DD: a1+8 = a1->start but aligned to 8byte(?TODO ensure that this is so)
+        //*(int32_t *)(a1 + 8) = 0;
+        //*(int32_t *)(a1 + 12) = 0x4197d784;
+        a1->start = 100000000.0;
+
+        //*(int32_t *)(a1 + 16) = 0;
+        //*(int32_t *)(a1 + 20) = 0x41a7d784;
+        a1->stop = 200000000.0;
+
         *(int16_t *)(a1 + 204) = 0;
         *(int16_t *)(a1 + 206) = 0;
-        *(int16_t *)(a1 + 4) = 0;
+
+        // DD: a1+4 = a1->swp_in_prog
+        //*(int16_t *)(a1 + 4) = 0;
+        a1->swp_in_prog = 0;
+
         *(int32_t *)(a1 + 24) = 0;
         *(int32_t *)(a1 + 28) = 0x40e86a00;
         *(int16_t *)(a1 + 32) = 1;
