@@ -4753,59 +4753,109 @@ int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
         //*(int32_t *)(a1 + 20) = 0x41a7d784;
         a1->stop = 200000000.0;
 
-        *(int16_t *)(a1 + 204) = 0;
-        *(int16_t *)(a1 + 206) = 0;
+        *(int16_t *)(a1 + 204) = 0; //openStep? I also fear it's func_status_code
+        *(int16_t *)(a1 + 206) = 0; // sessionString := '\0'; or is it engine_reply_code
 
         // DD: a1+4 = a1->swp_in_prog
         //*(int16_t *)(a1 + 4) = 0;
-        a1->swp_in_prog = 0;
+        a1->swp_in_prog = IE_FALSE;
 
-        *(int32_t *)(a1 + 24) = 0;
-        *(int32_t *)(a1 + 28) = 0x40e86a00;
-        *(int16_t *)(a1 + 32) = 1;
-        *(int16_t *)(a1 + 34) = 1;
-        *(int16_t *)(a1 + 64) = 1;
-        *(int16_t *)(a1 + 66) = 1;
-        *(int32_t *)(a1 + 36) = 0;
-        *(int32_t *)(a1 + 40) = 0;
-        *(int32_t *)(a1 + 48) = 0;
-        *(int32_t *)(a1 + 52) = 0;
-        *(int32_t *)(a1 + 60) = 120;
-        *(int16_t *)(a1 + 72) = 4;
-        *(int16_t *)(a1 + 74) = 1;
-        *(int16_t *)(a1 + 76) = 7;
-        *(int16_t *)(a1 + 78) = 1;
-        *(int16_t *)(a1 + 80) = 0;
-        *(int32_t *)(a1 + 88) = -0x66666666;
-        *(int32_t *)(a1 + 92) = 0x3fb99999;
-        *(int16_t *)(a1 + 96) = 20;
-        *(int16_t *)(a1 + 98) = 0;
-        *(int16_t *)(a1 + 108) = 0;
-        *(int16_t *)(a1 + 110) = 1;
-        *(int32_t *)(a1 + 112) = 0;
-        *(int16_t *)(a1 + 116) = 0;
-        *(int32_t *)(a1 + 120) = 0;
-        *(int32_t *)(a1 + 124) = 0;
-        *(int16_t *)(a1 + 128) = 36;
-        *(int16_t *)(a1 + 130) = 5;
-        *(int32_t *)(a1 + 132) = 501;
-        *(int16_t *)(a1 + 136) = 0;
-        *(int32_t *)(a1 + 144) = 0;
-        *(int32_t *)(a1 + 148) = 0x411e8480;
-        *(int32_t *)(a1 + 160) = 0;
-        *(int32_t *)(a1 + 68) = 501;
-        *(int32_t *)(a1 + 152) = 501;
-        SetZSamplRate(a1, 0xf4240);
-        *(int32_t *)(a1 + 164) = 501;
-        *(int32_t *)(a1 + 168) = 501;
-        *(int32_t *)(a1 + 172) = 501;
-        *(int16_t *)(a1 + 176) = 50;
-        *(int16_t *)(a1 + 184) = 0;
-        *(int32_t *)(a1 + 188) = 0;
-        *(int16_t *)(a1 + 472) = 880;
-        *(int16_t *)(a1 + 474) = 5;
+        //*(int32_t *)(a1 + 24) = 0;
+        //*(int32_t *)(a1 + 28) = 0x40e86a00;
+        a1->step = 50000.0;
+
+        //*(int16_t *)(a1 + 32) = 1;
+        a1->step_mode = 1;
+        //*(int16_t *)(a1 + 34) = 1;
+        a1->time_mode = 1;
+
+        //*(int16_t *)(a1 + 64) = 1;
+        a1->cell_mode = IE_TRUE;
+        //*(int16_t *)(a1 + 66) = 1;
+        a1->auto_cell = IE_ON;
+        //*(int32_t *)(a1 + 36) = 0;
+        a1->dwell_time = 0;
+        // *(int32_t *)(a1 + 40) = 0;
+        a1->settle_time = 0;
+
+        //*(int32_t *)(a1 + 48) = 0;
+        //*(int32_t *)(a1 + 52) = 0;
+        a1->sweep_time = 0;
+
+        //*(int32_t *)(a1 + 60) = 120;
+        a1->synth_time = 120;
+        //*(int16_t *)(a1 + 72) = 4;
+        a1->rbw_code = RBW_3MHZ;
+        //*(int16_t *)(a1 + 74) = 1;
+        a1->auto_rbw = IE_ON;
+
+        //*(int16_t *)(a1 + 76) = 7;
+        a1->vbw_code = VBW_3MHZ;
+
+        //*(int16_t *)(a1 + 78) = 1;
+        a1->auto_vbw = IE_ON;
+        //*(int16_t *)(a1 + 80) = 0;
+        a1->filter_code = 0;
+
+        //*(int32_t *)(a1 + 88) = -0x66666666;
+        //*(int32_t *)(a1 + 92) = 0x3fb99999;
+        a1->filter_ratio = 0.1;
+
+        //*(int16_t *)(a1 + 96) = 20;
+        a1->attenuation = 20;
+        //*(int16_t *)(a1 + 98) = 0;
+        a1->ref_level = 0;
+        //*(int16_t *)(a1 + 108) = 0;
+        a1->trig_code = 0;
+        //*(int16_t *)(a1 + 110) = 1;
+        a1->trig_norm_flag = IE_TRUE;
+        //*(int32_t *)(a1 + 112) = 0;
+        a1->trig_delay = 0;
+
+        //*(int16_t *)(a1 + 116) = 0;
+        a1->trig_thresh = 0;
+
+        //*(int32_t *)(a1 + 120) = 0;
+        //*(int32_t *)(a1 + 124) = 0;
+        a1->trig_freq = 0;
+
+        //*(int16_t *)(a1 + 128) = 36; // 36 = 0x20 +0x4
+        a1->detect_code = DTEC_ENABL | DTEC_LIN;
+        // *(int16_t *)(a1 + 130) = 5; // 5 = 0x1 + 0x4
+        a1->sweep_code = SWP_CONT | SWP_MAX;
+
+        //*(int32_t *)(a1 + 132) = 501;
+        a1->num_cells = 501;
+        //*(int16_t *)(a1 + 136) = 0;
+        a1->intr_code = 0;
+
+        //*(int32_t *)(a1 + 144) = 0;
+        //*(int32_t *)(a1 + 148) = 0x411e8480;
+        a1->zspan_freq = 500000.0;
+
+        //*(int32_t *)(a1 + 160) = 0;
+        a1->sweepIndex = 0; //ok
+
+        //*(int32_t *)(a1 + 68) = 501;
+        a1->deflt_pt_cnt = 501;
+
+        //*(int32_t *)(a1 + 152) = 501;
+        a1->num_samples = 501; //ok
+
+        SetZSamplRate(a1, 1000000 /*0xf4240*/);
+
+        //*(int32_t *)(a1 + 164) = 501;
+        a1->num_swp_pts = 501;//ok
+
+        *(int32_t *)(a1 + 168) = 501;//num_step_pts
+        *(int32_t *)(a1 + 172) = 501;//num_hop_pts
+        *(int16_t *)(a1 + 176) = 50;//impedance
+        *(int16_t *)(a1 + 184) = 0;//extern_ref
+        *(int32_t *)(a1 + 188) = 0;//err_status
+        *(int16_t *)(a1 + 472) = 880;//logical_addr
+        *(int16_t *)(a1 + 474) = 5;//commHandle
         *(int16_t *)(a1 + 476) = 127;
-        *(int32_t *)(a1 + 200) = 0;
+        *(int32_t *)(a1 + 200) = 0;//func_status_code
         *(int32_t *)(a1 + 480) = 0;
         *(int16_t *)(a1 + 532) = -1;
         *(int16_t *)(a1 + 536) = -1;
@@ -4815,12 +4865,12 @@ int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
         *(int16_t *)(a1 + 542) = 1;
         *(char *)(a1 + 544) = 0;
         *(char *)(a1 + 594) = 0;
-        *(int32_t *)(a1 + 192) = 0;
-        *(int32_t *)(a1 + 180) = 55;
-        *(int16_t *)(a1 + 100) = 0;
-        *(int16_t *)(a1 + 102) = 0;
-        *(int16_t *)(a1 + 104) = 10;
-        *(int32_t *)(a1 + 468) = 0;
+        *(int32_t *)(a1 + 192) = 0;//interfaceType
+        *(int32_t *)(a1 + 180) = 55;//ie_duration
+        *(int16_t *)(a1 + 100) = 0;//PreampAvailable
+        *(int16_t *)(a1 + 102) = 0;//PreampEnabled
+        *(int16_t *)(a1 + 104) = 10;//PreampGain
+        *(int32_t *)(a1 + 468) = 0;//data_port
         function_10001718(a1);
         result = function_10001b13(a1) & -0x10000;
         // branch -> 0x10004ee3
