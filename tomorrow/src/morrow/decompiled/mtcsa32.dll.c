@@ -4847,30 +4847,43 @@ int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
         //*(int32_t *)(a1 + 164) = 501;
         a1->num_swp_pts = 501;//ok
 
-        *(int32_t *)(a1 + 168) = 501;//num_step_pts
+        //*(int32_t *)(a1 + 168) = 501;//num_step_pts
+        a1->num_step_pts = 501;
         *(int32_t *)(a1 + 172) = 501;//num_hop_pts
+        a1->num_hop_pts = 501;
         *(int16_t *)(a1 + 176) = 50;//impedance
+        a1->impedance = 50;
+
         *(int16_t *)(a1 + 184) = 0;//extern_ref
+        a1->extern_ref = 0;
         *(int32_t *)(a1 + 188) = 0;//err_status
-        *(int16_t *)(a1 + 472) = 880;//logical_addr
-        *(int16_t *)(a1 + 474) = 5;//commHandle
+        a1->err_status = 0;
+
+        // start of values not settled so far
+        *(int32_t *)(a1 + 192) = 0;//interfaceType?
+        *(int32_t *)(a1 + 180) = 55;//ie_duration?
+        *(int32_t *)(a1 + 200) = 0;//func_status_code?
+        *(int32_t *)(a1 + 468) = 0;//data_port?
+        *(int16_t *)(a1 + 472) = 880;//logical_addr?
+        *(int16_t *)(a1 + 474) = 5;//commHandle?
         *(int16_t *)(a1 + 476) = 127;
-        *(int32_t *)(a1 + 200) = 0;//func_status_code
         *(int32_t *)(a1 + 480) = 0;
-        *(int16_t *)(a1 + 532) = -1;
+        *(int16_t *)(a1 + 532) = -1; // must be commNumber but offset is wrong by 6 bytes
         *(int16_t *)(a1 + 536) = -1;
         *(int16_t *)(a1 + 534) = -1;
         *(int16_t *)(a1 + 538) = -1;
         *(int16_t *)(a1 + 540) = 0;
         *(int16_t *)(a1 + 542) = 1;
-        *(char *)(a1 + 544) = 0;
-        *(char *)(a1 + 594) = 0;
-        *(int32_t *)(a1 + 192) = 0;//interfaceType
-        *(int32_t *)(a1 + 180) = 55;//ie_duration
+        *(char *)(a1 + 544) = 0; // must be commPhoneNum but offset is wrong by 6 bytes
+        *(char *)(a1 + 594) = 0; // must be commInitString but offset is wrong by 6 bytes
+        // end of not settled values
+
         *(int16_t *)(a1 + 100) = 0;//PreampAvailable
+        a1->PreampAvailable = 0;
         *(int16_t *)(a1 + 102) = 0;//PreampEnabled
+        a1->PreampEnabled = 0;
         *(int16_t *)(a1 + 104) = 10;//PreampGain
-        *(int32_t *)(a1 + 468) = 0;//data_port
+        a1->PreampGain = 10;
         function_10001718(a1);
         result = function_10001b13(a1) & -0x10000;
         // branch -> 0x10004ee3
