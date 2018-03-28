@@ -3643,6 +3643,17 @@ int32_t SetPortNum(int32_t a1, uint16_t a2) {
     return result;
 }
 
-
+int32_t GetFuncStatusCode(SET9052 *a1) {
+     int32_t result;
+    if (a1 != 0) {
+    	// TODO: what is "func_status_code | a1 & -0x10000" doing: why ORing with a1 ?
+    	// Maybe my replacement is not the same as the original line. Check this.
+        //result = (int32_t)*(int16_t *)(a1 + 204) | a1 & -0x10000;
+    	result = a1->func_status_code | (int32_t)a1 & -0x10000;
+    } else {
+         result = g3 & -0x10000 | 0xfff6;
+    }
+    return result;
+}
 
 
