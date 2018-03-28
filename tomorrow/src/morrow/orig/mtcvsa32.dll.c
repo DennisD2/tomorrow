@@ -356,7 +356,7 @@ int32_t g54 = 0;
 char * g55;
 int32_t g56 = 0;
 int32_t g57 = 0;
-int16_t g58 = 0;
+int16_t g_sa9054_data = 0;
 char g59 = 0;
 int32_t g60 = 0;
 int32_t g61 = 0;
@@ -2313,7 +2313,7 @@ int32_t function_100029ce(int32_t a1, int32_t a2, int32_t a3) {
         return result;
     }
     // 0x100029db
-    g58 = GetVersion();
+    g_sa9054_data = GetVersion();
     int32_t v2 = function_10003f00(1); // 0x100029e8
     g5 = 1;
     if (v2 == 0) {
@@ -2322,11 +2322,11 @@ int32_t function_100029ce(int32_t a1, int32_t a2, int32_t a3) {
         // 0x10002aa4
         return 0;
     }
-    int16_t v3 = g58; // 0x100029f2
+    int16_t v3 = g_sa9054_data; // 0x100029f2
     int32_t v4 = g59; // 0x100029f9
     g5 = v4;
     int32_t v5 = (int32_t)v3 & 255; // 0x100029ff
-    g58 = (int32_t)v3 / 0x10000;
+    g_sa9054_data = (int32_t)v3 / 0x10000;
     g61 = v5;
     g62 = v4;
     g60 = 256 * v5 | v4;

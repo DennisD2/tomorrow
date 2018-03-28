@@ -200,56 +200,60 @@ typedef struct SAStruct
     int16    impedance;          /* 176 Input impedance.  Normally 50 ohms.      */
 
     int32    ie_duration;        /* 180 delay time in milliseconds               */
-    int16    extern_ref;         /* 184 Flag for extern ref.  0 is default and   */
+    int16    extern_ref;         /* 184 REALITY:184 Flag for extern ref.  0 is default and   */
                                  /*   indicates extern ref is off.  1        */
                                  /*   activates the external reference.      */
-    uint32   err_status;         /* 188 last error that occured at low level     */
-    						/* DD: in decompile, interfaceType is uint32_t ! */
-    uint16   interfaceType;      /* 192 the hardware platform this analyzer uses */
-    uint32   eng_options  ;      /* 196 coded options flags, internal usage      */
-    int16    func_status_code  ; /* 200 status code of last function return      */
-    uint16   engine_reply_code ; /* 202 engine reply code of last engine return  */
 
-    int16    openStep          ; /* 204 Current step in the open session         */
+    /* DD: added next line */
+    uint32   z_cell_size;        /* 188: by code analysis, we have that value here !?! */
+
+    uint32   err_status;         /* 192 last error that occured at low level     */
+    						/* DD: in decompile, interfaceType is uint32_t ! */
+    uint16   interfaceType;      /* 196 the hardware platform this analyzer uses */
+    uint32   eng_options  ;      /* 200 coded options flags, internal usage      */
+    int16    func_status_code  ; /* 204 status code of last function return      */
+    uint16   engine_reply_code ; /* 206 engine reply code of last engine return  */
+
+    int16    openStep          ; /* 208 Current step in the open session         */
                                  /*   sequence.  Steps begins at 0 and       */
                                  /*   increment.                             */
-    char     sessionString[256]; /* 206 Session string to be used for opening a  */
+    char     sessionString[256]; /* 210 Session string to be used for opening a  */
                                  /*   the spectrum analyzer session.         */
-    uint32   session_handle;     /* 206+256=462=>464 defines a specific type of session       */
+    uint32   session_handle;     /* 468 defines a specific type of session       */
                                 
     /* ISA specific members */
-    uint16   data_port;          /* 468 Address port for this engine.  status    */
+    uint16   data_port;          /* 472 Address port for this engine.  status    */
                                  /*   will be data_port + 2.                 */
-    uint16   irq_num;            /* 470 Which interrupt line is this engine on.  */
+    uint16   irq_num;            /* 474 Which interrupt line is this engine on.  */
     
     /* VXI specific members */
-    int16   logical_addr;       /* 472 VXI logical address of the instrument if */
+    int16   logical_addr;       /* 476 VXI logical address of the instrument if */
                                 /*  it is a VXI device                      */
                             
     /* Serial specific members */
-    void    *commHandle;        /* 474 this is the pointer to the GreenLeaf
+    void    *commHandle;        /* 480 this is the pointer to the GreenLeaf
                                     PORT structure used for the serial port.
                                     Changed type to void * from 
                                     struct _tag_port*                       */
-    int32   serialErrs[6][2]; /* 478 */
-    int16   commNumber;         /* 478+48=526 Value that specifies a particular COMx
+    int32   serialErrs[6][2]; /* 484 */
+    int16   commNumber;         /* 484+48=532 Value that specifies a particular COMx
                                     for the GreenLeaf port open functions   */
-    int16   comm_addr;          /* 528 address for the current uart             */
-    int16   comm_irq;           /* 530 irq for the current uart                 */
-    int16   commRateCode;       /* 532 the index in the rate array of the bps
+    int16   comm_addr;          /* 534 address for the current uart             */
+    int16   comm_irq;           /* 536 irq for the current uart                 */
+    int16   commRateCode;       /* 538 the index in the rate array of the bps
                                     of the comm link                        */
-                                /* the first index should be 1 less than 
+                                /* the first index should be 1 less than
                                     the rates array's length(hokey)         */
-    int16   commDialMeth;       /* 534 tone(0) or pulse(1)                      */
-    int16   commSpeakMode;      /* 536 speaker on(1) or off(0)                  */
-    char    commPhoneNum[50] ;  /* 538 phone number to dial                    */
-    char    commInitString[50]; /* 588 initialization string for modems     */
-    int16   modemConnectTimeout ; /* 638 time after which modem connection is */
+    int16   commDialMeth;       /* 540 tone(0) or pulse(1)                      */
+    int16   commSpeakMode;      /* 542 speaker on(1) or off(0)                  */
+    char    commPhoneNum[50] ;  /* 544 phone number to dial                    */
+    char    commInitString[50]; /* 594 initialization string for modems     */
+    int16   modemConnectTimeout ; /* 644 time after which modem connection is */
                                   /* considered to have failed          */
     /* HP SICL members */
-    char    *baseAddr;      /* 640 the base address for the register map    */
+    char    *baseAddr;      /* 648 the base address for the register map    */
     
-    int      vxiID; /* 644 */
+    int      vxiID; /* 652 */
 
     /*  HANDLE is defined for the NT device driver development in the
         files <windows.h> <winioctl.h>.  The device handle is set in the
@@ -260,7 +264,7 @@ typedef struct SAStruct
     HANDLE nt_port_handle; 
 #endif
 
-    SET9052LIB funcLink ; /* 648 */
+    SET9052LIB funcLink ; /* 656 */
 } SET9052;
 
 #ifdef __cplusplus

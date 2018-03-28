@@ -348,7 +348,7 @@ char * g57[5] = {
     "dddd, MMMM dd, yyyy",
     "H:mm:ss"
 };
-char g58 = 14;
+char g_sa9054_data = 14;
 int32_t g59 = 0;
 int32_t g60 = 0;
 char * g61;
@@ -28863,7 +28863,7 @@ int32_t function_10006dba(int16_t * a1, int32_t a2, int32_t a3) {
     if (a2 < 0) {
         int32_t v7 = -a2; // 0x10006dda
         g2 = v7;
-        g4 = &g58;
+        g4 = &g_sa9054_data;
         v6 = v7;
         // branch -> 0x10006de2
     }

@@ -651,7 +651,7 @@ char * g56[5] = {
     "H:mm:ss"
 };
 char g57 = 14;
-int32_t g58 = 0;
+int32_t g_sa9054_data = 0;
 int32_t g59 = 0;
 int32_t g60 = 0;
 int32_t g61 = 0;
@@ -4481,7 +4481,7 @@ int32_t mr90xx_OpenSession(int32_t session_string, int32_t * session_id) {
             }
             int32_t v16 = 4 * (int32_t)v10; // 0x10004930
             *(int32_t *)(v16 + (int32_t)&g60) = v2;
-            *(int32_t *)(v16 + (int32_t)&g59) = g58;
+            *(int32_t *)(v16 + (int32_t)&g59) = g_sa9054_data;
             _ClearFuncStatusCode(v2);
             // branch -> 0x1000495c
             // 0x1000495c
@@ -4506,7 +4506,7 @@ int32_t function_10004960(int32_t a1) {
 	// 0x2000 is 'no flag'
 	// 736 = 0x2e0
     int32_t * hMem = GlobalAlloc(0x2000, 736); // 0x1000496e
-    g58 = (int32_t)hMem;
+    g_sa9054_data = (int32_t)hMem;
     return (int32_t)GlobalLock(hMem);
 }
 
@@ -4539,8 +4539,8 @@ int32_t function_1000498f(int32_t a1) {
         // 0x100049be
         if (v3 >= 100) {
             // 0x10004a04
-            GlobalUnlock((int32_t *)g58);
-            hMem = g58;
+            GlobalUnlock((int32_t *)g_sa9054_data);
+            hMem = g_sa9054_data;
             g5 = hMem;
             int32_t result = (int32_t)GlobalFree((int32_t *)hMem); // 0x10004a17
             // branch -> 0x10004a1d
@@ -4576,8 +4576,8 @@ int32_t function_1000498f(int32_t a1) {
         // branch -> 0x10004a1d
     } else {
         // 0x10004a04
-        GlobalUnlock((int32_t *)g58);
-        hMem = g58;
+        GlobalUnlock((int32_t *)g_sa9054_data);
+        hMem = g_sa9054_data;
         g5 = hMem;
         result2 = (int32_t)GlobalFree((int32_t *)hMem);
         // branch -> 0x10004a1d

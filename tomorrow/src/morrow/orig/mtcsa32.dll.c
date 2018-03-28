@@ -639,7 +639,7 @@ float64_t g54 = INFINITY;
 float64_t g55 = 1.7976931348623157e+308;
 int32_t g56; // 0x10018710
 int32_t g57; // 0x10018714
-int32_t g58 = -1;
+int32_t g_sa9054_data = -1;
 int32_t g60 = 480;
 int32_t g61 = 0;
 int32_t g66 = 0x19930520;
@@ -4863,9 +4863,9 @@ int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
         *(int32_t *)(a1 + 180) = 55;//ie_duration?
         *(int32_t *)(a1 + 200) = 0;//func_status_code?
         *(int32_t *)(a1 + 468) = 0;//data_port?
-        *(int16_t *)(a1 + 472) = 880;//logical_addr?
+        *(int16_t *)(a1 + 472) = 880;
         *(int16_t *)(a1 + 474) = 5;//commHandle?
-        *(int16_t *)(a1 + 476) = 127;
+        *(int16_t *)(a1 + 476) = 127;//logical_addr?
         *(int32_t *)(a1 + 480) = 0;
         *(int16_t *)(a1 + 532) = -1; // must be commNumber but offset is wrong by 6 bytes
         *(int16_t *)(a1 + 536) = -1;
