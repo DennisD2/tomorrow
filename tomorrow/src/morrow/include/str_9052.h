@@ -141,7 +141,7 @@ typedef struct SAStruct
     int16   auto_vbw;       /* 78 Auto mode on or off for VBW? (1 or 0)    */
     int16   filter_code;    /* 80 Combined filter codes for RBW & VBW.     */
                             /* Upper byte is VBW. Lower byte is RBW.    */
-    double  filter_ratio;   /* 82 Ratio of VBW to RBW. Defaults to 0.10    */
+    double  filter_ratio;   /* 88=82+6 Ratio of VBW to RBW. Defaults to 0.10    */
     /* ---------------------------------------------------------------- */
     /*  Since the calling application can switch between linear and log
         detectors at will, multiple structure members are provided to

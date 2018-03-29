@@ -11,6 +11,8 @@
 #include <sa_defin.h>
 #include <str_9052.h>
 
+#include <mr_defin.h>
+
 /* DD: added next lines */
 typedef float float32_t;
 typedef double float64_t;
@@ -18,7 +20,7 @@ typedef double float80_t;
 
 int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2);
 int32_t SetInterfaceType(int32_t a1, int16_t a2, int32_t a3);
-int32_t SetCellMode(int32_t a1, int16_t a2);
+int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode);
 int32_t SetPortNum(int32_t a1, uint16_t a2) ;
 int32_t GetRBWwide(int16_t a1);
 int32_t VBWFreqFromCode(int16_t a1);
@@ -198,7 +200,7 @@ int32_t TestFuncStatusAndPtr(/*int32_t a1*/SET9052 *a1) {
 	return result;
 }
 
-int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2) {
+int32_t SetFuncStatusCode(SET9052 *a1, uint16_t a2) {
 	int32_t v1 = g4; // 0x10001365
 	int32_t v2 = v1; // bp-4
 	g4 = &v2;
@@ -207,7 +209,7 @@ int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2) {
 	if (a1 != 0) {
 		// 0x10001374
 		g3 = a1;
-		int16_t * v4 = (int16_t *) (a1 + 204); // 0x10001377
+		int16_t * v4 = &a1->func_status_code; // (int16_t *) (a1 + 204); // 0x10001377
 		int16_t v5 = *v4; // 0x10001377
 		g6 = v5;
 		if (v5 >= 0) {
@@ -229,7 +231,7 @@ int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2) {
 		}
 		// 0x100013a5
 		v3 = v2;
-		// DD: next line replced 'a1' with '(int32_t)a1'
+		// DD: next line replaced 'a1' with '(int32_t)a1'
 		result = (int32_t) *v4 | (int32_t) a1 & -0x10000;
 		// branch -> 0x100013af
 	} else {
@@ -243,46 +245,33 @@ int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2) {
 	return result;
 }
 
-int32_t RdEngOption(/*int32_t a1*/SET9052 *a1, int32_t a2) {
-	// entry
+#define ENG_OPT_0 0
+#define ENG_OPT_1 1
+#define ENG_OPT_2 2
+int32_t RdEngOption(/*int32_t a1*/SET9052 *a1, int32_t option) {
 	if (a1 == 0) {
-		// 0x100030ad
-		// branch -> 0x1000311d
-		// 0x1000311d
 		return g3 & -0x10000 | 0xfff6;
 	}
-	// 0x100030b3
 	g3 = a1;
-	*(int16_t *) (a1 + 204) = 0;
-	g6 = a2;
-	if (a2 == 0) {
-		// 0x100030d9
+	//*(int16_t *) (a1 + 204) = 0;
+	a1->func_status_code = 0;
+	g6 = option;
+	if (option == ENG_OPT_0) {
 		g8 = a1;
-		// branch -> 0x1000311d
-		// 0x1000311d
-		return *(int32_t *) (a1 + 200) & 1;
+		//return *(int32_t *)(a1 + 200) & 1;
+		return a1->eng_options & 1;
 	}
-	// 0x100030cb
-	if (a2 == 1) {
-		// 0x100030e7
-		// branch -> 0x1000311d
-		// 0x1000311d
-		return (*(int32_t *) (a1 + 200) & 2) != 0;
+	if (option == ENG_OPT_1) {
+		return (a1->eng_options & 2) != 0;
 	}
-	// 0x100030d1
-	int32_t result; // 0x10003120
-	if (a2 == 2) {
-		// 0x100030fb
+	int32_t result;
+	if (option == ENG_OPT_2) {
 		g6 = a1;
-		result = (*(int32_t *) (a1 + 200) & 4) != 0;
-		// branch -> 0x1000311d
+		result = (a1->eng_options & 4) != 0;
 	} else {
-		// 0x1000310f
 		g8 = a1;
 		result = SetFuncStatusCode(a1, -1);
-		// branch -> 0x1000311d
 	}
-	// 0x1000311d
 	return result;
 }
 
@@ -557,7 +546,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 		a1->commRateCode = -1;
 		//*(int16_t *) (a1 + 540) = 0;
 		a1->commDialMeth = -1;
-		*(int16_t *) (a1 + 542) = 1;
+		//*(int16_t *) (a1 + 542) = 1;
 		a1->commSpeakMode = -1;
 
 		//*(char *) (a1 + 544) = 0; // commPhoneNum
@@ -632,7 +621,7 @@ int32_t SetZSamplRate(/*int32_t a1*/ SET9052 *a1, int64_t rate) {
     return result;
 }
 
-int32_t function_10001718(int32_t a1) {
+int32_t function_10001718(SET9052 *a1) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -648,105 +637,87 @@ int32_t function_10001718(int32_t a1) {
         g4 = v1;
         return result;
     }
-    float64_t v3 = *(float64_t *)(a1 + 16); // 0x1000174e
+    //float64_t v3 = *(float64_t *)(a1 + 16); // 0x1000174e
+    float64_t v3 = a1->stop;
     int32_t v4 = g11 - 1; // 0x1000174e
-    float64_t v5 = *(float64_t *)(a1 + 8); // 0x10001751
+    //float64_t v5 = *(float64_t *)(a1 + 8); // 0x10001751
+    float64_t v5 = a1->start;
     float64_t v6 = (float80_t)v5 - (float80_t)v3; // 0x10001754
-    if ((a1 & 256) == 0) {
-        int32_t * v7 = (int32_t *)(a1 + 68); // 0x10001773
-        int32_t * v8 = (int32_t *)(a1 + 164); // 0x10001776
+    // DD: a1 is a pointer; what does 'a1&256' mean???
+    if (((int32_t)a1 & 256) == 0) {
+        //int32_t * v7 = (int32_t *)(a1 + 68);
+    	int32_t *v7 = &a1->deflt_pt_cnt;
+        //int32_t * v8 = (int32_t *)(a1 + 164);
+        int32_t * v8 = &a1->num_swp_pts;
         *v8 = *v7;
-        int32_t * v9 = (int32_t *)(a1 + 168); // 0x10001785
+        //int32_t * v9 = (int32_t *)(a1 + 168);
+        int32_t * v9 = &a1->num_step_pts;
         *v9 = *v7;
         g8 = a1;
-        int16_t v10 = *(int16_t *)(a1 + 32); // 0x1000178e
-        if (v10 != 1) {
-            // 0x1000179b
-            if (v10 == 2) {
+        //int16_t v10 = *(int16_t *)(a1 + 32); // 0x1000178e
+        int16_t step_mode = a1->step_mode;
+        if (step_mode != MR90XX_AUTO_ON /*1*/) {
+            if (step_mode == MR90XX_STEPCNT /*2*/) {
                 int32_t v11 = *v9; // 0x10001aaa
                 g8 = a1;
-                *(float64_t *)(a1 + 24) = (float64_t)((float80_t)(v11 - 1) / (float80_t)v6);
-                if (*(int16_t *)(a1 + 74) == 1) {
-                    // 0x10001ace
-                    function_10001d01(a1);
-                    // branch -> 0x10001ada
+                //*(float64_t *)(a1 + 24) = (float64_t)((float80_t)(v11 - 1) / (float80_t)v6);
+                a1->step = (float64_t)((float80_t)(v11 - 1) / (float80_t)v6);
+                if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/ == MR90XX_AUTO_ON /*1*/) {
+                    setup_rbw(a1);
                 }
-                // 0x10001ada
-                if (*(int16_t *)(a1 + 78) == 1) {
-                    // 0x10001ae6
+                if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */ == MR90XX_AUTO_ON /*1*/) {
                     g8 = a1;
-                    function_10001e98(a1);
-                    // branch -> 0x10001af2
-                }
+                    setup_vbw(a1);
+                 }
             } else {
-                // 0x100017a5
-                if (v10 == 3) {
-                    // 0x10001a49
+                if (step_mode == MR90XX_STEPSIZ /*3*/) {
                     g11 = v4;
-                    int32_t v12 = __ftol((int32_t)v10) + 1; // 0x10001a57
+                    int32_t v12 = __ftol((int32_t)step_mode) + 1; // 0x10001a57
                     *v9 = v12;
                     g8 = v12;
                     *v8 = v12;
-                    if (*(int16_t *)(a1 + 74) == 1) {
-                        // 0x10001a81
-                        function_10001d01(a1);
-                        // branch -> 0x10001a8d
+                    if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/ == MR90XX_AUTO_ON /*1*/) {
+                        setup_rbw(a1);
                     }
-                    // 0x10001a8d
-                    if (*(int16_t *)(a1 + 78) == 1) {
+                     if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */ == MR90XX_AUTO_ON /*1*/) {
                         g8 = a1;
-                        function_10001e98(a1);
-                        // branch -> 0x10001af2
+                        setup_vbw(a1);
                     }
                 }
             }
-            // 0x10001af2
-            g160 = (float80_t)*(float64_t *)(a1 + 24);
-            // branch -> 0x10001b0f
-            // 0x10001b0f
+            g160 = (float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
             g4 = v1;
-            return a1 & -0x10000;
+            return (int32_t)a1 & -0x10000;
         }
-        // 0x100017b4
-        if (*(int16_t *)(a1 + 74) != 1) {
-            // 0x100017ce
-            if (*(int16_t *)(a1 + 78) == 1) {
-                // 0x100017da
-                function_10001e98(a1);
-                // branch -> 0x100017e6
+        if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/ != MR90XX_AUTO_ON /*1*/) {
+            if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */ == MR90XX_AUTO_ON /*1*/) {
+                 setup_vbw(a1);
             }
         } else {
-            // 0x100017c0
-            function_10001d01(a1);
-            // branch -> 0x100017e6
+            setup_rbw(a1);
         }
-        // 0x100017e6
-        int16_t * v13;
-        if (*(int16_t *)(a1 + 66) != 1) {
-            // 0x100017e6
-            v13 = (int16_t *)(a1 + 64);
-            // branch -> 0x1000183f
+        int16_t * cell_mode;
+        if (a1->auto_cell /* *(int16_t *)(a1 + 66) */ != MR90XX_AUTO_ON) {
+        	cell_mode = &a1->cell_mode; // (int16_t *)(a1 + 64);
         } else {
-            int16_t * v14 = (int16_t *)(a1 + 64); // 0x100017f5
-            if (*v14 == 0) {
-                int32_t v15 = GetRBWwide(4); // 0x10001811
+            int16_t * v14 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x100017f5
+            if (*v14 == IE_FALSE) {
+                int32_t v15 = GetRBWwide(4);
                 if (((0x100000000 * (int64_t)(v15 >> 31) | (int64_t)v15) / 3 & 256) != 0) {
-                    // 0x10001831
                     SetCellMode(a1, 1);
-                    v13 = v14;
-                    // branch -> 0x1000183f
+                    cell_mode = v14;
                 } else {
-                    v13 = v14;
+                	cell_mode = v14;
                 }
             } else {
-                v13 = v14;
+            	cell_mode = v14;
             }
         }
-        // 0x1000183f
-        if (*v13 != 1) {
-            int32_t v16 = GetRBWwide(*(int16_t *)(a1 + 72)); // 0x10001948
+
+        if (*cell_mode != IE_TRUE) {
+            int32_t v16 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10001948
             int32_t v17 = (0x100000000 * (int64_t)(v16 >> 31) | (int64_t)v16) / 3; // 0x10001956
-            float64_t * v18 = (float64_t *)(a1 + 24); // 0x10001961
+            float64_t * v18 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001961
             *v18 = (float64_t)v17;
             float80_t v19 = v6; // 0x10001967
             g11--;
@@ -782,29 +753,27 @@ int32_t function_10001718(int32_t a1) {
                 function_10001b13(a1);
                 // branch -> 0x10001af2
                 // 0x10001af2
-                g160 = (float80_t)*(float64_t *)(a1 + 24);
+                g160 = (float80_t) a1->step; // *(float64_t *)(a1 + 24);
                 // branch -> 0x10001b0f
                 // 0x10001b0f
                 g4 = v1;
-                return a1 & -0x10000;
+                return (int32_t)a1 & -0x10000;
             }
         } else {
-            int32_t v24 = GetRBWwide(*(int16_t *)(a1 + 72)); // 0x10001857
+            int32_t v24 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10001857
             int32_t v25 = (0x100000000 * (int64_t)(v24 >> 31) | (int64_t)v24) / 3; // 0x10001865
-            float64_t * v26 = (float64_t *)(a1 + 24); // 0x10001870
+            float64_t * v26 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001870
             *v26 = (float64_t)v25;
             float80_t v27 = v6; // 0x10001876
             g11--;
             int32_t v28 = __ftol(v25); // 0x10001882
             *v9 = v28;
-            int32_t * v29 = (int32_t *)(a1 + 132); // 0x1000189c
+            int32_t * v29 = &a1->num_cells; // (int32_t *)(a1 + 132); // 0x1000189c
             if (v28 < *v29) {
                 int32_t v30 = *v29; // 0x100018aa
                 *v9 = v30;
                 *v26 = (float64_t)((float80_t)(v30 - 1) / v27);
-                // branch -> 0x100018d1
             }
-            // 0x100018d1
             *v8 = *v9;
             g8 = a1;
             if (0x10000 * IsValidStep(a1) != 0x10000) {
@@ -814,7 +783,6 @@ int32_t function_10001718(int32_t a1) {
                 int32_t v32 = 0x10000 * IsValidStep(a1); // 0x10001933
                 g8 = v32 / 0x10000;
                 while (v32 != 0x10000) {
-                    // 0x100018f7
                     v31 = *v9;
                     *v9 = v31 + 10;
                     *v26 = (float64_t)((float80_t)(v31 + 9) / v27);
@@ -822,35 +790,23 @@ int32_t function_10001718(int32_t a1) {
                     g8 = v32 / 0x10000;
                     // continue -> 0x100018f7
                 }
-                // 0x10001a38
                 function_10001b13(a1);
-                // branch -> 0x10001af2
-                // 0x10001af2
-                g160 = (float80_t)*(float64_t *)(a1 + 24);
-                // branch -> 0x10001b0f
-                // 0x10001b0f
+                g160 = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
                 g4 = v1;
-                return a1 & -0x10000;
+                return (int32_t)a1 & -0x10000;
             }
         }
-        // 0x10001a38
         function_10001b13(a1);
-        // branch -> 0x10001af2
-        // 0x10001af2
-        g160 = (float80_t)*(float64_t *)(a1 + 24);
-        result = a1 & -0x10000;
-        // branch -> 0x10001b0f
+        g160 = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
+        result = (int32_t)a1 & -0x10000;
     } else {
-        // 0x10001764
-        result = a1 & -0x10000 | 0xfffb;
-        // branch -> 0x10001b0f
+        result = (int32_t)a1 & -0x10000 | 0xfffb;
     }
-    // 0x10001b0f
     g4 = v1;
     return result;
 }
 
-int32_t function_10001b13(int32_t result2) {
+int32_t function_10001b13(SET9052 *result2) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = result2;
@@ -969,7 +925,7 @@ int32_t function_10001b13(int32_t result2) {
     return result3;
 }
 
-int32_t function_10001d01(int32_t a1) {
+int32_t setup_rbw(SET9052 *a1) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -977,138 +933,118 @@ int32_t function_10001d01(int32_t a1) {
     int32_t v2 = 0x10000 * TestFuncStatusAndPtr(a1); // 0x10001d2d
     int32_t result = v2 / 0x10000; // 0x10001e97
     if ((v2 || 0xffff) < 0x1ffff) {
-        int16_t v3 = *(int16_t *)(a1 + 74); // 0x10001d3c
+        int16_t v3 = a1->auto_rbw; // *(int16_t *)(a1 + 74); // 0x10001d3c
         g8 = v3;
-        if (v3 != 0) {
-            float64_t v4 = *(float64_t *)(a1 + 16); // 0x10001d4f
-            float64_t v5 = *(float64_t *)(a1 + 8); // 0x10001d52
+        if (v3 != AUTO_OFF /*0*/) {
+
+            float64_t v4 = a1->stop; // *(float64_t *)(a1 + 16); // 0x10001d4f
+            float64_t v5 = a1->start; // *(float64_t *)(a1 + 8); // 0x10001d52
             float64_t v6 = (float80_t)v5 - (float80_t)v4; // 0x10001d55
-            int16_t * v7 = (int16_t *)(a1 + 64); // 0x10001d5b
+            int16_t * v7 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10001d5b
             float64_t v8;
-            if (*v7 != 0) {
-                // 0x10001d83
-                if (*v7 == 1) {
-                    int32_t v9 = *(int32_t *)(a1 + 168); // 0x10001d92
+            if (*v7 != IE_FALSE /*0*/) {
+                if (*v7 == IE_TRUE /*1*/) {
+                    int32_t v9 = a1->num_step_pts; // *(int32_t *)(a1 + 168); // 0x10001d92
                     v8 = (float80_t)(v9 - 1) / (float80_t)v6;
-                    // branch -> 0x10001dad
                 } else {
                     v8 = 0.0;
                 }
             } else {
-                int32_t v10 = *(int32_t *)(a1 + 164) - 1; // 0x10001d72
+                int32_t v10 = a1->num_swp_pts /* *(int32_t *)(a1 + 164) */ - 1; // 0x10001d72
                 v8 = (float80_t)v10 / (float80_t)v6;
-                // branch -> 0x10001dad
             }
-            int32_t v11 = GetRBWwide(0); // 0x10001daf
+
+            int32_t v11 = GetRBWwide(RBW_300HZ /*0*/); // 0x10001daf
             int32_t v12 = (0x100000000 * (int64_t)(v11 >> 31) | (int64_t)v11) / 3; // 0x10001dbd
             int16_t v13; // 0x10001e7f
             if ((v12 & 256) == 0) {
-                // 0x10001dcf
-                *(int16_t *)(a1 + 72) = 0;
-                // branch -> 0x10001e6d
-                // 0x10001e6d
-                *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                //*(int16_t *)(a1 + 72) = 0;
+                a1->rbw_code = RBW_300HZ /*0*/;
+                //*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                a1->step = (int32_t)(float32_t)v8;
+                // DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
                 *(int32_t *)(a1 + 28) = 0;
-                v13 = *(int16_t *)(a1 + 78);
+                v13 = a1->auto_vbw; // *(int16_t *)(a1 + 78);
                 g8 = v13;
-                if (v13 != 1) {
-                    // 0x10001e6d
+                if (v13 != IE_TRUE /*1*/) {
                     result = 0;
-                    // branch -> 0x10001e94
                 } else {
-                    // 0x10001e88
-                    result = function_10001e98(a1);
-                    // branch -> 0x10001e94
+                    result = setup_vbw(a1);
                 }
-                // 0x10001e94
                 g4 = v1;
                 return result;
             }
-            int32_t v14 = GetRBWwide(1); // 0x10001ddf
+
+            int32_t v14 = GetRBWwide(RBW_3KHZ /*1*/); // 0x10001ddf
             int32_t v15 = (0x100000000 * (int64_t)(v14 >> 31) | (int64_t)v14) / 3; // 0x10001ded
             if ((v15 & 256) == 0) {
-                // 0x10001dff
-                *(int16_t *)(a1 + 72) = 1;
-                // branch -> 0x10001e6d
-                // 0x10001e6d
-                *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                //*(int16_t *)(a1 + 72) = 1;
+                a1->rbw_code = RBW_3KHZ /*1*/;
+                //*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                a1->step = (int32_t)(float32_t)v8;
+                // DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
                 *(int32_t *)(a1 + 28) = 0;
-                v13 = *(int16_t *)(a1 + 78);
+                v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
                 g8 = v13;
                 if (v13 != 1) {
-                    // 0x10001e6d
                     result = 0;
-                    // branch -> 0x10001e94
                 } else {
-                    // 0x10001e88
-                    result = function_10001e98(a1);
-                    // branch -> 0x10001e94
+                    result = setup_vbw(a1);
                 }
-                // 0x10001e94
                 g4 = v1;
                 return result;
             }
-            int32_t v16 = GetRBWwide(2); // 0x10001e0c
+
+            int32_t v16 = GetRBWwide(RBW_30KHZ /*2*/); // 0x10001e0c
             int32_t v17 = (0x100000000 * (int64_t)(v16 >> 31) | (int64_t)v16) / 3; // 0x10001e1a
             if ((v17 & 256) == 0) {
-                // 0x10001e2c
-                *(int16_t *)(a1 + 72) = 2;
-                // branch -> 0x10001e6d
-                // 0x10001e6d
-                *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                //*(int16_t *)(a1 + 72) = 2;
+                a1->rbw_code = RBW_30KHZ /*2*/;
+                //*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                a1->step = (int32_t)(float32_t)v8;
+                // DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
                 *(int32_t *)(a1 + 28) = 0;
-                v13 = *(int16_t *)(a1 + 78);
+                v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
                 g8 = v13;
                 if (v13 != 1) {
-                    // 0x10001e6d
                     result = 0;
-                    // branch -> 0x10001e94
                 } else {
-                    // 0x10001e88
-                    result = function_10001e98(a1);
-                    // branch -> 0x10001e94
+                    result = setup_vbw(a1);
                 }
-                // 0x10001e94
                 g4 = v1;
                 return result;
             }
-            int32_t v18 = GetRBWwide(3); // 0x10001e39
+
+            int32_t v18 = GetRBWwide(RBW_3MHZ /*3*/); // 0x10001e39
             int32_t v19 = (0x100000000 * (int64_t)(v18 >> 31) | (int64_t)v18) / 3; // 0x10001e47
             if ((v19 & 256) != 0) {
-                // 0x10001e64
-                *(int16_t *)(a1 + 72) = 4;
-                // branch -> 0x10001e6d
+                 //*(int16_t *)(a1 + 72) = 4;
+                a1->rbw_code = RBW_3MHZ;
             } else {
-                // 0x10001e59
-                *(int16_t *)(a1 + 72) = 3;
-                // branch -> 0x10001e6d
+                //*(int16_t *)(a1 + 72) = 3;
+            	a1->rbw_code = RBW_300KHZ;
             }
-            // 0x10001e6d
-            *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+            //*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+            a1->step = (int32_t)(float32_t)v8;
+            // DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
             *(int32_t *)(a1 + 28) = 0;
-            v13 = *(int16_t *)(a1 + 78);
+            v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
             g8 = v13;
             if (v13 != 1) {
-                // 0x10001e6d
                 result = 0;
-                // branch -> 0x10001e94
             } else {
-                // 0x10001e88
-                result = function_10001e98(a1);
-                // branch -> 0x10001e94
+                result = setup_vbw(a1);
             }
-            // 0x10001e94
             g4 = v1;
             return result;
         }
         result = 0;
     }
-    // 0x10001e94
     g4 = v1;
     return result;
 }
 
-int32_t function_10001e98(int32_t a1) {
+int32_t setup_vbw(SET9052 *a1) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -1117,18 +1053,18 @@ int32_t function_10001e98(int32_t a1) {
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         // 0x10001ec4
         g8 = a1;
-        int16_t v3 = *(int16_t *)(a1 + 78); // 0x10001ec7
+        int16_t v3 = a1->auto_vbw; // *(int16_t *)(a1 + 78); // 0x10001ec7
         if (v3 != 0) {
             // 0x10001ed1
             RBWFreqFromCode((int16_t)RdRBW(a1));
-            float64_t v4 = *(float64_t *)(a1 + 88); // 0x10001ee9
+            float64_t v4 = a1->filter_ratio; // *(float64_t *)(a1 + 88); // 0x10001ee9
             g11++;
-            int32_t v5 = VBWFreqFromCode(7); // 0x10001ef1
+            int32_t v5 = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
             g11++;
             int32_t v6 = v5; // 0x10001f5211
             int16_t v7 = 7;
             if ((v5 & 0x4100) == 0) {
-                int32_t v8 = VBWFreqFromCode(1); // 0x10001f0d
+                int32_t v8 = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
                 g11++;
                 if ((v8 & 256) != 0) {
                     // 0x10001f27
@@ -1146,7 +1082,8 @@ int32_t function_10001e98(int32_t a1) {
             g8 = v7;
             if (v7 != -1) {
                 // 0x10001f44
-                *(int16_t *)(a1 + 76) = v7;
+                //*(int16_t *)(a1 + 76) = v7;
+                a1->vbw_code = v7;
                 result = a1;
                 // branch -> 0x10001f4f
             } else {
@@ -1869,7 +1806,7 @@ int32_t SetInterfaceType(int32_t a1, int16_t a2, int32_t a3) {
     return result;
 }
 
-int32_t IsValidStep(int32_t a1) {
+int32_t IsValidStep(SET9052 *a1) {
     int32_t v1 = g9; // 0x10006dd2
     g3 = a1;
     int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006dd7
@@ -1880,44 +1817,46 @@ int32_t IsValidStep(int32_t a1) {
         g9 = v1;
         return v2 | 0xffff;
     }
-    int32_t v3 = GetRBWwide(*(int16_t *)(a1 + 72)); // 0x10006df7
+    int32_t v3 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10006df7
     int64_t v4 = 0x100000000 * (int64_t)(v3 >> 31) | (int64_t)v3; // 0x10006e05
     int32_t v5 = v4 / 3; // 0x10006e05
     g8 = v4 % 3;
     int32_t result; // 0x10006e24
     if ((v5 & 256) == 0) {
-        // 0x10006e1c
         result = v5 & -0x10000 | 1;
-        // branch -> 0x10006e20
     } else {
-        // 0x10006e17
         result = v5 & -0x10000;
-        // branch -> 0x10006e20
     }
-    // 0x10006e20
     g9 = v1;
     return result;
 }
 
-int32_t GetRBWwide(int16_t a1) {
+/**
+ * Get resolution BandWidth (code?) wide
+ * Returns -3 on error.
+ */
+int32_t GetRBWwide(int16_t value) {
     int32_t v1 = g4; // 0x1000d3b4
     int32_t v2 = v1; // bp-4
-    int32_t v3 = a1; // 0x1000d3dd
-    if (a1 < 0) {
-        // 0x1000d402
+    int32_t v3 = value; // 0x1000d3dd
+    if (value < 0) {
+    	// negative values are not accespted
         g4 = v1;
         return -3;
     }
-    // 0x1000d3e5
     int32_t result;
-    if (a1 == 4 || a1 < 4 != (3 - v3 & v3) < 0) {
-        // 0x1000d3ee
-        result = *(int32_t *)(4 * v3 - 24 + (int32_t)&v2);
-        // branch -> 0x1000d402
+    // TODO here; the function seems to have decompiled with sematical errors.
+    // first workaround: we return -3...
+    return -3;
+
+    // DD: the if condition seems to make no sense
+    if (value == 4 || value < 4 != (3 - v3 & v3) < 0) {
+    	// DD: this gives a SEGV. v2 aka g4 is substracted an offset and the result is dereferenced -> Bang!
+       result = *(int32_t *)(4 * v3 - 24 + (int32_t)&v2);
     } else {
         result = -3;
     }
-    // 0x1000d402
+
     g4 = v1;
     return result;
 }
@@ -3488,18 +3427,18 @@ int32_t SetTimeoutWait(int32_t a1, int32_t a2) {
     return result;
 }
 
-int32_t SetCellMode(int32_t a1, int16_t a2) {
+int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
     int16_t v1 = 0; // bp-8
     g3 = a1;
     int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005fd7
     g3 = v2;
     int32_t result2; // 0x10006048
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-        int16_t * v3 = (int16_t *)(a1 + 64); // 0x10005ffb
-        *v3 = a2;
-        if (a2 != 0) {
+        int16_t * v3 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10005ffb
+        *v3 = mode;
+        if (mode != 0) {
             // 0x10006012
-            if (a2 != 1) {
+            if (mode != 1) {
                 // 0x10006026
                 *v3 = 1;
                 v1 = -1;
