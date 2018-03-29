@@ -2951,6 +2951,7 @@ int32_t function_100032ac(int32_t a1, int32_t a2, int32_t a3) {
     return result;
 }
 
+// DD FUNCTION TABLE TO MTCSA32.DLL
 // Address range: 0x10003329 - 0x100035dc
 int32_t function_10003329(int32_t a1, int32_t lpLibFileName, int32_t * a3) {
     int32_t v1 = (int32_t)a3;
