@@ -18,6 +18,9 @@ typedef float float32_t;
 typedef double float64_t;
 typedef double float80_t;
 
+/* Import from visa.h */
+int32_t VISA_OpenSessionStep(int32_t deviceId);
+
 int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2);
 int32_t SetInterfaceType(/*int32_t a1*/SET9052 *a1, int16_t a2, int32_t a3);
 int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode);
@@ -77,6 +80,7 @@ int32_t InitEngine(int16_t a1) {
     int32_t result; // 0x10003cd0
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         // 0x10003c9a
+#ifdef ORIG
         if (*(int32_t *)(v1 + 660) != 0) {
             int32_t * v3 = (int32_t *)(v1 + 712); // 0x10003ca9
             if (*v3 != 0) {
@@ -87,6 +91,8 @@ int32_t InitEngine(int16_t a1) {
                 return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
             }
         }
+#else
+#endif
         // 0x10003cb2
         result = v1 & -0x10000 | 0xffeb;
         // branch -> 0x10003ccd
@@ -1537,6 +1543,7 @@ int32_t function_10003f7a(SET9052 *a1) {
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         // 0x10003f9f
 
+#ifdef ORIG
     	// DD: call to 660 - Windows moduleHandle - ignore this
     	// DD: call to 720 - OpenSessionStep
         //if (*(int32_t *)(v1 + 660) != 0) {
@@ -1549,6 +1556,10 @@ int32_t function_10003f7a(SET9052 *a1) {
                 return 0x10000 * (int32_t)v1 / 0x10000 | (int32_t)v1 & -0x10000;
             }
         //}
+#else
+        int32_t ret = VISA_OpenSessionStep(a1);
+        return 0x10000 * (int32_t)ret / 0x10000 | (int32_t)ret & -0x10000;
+#endif
         // 0x10003fb7
         result = (int32_t)v1 & -0x10000 | 0xffeb;
         // branch -> 0x10003fd2

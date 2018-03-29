@@ -31,13 +31,13 @@ extern "C" {
 //#define MR90XX_UV_CODE  1
 //#define MR90XX_NV_CODE  2
 
-MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_init(ViRsrc rName, ViBoolean query_flag, ViBoolean reset_flag, ViSession *p_session_id);
-MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_reset(ViSession session_id);
-MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_self_test(ViSession session_id, ViInt16 *TestResult, ViChar TestMessage[]);
-MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_error_query(ViSession session_id, ViPInt32 errorCode, ViChar errorMessage[]);
-MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_error_message(ViSession session_id, ViStatus errorCode, ViChar errorMessage[]);
-MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_revision_query(ViSession session_id, ViChar driverRevision[],ViChar firmwareRevision[]);
-MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_close(ViSession session_id);
+//MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_init(ViRsrc rName, ViBoolean query_flag, ViBoolean reset_flag, ViSession *p_session_id);
+//MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_reset(ViSession session_id);
+//MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_self_test(ViSession session_id, ViInt16 *TestResult, ViChar TestMessage[]);
+//MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_error_query(ViSession session_id, ViPInt32 errorCode, ViChar errorMessage[]);
+//MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_error_message(ViSession session_id, ViStatus errorCode, ViChar errorMessage[]);
+//MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_revision_query(ViSession session_id, ViChar driverRevision[],ViChar firmwareRevision[]);
+//MR90XX_DLLEXPORT ViStatus _VI_FUNCC mr90xx_close(ViSession session_id);
 
 #if defined(__cplusplus) || defined(__cplusplus__)
 }

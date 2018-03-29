@@ -23,7 +23,7 @@ int32_t function_10001a0a(int32_t deviceId, int16_t command) ;
 
 static int32_t g2 = 0; // eax
 static int32_t g3 = 0; // ebp
-static int32_t g4 = 0; // ebx
+//static int32_t g4 = 0; // ebx
 static int32_t g5 = 0; // ecx
 static int32_t g7 = 0; // edx
 static int32_t g52 = 0; /* DD: this seems to be the 'current device' ? */
