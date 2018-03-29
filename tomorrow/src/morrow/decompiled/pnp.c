@@ -9,34 +9,34 @@
 #include <sa_defin.h>
 #include <str_9052.h>
 
-int32_t g3 = 0; // ebp
-int32_t g5 = 0; // ecx
-int32_t g4 = 0; // esi
-int32_t g6 = 0; // edi
-int32_t g7 = 0; // edx
-int32_t g8 = 0; // esi
+static int32_t g3 = 0; // ebp
+static int32_t g5 = 0; // ecx
+static int32_t g4 = 0; // esi
+static int32_t g6 = 0; // edi
+static int32_t g7 = 0; // edx
+static int32_t g8 = 0; // esi
 
-int32_t g35 = 1;
-int32_t g37; // 0x1000eef4
+static int32_t g35 = 1;
+static int32_t g37; // 0x1000eef4
 
-int32_t g40 = 0;
+static int32_t g40 = 0;
 
-SET9052 *g_sa9054_data = 0;
+static SET9052 *g_sa9054_data = 0;
 
-int32_t g59 = 0;
-int32_t g60 = 0;
-int32_t g62 = 0;
-int32_t g63 = 0;
+static int32_t g59 = 0;
+static int32_t g60 = 0;
+static int32_t g62 = 0;
+static int32_t g63 = 0;
 
-int32_t g93 = 0;
-int32_t g94 = 0;
-int32_t g95 = 0;
-int32_t g96 = 0;
-int32_t g97 = 0;
-int32_t g98 = 0;
+static int32_t g93 = 0;
+static int32_t g94 = 0;
+//static int32_t g95 = 0;
+static int32_t g96 = 0;
+static int32_t g97 = 0;
+static int32_t g98 = 0;
 
 
-int32_t mr90xx_init(int32_t session_string, int32_t query_flag, int32_t reset_flag, int32_t * session_id);
+int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, int32_t * session_id);
 int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3) ;
 
 int32_t function_10004411(int16_t a1);
@@ -57,7 +57,7 @@ int32_t __nh_malloc(int32_t a1, int32_t a2){ return 0; }
 //VOID LeaveCriticalSection(_Inout_ LPCRITICAL_SECTION lpCriticalSection);
 
 
-int32_t mr90xx_init(int32_t session_string, int32_t query_flag, int32_t reset_flag, int32_t * session_id) {
+int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, int32_t * session_id) {
     int32_t v1 = (int32_t)session_id;
     *session_id = 0;
     if (session_string == 0) {
@@ -178,7 +178,7 @@ int32_t mr90xx_init(int32_t session_string, int32_t query_flag, int32_t reset_fl
 }
 
 // Address range: 0x100046f3 - 0x1000495f
-int32_t mr90xx_OpenSession(int32_t session_string, int32_t * session_id) {
+int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     SET9052 *v2 = function_10004960(-1); // 0x1000470f

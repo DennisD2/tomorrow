@@ -19,7 +19,7 @@ typedef double float64_t;
 typedef double float80_t;
 
 int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2);
-int32_t SetInterfaceType(int32_t a1, int16_t a2, int32_t a3);
+int32_t SetInterfaceType(/*int32_t a1*/SET9052 *a1, int16_t a2, int32_t a3);
 int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode);
 int32_t SetPortNum(int32_t a1, uint16_t a2) ;
 int32_t GetRBWwide(int16_t a1);
@@ -27,9 +27,12 @@ int32_t VBWFreqFromCode(int16_t a1);
 int32_t RBWFreqFromCode(int16_t a1);
 int32_t DefltSetTimeRBW(int16_t a1);
 int32_t DefltSetTimeVBW(int16_t a1);
+int32_t SendCommand(int16_t a1, int32_t a2, int32_t a3, int32_t a4) ;
+int32_t FuncStatusFromEngineReply(int16_t a1) ;
 
 
-int32_t function_10003f7a(int16_t a1);
+int32_t function_10002d12(int32_t a1, uint16_t a2);
+int32_t function_10003f7a(/*int16_t a1*/SET9052 *a1);
 int32_t function_100119ba(char a1);
 int32_t function_1000e8d2(char a1, int32_t a2);
 int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
@@ -43,23 +46,25 @@ static int32_t g8 = 0; // edx
 static int32_t g9 = 0; // esi
 
 static int32_t g11 = 0; // fpu_stat_TOP
-
+static char * g12;
 static int32_t g14 = 0x1000c8b7;
 static int32_t g15 = 0x1000c923;
 
 static float64_t * g40 = NULL;
 
-int32_t g49; // 0x100183d4
-int32_t g50 = 1;
+static int32_t g49; // 0x100183d4
+static int32_t g50 = 1;
 
-int32_t g61 = 0;
+static int32_t g61 = 0;
 
-int32_t g107 = 0;
+static int32_t g94 = 0;
 
-int32_t g128 = 0;
-int32_t g129 = 0;
-int32_t g130 = 0;
-int32_t g131 = 0;
+static int32_t g107 = 0;
+
+//static int32_t g128 = 0;
+static int32_t g129 = 0;
+//static int32_t g130 = 0;
+//static int32_t g131 = 0;
 
 static float80_t g159 = 0.0L; // st0
 static float80_t g160 = 0.0L; // st1
@@ -245,6 +250,18 @@ int32_t SetFuncStatusCode(SET9052 *a1, uint16_t a2) {
 	return result;
 }
 
+int32_t SetEngineReplyCode(/*int32_t a1*/ SET9052 *a1, uint16_t code) {
+    int32_t result;
+    if (a1 != 0) {
+        //*(int16_t *)(a1 + 206) = a2;
+    	a1->engine_reply_code = code;
+        result = (int32_t)a1 & -0x10000 | (int32_t)code;
+    } else {
+        result = g3 & -0x10000 | 255;
+    }
+    return result;
+}
+
 #define ENG_OPT_0 0
 #define ENG_OPT_1 1
 #define ENG_OPT_2 2
@@ -275,19 +292,19 @@ int32_t RdEngOption(/*int32_t a1*/SET9052 *a1, int32_t option) {
 	return result;
 }
 
-int32_t function_1000d570(int32_t a1) {
-	int32_t v1 = g7; // 0x1000d570
+int32_t function_1000d570(char * /*int32_t*/ a1) {
+	char * v1 = g7; // 0x1000d570
 	g7 = a1;
 	return function_1000d5e1(v1);
 }
 
-int32_t function_1000d5e1(int32_t a1) {
+int32_t function_1000d5e1(char * a1) {
 	// 0x1000d5e1
 	char * v1;
-	int32_t v2 = (int32_t) v1; // 0x1000d5e1
-	int32_t v3 = v2; // 0x1000d614
+	char * v2 = (int32_t) v1; // 0x1000d5e1
+	char * v3 = v2; // 0x1000d614
 	int32_t v4; // 0x1000d60b
-	if ((v2 & 3) != 0) {
+	if (((int32_t)v2 & 3) != 0) {
 		int32_t result;
 		while (true) {
 			unsigned char v5 = *(char *) v2; // 0x1000d5ed
@@ -1114,7 +1131,7 @@ int32_t function_1000d563(int32_t a1) {
     return result;
 }
 
-int32_t OpenSession(int32_t a1, int32_t a2, int16_t a3) {
+int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
     // entry
     if (a1 == 0) {
         // 0x10003d37
@@ -1131,11 +1148,12 @@ int32_t OpenSession(int32_t a1, int32_t a2, int16_t a3) {
     }
     // 0x10003d4f
     int32_t result2; // 0x10003f79
-    if (*(int32_t *)(a1 + 468) == 0) {
+    if (a1->session_handle /* *(int32_t *)(a1 + 468)*/ == 0) {
         // 0x10003d64
         ClearFuncStatusCode(a1);
         g8 = a1;
-        *(int32_t *)(a1 + 200) = 0;
+        //*(int32_t *)(a1 + 200) = 0;
+        a1->eng_options = 0;
         int32_t v1 = function_10003844(a1, a2); // 0x10003d85
         int32_t v2 = 0x10000 * v1 / 0x10000; // 0x10003d91
         g8 = v2;
@@ -1153,12 +1171,13 @@ int32_t OpenSession(int32_t a1, int32_t a2, int16_t a3) {
                 SetInterfaceType(a1, 1, v7);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(a1->sessionString /*a1 + 210*/);
+                //*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
-                    v4 = function_10003f7a((int16_t)a1);
+                    v4 = function_10003f7a(a1);
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     // branch -> 0x10003f4b
@@ -1502,33 +1521,36 @@ int32_t OpenSession(int32_t a1, int32_t a2, int16_t a3) {
         // branch -> 0x10003f76
     } else {
         // 0x10003d5b
-        result2 = a1 & -0x10000 | 0xffed;
+        result2 = (int32_t)a1 & -0x10000 | 0xffed;
         // branch -> 0x10003f76
     }
     // 0x10003f76
     return result2;
 }
 
-int32_t function_10003f7a(int16_t a1) {
-    int32_t v1 = a1; // 0x10003f7e
+int32_t function_10003f7a(SET9052 *a1) {
+	SET9052 * v1 = a1; // 0x10003f7e
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003f82
     g3 = v2;
     int32_t result; // 0x10003fd5
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         // 0x10003f9f
-        if (*(int32_t *)(v1 + 660) != 0) {
+
+    	// DD: call to 660 - Windows moduleHandle - ignore this
+    	// DD: call to 720 - OpenSessionStep
+        //if (*(int32_t *)(v1 + 660) != 0) {
             int32_t * v3 = (int32_t *)(v1 + 720); // 0x10003fae
             if (*v3 != 0) {
                 // 0x10003fbd
                 __pseudo_call(*v3);
                 // branch -> 0x10003fd2
                 // 0x10003fd2
-                return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
+                return 0x10000 * (int32_t)v1 / 0x10000 | (int32_t)v1 & -0x10000;
             }
-        }
+        //}
         // 0x10003fb7
-        result = v1 & -0x10000 | 0xffeb;
+        result = (int32_t)v1 & -0x10000 | 0xffeb;
         // branch -> 0x10003fd2
     } else {
         // 0x10003f91
@@ -1611,8 +1633,11 @@ int32_t CloseSession(int32_t a1) {
     return result;
 }
 
-int32_t function_10003844(int32_t a1, int32_t a2) {
-    int32_t v1 = function_100035dd(); // 0x10003847
+int32_t function_10003844(SET9052 *a1, char* a2) {
+	/* DD ISA init, NOP */
+	return 1;
+/*
+    int32_t v1 = get_os_version_dummy(); // 0x10003847
     if (v1 == 0) {
         // 0x10003850
         // branch -> 0x100038bf
@@ -1653,12 +1678,13 @@ int32_t function_10003844(int32_t a1, int32_t a2) {
     }
     // 0x100038bf
     return result;
+*/
 }
 
 /* DD: seems to handle dll loading. not needed. */
 int32_t dd_loadWindowsDll(int32_t a1, int32_t a2, int32_t a3) {
 /*
-    int32_t v1 = function_100035dd(); // 0x100032af
+    int32_t v1 = get_os_version_dummy(); // 0x100032af
     if (v1 != 0) {
         // 0x100032b8
         // branch -> 0x10003327
@@ -1711,7 +1737,9 @@ int32_t function_10003329(int32_t a1, int32_t lpLibFileName, int32_t * a3) {
 	return 0;
 }
 
-int32_t function_100035dd(void) {
+int32_t get_os_version_dummy(void) {
+	return 1;
+	/*
     int32_t lpVersionInformation = 148; // bp-152
     GetVersionExA((struct _OSVERSIONINFOA *)&lpVersionInformation);
     int32_t result = 1;
@@ -1722,7 +1750,7 @@ int32_t function_100035dd(void) {
         // branch -> 0x1000360f
     }
     // 0x1000360f
-    return result;
+    return result;*/
 }
 
 int32_t function_10003679(int32_t a1, int32_t a2, int32_t a3) {
@@ -1754,28 +1782,31 @@ int32_t function_10003679(int32_t a1, int32_t a2, int32_t a3) {
 }
 
 int32_t function_10003613(char * a1) {
+	/** DD ISA Port calculation , NOP */
+	return 888;
+/*
     // 0x10003613
     if (a1 != NULL) {
-        int32_t v1 = (int32_t)a1; // 0x10003634
-        int32_t v2 = 0; // 0x1000364b
+    	char * v1 = a1; // 0x10003634
+    	uint32_t v2 = 0; // 0x1000364b
         // branch -> 0x10003634
         while (true) {
-            char * v3 = (char *)(v2 + v1); // 0x1000363a
+            char* v3 = v2 + v1; // 0x1000363a
             if (*v3 == 0) {
                 // 0x10003672
                 // branch -> 0x10003675
                 // 0x10003675
                 return g3 & -0x10000;
             }
-            int32_t v4 = v2; // 0x1000362b
-            if (function_1000d700(v3, (int32_t)"::", 2) == 0) {
+            uint32_t v4 = v2; // 0x1000362b
+            if (function_1000d700(v3, "::", 2) == 0) {
                 // 0x1000365b
                 g6 = v4;
                 // branch -> 0x10003675
                 // 0x10003675
                 return function_1000d6eb(v1 + 2 + v4);
             }
-            int32_t v5 = v4 + 1; // 0x1000362e
+            char * v5 = v4 + 1; // 0x1000362e
             g3 = v5;
             v2 = v5;
             // branch -> 0x10003634
@@ -1783,9 +1814,10 @@ int32_t function_10003613(char * a1) {
     }
     // 0x10003675
     return g3 & -0x10000;
+*/
 }
 
-int32_t SetInterfaceType(int32_t a1, int16_t a2, int32_t a3) {
+int32_t SetInterfaceType(SET9052* a1, int16_t a2, int32_t a3) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10004f22
@@ -1793,8 +1825,9 @@ int32_t SetInterfaceType(int32_t a1, int16_t a2, int32_t a3) {
     int32_t result; // 0x10004f51
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10004f3f
-        *(int16_t *)(a1 + 196) = a2;
-        result = a1 & -0x10000;
+        //*(int16_t *)(a1 + 196) = a2;
+        a1->interfaceType = a2;
+        result = (int32_t)a1 & -0x10000;
         // branch -> 0x10004f50
     } else {
         // 0x10004f31
@@ -1847,7 +1880,7 @@ int32_t GetRBWwide(int16_t value) {
     int32_t result;
     // TODO here; the function seems to have decompiled with sematical errors.
     // first workaround: we return -3...
-    return -3;
+    return 1;
 
     // DD: the if condition seems to make no sense
     if (value == 4 || value < 4 != (3 - v3 & v3) < 0) {
@@ -2017,6 +2050,9 @@ int32_t function_100036f0(int32_t a1, char * a2, int32_t a3) {
 }
 
 int32_t function_10014e60(char * a1, int32_t a2, int32_t a3) {
+	/* DD: ISA Code, NOP */
+	return 0;
+/*
     int32_t v1 = g7; // 0x10014e63
     int32_t v2 = g9; // 0x10014e64
     int32_t v3 = g5; // 0x10014e65
@@ -2300,9 +2336,10 @@ int32_t function_10014e60(char * a1, int32_t a2, int32_t a3) {
     g9 = v2;
     g7 = v1;
     return result2;
+*/
 }
 
-int32_t function_1000d700(char * a1, int32_t a2, int32_t a3) {
+int32_t function_1000d700(char * a1, char* a2, int32_t a3) {
     int32_t v1 = g5; // 0x1000d705
     if (a3 == 0) {
         // 0x1000d731
@@ -2310,9 +2347,9 @@ int32_t function_1000d700(char * a1, int32_t a2, int32_t a3) {
         return 0;
     }
     // 0x1000d70b
-    strncmp((char *)a2, a1, strlen(a1) + 2 + a3);
+    int c = strncmp((char *)a2, a1, strlen(a1) + 2 + a3);
     unsigned char v2 = *(char *)(a2 - 1); // 0x1000d721
-    unsigned char v3 = *(char *)((int32_t)a1 - 1); // 0x1000d726
+    unsigned char v3 = *(char *)(a1 - 1); // 0x1000d726
     if (v2 > v3) {
         // 0x1000d72f
         // branch -> 0x1000d731
@@ -2336,19 +2373,19 @@ int32_t function_1000d700(char * a1, int32_t a2, int32_t a3) {
     return result;
 }
 
-int32_t function_1000d6eb(int32_t a1) {
+int32_t function_1000d6eb(char* a1) {
     // 0x1000d6eb
-    return function_1000d660((char *)a1);
+    return function_1000d660(a1);
 }
 
 int32_t function_1000d660(char * a1) {
     int32_t v1 = g4; // 0x1000d661
     int32_t v2 = g9; // 0x1000d662
-    int32_t v3 = (int32_t)a1;
+    char * v3 = a1;
     // branch -> 0x1000d668
     while (true) {
         int32_t v4 = v3; // edi
-        unsigned char v5 = *(char *)v3; // 0x1000d671
+        unsigned char v5 = *v3; // 0x1000d671
         int32_t v6; // 0x1000d696
         int32_t v7; // 0x1000d677
         if (g50 > 1) {
@@ -2374,7 +2411,7 @@ int32_t function_1000d660(char * a1) {
             g4 = v10;
             int32_t v12; // 0x1000d6c64
             int32_t v13; // 0x1000d6a6
-            if (v9 == 45) {
+            if (v9 == '-' /*45*/) {
                 // 0x1000d6a6
                 v13 = (int32_t)*(char *)v11;
                 g9 = v13;
@@ -2383,7 +2420,7 @@ int32_t function_1000d660(char * a1) {
                 // branch -> 0x1000d6aa
             } else {
                 // 0x1000d6a1
-                if (v9 == 43) {
+                if (v9 == '+'/*43*/) {
                     // 0x1000d6a6
                     v13 = (int32_t)*(char *)v11;
                     g9 = v13;
@@ -3316,9 +3353,7 @@ void __pseudo_call( int32_t x ) {
 }
 void __pseudo_branch( int32_t x ) {
 }
-int32_t GetVersionExA(int32_t lpVersionInformation) {
-	return 0;
-}
+
 
 int32_t __ftol(int32_t in) {
 	printf("ftol() TBI\n");
@@ -3525,6 +3560,9 @@ int32_t VBWCodeFromFreq(float64_t a1, int32_t a2) {
 }
 
 int32_t SetPortNum(int32_t a1, uint16_t a2) {
+	/* DD: ISA code, do nothing. */
+	return 999;
+/*
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10006edc
@@ -3580,6 +3618,7 @@ int32_t SetPortNum(int32_t a1, uint16_t a2) {
     }
     // 0x10006fa6
     return result;
+*/
 }
 
 int32_t GetFuncStatusCode(SET9052 *a1) {
@@ -3593,6 +3632,752 @@ int32_t GetFuncStatusCode(SET9052 *a1) {
          result = g3 & -0x10000 | 0xfff6;
     }
     return result;
+}
+
+int32_t RdErrorStatus(int32_t a1) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000858b
+    g3 = v1;
+    int32_t v2 = 0x10000 * v1; // 0x10008593
+    g6 = v2 / 0x10000;
+    int32_t result; // 0x100085ae
+    if ((v2 || 0xffff) < 0x1ffff) {
+        // 0x100085ab
+        result = *(int32_t *)(a1 + 192);
+        g6 = result;
+        // branch -> 0x100085ba
+    } else {
+        // 0x1000859a
+        g8 = a1;
+        result = 0x10000 * GetFuncStatusCode(a1) / 0x10000;
+        // branch -> 0x100085ba
+    }
+    // 0x100085ba
+    return result;
+}
+
+int32_t SetErrorStatus(int32_t a1, int16_t a2) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002dc8
+    g3 = v1;
+    int32_t result; // 0x10002df8
+    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+        int32_t v2 = a2; // 0x10002de8
+        *(int32_t *)(a1 + 192) = v2;
+        result = a1 & -0x10000 | v2;
+        // branch -> 0x10002df5
+    } else {
+        // 0x10002dd7
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10002df5
+    }
+    // 0x10002df5
+    return result;
+}
+
+int32_t BreakSweep(int32_t a1, uint16_t a2) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    int32_t v2 = g3 & -0x10000 | (int32_t)a2; // 0x10004a0e
+    g3 = v2;
+    int32_t result; // 0x10004b83
+    if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) >= 0x1ffff) {
+        // 0x10004a29
+        g3 = a1;
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10004b80
+        // 0x10004b80
+        g4 = v1;
+        return result;
+    }
+    // 0x10004a3a
+    g8 = 1;
+    int32_t v3 = SendCommand((int16_t)a1, 7, 1, (int32_t)&v2); // 0x10004a49
+    g3 = v3;
+    if (0x10000 * v3 != 0x10000) {
+        // 0x10004a5e
+        g3 = a1;
+        result = SetFuncStatusCode(a1, (int16_t)FuncStatusFromEngineReply((int16_t)v3));
+        // branch -> 0x10004b80
+        // 0x10004b80
+        g4 = v1;
+        return result;
+    }
+    int32_t v4 = a2; // 0x10004a7d
+    g8 = v4;
+    switch (v4) {
+        default: {
+            // 0x10004b6c
+            result = SetFuncStatusCode(a1, -3);
+            // branch -> 0x10004b80
+            // 0x10004b80
+            g4 = v1;
+            return result;
+        }
+        case 0: {
+            int32_t v5 = SetSwpIdx(a1, 0); // 0x10004ae1
+            g3 = v5;
+            if ((int16_t)v5 >= 0) {
+                int32_t v6 = function_10002d12(a1, 0); // 0x10004b0b
+                if (0x10000 * v6 >= 0) {
+                    // 0x10004b7c
+                    result = v6 & -0x10000 | 65;
+                    // branch -> 0x10004b80
+                } else {
+                    // 0x10004b1f
+                    g8 = g8 & -0x10000 | v6 & 0xffff;
+                    g3 = a1;
+                    result = SetFuncStatusCode(a1, (int16_t)v6);
+                    // branch -> 0x10004b80
+                }
+                // 0x10004b80
+                g4 = v1;
+                return result;
+            }
+            break;
+        }
+        case 1: {
+            // 0x10004b7c
+            // branch -> 0x10004b80
+            // 0x10004b80
+            g4 = v1;
+            return v3 & -0x10000 | 65;
+        }
+        case 2: {
+            int32_t v7 = function_10002d12(a1, *(int16_t *)(a1 + 4) & -129); // 0x10004b43
+            if (0x10000 * v7 >= 0) {
+                // 0x10004b7c
+                result = v7 & -0x10000 | 65;
+                // branch -> 0x10004b80
+            } else {
+                // 0x10004b57
+                g8 = g8 & -0x10000 | v7 & 0xffff;
+                g3 = a1;
+                result = SetFuncStatusCode(a1, (int16_t)v7);
+                // branch -> 0x10004b80
+            }
+            // 0x10004b80
+            g4 = v1;
+            return result;
+        }
+        case 3: {
+            int32_t v8 = function_10002d12(a1, *(int16_t *)(a1 + 4) | 128); // 0x10004aac
+            int16_t v9 = v8; // 0x10004aac
+            int32_t v10 = 0x10000 * v8 / 0x10000; // 0x10004ab8
+            g3 = v10;
+            if (v9 >= 0) {
+                // 0x10004b7c
+                result = v10 & -0x10000 | 65;
+                // branch -> 0x10004b80
+            } else {
+                // 0x10004ac0
+                g8 = a1;
+                result = SetFuncStatusCode(a1, v9);
+                // branch -> 0x10004b80
+            }
+            // 0x10004b80
+            g4 = v1;
+            return result;
+        }
+    }
+    // 0x10004af5
+    g8 = a1;
+    result = SetFuncStatusCode(a1, -1);
+    // branch -> 0x10004b80
+    // 0x10004b80
+    g4 = v1;
+    return result;
+}
+
+int32_t function_10002d12(int32_t a1, uint16_t a2) {
+    // 0x10002d12
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d19
+    g3 = v1;
+    int32_t v2 = 0x10000 * v1; // 0x10002d21
+    g6 = v2 / 0x10000;
+    int32_t result; // 0x10002d50
+    if ((v2 || 0xffff) < 0x1ffff) {
+        // 0x10002d36
+        g3 = a1;
+        g6 = a2;
+        *(int16_t *)(a1 + 4) = a2;
+        g8 = a1;
+        result = SetFuncStatusCode(a1, 0);
+        // branch -> 0x10002d4f
+    } else {
+        // 0x10002d28
+        g8 = a1;
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10002d4f
+    }
+    // 0x10002d4f
+    return result;
+}
+
+int32_t SendCommand(int16_t a1, int32_t a2, int32_t a3, int32_t a4) {
+    int32_t v1 = a1; // 0x10003b52
+    g3 = v1;
+    int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003b56
+    g3 = v2;
+    int32_t v3 = 0x10000 * v2; // 0x10003b5e
+    g6 = v3 / 0x10000;
+    int32_t result; // 0x10003bb7
+    if ((v3 || 0xffff) < 0x1ffff) {
+        // 0x10003b73
+        if (*(int32_t *)(v1 + 660) != 0) {
+            // 0x10003b7f
+            g6 = v1;
+            int32_t * v4 = (int32_t *)(v1 + 692); // 0x10003b82
+            if (*v4 != 0) {
+                // 0x10003b91
+                g6 = v1 & -0x10000 | a2 & 0xffff;
+                g8 = v1;
+                __pseudo_call(*v4);
+                // branch -> 0x10003bb4
+                // 0x10003bb4
+                return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
+            }
+        }
+        // 0x10003b8b
+        result = v1 & -0x10000 | 0xffeb;
+        // branch -> 0x10003bb4
+    } else {
+        // 0x10003b65
+        g8 = v1;
+        result = GetFuncStatusCode(v1);
+        // branch -> 0x10003bb4
+    }
+    // 0x10003bb4
+    return result;
+}
+
+int32_t FuncStatusFromEngineReply(int16_t a1) {
+    int32_t v1 = a1; // 0x10001006
+    g8 = v1;
+    unsigned char v2 = *(char *)(v1 + (int32_t)&g12); // 0x1000101c
+    g6 = v2;
+    int32_t v3;
+    switch (v2) {
+        default: {
+            // 0x100010f6
+            v3 = 254;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 0: {
+            // 0x100010fc
+            return 64 | v1 & -0x10000;
+        }
+        case 1: {
+            // 0x10001034
+            v3 = 65;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 2: {
+            // 0x1000103f
+            v3 = 66;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 3: {
+            // 0x1000104a
+            v3 = 67;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 4: {
+            // 0x10001055
+            v3 = 68;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 5: {
+            // 0x10001060
+            v3 = 69;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 6: {
+            // 0x1000106b
+            v3 = 70;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 7: {
+            // 0x10001076
+            v3 = 71;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 8: {
+            // 0x1000107e
+            v3 = 72;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 9: {
+            // 0x10001086
+            v3 = 73;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 10: {
+            // 0x1000108e
+            v3 = 81;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 11: {
+            // 0x10001096
+            v3 = 82;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 12: {
+            // 0x1000109e
+            v3 = 83;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 13: {
+            // 0x100010a6
+            v3 = 84;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 14: {
+            // 0x100010ae
+            v3 = 85;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 15: {
+            // 0x100010b6
+            v3 = 86;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 16: {
+            // 0x100010be
+            v3 = 87;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 17: {
+            // 0x100010c6
+            v3 = 88;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 18: {
+            // 0x100010ce
+            v3 = 89;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 19: {
+            // 0x100010d6
+            v3 = 90;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 20: {
+            // 0x100010de
+            v3 = 91;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 21: {
+            // 0x100010e6
+            v3 = 144;
+            // branch -> 0x100010fc
+            break;
+        }
+        case 22: {
+            // 0x100010ee
+            v3 = 145;
+            // branch -> 0x100010fc
+            break;
+        }
+    }
+    // 0x100010fc
+    return v3 | v1 & -0x10000;
+}
+
+int32_t CommTrigDetect(int32_t a1) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    int16_t v2 = 8; // bp-32
+    g3 = a1;
+    int32_t v3 = TestFuncStatusAndPtr(a1); // 0x100015ec
+    g3 = v3;
+    int32_t v4 = 0x10000 * v3; // 0x100015f4
+    g6 = v4 / 0x10000;
+    int32_t result; // 0x10001717
+    if ((v4 || 0xffff) >= 0x1ffff) {
+        // 0x100015fb
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10001714
+        // 0x10001714
+        g4 = v1;
+        return result;
+    }
+    int32_t v5 = *(int32_t *)(a1 + 120); // 0x10001613
+    g8 = v5;
+    function_10002df9(a1, (float64_t)(int64_t)v5);
+    int32_t v6 = g8 & -0x10000 | (int32_t)*(int16_t *)(a1 + 128); // bp-24
+    int32_t v7;
+    int32_t v8; // 0x100016e9
+    int32_t v9; // 0x100016dd
+    int16_t v10; // 0x100016dd
+    if ((RdSweepCode(a1) & 1) == 0) {
+        // 0x10001672
+        // branch -> 0x1000167d
+        // 0x1000167d
+        v9 = SendCommand((int16_t)a1, 4, (int32_t)v2, (int32_t)&v6);
+        v10 = v9;
+        v7 = 0x10000 * v9;
+        v8 = v7 / 0x10000;
+        if (v7 == 0x130000) {
+            // 0x100016f2
+            // branch -> 0x10001714
+            // 0x10001714
+            g4 = v1;
+            return v8 & -0x10000 | 144;
+        }
+        // 0x100016f8
+        if (v10 < 20) {
+            // 0x10001707
+            result = FuncStatusFromEngineReply(v10);
+            // branch -> 0x10001714
+        } else {
+            // 0x10001701
+            result = v8 & -0x10000 | 145;
+            // branch -> 0x10001714
+        }
+        // 0x10001714
+        g4 = v1;
+        return result;
+    }
+    // 0x1000164a
+    if (*(int16_t *)(a1 + 110) != 0) {
+        // 0x10001662
+        // branch -> 0x1000167d
+    }
+    // 0x1000167d
+    v9 = SendCommand((int16_t)a1, 4, (int32_t)v2, (int32_t)&v6);
+    v10 = v9;
+    v7 = 0x10000 * v9;
+    v8 = v7 / 0x10000;
+    if (v7 == 0x130000) {
+        // 0x100016f2
+        // branch -> 0x10001714
+        // 0x10001714
+        g4 = v1;
+        return v8 & -0x10000 | 144;
+    }
+    // 0x100016f8
+    if (v10 < 20) {
+        // 0x10001707
+        result = FuncStatusFromEngineReply(v10);
+        // branch -> 0x10001714
+    } else {
+        // 0x10001701
+        result = v8 & -0x10000 | 145;
+        // branch -> 0x10001714
+    }
+    // 0x10001714
+    g4 = v1;
+    return result;
+}
+
+int32_t CommInterrupts(int32_t a1) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x1000157f
+    g3 = v2;
+    int32_t result; // 0x100015d5
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        int32_t v3 = (int32_t)*(int16_t *)(a1 + 136); // bp-8
+        int32_t v4 = &v3; // 0x100015aa
+        g8 = v4;
+        result = FuncStatusFromEngineReply((int16_t)SendCommand((int16_t)a1, 6, (int32_t)1 | a1 & -0x10000, v4));
+        // branch -> 0x100015d2
+    } else {
+        // 0x1000158e
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x100015d2
+    }
+    // 0x100015d2
+    return result;
+}
+
+int32_t function_10002df9(int32_t a1, float64_t a2) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t v2 = 0x10000 * TestFuncStatusAndPtr(a1); // 0x10002e0b
+    g6 = v2 / 0x10000;
+    if ((v2 || 0xffff) >= 0x1ffff) {
+        // 0x10002e12
+        // branch -> 0x10002ea2
+        // 0x10002ea2
+        g4 = v1;
+        return -1;
+    }
+    // 0x10002e1a
+    g8 = a1;
+    int16_t v3 = *(int16_t *)(a1 + 2); // 0x10002e1d
+    int32_t v4 = v3; // 0x10002e1d
+    g3 = v4;
+    int32_t result; // 0x10002ea5
+    if (v3 != 768 && v3 < 768 == (767 - v4 & v4) < 0) {
+        // 0x10002e4a
+        if (v3 == 1024) {
+            // 0x10002e55
+            g11--;
+            result = __ftol(v4);
+            // branch -> 0x10002ea2
+        } else {
+            // 0x10002e9f
+            result = -1;
+            // branch -> 0x10002ea2
+        }
+        // 0x10002ea2
+        g4 = v1;
+        return result;
+    }
+    // 0x10002e2d
+    if (v3 == 768) {
+        // 0x10002e5f
+        g6 = a1;
+        int32_t v5 = 0x10000 * RdEngOption(a1, 0); // 0x10002e6d
+        g8 = v5 / 0x10000;
+        g11--;
+        result = __ftol((v5 | 0xffff) < 0x1ffff ? 0x40000000 : 0x40180000);
+        // branch -> 0x10002ea2
+    } else {
+        // 0x10002e36
+        if (v3 != 256) {
+            // 0x10002e3f
+            if (v3 != 512) {
+                // 0x10002e9f
+                // branch -> 0x10002ea2
+                // 0x10002ea2
+                g4 = v1;
+                return -1;
+            }
+        }
+        // 0x10002e55
+        g11--;
+        result = __ftol(v4);
+        // branch -> 0x10002ea2
+    }
+    // 0x10002ea2
+    g4 = v1;
+    return result;
+}
+
+int32_t SetSwpIdx(int32_t a1, int32_t a2) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100053d6
+    g3 = v1;
+    int32_t result; // 0x10005422
+    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+        // 0x100053f3
+        if (a2 != 0) {
+            int32_t v2 = RdNumDataPts(a1); // 0x100053fd
+            g3 = v2;
+            if (v2 < a2) {
+                // 0x1000540a
+                // branch -> 0x1000541f
+                // 0x1000541f
+                return v2 & -0x10000 | 0xfffd;
+            }
+        }
+        // 0x10005410
+        *(int32_t *)(a1 + 160) = a2;
+        result = g3 & -0x10000;
+        // branch -> 0x1000541f
+    } else {
+        // 0x100053e5
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x1000541f
+    }
+    // 0x1000541f
+    return result;
+}
+
+int32_t RdSweepCode(int32_t a1) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e9e
+    g3 = v1;
+    int32_t result;
+    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+        // 0x10005eb3
+        g8 = a1;
+        SetFuncStatusCode(a1, 0);
+        result = (int32_t)*(int16_t *)(a1 + 130) | a1 & -0x10000;
+        // branch -> 0x10005ecb
+    } else {
+        // 0x10005ead
+        result = v1 | 0xffff;
+        // branch -> 0x10005ecb
+    }
+    // 0x10005ecb
+    return result;
+}
+
+int32_t RdNumDataPts(int32_t a1) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t result2; // 0x10005362
+    if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
+        // 0x100052da
+        g8 = a1;
+        int32_t v2 = (int32_t)*(int16_t *)(a1 + 4) & 127; // 0x100052e1
+        g3 = v2;
+        int16_t v3 = v2; // 0x100052e4
+        if (v2 != 0) {
+            int16_t v4 = *(int16_t *)(a1 + 64); // 0x100052ff
+            g3 = v4;
+            if (v4 == 1) {
+                // 0x10005308
+                if (v2 != 3) {
+                    // 0x10005311
+                    g8 = v2;
+                    if (v2 != 2) {
+                        // 0x1000531a
+                        g3 = a1;
+                        // branch -> 0x10005380
+                        // 0x10005380
+                        SetFuncStatusCode(a1, 0);
+                        // branch -> 0x10005391
+                        // 0x10005391
+                        g4 = v1;
+                        return *(int32_t *)(a1 + 132);
+                    }
+                }
+            }
+            // 0x10005328
+            g8 = v2;
+            if (v2 == 1) {
+                // 0x10005343
+                g3 = a1;
+                // branch -> 0x10005380
+                // 0x10005380
+                SetFuncStatusCode(a1, 0);
+                // branch -> 0x10005391
+                // 0x10005391
+                g4 = v1;
+                return *(int32_t *)(a1 + 164);
+            }
+            // 0x10005335
+            if (v3 == 2) {
+                // 0x10005351
+                g8 = a1;
+                int32_t result = *(int32_t *)(a1 + 152); // 0x10005354
+                g3 = result;
+                // branch -> 0x10005380
+                // 0x10005380
+                SetFuncStatusCode(a1, 0);
+                // branch -> 0x10005391
+                // 0x10005391
+                g4 = v1;
+                return result;
+            }
+            // 0x1000533b
+            if (v3 == 3) {
+                // 0x1000535f
+                result2 = *(int32_t *)(a1 + 172);
+                g8 = result2;
+                // branch -> 0x10005380
+                // 0x10005380
+                SetFuncStatusCode(a1, 0);
+                // branch -> 0x10005391
+            } else {
+                // 0x1000536d
+                g3 = a1;
+                result2 = 0x10000 * SetFuncStatusCode(a1, -14) / 0x10000;
+                // branch -> 0x10005391
+            }
+            // 0x10005391
+            g4 = v1;
+            return result2;
+        }
+        // 0x10005380
+        SetFuncStatusCode(a1, 0);
+        result2 = 0;
+        // branch -> 0x10005391
+    } else {
+        // 0x100052d2
+        result2 = -1;
+        // branch -> 0x10005391
+    }
+    // 0x10005391
+    g4 = v1;
+    return result2;
+}
+
+int32_t RdTimeoutWait(int32_t a1) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d8d
+    g3 = v1;
+    int32_t result;
+    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+        // 0x10002da1
+        g8 = a1;
+        SetFuncStatusCode(a1, 0);
+        result = *(int32_t *)(a1 + 180);
+        // branch -> 0x10002db8
+    } else {
+        // 0x10002d9c
+        result = -1;
+        // branch -> 0x10002db8
+    }
+    // 0x10002db8
+    return result;
+}
+
+int32_t InitTimeoutLoop(void) {
+    int32_t result = IeTimer(g4); // 0x1000d4be
+    g94 = result;
+    return result;
+}
+
+int32_t IeTimer(int32_t a1) {
+    // entry
+    timeBeginPeriod(1);
+    int32_t result = timeGetTime(); // 0x1000ce94
+    timeEndPeriod(1);
+    return result;
+}
+
+void timeBeginPeriod( uint32_t v) {
+}
+void timeEndPeriod( uint32_t v) {
+}
+int32_t timeGetTime() {
+	return 0;
+}
+
+int32_t IeTimerFrom(int32_t a1) {
+    // entry
+    return function_1000ce50((int64_t)a1, IeTimer(g4));
+}
+
+int32_t function_1000ce50(int64_t a1, int32_t a2) {
+    int32_t v1 = a2 + 0x52825b9 - (int32_t)a1; // 0x1000ce5b
+    return (0x100000000 * (int64_t)(v1 >> 31) | (int64_t)v1) % 0x52825b9;
 }
 
 

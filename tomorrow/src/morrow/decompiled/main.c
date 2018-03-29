@@ -5,7 +5,10 @@
 
 #include <stdio.h>
 
+#include "../include/mr90xx.h"
+
 #include "../include/wrapper.h"
+
 #include "../include/mr_defin.h"
 
 #include "../include/sapform.h"
