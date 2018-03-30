@@ -1,0 +1,124 @@
+ <meta charset="UTF-8"> 
+<html>
+	<body>
+	
+		<img src="libwebsockets.org-logo.png"><br>
+	
+		<p>Canvas connected to WebSocket Server.</p>
+		<button id=b onclick="sendmsg();">Send</button>
+		<p></p>
+
+		<canvas id="myCanvas" width="1024" height="300" style="border:1px solid #000000;">
+				Your browser does not support the HTML5 canvas tag.</canvas>
+	</body>
+	
+	
+<script>
+
+var last = new Date();
+
+function get_appropriate_ws_url(extra_url)
+{
+	var pcol;
+	var u = document.URL;
+
+	/*
+	 * We open the websocket encrypted if this page came on an
+	 * https:// url itself, otherwise unencrypted
+	 */
+
+	if (u.substring(0, 5) == "https") {
+		pcol = "wss://";
+		u = u.substr(8);
+	} else {
+		pcol = "ws://";
+		if (u.substring(0, 4) == "http")
+			u = u.substr(7);
+	}
+
+	u = u.split('/');
+
+	/* + "/xxx" bit is for IE10 workaround */
+
+	return pcol + u[0] + "/" + extra_url;
+}
+
+function new_ws(urlpath, protocol)
+{
+	if (typeof MozWebSocket != "undefined")
+		return new MozWebSocket(urlpath, protocol);
+
+	return new WebSocket(urlpath, protocol);
+}
+
+ws = new_ws(get_appropriate_ws_url(""), "lws-minimal");
+try {
+	ws.onopen = function() {
+		//document.getElementById("m").disabled = 0;
+		document.getElementById("b").disabled = 0;
+	} 
+
+	ws.onmessage =function got_packet(msg) {
+		var now = new Date();
+		
+		var millis = now.getTime() - last.getTime();
+		var fps = (1000/millis).toFixed(0);
+		//document.getElementById("r").value = msg.data + "\n";
+		//document.getElementById("r").scrollTop =
+		//	document.getElementById("r").scrollHeight;
+
+		redrawCanvas(msg.data, fps);
+		last = new Date(); 
+	} 
+
+	ws.onclose = function(){
+		document.getElementById("m").disabled = 1;
+		document.getElementById("b").disabled = 1;
+	}
+} catch(exception) {
+	alert('<p>Error' + exception);  
+}
+
+function sendmsg()
+{
+	ws.send(document.getElementById("m").value);
+	document.getElementById("m").value = "";
+}
+
+function sendmsg1()
+{
+	ws.send("test");
+
+}
+
+setInterval( sendmsg1, 25 );
+
+function redrawCanvas(data, fps) {
+	var height = 300;
+	var width = 1024;
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.fillStyle="black";
+	ctx.fillRect(0, 0, width, height);
+
+	ctx.font = "10px Arial";
+	ctx.fillText(fps+"fps /" + width + " values", 10,height - 10); 
+	ctx.beginPath();
+
+	var decoded = window.atob(data);
+	//console.log(decoded);
+	ctx.moveTo(0, height - decoded.charCodeAt(0));
+	for (var x=1; x</*decoded.length*/width; x++) {
+		y = height - decoded.charCodeAt(x);
+		ctx.lineTo(x,y);
+	}
+	ctx.strokeStyle="lightgreen";
+	ctx.stroke(); 
+}
+
+
+</script>
+
+	
+</html>
+
