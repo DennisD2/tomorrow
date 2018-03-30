@@ -37,8 +37,7 @@ static int32_t g96 = 0;
 static int32_t g97 = 0;
 static int32_t g98 = 0;
 
-int32_t mr90xx_init(char* session_string, int32_t query_flag,
-		int32_t reset_flag, int32_t * session_id);
+int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, void** session_id);
 int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3);
 
 int32_t function_10004411(int16_t a1);
@@ -66,10 +65,10 @@ int32_t __nh_malloc(int32_t a1, int32_t a2) {
 #define SESSION_STRING_IS_NULL 0xbffc0001
 #define SESSION_STRING_IS_NULO 0xbffc0801ZZ
 
-int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, void* session_id) {
+int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, void** session_id) {
 	printf("mr90xx_init\n");
 
-	void* v1 = session_id;
+	void *v1 = session_id;
 	*session_id = NULL;
 	if (session_string == NULL) {
 		return MR90XX_IE_ERROR; // -0x4003ffff = 0xbffc0002

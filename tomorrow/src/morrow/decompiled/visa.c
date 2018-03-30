@@ -168,7 +168,7 @@ int32_t VISA_InitEngine(int32_t deviceId) {
     SetTimeoutWait(deviceId, 100);
     g5 = deviceId;
     // DD: -0x3701 = 0xc8ff ANO
-    int32_t v2 = dd_WriteCommand(deviceId, -0x3701); // 0x10001fbe
+    int32_t v2 = dd_WriteCommand(deviceId, 0xc8ff /*-0x3701*/); // 0x10001fbe
     int32_t v3 = RdErrorStatus(deviceId); // 0x10001fce
     int32_t v4 = v3; // 0x10001fe3
     if (v3 == 0) {
@@ -177,7 +177,7 @@ int32_t VISA_InitEngine(int32_t deviceId) {
             // 0x10001fec
             g5 = deviceId;
             // DD: -769 = -0x301 = 0xfcff BNO
-            int32_t v6 = dd_WriteCommand(deviceId, -769); // 0x10001ff5
+            int32_t v6 = dd_WriteCommand(deviceId, 0xfcff /*-769*/); // 0x10001ff5
             int32_t v7 = RdErrorStatus(deviceId); // 0x10002005
             if (v7 != 0) {
                 // 0x10002011

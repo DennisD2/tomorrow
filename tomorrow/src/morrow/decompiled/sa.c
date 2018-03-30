@@ -21,21 +21,21 @@ typedef double float80_t;
 /* Import from visa.h */
 int32_t VISA_OpenSessionStep(int32_t deviceId);
 
-int32_t SetFuncStatusCode(/*int32_t a1*/SET9052 *a1, uint16_t a2);
-int32_t SetInterfaceType(/*int32_t a1*/SET9052 *a1, int16_t a2, int32_t a3);
-int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode);
-int32_t SetPortNum(int32_t a1, uint16_t a2) ;
-int32_t GetRBWwide(int16_t a1);
+int32_t SetFuncStatusCode(SET9052 *a1, uint16_t a2);
+int32_t SetInterfaceType(SET9052 *a1, int16_t a2, int32_t a3);
+int32_t SetCellMode(SET9052 *a1, int16_t mode);
+int32_t SetPortNum(SET9052 * a1, uint16_t a2) ;
+int32_t GetRBWwide(int16_t value);
 int32_t VBWFreqFromCode(int16_t a1);
 int32_t RBWFreqFromCode(int16_t a1);
-int32_t DefltSetTimeRBW(int16_t a1);
-int32_t DefltSetTimeVBW(int16_t a1);
-int32_t SendCommand(int16_t a1, int32_t a2, int32_t a3, int32_t a4) ;
+int32_t DefltSetTimeRBW(int16_t timeValue);
+int32_t DefltSetTimeVBW(int16_t timeValue);
+int32_t SendCommand(SET9052 * a1, int32_t a2, int32_t a3, int32_t a4) ;
 int32_t FuncStatusFromEngineReply(int16_t a1) ;
 
 
-int32_t function_10002d12(int32_t a1, uint16_t a2);
-int32_t function_10003f7a(/*int16_t a1*/SET9052 *a1);
+int32_t function_10002d12(SET9052 *a1, uint16_t a2);
+int32_t function_10003f7a(SET9052 *a1);
 int32_t function_100119ba(char a1);
 int32_t function_1000e8d2(char a1, int32_t a2);
 int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
@@ -50,8 +50,8 @@ static int32_t g9 = 0; // esi
 
 static int32_t g11 = 0; // fpu_stat_TOP
 static char * g12;
-static int32_t g14 = 0x1000c8b7;
-static int32_t g15 = 0x1000c923;
+static int32_t g14_rbwTimeFactor = 0x1000c8b7;
+static int32_t g15_vbwTimeFactor = 0x1000c923;
 
 static float64_t * g40 = NULL;
 
@@ -69,8 +69,8 @@ static int32_t g129 = 0;
 //static int32_t g130 = 0;
 //static int32_t g131 = 0;
 
-static float80_t g159 = 0.0L; // st0
-static float80_t g160 = 0.0L; // st1
+static float80_t g159_rbwFrequency = 0.0L; // st0
+static float80_t g160_currentStepWidth = 0.0L; // st1
 
 int32_t InitEngine(int16_t a1) {
     int32_t v1 = a1; // 0x10003c79
@@ -137,7 +137,7 @@ int32_t ResetEngine(int16_t a1) {
 
 
 void *ClearFuncStatusCode(SET9052 *a1) {
-	if (a1 != 0) {
+	if (a1 != NULL) {
 		//*(int16_t *) (a1 + 204) = 0;
 		a1->func_status_code = 0;
 	}
@@ -407,8 +407,8 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 	g4 = &v1;
 	int32_t result;
 	if (a1 != 0) {
-		// 0x10004ba6
-		*(int16_t *) (a1 + 196) = 0;
+		//*(int16_t *) (a1 + 196) = 0;
+		a1->interfaceType = 0;
 		// DD: (int16_t *)(a1 + 2) equals a1->engine_model
 		// int16_t * v2 = (int16_t *)(a1 + 2); // 0x10004bb5
 		int16_t v2 = a1->engine_model;
@@ -422,7 +422,6 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 				}
 			}
 		}
-		// 0x10004bf6
 		// DD: a1+8 = a1->start but aligned to 8byte(?TODO ensure that this is so)
 		//*(int32_t *)(a1 + 8) = 0;
 		//*(int32_t *)(a1 + 12) = 0x4197d784;
@@ -621,7 +620,7 @@ int32_t SetZSamplRate(/*int32_t a1*/ SET9052 *a1, int64_t rate) {
             }
             // 0x10006836
             v3 = 0x989680 / rate;
-            *(int16_t *)(a1 + 156) = (int16_t)v3;
+            //*(int16_t *)(a1 + 156) = (int16_t)v3;
             a1->zsampl_dvdr = (int16_t)v3;
             // branch -> 0x1000684e
             // 0x1000684e
@@ -631,7 +630,7 @@ int32_t SetZSamplRate(/*int32_t a1*/ SET9052 *a1, int64_t rate) {
         // branch -> 0x10006836
         // 0x10006836
         v3 = 0x7fa7;
-        *(int16_t *)(a1 + 156) = (int16_t)v3;
+        //*(int16_t *)(a1 + 156) = (int16_t)v3;
         a1->zsampl_dvdr = (int16_t)v3;
        result = (int32_t)v3 & -0x10000 | (int32_t)-3;
         // branch -> 0x1000684e
@@ -708,7 +707,7 @@ int32_t function_10001718(SET9052 *a1) {
                     }
                 }
             }
-            g160 = (float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
+            g160_currentStepWidth = (float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
             g4 = v1;
             return (int32_t)a1 & -0x10000;
         }
@@ -776,7 +775,7 @@ int32_t function_10001718(SET9052 *a1) {
                 function_10001b13(a1);
                 // branch -> 0x10001af2
                 // 0x10001af2
-                g160 = (float80_t) a1->step; // *(float64_t *)(a1 + 24);
+                g160_currentStepWidth = (float80_t) a1->step; // *(float64_t *)(a1 + 24);
                 // branch -> 0x10001b0f
                 // 0x10001b0f
                 g4 = v1;
@@ -814,13 +813,13 @@ int32_t function_10001718(SET9052 *a1) {
                     // continue -> 0x100018f7
                 }
                 function_10001b13(a1);
-                g160 = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
+                g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
                 g4 = v1;
                 return (int32_t)a1 & -0x10000;
             }
         }
         function_10001b13(a1);
-        g160 = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
+        g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
         result = (int32_t)a1 & -0x10000;
     } else {
         result = (int32_t)a1 & -0x10000 | 0xfffb;
@@ -868,7 +867,7 @@ int32_t function_10001b13(SET9052 *result2) {
         int32_t v8 = *v5 + *(int32_t *)(result2 + 60) + v7; // 0x10001bed
         g8 = v8;
         float80_t v9 = v8; // 0x10001bf3
-        g160 = v9;
+        g160_currentStepWidth = v9;
         g6 = result2;
         *(float64_t *)(result2 + 48) = (float64_t)((float80_t)v3 * v9);
         // branch -> 0x10001cfd
@@ -935,7 +934,7 @@ int32_t function_10001b13(SET9052 *result2) {
         g6 = result2;
         int32_t v18 = *v13 + *(int32_t *)(result2 + 60) + v17; // 0x10001cec
         float80_t v19 = v18; // 0x10001cf2
-        g160 = v19;
+        g160_currentStepWidth = v19;
         g8 = result2;
         *(float64_t *)(result2 + 48) = (float64_t)((float80_t)v3 * v19);
         result3 = v18;
@@ -1092,7 +1091,7 @@ int32_t setup_vbw(SET9052 *a1) {
                 if ((v8 & 256) != 0) {
                     // 0x10001f27
                     g3 = 0;
-                    int32_t v9 = VBWCodeFromFreq((float64_t)((float80_t)v4 * g159), 0); // 0x10001f2f
+                    int32_t v9 = VBWCodeFromFreq((float64_t)((float80_t)v4 * g159_rbwFrequency), 0); // 0x10001f2f
                     v6 = v9;
                     v7 = v9;
                     // branch -> 0x10001f3b
@@ -1177,7 +1176,7 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 1, v7);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1->sessionString /*a1 + 210*/);
+                function_1000d570(a1->sessionString /* a1 + 210 */);
                 //*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;
                 v3 = a3;
@@ -1218,8 +1217,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 3, v9);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+                //*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
@@ -1259,8 +1259,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 6, v11);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+                //*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
@@ -1298,8 +1299,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 4, v13);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+                //*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
@@ -1339,8 +1341,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 5, v15);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+                //*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
@@ -1377,8 +1380,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 7, v17);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+				//*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;                
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
@@ -1417,8 +1421,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 9, v19);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+				//*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;                
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
@@ -1461,8 +1466,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 SetInterfaceType(a1, 2, v21);
                 // branch -> 0x10003f21
                 // 0x10003f21
-                function_1000d570(a1 + 210);
-                *(int16_t *)(a1 + 208) = 0;
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+				//*(int16_t *)(a1 + 208) = 0;
+                a1->openStep = 0;                
                 v3 = a3;
                 if (a3 != 0) {
                     // 0x10003f4b
@@ -1497,8 +1503,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
         SetInterfaceType(a1, 1, v2);
         // branch -> 0x10003f21
         // 0x10003f21
-        function_1000d570(a1 + 210);
-        *(int16_t *)(a1 + 208) = 0;
+        function_1000d570(&a1->sessionString /* a1 + 210 */);
+		//*(int16_t *)(a1 + 208) = 0;
+        a1->openStep = 0;                
         v3 = a3;
         if (a3 != 0) {
             // 0x10003f4b
@@ -1603,7 +1610,7 @@ int32_t IdQuery(int16_t a1, int32_t a2) {
 }
 
 // Address range: 0x10004036 - 0x100040c8
-int32_t CloseSession(int32_t a1) {
+int32_t CloseSession(SET9052 *a1) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000403e
@@ -1616,16 +1623,17 @@ int32_t CloseSession(int32_t a1) {
             if (*v2 != 0) {
                 // 0x10004079
                 __pseudo_call(*v2);
-                int32_t v3 = 0x10000 * a1; // 0x10004086
+                int32_t v3 = 0x10000 * (int32_t)a1; // 0x10004086
                 if ((v3 || 0xffff) < 0x1ffff) {
                     bool v4 = FreeLibrary((int32_t *)*hLibModule); // 0x100040a2
                     *hLibModule = 0;
-                    *(int32_t *)(a1 + 468) = 0;
+                    //*(int32_t *)(a1 + 468) = 0;
+                    a1->session_handle = 0;
                     result = v4 ? -0x10000 : 0;
                     // branch -> 0x100040c5
                 } else {
                     // 0x10004092
-                    result = v3 / 0x10000 | a1 & -0x10000;
+                    result = v3 / 0x10000 | (int32_t)a1 & -0x10000;
                     // branch -> 0x100040c5
                 }
                 // 0x100040c5
@@ -1633,7 +1641,7 @@ int32_t CloseSession(int32_t a1) {
             }
         }
         // 0x10004073
-        result = a1 & -0x10000 | 0xffeb;
+        result = (int32_t)a1 & -0x10000 | 0xffeb;
         // branch -> 0x100040c5
     } else {
         // 0x1000404d
@@ -1764,7 +1772,7 @@ int32_t get_os_version_dummy(void) {
     return result;*/
 }
 
-int32_t function_10003679(int32_t a1, int32_t a2, int32_t a3) {
+int32_t function_10003679(SET9052 *a1, int32_t a2, int32_t a3) {
     int32_t v1 = function_10014e60((char *)a2, (int32_t)"VXI", 3); // 0x10003687
     if (v1 != 0) {
         // 0x10003693
@@ -1775,8 +1783,9 @@ int32_t function_10003679(int32_t a1, int32_t a2, int32_t a3) {
     // 0x10003699
     ClearFuncStatusCode(a1);
     g8 = a1;
-    *(int32_t *)(a1 + 200) = 0;
-    function_1000d570(a1 + 210);
+    //*(int32_t *)(a1 + 200) = 0;
+    a1->eng_options = 0;
+    function_1000d570(&a1->sessionString /* a1 + 210 */);
     int32_t v2 = 0x10000 * function_10003329(a1, (int32_t)"mtcvsa32.dll", (int32_t *)"VISA_"); // 0x100036de
     int32_t result; // 0x100036ef
     if ((v2 || 0xffff) < 0x1ffff) {
@@ -1909,7 +1918,7 @@ int32_t RBWFreqFromCode(int16_t a1) {
     int32_t result = a1; // 0x1000b557
     if (a1 < 0) {
         // 0x1000b57b
-        g159 = -3.0L;
+        g159_rbwFrequency= -3.0L;
         g11--;
         return result;
     }
@@ -1926,7 +1935,7 @@ int32_t RBWFreqFromCode(int16_t a1) {
         v1 = -3.0L;
     }
     // 0x1000b57b
-    g159 = v1;
+    g159_rbwFrequency = v1;
     g11--;
     return result;
 }
@@ -1950,16 +1959,17 @@ int32_t VBWFreqFromCode(int16_t a1) {
     return result;
 }
 
-int32_t DefltSetTimeRBW(int16_t a1) {
-    int32_t v1 = a1; // 0x1000c8a0
+int32_t DefltSetTimeRBW(int16_t timeValue) {
+    int32_t v1 = timeValue; // 0x1000c8a0
     g6 = v1;
-    __pseudo_branch(*(int32_t *)(4 * v1 + (int32_t)&g14));
+    __pseudo_branch(*(int32_t *)(4 * v1 + (int32_t)&g14_rbwTimeFactor));
     return -1;
 }
 
 // Address range: 0x1000c906 - 0x1000c978
-int32_t DefltSetTimeVBW(int16_t a1) {
-    int32_t v1 = *(int32_t *)(4 * (int32_t)a1 + (int32_t)&g15); // 0x1000c91c
+int32_t DefltSetTimeVBW(int16_t timeValue) {
+	// DD:  g15 is initialized with 0x1000c923... a
+    int32_t v1 = *(int32_t *)(4 * (int32_t)timeValue + (int32_t)&g15_vbwTimeFactor); // 0x1000c91c
     __pseudo_branch(v1);
     return -1;
 }
@@ -3371,7 +3381,7 @@ int32_t __ftol(int32_t in) {
 	return 0;
 }
 
-int32_t RdSessionHandle(int32_t a1) {
+int32_t RdSessionHandle(SET9052 *a1) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005201
@@ -3381,7 +3391,7 @@ int32_t RdSessionHandle(int32_t a1) {
         // 0x10005214
         g8 = a1;
         SetFuncStatusCode(a1, 0);
-        result = *(int32_t *)(a1 + 468);
+        result = a1->session_handle; // *(int32_t *)(a1 + 468);
         // branch -> 0x1000522b
     } else {
         // 0x10005210
@@ -3392,7 +3402,7 @@ int32_t RdSessionHandle(int32_t a1) {
     return result;
 }
 
-int32_t SetEngineModel(int32_t a1, int16_t a2) {
+int32_t SetEngineModel(SET9052 *a1, int16_t a2) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008698
@@ -3417,7 +3427,8 @@ int32_t SetEngineModel(int32_t a1, int16_t a2) {
             }
         }
         // 0x100086e3
-        *(int16_t *)(a1 + 2) = a2;
+        //*(int16_t *)(a1 + 2) = a2;
+        a1->engine_model = a2;
         result = v2 & -0x10000;
         // branch -> 0x100086f7
     } else {
@@ -3429,7 +3440,7 @@ int32_t SetEngineModel(int32_t a1, int16_t a2) {
     return result;
 }
 
-int32_t RdInterfaceType(int32_t a1) {
+int32_t RdInterfaceType(SET9052 *a1) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10004eec
@@ -3441,7 +3452,7 @@ int32_t RdInterfaceType(int32_t a1) {
         // 0x10004f01
         g8 = a1;
         SetFuncStatusCode(a1, 0);
-        result = (int32_t)*(int16_t *)(a1 + 196) | a1 & -0x10000;
+        result = (int32_t)*(int16_t *)(&a1->interfaceType /* a1 + 196 */) | (int32_t)a1 & -0x10000;
         // branch -> 0x10004f19
     } else {
         // 0x10004efb
@@ -3452,7 +3463,7 @@ int32_t RdInterfaceType(int32_t a1) {
     return result;
 }
 
-int32_t SetTimeoutWait(int32_t a1, int32_t a2) {
+int32_t SetTimeoutWait(SET9052 *a1, int32_t time /*a2*/) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d58
@@ -3460,8 +3471,9 @@ int32_t SetTimeoutWait(int32_t a1, int32_t a2) {
     int32_t result; // 0x10002d85
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10002d75
-        *(int32_t *)(a1 + 180) = a2;
-        result = a1 & -0x10000;
+        // *(int32_t *)(a1 + 180) = a2;
+        a1->ie_duration = time;
+        result = (int32_t)a1 & -0x10000;
         // branch -> 0x10002d84
     } else {
         // 0x10002d67
@@ -3514,7 +3526,7 @@ int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
     return result2;
 }
 
-int32_t RdRBW(int32_t a1) {
+int32_t RdRBW(SET9052 *a1) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100057ee
@@ -3526,7 +3538,7 @@ int32_t RdRBW(int32_t a1) {
         // 0x10005803
         g8 = a1;
         SetFuncStatusCode(a1, 0);
-        result = (int32_t)*(int16_t *)(a1 + 72) | a1 & -0x10000;
+        result = (int32_t)*(int16_t *)(&a1->rbw_code /*a1 + 72*/) | (int32_t)a1 & -0x10000;
         // branch -> 0x10005818
     } else {
         // 0x100057fd
@@ -3570,7 +3582,7 @@ int32_t VBWCodeFromFreq(float64_t a1, int32_t a2) {
     return (int32_t)-3 | v3 & -0x10000;
 }
 
-int32_t SetPortNum(int32_t a1, uint16_t a2) {
+int32_t SetPortNum(SET9052 *a1, uint16_t a2) {
 	/* DD: ISA code, do nothing. */
 	return 999;
 /*
@@ -3645,7 +3657,7 @@ int32_t GetFuncStatusCode(SET9052 *a1) {
     return result;
 }
 
-int32_t RdErrorStatus(int32_t a1) {
+int32_t RdErrorStatus(SET9052 *a1) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000858b
@@ -3655,7 +3667,7 @@ int32_t RdErrorStatus(int32_t a1) {
     int32_t result; // 0x100085ae
     if ((v2 || 0xffff) < 0x1ffff) {
         // 0x100085ab
-        result = *(int32_t *)(a1 + 192);
+        result = a1->err_status; // *(int32_t *)(a1 + 192);
         g6 = result;
         // branch -> 0x100085ba
     } else {
@@ -3688,7 +3700,7 @@ int32_t SetErrorStatus(int32_t a1, int16_t a2) {
     return result;
 }
 
-int32_t BreakSweep(int32_t a1, uint16_t a2) {
+int32_t BreakSweep(SET9052 *a1, uint16_t a2) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int32_t v2 = g3 & -0x10000 | (int32_t)a2; // 0x10004a0e
@@ -3757,7 +3769,7 @@ int32_t BreakSweep(int32_t a1, uint16_t a2) {
             return v3 & -0x10000 | 65;
         }
         case 2: {
-            int32_t v7 = function_10002d12(a1, *(int16_t *)(a1 + 4) & -129); // 0x10004b43
+            int32_t v7 = function_10002d12(a1, a1->swp_in_prog/* *(int16_t *)(a1 + 4)*/ & -129); // 0x10004b43
             if (0x10000 * v7 >= 0) {
                 // 0x10004b7c
                 result = v7 & -0x10000 | 65;
@@ -3774,7 +3786,7 @@ int32_t BreakSweep(int32_t a1, uint16_t a2) {
             return result;
         }
         case 3: {
-            int32_t v8 = function_10002d12(a1, *(int16_t *)(a1 + 4) | 128); // 0x10004aac
+            int32_t v8 = function_10002d12(a1, a1->swp_in_prog/* *(int16_t *)(a1 + 4)*/ | 128); // 0x10004aac
             int16_t v9 = v8; // 0x10004aac
             int32_t v10 = 0x10000 * v8 / 0x10000; // 0x10004ab8
             g3 = v10;
@@ -3802,7 +3814,7 @@ int32_t BreakSweep(int32_t a1, uint16_t a2) {
     return result;
 }
 
-int32_t function_10002d12(int32_t a1, uint16_t a2) {
+int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
     // 0x10002d12
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d19
@@ -3814,7 +3826,8 @@ int32_t function_10002d12(int32_t a1, uint16_t a2) {
         // 0x10002d36
         g3 = a1;
         g6 = a2;
-        *(int16_t *)(a1 + 4) = a2;
+        //*(int16_t *)(a1 + 4) = a2;
+        a1->swp_in_prog = a2;
         g8 = a1;
         result = SetFuncStatusCode(a1, 0);
         // branch -> 0x10002d4f
@@ -3828,7 +3841,7 @@ int32_t function_10002d12(int32_t a1, uint16_t a2) {
     return result;
 }
 
-int32_t SendCommand(int16_t a1, int32_t a2, int32_t a3, int32_t a4) {
+int32_t SendCommand(SET9052 *a1, int32_t a2, int32_t a3, int32_t a4) {
     int32_t v1 = a1; // 0x10003b52
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003b56
@@ -4019,7 +4032,7 @@ int32_t FuncStatusFromEngineReply(int16_t a1) {
     return v3 | v1 & -0x10000;
 }
 
-int32_t CommTrigDetect(int32_t a1) {
+int32_t CommTrigDetect(SET9052 *a1) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int16_t v2 = 8; // bp-32
@@ -4037,10 +4050,10 @@ int32_t CommTrigDetect(int32_t a1) {
         g4 = v1;
         return result;
     }
-    int32_t v5 = *(int32_t *)(a1 + 120); // 0x10001613
+    int32_t v5 = a1->trig_freq; // *(int32_t *)(a1 + 120); // 0x10001613
     g8 = v5;
     function_10002df9(a1, (float64_t)(int64_t)v5);
-    int32_t v6 = g8 & -0x10000 | (int32_t)*(int16_t *)(a1 + 128); // bp-24
+    int32_t v6 = g8 & -0x10000 | a1->detect_code ; // (int32_t)*(int16_t *)(a1 + 128); // bp-24
     int32_t v7;
     int32_t v8; // 0x100016e9
     int32_t v9; // 0x100016dd
@@ -4075,7 +4088,7 @@ int32_t CommTrigDetect(int32_t a1) {
         return result;
     }
     // 0x1000164a
-    if (*(int16_t *)(a1 + 110) != 0) {
+    if (a1->trig_norm_flag /* *(int16_t *)(a1 + 110)*/  != IE_FALSE /*0*/) {
         // 0x10001662
         // branch -> 0x1000167d
     }
@@ -4106,7 +4119,7 @@ int32_t CommTrigDetect(int32_t a1) {
     return result;
 }
 
-int32_t CommInterrupts(int32_t a1) {
+int32_t CommInterrupts(SET9052 *a1) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -4114,10 +4127,10 @@ int32_t CommInterrupts(int32_t a1) {
     g3 = v2;
     int32_t result; // 0x100015d5
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-        int32_t v3 = (int32_t)*(int16_t *)(a1 + 136); // bp-8
+        int32_t v3 = a1->intr_code; // (int32_t)*(int16_t *)(a1 + 136); // bp-8
         int32_t v4 = &v3; // 0x100015aa
         g8 = v4;
-        result = FuncStatusFromEngineReply((int16_t)SendCommand((int16_t)a1, 6, (int32_t)1 | a1 & -0x10000, v4));
+        result = FuncStatusFromEngineReply((int16_t)SendCommand(a1, 6, (int32_t)1 | (int32_t)a1 & -0x10000, v4));
         // branch -> 0x100015d2
     } else {
         // 0x1000158e
@@ -4128,7 +4141,7 @@ int32_t CommInterrupts(int32_t a1) {
     return result;
 }
 
-int32_t function_10002df9(int32_t a1, float64_t a2) {
+int32_t function_10002df9(SET9052 *a1, float64_t a2) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -4143,7 +4156,7 @@ int32_t function_10002df9(int32_t a1, float64_t a2) {
     }
     // 0x10002e1a
     g8 = a1;
-    int16_t v3 = *(int16_t *)(a1 + 2); // 0x10002e1d
+    int16_t v3 = a1->engine_model; //*(int16_t *)(a1 + 2); // 0x10002e1d
     int32_t v4 = v3; // 0x10002e1d
     g3 = v4;
     int32_t result; // 0x10002ea5
@@ -4194,7 +4207,7 @@ int32_t function_10002df9(int32_t a1, float64_t a2) {
     return result;
 }
 
-int32_t SetSwpIdx(int32_t a1, int32_t a2) {
+int32_t SetSwpIdx(SET9052 *a1, int32_t a2) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100053d6
@@ -4213,7 +4226,8 @@ int32_t SetSwpIdx(int32_t a1, int32_t a2) {
             }
         }
         // 0x10005410
-        *(int32_t *)(a1 + 160) = a2;
+        //*(int32_t *)(a1 + 160) = a2;
+        a1->sweepIndex = a2;
         result = g3 & -0x10000;
         // branch -> 0x1000541f
     } else {
@@ -4225,7 +4239,7 @@ int32_t SetSwpIdx(int32_t a1, int32_t a2) {
     return result;
 }
 
-int32_t RdSweepCode(int32_t a1) {
+int32_t RdSweepCode(SET9052 *a1) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e9e
@@ -4235,7 +4249,7 @@ int32_t RdSweepCode(int32_t a1) {
         // 0x10005eb3
         g8 = a1;
         SetFuncStatusCode(a1, 0);
-        result = (int32_t)*(int16_t *)(a1 + 130) | a1 & -0x10000;
+        result = (int32_t) /* *(int16_t *)(a1 + 130)*/ a1->sweep_code | (int32_t)(int32_t)a1 & -0x10000;
         // branch -> 0x10005ecb
     } else {
         // 0x10005ead
@@ -4246,7 +4260,7 @@ int32_t RdSweepCode(int32_t a1) {
     return result;
 }
 
-int32_t RdNumDataPts(int32_t a1) {
+int32_t RdNumDataPts(SET9052 *a1) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -4254,11 +4268,11 @@ int32_t RdNumDataPts(int32_t a1) {
     if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
         // 0x100052da
         g8 = a1;
-        int32_t v2 = (int32_t)*(int16_t *)(a1 + 4) & 127; // 0x100052e1
+        int32_t v2 = (int32_t) /* *(int16_t *)(a1 + 4) */ a1->swp_in_prog & 127; // 0x100052e1
         g3 = v2;
         int16_t v3 = v2; // 0x100052e4
         if (v2 != 0) {
-            int16_t v4 = *(int16_t *)(a1 + 64); // 0x100052ff
+            int16_t v4 = a1->cell_mode; // *(int16_t *)(a1 + 64); // 0x100052ff
             g3 = v4;
             if (v4 == 1) {
                 // 0x10005308
@@ -4274,7 +4288,7 @@ int32_t RdNumDataPts(int32_t a1) {
                         // branch -> 0x10005391
                         // 0x10005391
                         g4 = v1;
-                        return *(int32_t *)(a1 + 132);
+                        return a1->num_cells; // *(int32_t *)(a1 + 132);
                     }
                 }
             }
@@ -4289,13 +4303,13 @@ int32_t RdNumDataPts(int32_t a1) {
                 // branch -> 0x10005391
                 // 0x10005391
                 g4 = v1;
-                return *(int32_t *)(a1 + 164);
+                return a1->num_swp_pts; // *(int32_t *)(a1 + 164);
             }
             // 0x10005335
             if (v3 == 2) {
                 // 0x10005351
                 g8 = a1;
-                int32_t result = *(int32_t *)(a1 + 152); // 0x10005354
+                int32_t result = a1->num_samples; // *(int32_t *)(a1 + 152); // 0x10005354
                 g3 = result;
                 // branch -> 0x10005380
                 // 0x10005380
@@ -4308,7 +4322,7 @@ int32_t RdNumDataPts(int32_t a1) {
             // 0x1000533b
             if (v3 == 3) {
                 // 0x1000535f
-                result2 = *(int32_t *)(a1 + 172);
+                result2 = a1->num_hop_pts; // *(int32_t *)(a1 + 172);
                 g8 = result2;
                 // branch -> 0x10005380
                 // 0x10005380
@@ -4338,7 +4352,7 @@ int32_t RdNumDataPts(int32_t a1) {
     return result2;
 }
 
-int32_t RdTimeoutWait(int32_t a1) {
+int32_t RdTimeoutWait(SET9052 *a1) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d8d
@@ -4348,7 +4362,7 @@ int32_t RdTimeoutWait(int32_t a1) {
         // 0x10002da1
         g8 = a1;
         SetFuncStatusCode(a1, 0);
-        result = *(int32_t *)(a1 + 180);
+        result = a1->ie_duration; // *(int32_t *)(a1 + 180);
         // branch -> 0x10002db8
     } else {
         // 0x10002d9c
