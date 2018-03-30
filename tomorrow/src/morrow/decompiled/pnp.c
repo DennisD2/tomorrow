@@ -107,6 +107,7 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag
 		return result3;
 	}
 	int32_t result5; // 0x10003118
+
 	int32_t result4; // 0x100030ef
 	int32_t v6; // 0x10003103
 	if (v2 == 0) {
