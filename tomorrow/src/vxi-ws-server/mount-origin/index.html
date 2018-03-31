@@ -51,7 +51,7 @@ function new_ws(urlpath, protocol)
 	return new WebSocket(urlpath, protocol);
 }
 
-ws = new_ws(get_appropriate_ws_url(""), "lws-minimal");
+var ws = new_ws(get_appropriate_ws_url(""), "lws-minimal");
 try {
 	ws.onopen = function() {
 		//document.getElementById("m").disabled = 0;
@@ -72,8 +72,8 @@ try {
 	} 
 
 	ws.onclose = function(){
-		document.getElementById("m").disabled = 1;
-		document.getElementById("b").disabled = 1;
+		//document.getElementById("m").disabled = 1;
+		//document.getElementById("b").disabled = 1;
 	}
 } catch(exception) {
 	alert('<p>Error' + exception);  
@@ -101,8 +101,9 @@ function redrawCanvas(data, fps) {
 	ctx.fillStyle="black";
 	ctx.fillRect(0, 0, width, height);
 
-	ctx.font = "10px Arial";
-	ctx.fillText(fps+"fps /" + width + " values", 10,height - 10); 
+	ctx.font = "12px Arial";
+	ctx.fillStyle="yellow";
+	ctx.fillText(fps + "fps /" + width + " values", 10, height - 10); 
 	ctx.beginPath();
 
 	var decoded = window.atob(data);
