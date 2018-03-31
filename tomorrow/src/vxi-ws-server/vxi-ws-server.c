@@ -59,6 +59,14 @@ static const struct lws_http_mount mount = {
 	/* .basic_auth_login_file */NULL,
 };
 
+typedef struct ServerInfo {
+	char *targetHost;
+	int targetPort;
+	int targetSocket;
+} ServerInfo_t;
+
+static ServerInfo_t serverInfo;
+
 void sigint_handler(int sig)
 {
 	interrupted = 1;
@@ -73,51 +81,45 @@ uint64_t get_posix_clock_time () {
         return 0;
 }
 
-int sock = -1;
-
-void initSocket(int argc, char **argv) {
+void initSocket() {
     struct sockaddr_in server;
-     
-    char *targetHost = "127.0.0.1"; 
-	int targetPort = 8888;
-    if (argc == 3) {
-        targetHost = argv[1];
-		targetPort = atoi(argv[2]);
-    } else {
-		lwsl_user("You may use host and port as command line args.\n");
-	}
-    lwsl_user("Using host: %s:%d\n", targetHost, targetPort);
 
+    serverInfo.targetSocket = 0;
     // Create socket
-    sock = socket(AF_INET, SOCK_STREAM , 0);
+    int sock = socket(AF_INET, SOCK_STREAM , 0);
     if (sock == -1) {
         lwsl_err("Could not create socket\n");
     }
 	lwsl_debug("Socket created\n");
      
-    server.sin_addr.s_addr = inet_addr(targetHost);
+    server.sin_addr.s_addr = inet_addr(serverInfo.targetHost);
     server.sin_family = AF_INET;
-    server.sin_port = htons(targetPort);
+    server.sin_port = htons(serverInfo.targetPort);
  
     // Connect to remote server
     if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
         lwsl_err("Connect failed.\n");
+
         return;
-    }     
+    }
+    serverInfo.targetSocket = sock;
     lwsl_debug("Connected\n");
 }
 
 int readSocket(unsigned char* server_reply) {
+	if (serverInfo.targetSocket == 0) {
+		return 0;
+	}
    	char message[32];
  	strcpy(message, "GETIMAGE");
 	// Send command
-	if(send(sock, message, strlen(message), 0) < 0) {
+	if(send(serverInfo.targetSocket, message, strlen(message), 0) < 0) {
 		lwsl_err("Send failed\n");
 		return 0;
 	}
 	
 	// Receive a reply from the server
-	int recvLen = recv(sock, server_reply, 2000, 0) ;
+	int recvLen = recv(serverInfo.targetSocket, server_reply, 2000, 0) ;
 	if(recvLen < 0) {
 		lwsl_err("Recv failed\n");
 		return 0;
@@ -125,8 +127,21 @@ int readSocket(unsigned char* server_reply) {
 	return recvLen;
 }
 
+
 int main(int argc, char **argv)
 {
+    char *targetHost = "127.0.0.1";
+	int targetPort = 8888;
+    if (argc == 3) {
+        targetHost = argv[1];
+		targetPort = atoi(argv[2]);
+    } else {
+		lwsl_user("You may use host and port as command line args.\n");
+	}
+    serverInfo.targetHost = targetHost;
+    serverInfo.targetPort = targetPort;
+    lwsl_user("Using host: %s:%d\n", targetHost, targetPort);
+
 	struct lws_context_creation_info info;
 	struct lws_context *context;
 	int n = 0;
@@ -147,7 +162,7 @@ int main(int argc, char **argv)
 
 	lwsl_user("LWS minimal ws server | visit http://localhost:7681\n");
 
-	initSocket(argc, argv);
+	initSocket();
 
 	context = lws_create_context(&info);
 	if (!context) {
