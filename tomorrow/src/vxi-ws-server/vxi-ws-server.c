@@ -106,12 +106,12 @@ void initSocket() {
     lwsl_debug("Connected\n");
 }
 
-int readSocket(unsigned char* server_reply) {
+int readSocket(char* command, unsigned char* server_reply) {
 	if (serverInfo.targetSocket == 0) {
 		return 0;
 	}
    	char message[32];
- 	strcpy(message, "GETIMAGE");
+ 	strcpy(message, command);
 	// Send command
 	if(send(serverInfo.targetSocket, message, strlen(message), 0) < 0) {
 		lwsl_err("Send failed\n");
@@ -126,7 +126,6 @@ int readSocket(unsigned char* server_reply) {
 	}
 	return recvLen;
 }
-
 
 int main(int argc, char **argv)
 {

@@ -19,7 +19,7 @@
 
 #include <string.h>
 
-extern int readSocket(unsigned char* server_reply);
+extern int readSocket(char* command, unsigned char* server_reply);
 extern void initSocket() ;
 
 /* https://stackoverflow.com/questions/342409/how-do-i-base64-encode-decode-in-c */
@@ -168,15 +168,15 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 
 		unsigned char image[1024];
 		unsigned char encodedImage[3*1024];
-		len = readSocket(image);
-		if (len == 0 ) {
+		int rlen = readSocket("GETIMAGE", image);
+		if (rlen == 0 ) {
 			lwsl_err("ERROR reading from backend service. Retrying...\n");
 			//return -1;
 			int tries = 0;
-			while (len <= 0) {
+			while (rlen <= 0) {
 				lwsl_user("Retry: %d ...\n", tries++);
 				initSocket();
-				len = readSocket(image);
+				rlen = readSocket("GETIMAGE", image);
 				sleep(1);
 			}
 			lwsl_user("Retry successful.\n");
