@@ -7,6 +7,9 @@
 #include<time.h>   
 #include <sys/time.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "datagram.h"
+#include <unistd.h>
 
  uint64_t get_posix_clock_time () {
     struct timespec ts;
@@ -21,15 +24,16 @@ int main(int argc , char *argv[]) {
     int sock;
     struct sockaddr_in server;
     char message[1000], server_reply[2000];
-    int loopCount=0;
+    int loopCount=10;
      
     char *targetHost = "127.0.0.1"; 
     if (argc == 3) {
         targetHost = argv[1];
-	loopCount = atoi(argv[2]);
-	printf("Using host: %s, loopCount: %d\n", targetHost, loopCount);
+		loopCount = atoi(argv[2]);
     }
-    //Create socket
+	printf("Using host: %s, loopCount: %d\n", targetHost, loopCount);
+
+	//Create socket
     sock = socket(AF_INET, SOCK_STREAM , 0);
     if (sock == -1) {
         printf("Could not create socket");
@@ -48,12 +52,14 @@ int main(int argc , char *argv[]) {
      
     puts("Connected\n");
     
-    strcpy(message, "GETIMAGE");
+    TDatagram_t dg;
+    dg_packString("GETIMAGE", &dg);
+    dg_write(&dg, message);
+    //strcpy(message, "GETIMAGE");
 
     //keep communicating with server
     uint64_t prev_time_value = get_posix_clock_time ();
 
- 
     int i=0;
     while(i<loopCount) {
         i++;
@@ -61,7 +67,8 @@ int main(int argc , char *argv[]) {
         //scanf("%s", message);
          
         //Send some data
-        if(send(sock, message, strlen(message), 0) < 0) {
+        printf("%s\n", message);
+        if(send(sock, message, dg.len+5, 0) < 0) {
             puts("Send failed");
             return 1;
         }

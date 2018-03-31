@@ -1,1 +1,0 @@
-/usr/bin/cc  -I ../../../include -Wall -Wsign-compare -Wignored-qualifiers -Wtype-limits  -Wundef    CMakeFiles/vxi-ws-server.dir/vxi-ws-server.c.o  -o vxi-ws-server -rdynamic -lwebsockets 

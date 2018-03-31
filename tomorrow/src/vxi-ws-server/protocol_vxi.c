@@ -19,6 +19,8 @@
 
 #include <string.h>
 
+#include "../instr-server/datagram.h"
+
 extern int readSocket(char* command, unsigned char* server_reply);
 extern void initSocket() ;
 
@@ -168,7 +170,13 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 
 		unsigned char image[1024];
 		unsigned char encodedImage[3*1024];
-		int rlen = readSocket("GETIMAGE", image);
+
+		TDatagram_t dg;
+		char command[100];
+		dg_packString("GETIMAGE", &dg);
+		dg_write(&dg, command);
+
+		int rlen = readSocket(command, image);
 		if (rlen == 0 ) {
 			lwsl_err("ERROR reading from backend service. Retrying...\n");
 			//return -1;
@@ -176,7 +184,7 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 			while (rlen <= 0) {
 				lwsl_user("Retry: %d ...\n", tries++);
 				initSocket();
-				rlen = readSocket("GETIMAGE", image);
+				rlen = readSocket(command, image);
 				sleep(1);
 			}
 			lwsl_user("Retry successful.\n");
