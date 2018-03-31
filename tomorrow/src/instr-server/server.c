@@ -5,6 +5,11 @@
 #include<unistd.h>    //write
 
 #include <math.h>
+#include <stdlib.h> // rand()
+#include <time.h> // time()
+
+#include "datagram.h"
+
 #define PI 3.14159265
 
 static int startOffset=0;
@@ -38,7 +43,8 @@ int getCurrentImage(unsigned char *bytes) {
 }
 
 int main(int argc , char *argv[]) {
-    int socket_desc , client_sock , c , read_size;
+    int socket_desc , client_sock, read_size;
+    socklen_t c;
     struct sockaddr_in server , client;
     char client_message[2000];
 
@@ -84,7 +90,7 @@ int main(int argc , char *argv[]) {
      
   while (waitForConnection==1) {
     //accept connection from an incoming client
-    client_sock = accept(socket_desc, (struct sockaddr *)&client, (size_t*)&c);
+    client_sock = accept(socket_desc, (struct sockaddr *)&client, &c);
     if (client_sock < 0) {
         perror("accept failed");
         return 1;
