@@ -19,8 +19,21 @@ int main(int argc, char **argv) {
 	printf("%d\n", dg.len);
 	printf("%c\n", dg.type);
 
+	// write out
 	dg_write(&dg, abuffer);
 	printf("%s\n", abuffer);
+
+	TDatagram_t back;
+	char aresponse[100];
+
+	// read back
+	back.adata = aresponse;
+	dg_read(abuffer, &back);
+	printf("%s\n", back.bdata);
+	printf("%d\n", back.len);
+	printf("%c\n", back.type);
+
+	// binary
 
 	unsigned char bin[8];
 	bin[0] = 'x';
@@ -37,9 +50,20 @@ int main(int argc, char **argv) {
 	printf("%d\n", dg.len);
 	printf("%c\n", dg.type);
 
+	// write out
 	dg_write(&dg, bbuffer);
 	bbuffer[8+3] = '\0';
 	printf("%s\n", bbuffer);
 	printf("%s\n", &(bbuffer[3]));
 
+	unsigned char bresponse[100];
+
+	// read back
+	back.bdata = bresponse;
+	dg_read(bbuffer, &back);
+	printf("%s\n", back.bdata);
+	printf("%d\n", back.len);
+	printf("%c\n", back.type);
+
+	return 0;
 }

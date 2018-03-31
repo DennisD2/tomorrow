@@ -6,6 +6,7 @@
  */
 #include "datagram.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 /*static void fill_alen(int len, TDatagram_t *dg) {
 	dg->alen[1] = '0' + (len % 10);
@@ -78,6 +79,7 @@ static int read_len(char *buffer) {
 	n += (buffer[3] - '0');
 	n = 10*n;
 	n += (buffer[4] - '0');
+	//printf("XXX %d\n", n);
 	return n;
 }
 int dg_readString(char *buffer, TDatagram_t *dg) {
@@ -88,12 +90,21 @@ int dg_readString(char *buffer, TDatagram_t *dg) {
 }
 
 int dg_readBinary(unsigned char *buffer, TDatagram_t *dg) {
+	dg->type = DG_BINARY;
+	dg->len = (buffer[1] << 8) + buffer[2] ;
+	//printf("XXX %d\n", dg->len);
+	memcpy( dg->bdata, &(buffer[3]), dg->len);
 
 	return 0;
 }
 
 int dg_read( void *buffer, TDatagram_t *dg) {
-	if (dg->type == DG_ASCII)
+	char *b = (char *)buffer;
+	if (b[0] != DG_ASCII && b[0] != DG_BINARY) {
+		printf("Unknown datagram type '%c'.\n", b[0]);
+		return -1;
+	}
+	if (b[0] == DG_ASCII)
 		return dg_readString((char*)buffer, dg);
 	else
 		return dg_readBinary((unsigned char *)buffer, dg);
