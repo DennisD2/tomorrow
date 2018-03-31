@@ -1,3 +1,0 @@
-/home/dennis/src/vxi-ws-server/CMakeFiles/edit_cache.dir
-/home/dennis/src/vxi-ws-server/CMakeFiles/rebuild_cache.dir
-/home/dennis/src/vxi-ws-server/CMakeFiles/vxi-ws-server.dir
