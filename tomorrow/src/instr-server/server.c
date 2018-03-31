@@ -7,11 +7,12 @@
 #include <math.h>
 #define PI 3.14159265
 
-int startOffset=0;
+static int startOffset=0;
+#define NUMPOINTS 1024
 
 unsigned char calcSinus(int x) {
-	x += (startOffset % 1024);
-	float xval = 2*PI*x/1024;
+	x += (startOffset % NUMPOINTS);
+	float xval = 2*PI*x/NUMPOINTS;
 	float yval = sin(xval) + 1; // +1 to make it positive always
 	//unsigned char o = rand() % 255 ; // + 'A';
 	unsigned char o =  (unsigned char)(yval*127.0);
@@ -20,13 +21,28 @@ unsigned char calcSinus(int x) {
 	return o;
 }
 
- 
+unsigned char calcNoise(int x) {
+	unsigned char o = rand() % 255;
+	return o;
+}
+
+int getCurrentImage(unsigned char *bytes) {
+	startOffset++;
+	int i;
+	for (i=0; i<NUMPOINTS; i++) {
+		// bytes[i]='A'+ (i % 5);
+		unsigned char a = calcSinus(i); //calcNoise(i);
+		bytes[i] = a;
+	}
+	return NUMPOINTS;
+}
+
 int main(int argc , char *argv[]) {
     int socket_desc , client_sock , c , read_size;
     struct sockaddr_in server , client;
     char client_message[2000];
 
-    unsigned char bytes[1024];
+    unsigned char bytes[NUMPOINTS];
 
 	/* Intializes random number generator */
 	time_t t;
@@ -80,28 +96,23 @@ int main(int argc , char *argv[]) {
         //puts(client_message);
         int handled = 0;
         if (strncmp(client_message, "GETIMAGE", strlen("GETIMAGE")) == 0) {
-            //puts("GETIMAGE command");+
-            //write(client_sock , client_message , read_size);
-
-startOffset++;
-    int i;
-    for (i=0; i<1024; i++) {
-        // bytes[i]='A'+ (i % 5);
-	unsigned char a = calcSinus(i);
-	bytes[i] = a;
-    }
-     
-            write(client_sock, bytes, 1024);
+            //puts("GETIMAGE command");
+        	int n = getCurrentImage(bytes);
+            write(client_sock, bytes, n);
             handled = 1;
         }
-        if (strncmp(client_message, ".", strlen(".")) == 0) {
-            puts("CLOSE command");+
-            write(client_sock , "Bye" , strlen("Bye"));
+
+        // 'open 126'
+        if (strncmp(client_message, "open", strlen("open")) == 0) {
+            puts("open");
+            write(client_sock , "ok" , strlen("ok"));
             //shutdown(client_sock, 2);
             //shutdown(socket_desc, 2);
             handled = 1;
             return 0;
         }
+
+        // unknown command
         if (handled == 0) {
             write(client_sock , "What?" , strlen("What?")); 
         }

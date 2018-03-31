@@ -73,7 +73,7 @@ uint64_t get_posix_clock_time () {
         return 0;
 }
 
-int sock;
+int sock = -1;
 
 void initSocket(int argc, char **argv) {
     struct sockaddr_in server;
