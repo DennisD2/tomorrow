@@ -1,0 +1,28 @@
+
+The following information applies to Morrow SA9054. 
+Other devices from Morrow may have the same codes.
+
+Engine Command Table
+Engine Commands are Commands for CPU P1 (acquisition CPU).
+The code allows Engine command values in range 0..16.
+
+Command 	Function				Comment
+-------------------------------------------------------------------------
+0 			unknown					Not exposed by libs and not called by lib code.
+1			Start Sweep
+2			Start zSpan
+3			Start FreqHop
+4			Set Trigger related		Params (8, g8)
+5									(not used by libs)
+6			Comm Interrupt			Params (1, a1->interrupt_code)
+7			Break Sweep				Params (1, 0)
+8									(not used by libs)			
+9									(not used by libs)
+10			GetCalPoint
+11			Pulse function related
+12									(not used by libs)
+13									(not used by libs)
+14									(not used by libs)
+15									(not used by libs)
+16									(not used by libs)
+
