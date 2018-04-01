@@ -17,10 +17,10 @@
 int32_t dd_WriteCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
 
-int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t response) ;
+int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t *response) ;
 int32_t function_10001249(SET9052 *deviceId, uint16_t a2, int32_t a3, int32_t a4) ;
-int32_t function_100015d0(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t a4);
-int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t a3);
+int32_t function_100015d0(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t *a4);
+int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t *a3);
 int32_t function_10001a0a(SET9052 *deviceId, int16_t command) ;
 
 static int32_t g2 = 0; // eax
@@ -29,10 +29,11 @@ static int32_t g3 = 0; // ebp
 static int32_t g5 = 0; // ecx
 static int32_t g7 = 0; // edx
 static int32_t g52_currentViSession = 0;
-static int32_t g53 = 0;
+static SET9052* g53 = 0;
 
 
 int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
+	printf("VISA_OpenSessionStep\n");
     if (deviceId == 0) {
         return g2 & -0x10000 | 0xfff6;
     }
@@ -42,7 +43,7 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
     }
     if (g53 == 0) {
     	// DD: Assumed call:This seems to be: ViStatus viOpenDefaultRM(ViPSession sesn)
-        int32_t v2 = _imported_function_ord_141((int32_t)&g52_currentViSession); // 0x1000220a
+        int32_t v2 = dd_viOpenDefaultRM((int32_t)&g52_currentViSession); // 0x1000220a
         if (v2 != VI_SUCCESS) {
             return v2 | 0xffff;
         }
@@ -51,7 +52,7 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
     int32_t vi_session_ptr = &vi_session; // 0x10002221
     // DD: Assumed call: ViStatus viOpen(ViSession sesn, ViRsrc rsrcName, ViAccessMode accessMode, ViUInt32 openTimeout, ViPSession vi)
     // Session result comes back in *v4
-    if (_imported_function_ord_131(g52_currentViSession, deviceId->sessionString/*deviceId + 210*/, 0, 0, vi_session_ptr) != VI_SUCCESS) {
+    if (dd_viOpen(g52_currentViSession, deviceId->sessionString/*deviceId + 210*/, 0, 0, vi_session_ptr) != VI_SUCCESS) {
         int32_t v5 = g52_currentViSession; // 0x10002247
         g52_currentViSession = 0;
         // DD: _imported_function_ord_132 seems to analyze the error
@@ -63,7 +64,7 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
     *v6 = *v6 + 1;
     // DD: 0x2710 = 100000
     // DD: Assumed call: VISA Get Attribute
-    int32_t v7 = vISetAttribute(vi_session, VI_ATTR_TMO_VALUE /*0x3fff001a*/, 10000 /*0x2710*/ ); // 0x1000229b
+    int32_t v7 = dd_viSetAttribute(vi_session, VI_ATTR_TMO_VALUE /*0x3fff001a*/, 10000 /*0x2710*/ ); // 0x1000229b
     g2 = v7;
     if (v7 < 0) {
         int32_t result2 = VISA_CloseSession(deviceId) | 0xffff; // 0x100022b0
@@ -74,13 +75,13 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
         int32_t result3 = VISA_CloseSession(deviceId) | 0xffff; // 0x100022d9
         return result3;
     }
-    int32_t v8 = vISetAttribute(vi_session, VI_ATTR_WR_BUF_OPER_MODE /*0x3fff002d*/, 1); // 0x100022ed
+    int32_t v8 = dd_viSetAttribute(vi_session, VI_ATTR_WR_BUF_OPER_MODE /*0x3fff002d*/, 1); // 0x100022ed
     g2 = v8;
     if (v8 < 0) {
         int32_t result4 = VISA_CloseSession(deviceId) | 0xffff; // 0x10002302
         return result4;
     }
-    int32_t v9 = vISetAttribute(vi_session, VI_ATTR_RD_BUF_OPER_MODE /* 0x3fff002a */, 1); // 0x10002313
+    int32_t v9 = dd_viSetAttribute(vi_session, VI_ATTR_RD_BUF_OPER_MODE /* 0x3fff002a */, 1); // 0x10002313
     g2 = v9;
     if (v9 < 0) {
         int32_t result5 = VISA_CloseSession(deviceId) | 0xffff; // 0x10002328
@@ -129,6 +130,7 @@ int32_t VISA_CloseSession(SET9052 *deviceId) {
 
 // DD: dd_WriteCommand = write( device, command ) yippie!
 int32_t VISA_InitEngine(SET9052 *deviceId) {
+	printf("VISA_InitEngine\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     SetTimeoutWait(deviceId, 100);
@@ -137,18 +139,30 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
     int32_t v2 = dd_WriteCommand(deviceId, 0xc8ff /*-0x3701*/); // 0x10001fbe
     int32_t v3 = RdErrorStatus(deviceId); // 0x10001fce
     int32_t v4 = v3; // 0x10001fe3
+
+// DD XXX
+    v3=0;
+// DD XXX
     if (v3 == 0) {
         int32_t v5 = 0x10000 * v2;
+// DD XXX
+        v5 = -0x20000;
+// DD XXX
+
         if (v5 == -0x20000) {
             g5 = deviceId;
             // DD: -769 = -0x301 = 0xfcff BNO
             int32_t v6 = dd_WriteCommand(deviceId, 0xfcff /*-769*/); // 0x10001ff5
             int32_t v7 = RdErrorStatus(deviceId); // 0x10002005
+// DD XXX
+            v7 = 0;
+            v6 = 0xf00;
+// DD XXX
             if (v7 != 0) {
                 return v7 | 0xffff;
             }
             // DD: 3840 = 0xf00
-            if ((v6 & 3840) != 3840) {
+            if ((v6 & 0xf00 /*3840*/) != 0xf00 /*3840*/) {
                 return 0xffff;
             }
             int32_t v8 = function_100016c8(deviceId); // 0x10002037
@@ -158,6 +172,9 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
             // DD: 0x7c00 = VXI_GETVERSION
             dd_WriteCommand(deviceId, 0x7c00);
             int32_t v9 = RdErrorStatus(deviceId); // 0x10002064
+// DD XXX
+            v9=0;
+// DD XXX
             if (v9 != 0) {
                 return v9 | 0xffff;
             }
@@ -183,7 +200,9 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
     return v4 | 0xffff;
 }
 
-int32_t VISA_SendCommand(SET9052 *deviceId, int16_t a2, int32_t a3, int32_t a4) {
+// DD commands allowed 0..16.
+int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, int32_t a4) {
+	printf("VISA_SendCommand %x\n", command);
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2 = 0; // bp-20
@@ -191,9 +210,9 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t a2, int32_t a3, int32_t a4) 
     int32_t v3;
     int16_t v4;
     int16_t v5;
-    if (a2 >= 0) {
-        g7 = a2;
-        if (a2 <= 16) {
+    if (command >= 0) {
+        g7 = command;
+        if (command <= 16) {
             v3 = 0x10000 * a3;
             v4 = 0;
             int16_t v6 = 3;
@@ -207,15 +226,17 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t a2, int32_t a3, int32_t a4) 
                             return (int32_t)v2 | function_100016c8(deviceId) & -0x10000;
                         }
                     }
-                    VISA_SendWord(deviceId, a2);
+                    VISA_SendWord(deviceId, command);
                     int32_t v7; // 0x10001da2
                     if (v3 > 0) {
                         int32_t v8 = 0;
-                        VISA_SendWord(deviceId, *(int16_t *)(2 * v8 + a4));
+                        printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=0.\n");
+                        VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ 0);
                         while (v8 + 1 < v3 / 0x10000) {
-                            g5 = g5 & -0x10000 | v8 + 1 & 0xffff;
+                            g5 = (int32_t)g5 & -0x10000 | v8 + 1 & 0xffff;
                             v8++;
-                            VISA_SendWord(deviceId, *(int16_t *)(2 * v8 + a4));
+                            printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=%d.\n", v8);
+                            VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ 0);
                         }
                         v7 = VISA_CheckSWStatus(deviceId);
                         v2 = v7;
@@ -261,6 +282,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t a2, int32_t a3, int32_t a4) 
 }
 
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
+	printf("VisaSendWord: %x\n", command);
     int16_t v1 = -2; // bp-8
     g2 = deviceId;
     // DD: 0x7f00 = VXI_ENGINECOMMAND
@@ -277,6 +299,7 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
 }
 
 int32_t dd_WriteCommand(SET9052 *deviceId, int16_t command) {
+	printf("WriteCommand: %x\n", command);
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t response; // bp-12
@@ -351,42 +374,32 @@ int32_t function_100016c8(SET9052 *deviceId) {
 }
 
 
-int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t response) {
+int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
+	printf("function_10001354 %x\n", command);
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     // DD: 468 is an offset into a struct
-    int32_t v2 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x1000136a
+    int32_t session_handle = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x1000136a
     int16_t v3; // bp-24
     int32_t v4 = &v3; // 0x10001373
     g5 = deviceId;
     int32_t v5 = function_100015d0(deviceId, 100, 512, v4); // 0x10001384
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x10001390
     if ((int16_t)v6 <= -1) {
-        // 0x1000139e
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v6 & -0x10000 | v5 & 0xffff;
     }
-    // 0x100013a7
-    g5 = v2;
+    g5 = session_handle;
     // DD: _imported_function_ord_262 1st parameter is not deviceId but <struct>+468
-    int32_t v7 = _imported_function_ord_262(v2, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
+    int32_t v7 = _imported_function_ord_262(session_handle, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
     if (v7 != 0) {
-        // 0x100013c2
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v7 & -0x10000 | 0x8000;
     }
-    // 0x100013cb
     g5 = deviceId;
     int32_t v8 = function_100015d0(deviceId, 100, 512, v4); // 0x100013dc
     int32_t v9 = 0x10000 * v8 / 0x10000; // 0x100013e8
     if ((int16_t)v9 <= -1) {
-        // 0x100013f6
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v9 & -0x10000 | v8 & 0xffff;
     }
@@ -395,83 +408,65 @@ int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32
     if (v10 != 0) {
         v11 = 1;
         if ((a3 & 0xffff) != 0) {
-            // 0x1000157e
-            g5 = v2;
-            int32_t v12 = _imported_function_ord_261(v2, 1, 14, v4); // 0x1000158a
+            g5 = session_handle;
+            int32_t v12 = _imported_function_ord_261(session_handle, 1, 14, v4); // 0x1000158a
             if (v12 == 0) {
                 int16_t v13 = v3; // 0x100015a1
                 *(int16_t *)response = v13;
                 v10 = (int32_t)v13 | v12 & -0x10000;
                 v11 = 1;
-                // branch -> 0x100015b0
             } else {
                 v10 = v12;
                 v11 = 0x8020;
             }
         }
-        // 0x100015b0
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v10 & -0x10000 | v11;
     }
-    // 0x10001414
-    g5 = v2;
-    int32_t v14 = _imported_function_ord_262(v2, 1, 14, 0xcdff); // 0x10001421
+    g5 = session_handle;
+    //xxx
+    // DD: 0xcdff Read Protocol Error
+    // What Visa function is this?
+    int32_t v14 = _imported_function_ord_262(session_handle, 1, 14, 0xcdff); // 0x10001421
     if (v14 != 0) {
-        // 0x1000142f
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v14 & -0x10000 | 0x8400;
     }
-    // 0x10001438
     g5 = deviceId;
     int32_t v15 = function_100015d0(deviceId, 100, 512, v4); // 0x10001449
     int32_t v16 = 0x10000 * v15 / 0x10000; // 0x10001455
     if ((int16_t)v16 <= -1) {
-        // 0x10001463
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v16 & -0x10000 | v15 & 0xffff;
     }
-    // 0x1000146c
+
+// DD XXX
+    v3=512;
+// DD XXX
     if (((int32_t)v3 & 512) == 0) {
-        // 0x1000147d
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return 0x8000;
     }
-    // 0x10001486
     g5 = v4;
     int32_t v17 = function_100015d0(deviceId, 100, 1024, v4); // 0x10001497
     int32_t v18 = 0x10000 * v17 / 0x10000; // 0x100014a3
     int32_t v19 = v18 & 0x8000; // 0x100014a7
     g5 = v19;
     if (v19 != 0) {
-        // 0x100014b1
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v18 & -0x10000 | v17 & 0xffff;
     }
-    // 0x100014ba
+
+// DD XXX
+    v3=1024;
+// DD XXX
     if ((v3 & 1024) == 0) {
-        // 0x100014cd
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v18 & -0x10000 | 0x8000;
     }
-    // 0x100014d6
-    g5 = v2;
-    int32_t v20 = _imported_function_ord_261(v2, 1, 14, v4); // 0x100014e8
+    g5 = session_handle;
+    int32_t v20 = _imported_function_ord_261(session_handle, 1, 14, v4); // 0x100014e8
     if (v20 != 0) {
-        // 0x100015b0
-        // branch -> 0x100015b4
-        // 0x100015b4
         g3 = v1;
         return v20 & -0x10000 | 0x8000;
     }
@@ -481,58 +476,43 @@ int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32
     v11 = 0x8000;
     switch (v3) {
         case -8: {
-            // 0x1000155e
             g5 = 0xc000;
             v10 = 0;
             v11 = 0xc000;
-            // branch -> 0x100015b0
             break;
         }
         case -7: {
-            // 0x10001551
             v10 = 0xa000;
             v11 = 0xa000;
-            // branch -> 0x100015b0
             break;
         }
         case -6: {
-            // 0x10001544
             v10 = 2;
             v11 = 0x9000;
-            // branch -> 0x100015b0
             break;
         }
         case -5: {
-            // 0x10001537
             g5 = 0x8800;
             v10 = 3;
             v11 = 0x8800;
-            // branch -> 0x100015b0
             break;
         }
         case -4: {
-            // 0x1000152a
             v10 = 0x8200;
             v11 = 0x8200;
-            // branch -> 0x100015b0
             break;
         }
         case -3: {
-            // 0x1000151d
             v10 = 5;
             v11 = 0x8040;
-            // branch -> 0x100015b0
             break;
         }
     }
-    // 0x100015b0
-    // branch -> 0x100015b4
-    // 0x100015b4
     g3 = v1;
     return v10 & -0x10000 | v11;
 }
 
-int32_t function_100011fc(SET9052 *deviceId, int32_t a2) {
+int32_t function_100011fc(SET9052 *deviceId, int32_t* a2) {
     int32_t v1 = deviceId->session_handle; //*(int32_t *)(deviceId + 468); // 0x1000120d
     g7 = v1;
     int32_t v2 = _imported_function_ord_261(v1, 1, 4, a2) != 0;
@@ -550,7 +530,7 @@ int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2; // 0x10001834
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)a2) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * function_100011fc(deviceId, (int32_t*)a2) || 0xffff) >= 0x1ffff) {
         // 0x10001803
         // branch -> 0x1000182b
         // 0x1000182b
@@ -578,14 +558,14 @@ int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
     return (int32_t)v3 | v2 & -0x10000;
 }
 
-int32_t function_100015d0(SET9052 * deviceId, int32_t a2, int16_t a3, int32_t a4) {
+int32_t function_100015d0(SET9052 * deviceId, int32_t a2, int16_t a3, int32_t* a4) {
     int32_t v1 = g3; // 0x100015d0
     InitTimeoutLoop(v1);
     g3 = v1;
     return 0x10000 * function_10001654(deviceId, a3, a4) / 0x10000;
 }
 
-int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t a3) {
+int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
     // 0x10001654
     g5 = deviceId;
     // DD: instead of deviceId, the _imported_function_ord_261 gets <unknown struct>+468 !
@@ -598,7 +578,12 @@ int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t a3) {
     // 0x1000168c
     g5 = a3;
     int32_t result2; // 0x100016c7
+#ifdef ORIG
+    // totally unclear whats going on here
     if (((int32_t)*(int16_t *)a3 & (int32_t)a2) != 0) {
+#else
+    	if (1) {
+#endif
         // 0x100016b2
         result2 = SetErrorStatus(deviceId, 0) & -0x10000 | 1;
         // branch -> 0x100016c4
@@ -613,6 +598,7 @@ int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t a3) {
 }
 
 int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
+	printf("VISA_CheckSWStatus\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = function_1000108e(deviceId); // 0x10001bd6
@@ -640,6 +626,9 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
         int32_t v10 = function_1000108e(deviceId); // 0x10001c28
         v3 = v10;
         v8 = IeTimerFrom(v6, 0x10000 * v10 / 0x10000);
+// DD XXX
+        v8=110;
+// DD XXX
         if (v8 > v5) {
             // break -> 0x10001c24
             break;
@@ -647,22 +636,21 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
         v7 = v8;
         // continue -> 0x10001c17
     }
-    // 0x10001c24
-    // branch -> 0x10001c49
-    // 0x10001c49
     g3 = v1;
     return (int32_t)v3 | v8 & -0x10000;
 }
 
 int32_t function_1000108e(SET9052 *deviceId) {
+	printf("function_1000108e\n") ;
+
     // 0x1000108e
-    function_100010e1(deviceId, 0x10000 * g5 / 0x10000);
+    function_100010e1(deviceId, 0x10000 * (int32_t)g5 / 0x10000);
     g5 = deviceId;
     // DD: 0x7e00 = VXI_GETSTATUS
     int32_t v1 = dd_WriteCommand(deviceId, 0x7e00); // 0x100010a7
     function_100016c8(deviceId);
     g7 = deviceId;
-    return SetEngineReplyCode(deviceId, g5 & -0x10000 | v1 & 255);
+    return SetEngineReplyCode(deviceId, (uint32_t)g5 & -0x10000 | v1 & 255);
 }
 
 int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
@@ -726,7 +714,8 @@ int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
 }
 
 int32_t function_10001a0a(SET9052 *deviceId, int16_t command) {
-    // 0x10001a0a
+	printf("function_10001a0a %x\n", command);
+	// 0x10001a0a
     int32_t result;
     if ((int16_t)function_10001354(deviceId, command, 0, 0) > -1) {
         // 0x10001a42
@@ -782,7 +771,8 @@ int32_t _imported_function_ord_129(int32_t a1, int32_t a2, int32_t a3, int32_t a
 int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	return 0;
 }
-int32_t _imported_function_ord_131(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
+int32_t dd_viOpen(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
+	printf("viOpen()\n");
 	return 0;
 }
 int32_t _imported_function_ord_132(int32_t a1) {
@@ -791,16 +781,21 @@ int32_t _imported_function_ord_132(int32_t a1) {
 int32_t _imported_function_ord_133(int32_t a1, int32_t a2, int32_t a3) {
 	return 0;
 }
-int32_t vISetAttribute(int32_t a1, int32_t a2, int32_t a3) {
+int32_t dd_viSetAttribute(int32_t a1, int32_t a2, int32_t a3) {
+	printf("vISetAttribute()\n");
+
 	return 0;
 }
-int32_t _imported_function_ord_141(int32_t a1) {
+int32_t dd_viOpenDefaultRM(int32_t a1) {
+	printf("viOpenDefaultRM()\n");
 	return 0;
 }
-int32_t _imported_function_ord_261(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
+int32_t _imported_function_ord_261(int32_t session_handle, int32_t a2, int32_t a3, int32_t* a4) {
+	printf("_imported_function_ord_261()\n");
 	return 0;
 }
-int32_t _imported_function_ord_262(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
+int32_t _imported_function_ord_262(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
+	printf("_imported_function_ord_262() command: %x\n", command);
 	return 0;
 }
 int32_t _imported_function_ord_267(int32_t a1, int32_t a2, int32_t a3) {

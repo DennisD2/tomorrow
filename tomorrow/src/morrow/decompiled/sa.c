@@ -44,7 +44,7 @@ static int32_t g3 = 0; // eax
 static int32_t g4 = 0; // ebp
 static int32_t g5 = 0; // ebx
 static int32_t g6 = 0; // ecx
-static int32_t g7 = 0; // edi
+static char* g7 = 0; // edi
 static int32_t g8 = 0; // edx
 static int32_t g9 = 0; // esi
 
@@ -1136,7 +1136,7 @@ int32_t function_1000d563(int32_t a1) {
     return result;
 }
 
-int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
+int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
     // entry
     if (a1 == 0) {
         // 0x10003d37
@@ -1145,7 +1145,7 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
         return g3 & -0x10000 | 0xfff6;
     }
     // 0x10003d40
-    if (a2 == 0) {
+    if (session_string == 0) {
         // 0x10003d46
         // branch -> 0x10003f76
         // 0x10003f76
@@ -1159,7 +1159,7 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
         g8 = a1;
         //*(int32_t *)(a1 + 200) = 0;
         a1->eng_options = 0;
-        int32_t v1 = function_10003844(a1, a2); // 0x10003d85
+        int32_t v1 = function_10003844(a1, session_string); // 0x10003d85
         int32_t v2 = 0x10000 * v1 / 0x10000; // 0x10003d91
         g8 = v2;
         int32_t v3; // 0x10003f73
@@ -1169,7 +1169,7 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
         if ((int16_t)v1 != 0) {
             // 0x10003dac
             g8 = a1;
-            int32_t v6 = dd_loadWindowsDll(a1, a2, v2); // 0x10003db4
+            int32_t v6 = dd_loadWindowsDll(a1, session_string, v2); // 0x10003db4
             int32_t v7 = 0x10000 * v6 / 0x10000; // 0x10003dc0
             if ((int16_t)v6 == 0) {
                 // 0x10003dc8
@@ -1209,7 +1209,7 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
             }
             // 0x10003ddb
             g3 = a1;
-            int32_t v8 = function_10003838(a1, a2, v7); // 0x10003de3
+            int32_t v8 = function_10003838(a1, session_string, v7); // 0x10003de3
             int32_t v9 = 0x10000 * v8 / 0x10000; // 0x10003def
             if ((int16_t)v8 == 0) {
                 // 0x10003df7
@@ -1249,8 +1249,8 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 return v3 & -0x10000;
             }
             // 0x10003e0a
-            g3 = a2;
-            int32_t v10 = function_1000382c(a1, a2, v9); // 0x10003e12
+            g3 = session_string;
+            int32_t v10 = function_1000382c(a1, session_string, v9); // 0x10003e12
             g3 = v10;
             int32_t v11 = 0x10000 * v10 / 0x10000; // 0x10003e1e
             g8 = v11;
@@ -1292,7 +1292,7 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
             }
             // 0x10003e39
             g8 = a1;
-            int32_t v12 = function_100038c1(a1, a2, v11); // 0x10003e41
+            int32_t v12 = function_100038c1(a1, session_string, v11); // 0x10003e41
             int32_t v13 = 0x10000 * v12 / 0x10000; // 0x10003e4d
             if ((int16_t)v12 == 0) {
                 // 0x10003e55
@@ -1331,9 +1331,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 return v3 & -0x10000;
             }
             // 0x10003e68
-            g8 = a2;
+            g8 = session_string;
             g3 = a1;
-            int32_t v14 = function_100037b7(a1, a2, v13); // 0x10003e70
+            int32_t v14 = function_100037b7(a1, session_string, v13); // 0x10003e70
             int32_t v15 = 0x10000 * v14 / 0x10000; // 0x10003e7c
             if ((int16_t)v14 == 0) {
                 // 0x10003e84
@@ -1372,7 +1372,7 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 // 0x10003f76
                 return v3 & -0x10000;
             }
-            int32_t v16 = function_100037c3(a1, a2, v15); // 0x10003e9f
+            int32_t v16 = function_100037c3(a1, session_string, v15); // 0x10003e9f
             int32_t v17 = 0x10000 * v16 / 0x10000; // 0x10003eab
             g8 = v17;
             if ((int16_t)v16 == 0) {
@@ -1412,9 +1412,9 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 return v3 & -0x10000;
             }
             // 0x10003ec3
-            g6 = a2;
+            g6 = session_string;
             g8 = a1;
-            int32_t v18 = function_100036f0(a1, (char *)a2, v17); // 0x10003ecb
+            int32_t v18 = function_100036f0(a1, (char *)session_string, v17); // 0x10003ecb
             int32_t v19 = 0x10000 * v18 / 0x10000; // 0x10003ed7
             if ((int16_t)v18 == 0) {
                 // 0x10003edf
@@ -1453,8 +1453,8 @@ int32_t OpenSession(SET9052 *a1, char* a2, int16_t a3) {
                 return v3 & -0x10000;
             }
             // 0x10003eef
-            g8 = a2;
-            int32_t v20 = function_10003679(a1, a2, v19); // 0x10003ef7
+            g8 = session_string;
+            int32_t v20 = function_10003679(a1, session_string, v19); // 0x10003ef7
             int32_t v21 = 0x10000 * v20 / 0x10000; // 0x10003f03
             if ((int16_t)v20 != 0) {
                 // 0x10003f1b
@@ -3382,61 +3382,43 @@ int32_t __ftol(int32_t in) {
 }
 
 int32_t RdSessionHandle(SET9052 *a1) {
-    // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005201
     g3 = v1;
     int32_t result;
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-        // 0x10005214
         g8 = a1;
         SetFuncStatusCode(a1, 0);
         result = a1->session_handle; // *(int32_t *)(a1 + 468);
-        // branch -> 0x1000522b
     } else {
-        // 0x10005210
         result = 0;
-        // branch -> 0x1000522b
     }
-    // 0x1000522b
     return result;
 }
 
-int32_t SetEngineModel(SET9052 *a1, int16_t a2) {
-    // entry
+int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008698
     g3 = v1;
     int32_t result; // 0x100086f8
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-        int32_t v2 = a2; // 0x100086b5
-        if (a2 != 256) {
-            // 0x100086c0
-            if (a2 != 512) {
-                // 0x100086cc
+        int32_t v2 = engine_model; // 0x100086b5
+        if (engine_model != SA9052 /*256*/) {
+            if (engine_model != SA9054 /*512*/) {
                 g8 = v2;
-                if (a2 != 768) {
-                    // 0x100086d8
-                    if (a2 != 1024) {
-                        // 0x100086f3
-                        // branch -> 0x100086f7
-                        // 0x100086f7
+                if (engine_model != SA9085 /*768*/) {
+                    if (engine_model != SA9034 /*1024*/) {
                         return v2 & -0x10000 | 0xfffd;
                     }
                 }
             }
         }
-        // 0x100086e3
         //*(int16_t *)(a1 + 2) = a2;
-        a1->engine_model = a2;
+        a1->engine_model = engine_model;
         result = v2 & -0x10000;
-        // branch -> 0x100086f7
     } else {
-        // 0x100086a7
         result = GetFuncStatusCode(a1);
-        // branch -> 0x100086f7
     }
-    // 0x100086f7
     return result;
 }
 
@@ -3680,7 +3662,7 @@ int32_t RdErrorStatus(SET9052 *a1) {
     return result;
 }
 
-int32_t SetErrorStatus(int32_t a1, int16_t a2) {
+int32_t SetErrorStatus(SET9052 * a1, int16_t a2) {
     // entry
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002dc8
@@ -3688,8 +3670,9 @@ int32_t SetErrorStatus(int32_t a1, int16_t a2) {
     int32_t result; // 0x10002df8
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         int32_t v2 = a2; // 0x10002de8
-        *(int32_t *)(a1 + 192) = v2;
-        result = a1 & -0x10000 | v2;
+        //*(int32_t *)(a1 + 192) = v2;
+        a1->err_status = v2;
+        result = (int32_t)a1 & -0x10000 | v2;
         // branch -> 0x10002df5
     } else {
         // 0x10002dd7
@@ -3701,6 +3684,7 @@ int32_t SetErrorStatus(int32_t a1, int16_t a2) {
 }
 
 int32_t BreakSweep(SET9052 *a1, uint16_t a2) {
+	printf("BreakSweep\n");
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int32_t v2 = g3 & -0x10000 | (int32_t)a2; // 0x10004a0e
@@ -3717,7 +3701,8 @@ int32_t BreakSweep(SET9052 *a1, uint16_t a2) {
     }
     // 0x10004a3a
     g8 = 1;
-    int32_t v3 = SendCommand((int16_t)a1, 7, 1, (int32_t)&v2); // 0x10004a49
+    // Engine Command 7 is related to Sweep or Break Sweep
+    int32_t v3 = SendCommand(a1, 7, 1, (int32_t)&v2); // 0x10004a49
     g3 = v3;
     if (0x10000 * v3 != 0x10000) {
         // 0x10004a5e
@@ -3841,7 +3826,8 @@ int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
     return result;
 }
 
-int32_t SendCommand(SET9052 *a1, int32_t a2, int32_t a3, int32_t a4) {
+int32_t SendCommand(SET9052 *a1, int32_t command, int32_t a3, int32_t a4) {
+	printf("SendCommand %x\n", command);
     int32_t v1 = a1; // 0x10003b52
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003b56
@@ -3851,6 +3837,7 @@ int32_t SendCommand(SET9052 *a1, int32_t a2, int32_t a3, int32_t a4) {
     int32_t result; // 0x10003bb7
     if ((v3 || 0xffff) < 0x1ffff) {
         // 0x10003b73
+#ifdef ORIG
         if (*(int32_t *)(v1 + 660) != 0) {
             // 0x10003b7f
             g6 = v1;
@@ -3865,6 +3852,10 @@ int32_t SendCommand(SET9052 *a1, int32_t a2, int32_t a3, int32_t a4) {
                 return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
             }
         }
+#else
+        //  VISA_SendCommand(SET9052 *deviceId, int16_t a2, int32_t a3, int32_t a4)
+        VISA_SendCommand(a1, command, a3, a4);
+#endif
         // 0x10003b8b
         result = v1 & -0x10000 | 0xffeb;
         // branch -> 0x10003bb4
@@ -4043,10 +4034,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
     g6 = v4 / 0x10000;
     int32_t result; // 0x10001717
     if ((v4 || 0xffff) >= 0x1ffff) {
-        // 0x100015fb
         result = GetFuncStatusCode(a1);
-        // branch -> 0x10001714
-        // 0x10001714
         g4 = v1;
         return result;
     }
@@ -4059,62 +4047,44 @@ int32_t CommTrigDetect(SET9052 *a1) {
     int32_t v9; // 0x100016dd
     int16_t v10; // 0x100016dd
     if ((RdSweepCode(a1) & 1) == 0) {
-        // 0x10001672
-        // branch -> 0x1000167d
-        // 0x1000167d
-        v9 = SendCommand((int16_t)a1, 4, (int32_t)v2, (int32_t)&v6);
+    	// DD: Engine Command 4 is related to "set trigger ...".
+    	// v2 = 8 !
+    	// v6 is sth. like a1->detect_code, see above
+        v9 = SendCommand(a1, 4, (int32_t)v2, (int32_t)&v6);
         v10 = v9;
         v7 = 0x10000 * v9;
         v8 = v7 / 0x10000;
         if (v7 == 0x130000) {
-            // 0x100016f2
-            // branch -> 0x10001714
-            // 0x10001714
             g4 = v1;
             return v8 & -0x10000 | 144;
         }
-        // 0x100016f8
         if (v10 < 20) {
-            // 0x10001707
             result = FuncStatusFromEngineReply(v10);
-            // branch -> 0x10001714
         } else {
-            // 0x10001701
             result = v8 & -0x10000 | 145;
-            // branch -> 0x10001714
         }
-        // 0x10001714
         g4 = v1;
         return result;
     }
-    // 0x1000164a
     if (a1->trig_norm_flag /* *(int16_t *)(a1 + 110)*/  != IE_FALSE /*0*/) {
-        // 0x10001662
-        // branch -> 0x1000167d
     }
     // 0x1000167d
+   	// DD: Engine Command 4 is related to "set trigger ...".
+	// v2 = 8 !
+	// v6 is sth. like a1->detect_code, see above
     v9 = SendCommand((int16_t)a1, 4, (int32_t)v2, (int32_t)&v6);
     v10 = v9;
     v7 = 0x10000 * v9;
     v8 = v7 / 0x10000;
     if (v7 == 0x130000) {
-        // 0x100016f2
-        // branch -> 0x10001714
-        // 0x10001714
         g4 = v1;
         return v8 & -0x10000 | 144;
     }
-    // 0x100016f8
     if (v10 < 20) {
-        // 0x10001707
         result = FuncStatusFromEngineReply(v10);
-        // branch -> 0x10001714
     } else {
-        // 0x10001701
         result = v8 & -0x10000 | 145;
-        // branch -> 0x10001714
     }
-    // 0x10001714
     g4 = v1;
     return result;
 }
@@ -4130,79 +4100,57 @@ int32_t CommInterrupts(SET9052 *a1) {
         int32_t v3 = a1->intr_code; // (int32_t)*(int16_t *)(a1 + 136); // bp-8
         int32_t v4 = &v3; // 0x100015aa
         g8 = v4;
+        // DD Engine Command 6 is related to "set comm interupts..."
+        // param 3 is sth. like 1
+        // v4 =  a1->intr_code
         result = FuncStatusFromEngineReply((int16_t)SendCommand(a1, 6, (int32_t)1 | (int32_t)a1 & -0x10000, v4));
-        // branch -> 0x100015d2
     } else {
-        // 0x1000158e
         result = GetFuncStatusCode(a1);
-        // branch -> 0x100015d2
     }
-    // 0x100015d2
     return result;
 }
 
-int32_t function_10002df9(SET9052 *a1, float64_t a2) {
+int32_t function_10002df9(SET9052 *a1, float64_t trifferFreq) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
     int32_t v2 = 0x10000 * TestFuncStatusAndPtr(a1); // 0x10002e0b
     g6 = v2 / 0x10000;
     if ((v2 || 0xffff) >= 0x1ffff) {
-        // 0x10002e12
-        // branch -> 0x10002ea2
-        // 0x10002ea2
         g4 = v1;
         return -1;
     }
-    // 0x10002e1a
     g8 = a1;
-    int16_t v3 = a1->engine_model; //*(int16_t *)(a1 + 2); // 0x10002e1d
-    int32_t v4 = v3; // 0x10002e1d
+    int16_t engine_model = a1->engine_model; //*(int16_t *)(a1 + 2); // 0x10002e1d
+    int32_t v4 = engine_model; // 0x10002e1d
     g3 = v4;
     int32_t result; // 0x10002ea5
-    if (v3 != 768 && v3 < 768 == (767 - v4 & v4) < 0) {
-        // 0x10002e4a
-        if (v3 == 1024) {
-            // 0x10002e55
+    if (engine_model != SA9085 /*768*/ && engine_model < SA9085 /*768*/ == (767 - v4 & v4) < 0) {
+        if (engine_model == SA9034 /*1024*/) {
             g11--;
             result = __ftol(v4);
-            // branch -> 0x10002ea2
         } else {
-            // 0x10002e9f
             result = -1;
-            // branch -> 0x10002ea2
         }
-        // 0x10002ea2
         g4 = v1;
         return result;
     }
-    // 0x10002e2d
-    if (v3 == 768) {
-        // 0x10002e5f
+    if (engine_model == SA9085 /*768*/) {
         g6 = a1;
         int32_t v5 = 0x10000 * RdEngOption(a1, 0); // 0x10002e6d
         g8 = v5 / 0x10000;
         g11--;
         result = __ftol((v5 | 0xffff) < 0x1ffff ? 0x40000000 : 0x40180000);
-        // branch -> 0x10002ea2
     } else {
-        // 0x10002e36
-        if (v3 != 256) {
-            // 0x10002e3f
-            if (v3 != 512) {
-                // 0x10002e9f
-                // branch -> 0x10002ea2
-                // 0x10002ea2
+        if (engine_model != SA9052 /*256*/) {
+            if (engine_model != SA9054 /*512*/) {
                 g4 = v1;
                 return -1;
             }
         }
-        // 0x10002e55
         g11--;
         result = __ftol(v4);
-        // branch -> 0x10002ea2
     }
-    // 0x10002ea2
     g4 = v1;
     return result;
 }

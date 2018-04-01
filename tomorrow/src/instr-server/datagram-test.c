@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	unsigned char bbuffer[1024];
 
 	dg_packString("hello", &dg);
-	printf("%s\n", dg.data);
+	printf("%s\n", (char*)dg.data);
 	printf("%d\n", dg.len);
 	printf("%c\n", dg.type);
 
@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 	// read back
 	back.data = aresponse;
 	dg_read(abuffer, &back);
-	printf("%s\n", back.data);
+	printf("%s\n", (char*)back.data);
 	printf("%d\n", back.len);
 	printf("%c\n\n", back.type);
 

@@ -175,6 +175,8 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		char command[100];
 		dg_packString("GETIMAGE", &dg);
 		dg_write(&dg, command);
+		//dg_packString("open,126", &dg);
+		//dg_write(&dg, command);
 
 		int rlen = readSocket(command, image);
 		if (rlen == 0 ) {

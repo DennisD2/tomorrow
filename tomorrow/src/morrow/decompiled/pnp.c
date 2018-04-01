@@ -40,7 +40,7 @@ static int32_t g98 = 0;
 int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, void** session_id);
 int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3);
 
-int32_t function_10004411(int16_t a1);
+int32_t mapVisaErrorToAPIError(int16_t errorCode);
 int32_t function_10006643(char a1);
 int32_t function_1000655f(char a1, int32_t a2);
 int32_t function_10009277(int32_t a1, int32_t a2, char a3, int32_t a4,
@@ -183,9 +183,9 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 		g3 = v1;
 		return MR90XX_IE_ERROR; // -0x4003f7ff;
 	}
-	int16_t v8 = OpenSession(v2, session_string, 1); // 0x100047fb
+	int16_t status = OpenSession(v2, session_string, 1); // 0x100047fb
 	int32_t result; // 0x1000495f
-	if (v8 == 0) {
+	if (status == 0) {
 		*session_id = RdSessionHandle(v2);
 		int32_t v9 = 0; // 0x1000486810
 		int16_t v10 = 0;
@@ -230,7 +230,7 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 		}
 	} else {
 		function_1000498f(v2);
-		result = function_10004411(v8);
+		result = mapVisaErrorToAPIError(status);
 	}
 	g3 = v1;
 	return result;
@@ -238,22 +238,16 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 
 // Address range: 0x100025dd - 0x1000262f
 int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3) {
-	// entry
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x100025eb
 	int32_t result; // 0x1000262f
 	if (v2 == 0) {
-		// 0x10002601
-		result = function_10004411(
+		result = mapVisaErrorToAPIError(
 				(int16_t) SetEngineModel(function_10004402(v1)));
-		// branch -> 0x1000262c
 	} else {
-		// 0x100025fc
 		result = v2;
-		// branch -> 0x1000262c
 	}
-	// 0x1000262c
 	return result;
 }
 
@@ -280,7 +274,7 @@ int32_t mr90xx_InitEngine(int32_t a1, int32_t a2) {
 	int32_t result; // 0x1000386f
 	if (v2 == 0) {
 		// 0x10003846
-		result = function_10004411((int16_t) InitEngine(function_10004402(v1)));
+		result = mapVisaErrorToAPIError((int16_t) InitEngine(function_10004402(v1)));
 		// branch -> 0x1000386c
 	} else {
 		// 0x10003841
@@ -323,7 +317,7 @@ int32_t mr90xx_ResetEngine(int32_t a1, int32_t a2) {
 	int32_t result; // 0x100038bd
 	if (v2 == 0) {
 		// 0x10003894
-		result = function_10004411(
+		result = mapVisaErrorToAPIError(
 				(int16_t) ResetEngine(function_10004402(v1)));
 		// branch -> 0x100038ba
 	} else {
@@ -343,7 +337,7 @@ int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
 	int32_t result; // 0x10004c72
 	if (v2 == 0) {
 		// 0x10004c45
-		result = function_10004411(
+		result = mapVisaErrorToAPIError(
 				(int16_t) SetTimeoutWait(function_10004402(v1)));
 		// branch -> 0x10004c6f
 	} else {
@@ -364,7 +358,7 @@ int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) {
 	int32_t result; // 0x10003821
 	if (v2 == 0) {
 		// 0x100037f4
-		result = function_10004411((int16_t) IdQuery(function_10004402(v1)));
+		result = mapVisaErrorToAPIError((int16_t) IdQuery(function_10004402(v1)));
 		// branch -> 0x1000381e
 	} else {
 		// 0x100037ef
@@ -602,278 +596,195 @@ int32_t function_1000498f(int32_t a1) {
 	return result2;
 }
 
-// Address range: 0x10004411 - 0x100045a3
-int32_t function_10004411(int16_t a1) {
-	unsigned char v1 = *(char *) ((0x10000 * (int32_t) a1 + 0x150000) / 0x10000
+int32_t mapVisaErrorToAPIError(int16_t errorCode) {
+	// looks like offset in an array???
+// DD XXX
+#ifdef NOT
+	unsigned char v1 = *(char *) ((0x10000 * (int32_t) errorCode + 0x150000) / 0x10000
 			+ 0x10004648); // 0x10004437
+#endif
+	unsigned char v1 = 0x0;
+// DD XXX
+
 	g7 = v1;
 	int32_t result; // 0x100045a3
 	switch (v1) {
 	default: {
-		// 0x1000459b
-		result = -0x4003f7f5;
-		// branch -> 0x100045a0
+		result = MR90XX_ERROR_SESSIONINUSE|_VI_ERROR; // -0x4003f7f5; // 0xbffc.080c
 		break;
 	}
 	case 0: {
-		// 0x10004594
-		result = -0x4003f7d1;
-		// branch -> 0x100045a0
+		result = -0x4003f7d1;// 0xbffc.0830
 		break;
 	}
 	case 1: {
-		// 0x1000449b
-		result = -0x4003f7e1;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM5|_VI_ERROR; // -0x4003f7e1;
 		break;
 	}
 	case 2: {
-		// 0x100044b9
-		result = -0x4003f7f6;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_UNKNOWN|_VI_ERROR; // -0x4003f7f6;
 		break;
 	}
 	case 3: {
-		// 0x100044af
-		result = -0x4003f7f7;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_ENGMOD|_VI_ERROR; //-0x4003f7f7;
 		break;
 	}
 	case 4: {
-		// 0x10004491
-		result = -0x4003f7f8;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_NULLPTR|_VI_ERROR; //-0x4003f7f8;
 		break;
 	}
 	case 5: {
-		// 0x10004487
-		result = -0x4003f7f9;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_DIFDTEC|_VI_ERROR; // -0x4003f7f9;
 		break;
 	}
 	case 6: {
-		// 0x1000447d
-		result = -0x4003f7fa;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_DWELL; // -0x4003f7fa;
 		break;
 	}
 	case 7: {
-		// 0x10004473
-		result = -0x4003f7fb;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_STEP|_VI_ERROR; //-0x4003f7fb;
 		break;
 	}
 	case 8: {
-		// 0x10004469
-		result = -0x4003f7fc;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_SPAN|_VI_ERROR; // -0x4003f7fc;
 		break;
 	}
 	case 9: {
-		// 0x1000445f
-		result = -0x4003f7fd;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_AUTO|_VI_ERROR; // -0x4003f7fd;
 		break;
 	}
 	case 10: {
-		// 0x10004455
-		result = -0x4003f7fe;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERR_VALS|_VI_ERROR; // -0x4003f7fe;
 		break;
 	}
 	case 11: {
-		// 0x10004444
-		result = -0x4003f7ff;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ERROR|_VI_ERROR; // -0x4003f7ff;
 		break;
 	}
 	case 12: {
-		// 0x1000444e
-		result = 0;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_SUCCESS|_VI_ERROR; // 0;
 		break;
 	}
 	case 13: {
-		// 0x100044a5
-		result = 0x3ffc0801;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_WARN_VALS; // 0x3ffc0801;
 		break;
 	}
 	case 14: {
-		// 0x100044c3
-		result = 0x3ffc0802;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_WARN_OBSOL; // 0x3ffc0802;
 		break;
 	}
 	case 15: {
-		// 0x100044cd
-		result = 0x3ffc0803;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_WARN_SPAN; // 0x3ffc0803;
 		break;
 	}
 	case 16: {
-		// 0x100044d7
-		result = 0x3ffc0810;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BUSY; // 0x3ffc0810;
 		break;
 	}
 	case 17: {
-		// 0x100044e1
-		result = 0x3ffc0811;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_ACK; // 0x3ffc0811;
 		break;
 	}
 	case 18: {
-		// 0x100044eb
-		result = 0x3ffc0812;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_NOMAIN; // 0x3ffc0812;
 		break;
 	}
 	case 19: {
-		// 0x100044f5
-		result = 0x3ffc0813;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_NODSP; // 0x3ffc0813;
 		break;
 	}
 	case 20: {
-		// 0x100044ff
-		result = 0x3ffc0815;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_ERASE; // 0x3ffc0815;
 		break;
 	}
 	case 21: {
-		// 0x10004509
-		result = 0x3ffc0816;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_FLASH; // 0x3ffc0816;
 		break;
 	}
 	case 22: {
-		// 0x10004513
-		result = 0x3ffc0817;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_NYBYTES; // 0x3ffc0817;
 		break;
 	}
 	case 23: {
-		// 0x1000451d
-		result = 0x3ffc0818;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_CKSUM; // 0x3ffc0818;
 		break;
 	}
 	case 24: {
-		// 0x10004524
-		result = 0x3ffc0819;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_COLON; // 0x3ffc0819;
 		break;
 	}
 	case 25: {
-		// 0x1000452b
-		result = 0x3ffc081a;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_CMD; // 0x3ffc081a;
 		break;
 	}
 	case 26: {
-		// 0x10004532
-		result = 0x3ffc081c;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM1; // 0x3ffc081c;
 		break;
 	}
 	case 27: {
-		// 0x10004539
-		result = 0x3ffc081d;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM2; // 0x3ffc081d;
 		break;
 	}
 	case 28: {
-		// 0x10004540
-		result = 0x3ffc081e;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM3; // 0x3ffc081e;
 		break;
 	}
 	case 29: {
-		// 0x10004547
-		result = 0x3ffc081f;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM4; // 0x3ffc081f;
 		break;
 	}
 	case 30: {
-		// 0x1000454e
-		result = 0x3ffc0820;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM5; // 0x3ffc0820;
 		break;
 	}
 	case 31: {
-		// 0x10004555
-		result = 0x3ffc0821;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM6; // 0x3ffc0821;
 		break;
 	}
 	case 32: {
-		// 0x1000455c
-		result = 0x3ffc0822;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM7; // 0x3ffc0822;
 		break;
 	}
 	case 33: {
-		// 0x10004563
-		result = 0x3ffc0823;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM8; // 0x3ffc0823;
 		break;
 	}
 	case 34: {
-		// 0x1000456a
-		result = 0x3ffc0824;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_BAD_PARM9; // 0x3ffc0824;
 		break;
 	}
 	case 35: {
-		// 0x10004586
-		result = 0x3ffc0828;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_ERR_DTEC; // 0x3ffc0828;
 		break;
 	}
 	case 36: {
-		// 0x1000458d
-		result = 0x3ffc0829;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_ERR_TRIG; // 0x3ffc0829;
 		break;
 	}
 	case 37: {
-		// 0x1000457f
-		result = 0x3ffc0827;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_INWEEDS; // 0x3ffc0827;
 		break;
 	}
 	case 38: {
-		// 0x10004578
-		result = 0x3ffc0826;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_INBOOT; // 0x3ffc0826;
 		break;
 	}
 	case 39: {
-		// 0x10004571
-		result = 0x3ffc0825;
-		// branch -> 0x100045a0
+		result = MR90XX_IE_ENG_INMAIN; // 0x3ffc0825;
 		break;
 	}
 	}
-	// 0x100045a0
 	return result;
 }
 
 int32_t function_10004310(int32_t a1, int32_t * a2) {
 	int32_t v1 = (int32_t) a2;
 	if (a2 == NULL) {
-		// 0x10004323
-		// branch -> 0x100043fe
-		// 0x100043fe
-		return -0x4003f7fe;
+		return MR90XX_IE_WARN_SPAN; // -0x4003f7fe;
 	}
 	// 0x1000432d
 	if (a1 == 0) {
-		// 0x10004333
-		// branch -> 0x100043fe
-		// 0x100043fe
-		return -0x4003f7f1;
+		return MR90XX_IE_ENG_BUSY; // -0x4003f7f1;
 	}
 	// 0x1000433d
 	int32_t v2; // 0x100043e3

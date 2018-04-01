@@ -8,7 +8,7 @@
 #include <stdlib.h> // rand()
 #include <time.h> // time()
 
-#include "datagram.h"
+#include "command.h"
 
 #define PI 3.14159265
 
@@ -50,11 +50,11 @@ int main(int argc , char *argv[]) {
 
     unsigned char bytes[NUMPOINTS];
 
-	/* Intializes random number generator */
+	// Intializes random number generator
 	time_t t;
    	srand((unsigned) time(&t));
 
-    //Create socket
+    // Create socket
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     if (socket_desc == -1) {
         printf("Could not create socket");
@@ -65,12 +65,12 @@ int main(int argc , char *argv[]) {
         perror("setsockopt(SO_REUSEADDR) failed");
     }
      
-    //Prepare the sockaddr_in structure
+    // Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons( 8888 );
      
-    //Bind
+    // Bind
     if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0) {
         //print the error message
         perror("bind failed. Error");
@@ -78,10 +78,10 @@ int main(int argc , char *argv[]) {
     }
     puts("bind done");
      
-    //Listen
+    // Listen
     listen(socket_desc , 3);
      
-    //Accept and incoming connection
+    // Accept and incoming connection
     puts("Waiting for incoming connections...");
     c = sizeof(struct sockaddr_in);
  
@@ -89,7 +89,7 @@ int main(int argc , char *argv[]) {
   int waitForConnection=1;
      
   while (waitForConnection==1) {
-    //accept connection from an incoming client
+    // Accept connection from an incoming client
     client_sock = accept(socket_desc, (struct sockaddr *)&client, &c);
     if (client_sock < 0) {
         perror("accept failed");
@@ -97,7 +97,7 @@ int main(int argc , char *argv[]) {
     }
     puts("Connection accepted");
      
-	//Receive a message from client
+	// Receive a message from client
     while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ) {
     	//printf("%s\n", client_message);
     	TDatagram_t dg;
@@ -105,20 +105,24 @@ int main(int argc , char *argv[]) {
     	dg.data = commandBuffer; // in binary case this is wrong
     	dg_read(client_message, &dg);
     	//printf("dg.type: %c\n", dg.type);
-    	//printf("dg.data: %s\n", dg.adata);
+    	//printf("dg.data: %s\n", dg.data);
 
         //puts(client_message);
         int handled = 0;
-        if (strncmp(dg.data, "GETIMAGE", strlen("GETIMAGE")) == 0) {
+        char cmd[128];
+        read_command(&dg, cmd);
+        if (strncmp(cmd, "GETIMAGE", strlen("GETIMAGE")) == 0) {
             //puts("GETIMAGE command");
         	int n = getCurrentImage(bytes);
             write(client_sock, bytes, n);
             handled = 1;
         }
 
-        // 'open 126'
-        if (strncmp(dg.data, "open", strlen("open")) == 0) {
-            puts("open");
+        // 'open,126'
+        if (strncmp(cmd, "open", strlen("open")) == 0) {
+        	int device;
+            read_intParam(&dg, 1, &device);
+            printf("open,%d\n", device);
             write(client_sock , "ok" , strlen("ok"));
             //shutdown(client_sock, 2);
             //shutdown(socket_desc, 2);
