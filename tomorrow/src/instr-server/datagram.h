@@ -15,12 +15,9 @@
 #define DG_BINARY 'b'
 
 typedef struct TDatagram {
-	char type;
+	char type; /* datagram type. DG_ASCII or DG_BINARY */
 	int16_t len;
-	union {
-		char *adata;
-		unsigned char *bdata;
-	};
+	void *data;
 } TDatagram_t;
 
 extern int dg_packString(char *s, TDatagram_t *dg);

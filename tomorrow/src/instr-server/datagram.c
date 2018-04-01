@@ -25,7 +25,7 @@ int dg_packString(char *s, TDatagram_t *dg) {
 		// error
 	}
 	dg->len = len;
-	dg->adata = s;
+	dg->data = s;
 
 	return 0;
 }
@@ -33,7 +33,7 @@ int dg_packString(char *s, TDatagram_t *dg) {
 int dg_packBinary(unsigned char *data, int len, TDatagram_t *dg) {
 	dg->type = DG_BINARY;
 	dg->len = len;
-	dg->bdata = data;
+	dg->data = data;
 
 	return 0;
 }
@@ -50,7 +50,7 @@ int dg_writeString(TDatagram_t *dg, char *buffer) {
 	len = len/10;
 	buffer[1] = '0' + (len % 10); // hi
 
-	strcpy( &(buffer[5]), dg->adata);
+	strcpy( &(buffer[5]), dg->data);
 	return 0;
 }
 
@@ -60,7 +60,7 @@ int dg_writeBinary(TDatagram_t *dg, unsigned char *buffer ) {
 	buffer[1] = (dg->len >> 8) & 0xff; // hi
 	buffer[2] = dg->len & 0xff; // lo
 
-	memcpy( &(buffer[3]), dg->bdata, dg->len);
+	memcpy( &(buffer[3]), dg->data, dg->len);
 	return 0;
 }
 
@@ -85,7 +85,7 @@ static int read_len(char *buffer) {
 int dg_readString(char *buffer, TDatagram_t *dg) {
 	dg->type = DG_ASCII;
 	dg->len = read_len(buffer);
-	strcpy(dg->adata, &(buffer[5]));
+	strcpy(dg->data, &(buffer[5]));
 	return 0;
 }
 
@@ -93,7 +93,7 @@ int dg_readBinary(unsigned char *buffer, TDatagram_t *dg) {
 	dg->type = DG_BINARY;
 	dg->len = (buffer[1] << 8) + buffer[2] ;
 	//printf("XXX %d\n", dg->len);
-	memcpy( dg->bdata, &(buffer[3]), dg->len);
+	memcpy( dg->data, &(buffer[3]), dg->len);
 
 	return 0;
 }

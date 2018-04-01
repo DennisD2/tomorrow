@@ -102,14 +102,14 @@ int main(int argc , char *argv[]) {
     	//printf("%s\n", client_message);
     	TDatagram_t dg;
     	char commandBuffer[1024];
-    	dg.adata = commandBuffer; // in binary case this is wrong
+    	dg.data = commandBuffer; // in binary case this is wrong
     	dg_read(client_message, &dg);
     	//printf("dg.type: %c\n", dg.type);
     	//printf("dg.data: %s\n", dg.adata);
 
         //puts(client_message);
         int handled = 0;
-        if (strncmp(dg.adata, "GETIMAGE", strlen("GETIMAGE")) == 0) {
+        if (strncmp(dg.data, "GETIMAGE", strlen("GETIMAGE")) == 0) {
             //puts("GETIMAGE command");
         	int n = getCurrentImage(bytes);
             write(client_sock, bytes, n);
@@ -117,7 +117,7 @@ int main(int argc , char *argv[]) {
         }
 
         // 'open 126'
-        if (strncmp(dg.adata, "open", strlen("open")) == 0) {
+        if (strncmp(dg.data, "open", strlen("open")) == 0) {
             puts("open");
             write(client_sock , "ok" , strlen("ok"));
             //shutdown(client_sock, 2);

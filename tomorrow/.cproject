@@ -29,9 +29,15 @@
 								<option id="gnu.c.compiler.exe.debug.option.debugging.level.1486770091" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1660130945" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/morrow/include}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/instr-server}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/vxi-ws-server}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.allwarn.523913015" name="All warnings (-Wall)" superClass="gnu.c.compiler.option.warnings.allwarn" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.warnings.nowarn.1052579821" name="Inhibit all warnings (-w)" superClass="gnu.c.compiler.option.warnings.nowarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.include.files.2045026597" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/instr-server}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2101636753" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.648662715" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
@@ -46,8 +52,45 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.290123865.1083079571" name="/" resourcePath="src/instr-server">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.95718480" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug" unusedChildren="">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1506074911" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1639624852"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1274078462" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.659137670"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.513965245" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1846140005">
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1010439768" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1771968579" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug.648662715"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1302219016" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1997233429"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1696985560" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.596722821">
+								<option id="gnu.both.asm.option.include.paths.1948052550" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/tomorrow/src/instr-server}&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1340765190" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.290123865.966389641" name="/" resourcePath="src/vxi-ws-server">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.662949412" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1348994266" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1639624852"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.648609322" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.659137670"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.2062653317" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1846140005">
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1380398105" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.378898896" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug.648662715"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.2120338841" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1997233429"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.2000910575" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.596722821">
+								<option id="gnu.both.asm.option.include.paths.432711059" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/tomorrow/src/vxi-ws-server}&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.5331353" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/instr-server"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/morrow/decompiled"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/vxi-ws-server"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

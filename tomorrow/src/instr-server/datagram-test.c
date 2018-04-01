@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	unsigned char bbuffer[1024];
 
 	dg_packString("hello", &dg);
-	printf("%s\n", dg.adata);
+	printf("%s\n", dg.data);
 	printf("%d\n", dg.len);
 	printf("%c\n", dg.type);
 
@@ -27,11 +27,11 @@ int main(int argc, char **argv) {
 	char aresponse[100];
 
 	// read back
-	back.adata = aresponse;
+	back.data = aresponse;
 	dg_read(abuffer, &back);
-	printf("%s\n", back.bdata);
+	printf("%s\n", back.data);
 	printf("%d\n", back.len);
-	printf("%c\n", back.type);
+	printf("%c\n\n", back.type);
 
 	// binary
 
@@ -46,24 +46,25 @@ int main(int argc, char **argv) {
 	bin[7] = '4';
 
 	dg_packBinary(bin, 8, &dg);
-	printf("%s\n", dg.bdata);
+	printf("%s\n", dg.data);
 	printf("%d\n", dg.len);
-	printf("%c\n", dg.type);
+	printf("%c\n\n", dg.type);
 
 	// write out
 	dg_write(&dg, bbuffer);
 	bbuffer[8+3] = '\0';
-	printf("%s\n", bbuffer);
-	printf("%s\n", &(bbuffer[3]));
+	printf("%s\n", bbuffer); // binary, may not come our nice in print
+	printf("%s\n\n", &(bbuffer[3]));
 
 	unsigned char bresponse[100];
 
 	// read back
-	back.bdata = bresponse;
+	back.data = bresponse;
 	dg_read(bbuffer, &back);
-	printf("%s\n", back.bdata);
+	bresponse[8] = '\0'; // only to make printf nice
+	printf("%s\n", back.data);
 	printf("%d\n", back.len);
-	printf("%c\n", back.type);
+	printf("%c\n\n", back.type);
 
 	return 0;
 }
