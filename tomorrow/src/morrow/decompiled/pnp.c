@@ -150,6 +150,7 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag
 
 // Address range: 0x100046f3 - 0x1000495f
 int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
+	printf("mr90xx_OpenSession\n");
 	int32_t v1 = g3; // bp-4
 	g3 = &v1;
 	SET9052 *v2 = AllocGlobal(-1); // 0x1000470f
@@ -238,6 +239,7 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 
 // Address range: 0x100025dd - 0x1000262f
 int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3) {
+	printf("mr90xx_SetEngineModel\n");
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x100025eb
@@ -253,6 +255,7 @@ int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3) {
 
 // Address range: 0x10004a21 - 0x10004a81
 int32_t mr90xx_CloseSession(int32_t a1) {
+	printf("mr90xx_CloseSession\n");
 	int32_t v1 = 0; // bp-8
 	int32_t v2 = function_10004310(a1, &v1); // 0x10004a2f
 	int32_t result = v2;
@@ -269,6 +272,7 @@ int32_t mr90xx_CloseSession(int32_t a1) {
 
 // Address range: 0x10003822 - 0x1000386f
 int32_t mr90xx_InitEngine(int32_t a1, int32_t a2) {
+	printf("mr90xx_InitEngine\n");
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x10003830
 	int32_t result; // 0x1000386f
@@ -287,6 +291,7 @@ int32_t mr90xx_InitEngine(int32_t a1, int32_t a2) {
 
 // Address range: 0x10003119 - 0x1000316d
 int32_t mr90xx_reset(int32_t a1) {
+	printf("mr90xx_reset\n");
 	int32_t result = mr90xx_ResetEngine(a1, g5); // 0x10003121
 	if (result != 0x3ffc0811) {
 		// 0x10003135
@@ -312,6 +317,7 @@ int32_t mr90xx_reset(int32_t a1) {
 }
 
 int32_t mr90xx_ResetEngine(int32_t a1, int32_t a2) {
+	printf("mr90xx_ResetEngine\n");
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x1000387e
 	int32_t result; // 0x100038bd
@@ -330,6 +336,7 @@ int32_t mr90xx_ResetEngine(int32_t a1, int32_t a2) {
 }
 
 int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
+	printf("mr90xx_SetTimeoutWait\n");
 	// entry
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
@@ -778,6 +785,7 @@ int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 }
 
 int32_t function_10004310(int32_t a1, int32_t * a2) {
+	printf("function_10004310\n");
 	int32_t v1 = (int32_t) a2;
 	if (a2 == NULL) {
 		return MR90XX_IE_WARN_SPAN; // -0x4003f7fe;

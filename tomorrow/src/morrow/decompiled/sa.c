@@ -72,66 +72,57 @@ static int32_t g129 = 0;
 static float80_t g159_rbwFrequency = 0.0L; // st0
 static float80_t g160_currentStepWidth = 0.0L; // st1
 
-int32_t InitEngine(int16_t a1) {
-    int32_t v1 = a1; // 0x10003c79
+int32_t InitEngine(SET9052 *a1) {
+	printf("InitEngine\n");
+	SET9052 * v1 = a1; // 0x10003c79
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003c7d
     g3 = v2;
     int32_t result; // 0x10003cd0
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-        // 0x10003c9a
 #ifdef ORIG
         if (*(int32_t *)(v1 + 660) != 0) {
             int32_t * v3 = (int32_t *)(v1 + 712); // 0x10003ca9
             if (*v3 != 0) {
-                // 0x10003cb8
                 __pseudo_call(*v3);
-                // branch -> 0x10003ccd
-                // 0x10003ccd
                 return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
             }
         }
 #else
+        /* InitEngine call */
+        VISA_InitEngine(a1);
 #endif
-        // 0x10003cb2
-        result = v1 & -0x10000 | 0xffeb;
-        // branch -> 0x10003ccd
+        result = (int32_t)v1 & -0x10000 | 0xffeb;
     } else {
-        // 0x10003c8c
         result = GetFuncStatusCode(v1);
-        // branch -> 0x10003ccd
     }
-    // 0x10003ccd
     return result;
 }
 
 int32_t ResetEngine(int16_t a1) {
+	printf("ResetEngine\n");
     int32_t v1 = a1; // 0x10003cd5
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003cd9
     g3 = v2;
     int32_t result; // 0x10003d2c
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-        // 0x10003cf6
-        if (*(int32_t *)(v1 + 660) != 0) {
+#ifdef ORIG
+       if (*(int32_t *)(v1 + 660) != 0) {
             int32_t * v3 = (int32_t *)(v1 + 716); // 0x10003d05
             if (*v3 != 0) {
-                // 0x10003d14
                 __pseudo_call(*v3);
-                // branch -> 0x10003d29
-                // 0x10003d29
                 return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
             }
         }
-        // 0x10003d0e
         result = v1 & -0x10000 | 0xffeb;
-        // branch -> 0x10003d29
+#else
+        /* InitEngine call */
+        VISA_ResetEngine(a1);
+#endif
     } else {
-        // 0x10003ce8
         result = GetFuncStatusCode(v1);
-        // branch -> 0x10003d29
     }
-    // 0x10003d29
     return result;
 }
 
@@ -145,7 +136,7 @@ void *ClearFuncStatusCode(SET9052 *a1) {
 }
 
 int32_t RdSessionString(int32_t a1, int32_t a2) {
-	// entry
+	printf("RdSessionString\n");
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008d6f
 	g3 = v1;
@@ -174,7 +165,7 @@ int32_t RdSessionString(int32_t a1, int32_t a2) {
 }
 
 int32_t TestFuncStatusAndPtr(/*int32_t a1*/SET9052 *a1) {
-	// entry
+	printf("TestFuncStatusAndPtr\n");
 	if (a1 == 0) {
 		// 0x1000142b
 		// branch -> 0x1000146c
@@ -212,6 +203,7 @@ int32_t TestFuncStatusAndPtr(/*int32_t a1*/SET9052 *a1) {
 }
 
 int32_t SetFuncStatusCode(SET9052 *a1, uint16_t a2) {
+	printf("SetFuncStatusCode\n");
 	int32_t v1 = g4; // 0x10001365
 	int32_t v2 = v1; // bp-4
 	g4 = &v2;
@@ -257,6 +249,7 @@ int32_t SetFuncStatusCode(SET9052 *a1, uint16_t a2) {
 }
 
 int32_t SetEngineReplyCode(/*int32_t a1*/ SET9052 *a1, uint16_t code) {
+	printf("SetEngineReplyCode\n");
     int32_t result;
     if (a1 != 0) {
         //*(int16_t *)(a1 + 206) = a2;
@@ -272,6 +265,7 @@ int32_t SetEngineReplyCode(/*int32_t a1*/ SET9052 *a1, uint16_t code) {
 #define ENG_OPT_1 1
 #define ENG_OPT_2 2
 int32_t RdEngOption(/*int32_t a1*/SET9052 *a1, int32_t option) {
+	printf("RdEngOption\n");
 	if (a1 == 0) {
 		return g3 & -0x10000 | 0xfff6;
 	}
@@ -403,6 +397,7 @@ int32_t function_1000d5e1(char * a1) {
 // DD: because (a1 + 2) == engine_model, a1 must be (struct SAStruct *) = SET9052 !!! yippie 2
 // Address range: 0x10004b94 - 0x10004ee4
 int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
+	printf("InitInstrData\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	int32_t result;
@@ -597,7 +592,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 
 // Address range: 0x100067d5 - 0x10006851
 int32_t SetZSamplRate(/*int32_t a1*/ SET9052 *a1, int64_t rate) {
-    // entry
+	printf("SetZSamplRate\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100067e3
     g3 = v1;
@@ -1137,7 +1132,7 @@ int32_t function_1000d563(int32_t a1) {
 }
 
 int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
-    // entry
+	printf("OpenSession\n");
     if (a1 == 0) {
         // 0x10003d37
         // branch -> 0x10003f76
@@ -1580,6 +1575,7 @@ int32_t function_10003f7a(SET9052 *a1) {
 }
 
 int32_t IdQuery(int16_t a1, int32_t a2) {
+	printf("IdQuery\n");
     int32_t v1 = a1; // 0x10003fda
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003fde
@@ -1587,6 +1583,7 @@ int32_t IdQuery(int16_t a1, int32_t a2) {
     int32_t result; // 0x10004035
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         // 0x10003ffb
+#ifdef ORIG
         if (*(int32_t *)(v1 + 660) != 0) {
             int32_t * v3 = (int32_t *)(v1 + 728); // 0x1000400a
             if (*v3 != 0) {
@@ -1597,6 +1594,9 @@ int32_t IdQuery(int16_t a1, int32_t a2) {
                 return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
             }
         }
+#else
+        /* lpProcNamem, hopefully not needed */
+#endif
         // 0x10004013
         result = v1 & -0x10000 | 0xffeb;
         // branch -> 0x10004032
@@ -1611,12 +1611,13 @@ int32_t IdQuery(int16_t a1, int32_t a2) {
 
 // Address range: 0x10004036 - 0x100040c8
 int32_t CloseSession(SET9052 *a1) {
-    // entry
+	printf("CloseSession\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000403e
     g3 = v1;
     int32_t result; // 0x100040c8
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+#ifdef ORIG
         int32_t * hLibModule = (int32_t *)(a1 + 660); // 0x1000405e
         if (*hLibModule != 0) {
             int32_t * v2 = (int32_t *)(a1 + 724); // 0x1000406a
@@ -1640,6 +1641,9 @@ int32_t CloseSession(SET9052 *a1) {
                 return result;
             }
         }
+#else
+        VISA_CloseSession(a1);
+#endif
         // 0x10004073
         result = (int32_t)a1 & -0x10000 | 0xffeb;
         // branch -> 0x100040c5
@@ -1653,6 +1657,7 @@ int32_t CloseSession(SET9052 *a1) {
 }
 
 int32_t function_10003844(SET9052 *a1, char* a2) {
+	printf("function_10003844\n");
 	/* DD ISA init, NOP */
 	return 1;
 /*
@@ -1838,7 +1843,7 @@ int32_t function_10003613(char * a1) {
 }
 
 int32_t SetInterfaceType(SET9052* a1, int16_t a2, int32_t a3) {
-    // entry
+	printf("SetInterfaceType\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10004f22
     g3 = v1;
@@ -1860,6 +1865,7 @@ int32_t SetInterfaceType(SET9052* a1, int16_t a2, int32_t a3) {
 }
 
 int32_t IsValidStep(SET9052 *a1) {
+	printf("IsValidStep\n");
     int32_t v1 = g9; // 0x10006dd2
     g3 = a1;
     int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006dd7
@@ -3397,6 +3403,7 @@ int32_t RdSessionHandle(SET9052 *a1) {
 }
 
 int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
+	printf("SetEngineModel\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008698
     g3 = v1;
@@ -3468,6 +3475,7 @@ int32_t SetTimeoutWait(SET9052 *a1, int32_t time /*a2*/) {
 }
 
 int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
+	printf("SetCellMode\n");
     int16_t v1 = 0; // bp-8
     g3 = a1;
     int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005fd7
@@ -3870,6 +3878,7 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t a3, int32_t a4) {
 }
 
 int32_t FuncStatusFromEngineReply(int16_t a1) {
+	printf("FuncStatusFromEngineReply\n");
     int32_t v1 = a1; // 0x10001006
     g8 = v1;
     unsigned char v2 = *(char *)(v1 + (int32_t)&g12); // 0x1000101c
@@ -4024,6 +4033,7 @@ int32_t FuncStatusFromEngineReply(int16_t a1) {
 }
 
 int32_t CommTrigDetect(SET9052 *a1) {
+	printf("CommTrigDetect\n");
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int16_t v2 = 8; // bp-32
@@ -4090,6 +4100,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
 }
 
 int32_t CommInterrupts(SET9052 *a1) {
+	printf("CommInterrupts\n");
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;

@@ -765,6 +765,52 @@ int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
     return (int32_t)v3 | v2 & -0x10000;
 }
 
+int32_t VISA_ResetEngine(int32_t deviceId) {
+    // DD: 0x3701 = 0xcaff = Read Interrupters
+    int16_t v1 = dd_WriteCommand(deviceId, 0xcaff /*-0x3701*/); // bp-8
+    g5 = deviceId;
+    int32_t v2; // 0x10002169
+    int16_t v3; // 0x1000215a
+    int32_t v4; // 0x10002175
+    int32_t v5; // 0x10002175
+    if (RdErrorStatus(deviceId) == 0) {
+        if (v1 == -2) {
+            // DD: -769 = -0x301 = 0xfcff BNO
+            v1 = dd_WriteCommand(deviceId, 0xfcff /*-769*/);
+            if (RdErrorStatus(deviceId) != 0) {
+                v3 = 64;
+            } else {
+                // DD: 3840 = 0xf00
+                if ((v1 & 3840) != 3840) {
+                    v3 = 64;
+                } else {
+                    v3 = v1;
+                }
+            }
+            if (v3 != 64) {
+                v2 = BreakSweep(deviceId, 0);
+                v5 = v2;
+                v4 = 0x10000 * v2 / 0x10000;
+            } else {
+                v5 = v3;
+                v4 = 64;
+            }
+            return v5 & -0x10000 | v4;
+        }
+    }
+    v3 = 64;
+    if (v3 != 64) {
+        v2 = BreakSweep(deviceId, 0);
+        v5 = v2;
+        v4 = 0x10000 * v2 / 0x10000;
+    } else {
+        v5 = v3;
+        v4 = 64;
+    }
+    return v5 & -0x10000 | v4;
+}
+
+
 int32_t _imported_function_ord_129(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6) {
 	return 0;
 }
