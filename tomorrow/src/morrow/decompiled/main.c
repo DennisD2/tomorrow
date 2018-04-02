@@ -52,9 +52,9 @@ int main(int argc, char **argv) {
 
 	mr90xxStatus = mr90xx_SetEngineModel( sessionId, SA9054 );
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		printf("Error mr90xx_init");
+		printf("Error mr90xx_SetEngineModel");
 	} else {
-		printf("mr90xx_init OK");
+		printf("mr90xx_SetEngineModel OK");
 	}
 
 }

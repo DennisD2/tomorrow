@@ -14,14 +14,14 @@
 
 #include <visa.h>
 
-int32_t dd_WriteCommand(SET9052 *deviceId, int16_t command) ;
+int32_t sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
 
-int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t *response) ;
-int32_t function_10001249(SET9052 *deviceId, uint16_t a2, int32_t a3, int32_t a4) ;
-int32_t function_100015d0(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t *a4);
-int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t *a3);
-int32_t function_10001a0a(SET9052 *deviceId, int16_t command) ;
+static int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t *response) ;
+static int32_t function_10001249(SET9052 *deviceId, uint16_t a2, int32_t a3, int32_t a4) ;
+static int32_t function_100015d0(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t *a4);
+static int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t *a3);
+static int32_t sendWord(SET9052 *deviceId, int16_t command) ;
 
 static int32_t g2 = 0; // eax
 static int32_t g3 = 0; // ebp
@@ -136,7 +136,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
     SetTimeoutWait(deviceId, 100);
     g5 = deviceId;
     // DD: -0x3701 = 0xc8ff ANO
-    int32_t v2 = dd_WriteCommand(deviceId, 0xc8ff /*-0x3701*/); // 0x10001fbe
+    int32_t v2 = sendCommand(deviceId, 0xc8ff /*-0x3701*/); // 0x10001fbe
     int32_t v3 = RdErrorStatus(deviceId); // 0x10001fce
     int32_t v4 = v3; // 0x10001fe3
 
@@ -152,7 +152,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
         if (v5 == -0x20000) {
             g5 = deviceId;
             // DD: -769 = -0x301 = 0xfcff BNO
-            int32_t v6 = dd_WriteCommand(deviceId, 0xfcff /*-769*/); // 0x10001ff5
+            int32_t v6 = sendCommand(deviceId, 0xfcff /*-769*/); // 0x10001ff5
             int32_t v7 = RdErrorStatus(deviceId); // 0x10002005
 // DD XXX
             v7 = 0;
@@ -170,7 +170,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
                 return v8 | 0xffff;
             }
             // DD: 0x7c00 = VXI_GETVERSION
-            dd_WriteCommand(deviceId, 0x7c00);
+            sendCommand(deviceId, 0x7c00);
             int32_t v9 = RdErrorStatus(deviceId); // 0x10002064
 // DD XXX
             v9=0;
@@ -223,6 +223,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, int32_t
                   lab_0x10001d34:
                     if (v5 != 3) {
                         if (v5 != 4) {
+                        	printf("VISA_SendCommand before return 1\n");
                             return (int32_t)v2 | function_100016c8(deviceId) & -0x10000;
                         }
                     }
@@ -241,7 +242,8 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, int32_t
                         v7 = VISA_CheckSWStatus(deviceId);
                         v2 = v7;
                         if ((v7 & 0xffff) != 1) {
-                            break;
+                        	printf("VISA_SendCommand break 1\n");
+                           break;
                         }
                         v5 = 0;
                         continue;
@@ -249,6 +251,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, int32_t
                     v7 = VISA_CheckSWStatus(deviceId);
                     v2 = v7;
                     if ((v7 & 0xffff) != 1) {
+                    	printf("VISA_SendCommand break 2\n");
                         break;
                     }
                     v5 = 0;
@@ -264,6 +267,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, int32_t
                 v6 = 4;
             }
         }
+    	printf("VISA_SendCommand after loop\n");
         v2 = 17;
         v3 = 0x10000 * a3;
         v4 = 0;
@@ -281,30 +285,42 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, int32_t
     }
 }
 
+/**
+ * Function to send a command/word to the P1 CPU. This requires
+ * sending the VXI_ENGINECOMMAND command first. The subsequent word
+ * will then be forwarded to P1.
+ */
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
-	printf("VisaSendWord: %x\n", command);
+	printf("VISA_SendWord: %x\n", command);
     int16_t v1 = -2; // bp-8
     g2 = deviceId;
     // DD: 0x7f00 = VXI_ENGINECOMMAND
-    int32_t v2 = function_10001a0a(deviceId, 0x7f00); // 0x100019db
+    int32_t v2 = sendWord(deviceId, 0x7f00); // 0x100019db
     g2 = v2;
+    printf("second word %d\n", v2);
+// DD XXX
+    v2=0;
+// DD XXX
     if (v2 != 0) {
         return (int32_t)v1 | v2 & -0x10000;
     }
-    int32_t v3 = function_10001a0a(deviceId, command); // 0x100019f0
+    int32_t v3 = sendWord(deviceId, command); // 0x100019f0
     if (v3 == 0) {
         v1 = 0;
     }
     return (int32_t)v1 | v3 & -0x10000;
 }
 
-int32_t dd_WriteCommand(SET9052 *deviceId, int16_t command) {
-	printf("WriteCommand: %x\n", command);
+/**
+ * Function to send a command/word to P2 CPU. Simply the command is written.
+ */
+int32_t sendCommand(SET9052 *deviceId, int16_t command) {
+	printf("sendCommand: %x\n", command);
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t response; // bp-12
     int32_t v3; // 0x1000133c
-    if ((int16_t)function_10001354(deviceId, command, 1, (int32_t)&response) > -1) {
+    if ((int16_t)_doSendWord(deviceId, command, 1, (int32_t)&response) > -1) {
         v3 = 0;
     } else {
         response = 0;
@@ -315,6 +331,7 @@ int32_t dd_WriteCommand(SET9052 *deviceId, int16_t command) {
 }
 
 int32_t function_100016c8(SET9052 *deviceId) {
+	printf("\tfunction_100016c8\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x100016d2
@@ -337,45 +354,31 @@ int32_t function_100016c8(SET9052 *deviceId) {
         while (true) {
             int32_t v8 = 0x10000 * function_100017e1(deviceId, &v3); // 0x10001764
             if ((v8 || 0xffff) < 0x1ffff) {
-                // 0x10001794
-                // branch -> 0x100017bf
-                // 0x100017bf
                 v7 = v8 / 0x10000;
                 g5 = v7;
                 SetErrorStatus(deviceId, v7);
-                // branch -> 0x100017dd
-                // 0x100017dd
                 g3 = v1;
                 return -2;
             }
-            // 0x10001781
             if ((0x10000 * _TestTimeoutDone(v2) || 0xffff) >= 0x1ffff) {
-                // break -> 0x1000179c
                 break;
             }
-            // continue -> 0x10001754
         }
         int32_t v9 = 0x10000 * function_100017e1(deviceId, &v3); // 0x100017ac
-        // branch -> 0x100017bf
-        // 0x100017bf
         v7 = v9 / 0x10000;
         g5 = v7;
         SetErrorStatus(deviceId, v7);
         result2 = -2;
-        // branch -> 0x100017dd
     } else {
-        // 0x10001738
         result2 = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
-        // branch -> 0x100017dd
     }
-    // 0x100017dd
     g3 = v1;
     return result2;
 }
 
 
-int32_t function_10001354(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
-	printf("function_10001354 %x\n", command);
+int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
+	printf("_doSendWord %x\n", command);
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     // DD: 468 is an offset into a struct
@@ -531,28 +534,19 @@ int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
     g3 = &v1;
     int32_t v2; // 0x10001834
     if ((0x10000 * function_100011fc(deviceId, (int32_t*)a2) || 0xffff) >= 0x1ffff) {
-        // 0x10001803
-        // branch -> 0x1000182b
-        // 0x1000182b
         v2 = SetErrorStatus(deviceId, 1);
         g3 = v1;
         return (int32_t)1 | v2 & -0x10000;
     }
-    // 0x1000180b
     int16_t v3; // bp-12
     int32_t v4; // 0x1000182b
     if ((*a2 & 256) != 0) {
-        // 0x10001825
         v3 = 0;
         v4 = 0;
-        // branch -> 0x1000182b
     } else {
-        // 0x1000181d
         v3 = 3;
         v4 = 3;
-        // branch -> 0x1000182b
     }
-    // 0x1000182b
     v2 = SetErrorStatus(deviceId, v4);
     g3 = v1;
     return (int32_t)v3 | v2 & -0x10000;
@@ -647,7 +641,7 @@ int32_t function_1000108e(SET9052 *deviceId) {
     function_100010e1(deviceId, 0x10000 * (int32_t)g5 / 0x10000);
     g5 = deviceId;
     // DD: 0x7e00 = VXI_GETSTATUS
-    int32_t v1 = dd_WriteCommand(deviceId, 0x7e00); // 0x100010a7
+    int32_t v1 = sendCommand(deviceId, 0x7e00); // 0x100010a7
     function_100016c8(deviceId);
     g7 = deviceId;
     return SetEngineReplyCode(deviceId, (uint32_t)g5 & -0x10000 | v1 & 255);
@@ -713,11 +707,11 @@ int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
     return result2;
 }
 
-int32_t function_10001a0a(SET9052 *deviceId, int16_t command) {
-	printf("function_10001a0a %x\n", command);
+int32_t sendWord(SET9052 *deviceId, int16_t command) {
+	printf("sendWord(function_10001a0a): %x\n", command);
 	// 0x10001a0a
     int32_t result;
-    if ((int16_t)function_10001354(deviceId, command, 0, 0) > -1) {
+    if ((int16_t)_doSendWord(deviceId, command, 0, 0) > -1) {
         // 0x10001a42
         g5 = deviceId;
         SetErrorStatus(deviceId, 0);
@@ -767,7 +761,7 @@ int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
 
 int32_t VISA_ResetEngine(int32_t deviceId) {
     // DD: 0x3701 = 0xcaff = Read Interrupters
-    int16_t v1 = dd_WriteCommand(deviceId, 0xcaff /*-0x3701*/); // bp-8
+    int16_t v1 = sendCommand(deviceId, 0xcaff /*-0x3701*/); // bp-8
     g5 = deviceId;
     int32_t v2; // 0x10002169
     int16_t v3; // 0x1000215a
@@ -776,7 +770,7 @@ int32_t VISA_ResetEngine(int32_t deviceId) {
     if (RdErrorStatus(deviceId) == 0) {
         if (v1 == -2) {
             // DD: -769 = -0x301 = 0xfcff BNO
-            v1 = dd_WriteCommand(deviceId, 0xfcff /*-769*/);
+            v1 = sendCommand(deviceId, 0xfcff /*-769*/);
             if (RdErrorStatus(deviceId) != 0) {
                 v3 = 64;
             } else {
@@ -837,11 +831,11 @@ int32_t dd_viOpenDefaultRM(int32_t a1) {
 	return 0;
 }
 int32_t _imported_function_ord_261(int32_t session_handle, int32_t a2, int32_t a3, int32_t* a4) {
-	printf("_imported_function_ord_261()\n");
+	printf("\t_imported_function_ord_261(%x,%d,%d) - check?\n", session_handle, a2, a3);
 	return 0;
 }
 int32_t _imported_function_ord_262(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
-	printf("_imported_function_ord_262() command: %x\n", command);
+	printf("\t_imported_function_ord_262(%d, %d, 0x%x) - write?\n", a2, a3, command);
 	return 0;
 }
 int32_t _imported_function_ord_267(int32_t a1, int32_t a2, int32_t a3) {

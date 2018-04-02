@@ -1,0 +1,6 @@
+
+
+// option values for RdEngOption()
+#define ENG_OPT_0 0
+#define ENG_OPT_1 1
+#define ENG_OPT_2 2

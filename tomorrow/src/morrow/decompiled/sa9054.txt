@@ -1,5 +1,5 @@
 
-The following information applies to Morrow SA9054. 
+The following information applies to Morrow SA9054 (and maybe SA9052, SA9034 and SA9085 as well).
 Other devices from Morrow may have the same codes.
 
 Engine Command Table
