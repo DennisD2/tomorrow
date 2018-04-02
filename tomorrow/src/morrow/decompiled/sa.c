@@ -111,7 +111,6 @@ int32_t ResetEngine(int16_t a1) {
 
 void *ClearFuncStatusCode(SET9052 *a1) {
 	if (a1 != NULL) {
-		//*(int16_t *) (a1 + 204) = 0;
 		a1->func_status_code = 0;
 	}
 	return a1;
@@ -1718,15 +1717,19 @@ int32_t VBWFreqFromCode(int16_t a1) {
 int32_t DefltSetTimeRBW(int16_t timeValue) {
     int32_t v1 = timeValue; // 0x1000c8a0
     g6 = v1;
+#ifdef ORIG
     __pseudo_branch(*(int32_t *)(4 * v1 + (int32_t)&g14_rbwTimeFactor));
+#endif
     return -1;
 }
 
 // Address range: 0x1000c906 - 0x1000c978
 int32_t DefltSetTimeVBW(int16_t timeValue) {
 	// DD:  g15 is initialized with 0x1000c923... a
+#ifdef ORIG
     int32_t v1 = *(int32_t *)(4 * (int32_t)timeValue + (int32_t)&g15_vbwTimeFactor); // 0x1000c91c
     __pseudo_branch(v1);
+#endif
     return -1;
 }
 
