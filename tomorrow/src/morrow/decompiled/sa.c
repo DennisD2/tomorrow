@@ -1,8 +1,6 @@
 // gcc -I ../include -W -g  main.c pnp.c sa.c -o main
 
 #include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 #include <stdio.h>
@@ -242,9 +240,13 @@ int32_t RdEngOption(SET9052 *a1, int32_t option) {
 }
 
 int32_t function_1000d570(char * /*int32_t*/ a1) {
+#ifdef ORIG
 	char * v1 = g7; // 0x1000d570
 	g7 = a1;
 	return function_1000d5e1(v1);
+#else
+	return 0;
+#endif
 }
 
 int32_t function_1000d5e1(char * a1) {
@@ -1044,7 +1046,7 @@ int32_t absValue(int32_t a1) {
 }
 
 int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
-	printf("OpenSession\n");
+	printf("OpenSession(%s)\n", session_string);
     if (a1 == 0) {
         return g3 & -0x10000 | 0xfff6;
     }
@@ -1052,7 +1054,7 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
         return g3 & -0x10000 | 0xfffd;
     }
     int32_t result2; // 0x10003f79
-    if (a1->session_handle /* *(int32_t *)(a1 + 468)*/ == 0) {
+    if (a1->session_handle /* *(int32_t *)(a1 + 468)*/ == NULL) {
         ClearFuncStatusCode(a1);
         g8 = a1;
         //*(int32_t *)(a1 + 200) = 0;
@@ -1064,11 +1066,11 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
         int32_t v4; // 0x10003f4f
         int16_t v5; // 0x10003f4f
         int32_t result; // 0x10003f5b
-        if ((int16_t)v1 != 0) {
+        if (v1 != 0) {
             g8 = a1;
             int32_t v6 = dd_loadWindowsDll(a1, session_string, v2); // 0x10003db4
             int32_t v7 = 0x10000 * v6 / 0x10000; // 0x10003dc0
-            if ((int16_t)v6 == 0) {
+            if (v6 == 0) {
                 SetInterfaceType(a1, 1, v7);
                 function_1000d570(a1->sessionString /* a1 + 210 */);
                 //*(int16_t *)(a1 + 208) = 0;
@@ -1079,7 +1081,7 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
+                        v4 = function_10003f7a(a1);
                         v5 = v4;
                         result = 0x10000 * v4 / 0x10000;
                     }
@@ -1407,9 +1409,7 @@ int32_t CloseSession(SET9052 *a1) {
 
 int32_t function_10003844(SET9052 *a1, char* a2) {
 	printf("function_10003844\n");
-	/* DD ISA init, NOP */
-	return 1;
-/*
+#ifdef ORIG
     int32_t v1 = get_os_version_dummy(); // 0x10003847
     if (v1 == 0) {
         // 0x10003850
@@ -1451,7 +1451,12 @@ int32_t function_10003844(SET9052 *a1, char* a2) {
     }
     // 0x100038bf
     return result;
-*/
+#else
+	/* DD: code was ISA init*/
+    /* I haven't found where the string is set, so I do it here */
+    strcpy(a1->sessionString, a2);
+	return 1;
+#endif
 }
 
 /* DD: seems to handle dll loading. not needed. */

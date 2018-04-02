@@ -1,6 +1,4 @@
 
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 #include <stdio.h>
@@ -40,7 +38,7 @@ int main(int argc, char **argv) {
 	printf("main start\n");
 	sysInfo();
 
-	sprintf(sessionString, "VXI:126:INSTR");
+	sprintf(sessionString, "vxi,126");
 
 	mr90xxStatus = mr90xx_init( sessionString, VI_TRUE, VI_TRUE, &sessionId);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {

@@ -26,3 +26,64 @@ Command 	Function				Comment
 15									(not used by libs)
 16									(not used by libs)
 
+
+
+
+Status
+
+bash-4.3$ ./morrow 
+main start
+short:  d
+int     4
+void*   4
+int*    4
+float   4
+double  8
+mr90xx_init
+mr90xx_OpenSession
+InitInstrData
+SetZSamplRate
+OpenSession(vxi,126)
+function_10003844
+SetInterfaceType
+VISA_OpenSessionStep
+viOpenDefaultRM()
+        viOpen(vxi,126)
+        iopen() -> 1
+vISetAttribute()
+vISetAttribute()
+vISetAttribute()
+VISA_InitEngine
+sendCommand: ffffc8ff
+_doSendWord c8ff
+        _imported_function_ord_261(1,1,10) - check?
+        dd_viWrite(1, 1, 14, 0xc8ff)
+        ivxiws() -> ret=0, response=fffe, rpe=0
+sendCommand: fffffcff
+_doSendWord fcff
+        _imported_function_ord_261(1,1,10) - check?
+        dd_viWrite(1, 1, 14, 0xfcff)
+        ivxiws() -> ret=0, response=ffff, rpe=0
+        function_100016c8
+        _imported_function_ord_261(1,1,4) - check?
+        dd_viWrite(1, 1, 4, 0x200)
+        ivxiws() -> ret=f, response=4000, rpe=200
+        _imported_function_ord_261(1,1,4) - check?
+sendCommand: 7c00
+_doSendWord 7c00
+        _imported_function_ord_261(1,1,10) - check?
+        dd_viWrite(1, 1, 14, 0x7c00)
+        ivxiws() -> ret=0, response=14, rpe=0
+BreakSweep
+sa.c:SendCommand 7
+VISA_SendCommand 7
+        _imported_function_ord_261(1,1,4) - check?
+        dd_viWrite(1, 1, 4, 0x1)
+        ivxiws() -> ret=11, response=4000, rpe=fffc
+        _imported_function_ord_261(1,1,4) - check?
+VISA_SendWord: 7
+sendWord(function_10001a0a): 7f00
+_doSendWord 7f00
+        _imported_function_ord_261(1,1,10) - check?
+        dd_viWrite(1, 1, 14, 0x7f00)
+

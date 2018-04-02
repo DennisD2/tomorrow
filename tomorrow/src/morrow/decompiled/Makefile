@@ -15,3 +15,6 @@ visa.o : visa.c
 
 main.o : main.c
 	gcc $(CFLAGS) -c main.c
+
+clean:
+	rm *.o morrow

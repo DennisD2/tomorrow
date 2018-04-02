@@ -1,6 +1,4 @@
 #include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 #include <stdio.h>
@@ -160,6 +158,7 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 	char *v3; // bp-280
 	int32_t v4 = &v3; // 0x10004770
 	int32_t v5 = 0; // 0x1000475512
+#ifdef ORIG
 	while (true) {
 		int32_t * v6 = (int32_t *) (4 * v5 + (int32_t) &g60); // 0x10004764
 		if (*v6 != NULL) {
@@ -177,6 +176,7 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 		}
 		v5 = 0x10000 * v7 / 0x10000;
 	}
+#endif
 	if ((0x10000 * InitInstrData(v2) || 0xffff) >= 0x1ffff) {
 		function_1000498f(v2);
 		g3 = v1;

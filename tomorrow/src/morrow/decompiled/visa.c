@@ -1,8 +1,7 @@
 
 #include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
+
 
 #include <stdio.h>
 
@@ -13,6 +12,11 @@
 #include <mr_defin.h>
 
 #include <visa.h>
+#include "visa.h"
+
+#if defined(__hp9000s700)
+#include <sicl.h>
+#endif
 
 int32_t sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
@@ -393,8 +397,8 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v6 & -0x10000 | v5 & 0xffff;
     }
     g5 = session_handle;
-    // DD: _imported_function_ord_262 1st parameter is not deviceId but <struct>+468
-    int32_t v7 = _imported_function_ord_262(session_handle, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
+    // DD: dd_viWrite 1st parameter is not deviceId but <struct>+468
+    int32_t v7 = dd_viWrite(session_handle, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
     if (v7 != 0) {
         g3 = v1;
         return v7 & -0x10000 | 0x8000;
@@ -430,7 +434,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
     //xxx
     // DD: 0xcdff Read Protocol Error
     // What Visa function is this?
-    int32_t v14 = _imported_function_ord_262(session_handle, 1, 14, 0xcdff); // 0x10001421
+    int32_t v14 = dd_viWrite(session_handle, 1, 14, 0xcdff); // 0x10001421
     if (v14 != 0) {
         g3 = v1;
         return v14 & -0x10000 | 0x8400;
@@ -524,7 +528,7 @@ int32_t function_100011fc(SET9052 *deviceId, int32_t* a2) {
 
 int32_t function_10001249(SET9052 *deviceId, uint16_t a2, int32_t a3, int32_t a4) {
     int32_t v1 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x1000125b
-    int32_t v2 = _imported_function_ord_262(v1, 1, 4, g2 & -0x10000 | (int32_t)a2) != 0;
+    int32_t v2 = dd_viWrite(v1, 1, 4, g2 & -0x10000 | (int32_t)a2) != 0;
     g5 = deviceId;
     return SetErrorStatus(deviceId, v2) & -0x10000 | v2;
 }
@@ -811,9 +815,22 @@ int32_t _imported_function_ord_129(int32_t a1, int32_t a2, int32_t a3, int32_t a
 int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	return 0;
 }
-int32_t dd_viOpen(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
-	printf("viOpen()\n");
+int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int32_t *session_id) {
+	printf("\tviOpen(%s)\n", session_string);
+#if defined(__hp9000s700)
+	INST id = iopen(session_string);
+	printf("\tiopen() -> %x\n", id);
+
+	if (id != 0) {
+		*session_id = id;
+		itimeout (id, 10000);
+		return VI_SUCCESS;
+	} else {
+		return 1;
+	}
+#else
 	return 0;
+#endif
 }
 int32_t _imported_function_ord_132(int32_t a1) {
 	return 0;
@@ -822,7 +839,7 @@ int32_t _imported_function_ord_133(int32_t a1, int32_t a2, int32_t a3) {
 	return 0;
 }
 int32_t dd_viSetAttribute(int32_t a1, int32_t a2, int32_t a3) {
-	printf("vISetAttribute()\n");
+	printf("viSetAttribute()\n");
 
 	return 0;
 }
@@ -834,10 +851,22 @@ int32_t _imported_function_ord_261(int32_t session_handle, int32_t a2, int32_t a
 	printf("\t_imported_function_ord_261(%x,%d,%d) - check?\n", session_handle, a2, a3);
 	return 0;
 }
-int32_t _imported_function_ord_262(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
-	printf("\t_imported_function_ord_262(%d, %d, 0x%x) - write?\n", a2, a3, command);
-	return 0;
+int32_t dd_viWrite(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
+	printf("\tviWrite(%d, %d, %d, 0x%x)\n", session_handle, a2, a3, command);
+	uint16_t ret = 0;
+#if defined(__hp9000s700)
+	uint16_t cmd = command;
+	uint16_t response;
+	uint16_t rpe;
+
+	// ret==0 => OK
+	ret = ivxiws(session_handle, cmd, &response, &rpe);
+	printf("\tivxiws() -> ret=%x, response=%x, rpe=%x\n", ret, response, rpe);
+	ret = response;
+#endif
+	return ret;
 }
+
 int32_t _imported_function_ord_267(int32_t a1, int32_t a2, int32_t a3) {
 	return 0;
 }

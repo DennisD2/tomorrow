@@ -11,7 +11,6 @@
 #include "compatibility.h"
 
 /* visa.c exposed functions */
-int32_t VISA_OpenSessionStep(int32_t deviceId);
-
+int32_t VISA_OpenSessionStep(SET9052 * deviceId);
 
 #endif /* VISA_H_ */
