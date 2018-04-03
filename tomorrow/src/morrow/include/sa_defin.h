@@ -472,7 +472,7 @@ typedef enum {  UNKNOWNp=0,
 /* ------------------------------------------------------------------------ */
 /*  Detector control bit field defines. The detector control code determines
     which of several possible signals is switched into the A/D input.
-    The bit field has many mutually exlcusive fields.  With the exception
+    The bit field has many mutually exclusive fields.  With the exception
     of the ENABLE bit( bit 2 ), the POLARITY bit (bit5), and the ATTENUATOR
     bit( bit 6 ), no 2 bits can be set at the same time.  ie the linear and
     log detector bits cannot be set at the same time.  However it is possible

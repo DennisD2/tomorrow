@@ -72,14 +72,12 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag
 	}
 	int32_t v2 = query_flag & 0xffff; // 0x10002fc2
 	if (v2 != IE_TRUE) {
-		// 0x10002fcd
 		if (v2 != IE_FALSE) {
 			return MR90XX_IE_ERR_VALS; // -0x4003fffe = 0xbffc0003
 		}
 	}
 	int32_t v3 = reset_flag & 0xffff; // 0x10002fe7
 	if (v3 != IE_TRUE) {
-		// 0x10002ff1
 		if (v3 != IE_FALSE) {
 			return MR90XX_IE_ERR_AUTO; // -0x4003fffd; ) = 0xbffc0004
 		}
@@ -188,6 +186,8 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 		*session_id = RdSessionHandle(v2);
 		int32_t v9 = 0; // 0x1000486810
 		int16_t v10 = 0;
+#ifdef ORIG
+		// DD XXX whats geing on below ???
 		while (true) {
 			if (*(int32_t *) (4 * v9 + (int32_t) &g60) != 0) {
 				int32_t v11 = v9 + 1; // 0x1000485f
@@ -227,6 +227,7 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 			g3 = v1;
 			return 0;
 		}
+#endif
 	} else {
 		function_1000498f(v2);
 		result = mapVisaErrorToAPIError(status);
