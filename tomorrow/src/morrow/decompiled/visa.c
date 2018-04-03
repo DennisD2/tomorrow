@@ -313,19 +313,19 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, /*int32
                     VISA_SendWord(deviceId, command);
                     int32_t v7; // 0x10001da2
                     if (v3 > 0) {
-                        int32_t v8 = 0;
+                        int32_t i = 0;
                         //printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=0.\n");
-                        printf("\t\t%d, a4=%lx, v8=%d\n", v4, a4, v8);
-                        printf("\t\ta4[0]=0x%x/%d\n", a4[v8], a4[v8]);
-                        VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ a4[v8] /* *(a4+2*v8) */);
-                        while (v8 + 1 < v3 / 0x10000) {
+                        printf("\t\t%d, a4=%lx, v8=%d\n", v4, a4, i);
+                        printf("\t\ta4[0]=0x%x/%d\n", a4[i], a4[i]);
+                        VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ a4[i] /* *(a4+2*v8) */);
+                        while (i + 1 < v3 / 0x10000) {
                         	// inner loop v8=0..<v3=a3
-                            g5 = (int32_t)g5 & -0x10000 | v8 + 1 & 0xffff;
-                            v8++;
+                            g5 = (int32_t)g5 & -0x10000 | i + 1 & 0xffff;
+                            i++;
                             //printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=%d.\n", v8);
-                            printf("\t\ta4=%lx, v8=%d\n", a4, v8);
-                            printf("\t\ta4[%d]=0x%x/%d\n", v8, a4[v8], a4[v8]);
-                            VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ a4[v8] /**(a4+2*v8)*/ );
+                            printf("\t\ta4=%lx, v8=%d\n", a4, i);
+                            printf("\t\ta4[%d]=0x%x/%d\n", i, a4[i], a4[i]);
+                            VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ a4[i] /**(a4+2*v8)*/ );
                         }
                         v7 = VISA_CheckSWStatus(deviceId);
                         v2 = v7;

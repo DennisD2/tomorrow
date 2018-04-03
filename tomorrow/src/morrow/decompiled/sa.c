@@ -3114,9 +3114,16 @@ void __pseudo_branch( int32_t x ) {
 }
 #endif
 
-int32_t __ftol(int32_t in) {
-	printf("ftol() TBI\n");
-	return 0;
+int32_t __ftol(/*int32_t*/float32_t in) {
+
+	int a         = *(int*)(&in);
+	int sign      = (a >> 31);
+	int mantissa  = (a & ((1 << 23) - 1)) | (1 << 23);
+	int exponent  = ((a & 0x7fffffff) >> 23) - 127;
+	int r         = ((unsigned int)(mantissa) << 8) >> (31 - exponent);
+	int32_t out = ((r ^ (sign)) - sign ) &~ (exponent >> 31);
+	printf("ftol(%f) -> %d\n", in, out);
+	return out;
 }
 
 int32_t RdSessionHandle(SET9052 *a1) {
@@ -3707,6 +3714,21 @@ int32_t CommTrigDetect(SET9052 *a1) {
    	// DD: Engine Command 4 is related to "set trigger ...".
 	// v2 = 8 !
 	// v6 is sth. like a1->detect_code, see above
+	printf("detect_code: %d\n", a1->detect_code);
+    printf("sweep_code: %d\n", a1->sweep_code);
+    printf("num_cells: %d\n", a1->num_cells);
+
+    int16 *p6 =&(a1->detect_code) ;
+	printf("detect_code1: %d\n", *p6);
+    printf("sweep_code1: %d\n", *(p6+1));
+    printf("num_cells1: %d\n", *(p6+2));
+
+    int16 *p7 =&(a1->detect_code) ;
+    uint32_t ii =0;
+	printf("detect_code1: %d\n", p7[ii]);
+    printf("sweep_code1: %d\n", p7[ii+1]);
+    printf("num_cells1: %d\n", p7[ii+2]);
+
     v9 = SendCommand(a1, 4, (int32_t)v2, &v6);
     v10 = v9;
     v7 = 0x10000 * v9;
