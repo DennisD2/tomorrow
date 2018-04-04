@@ -3381,8 +3381,8 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
         return result;
     }
     g8 = 1;
-    // Engine Command 7 is related to Sweep or Break Sweep
-    int32_t v3 = SendCommand(a1, 7, 1, &v2); // 0x10004a49
+    // Engine Command 7 is related to Break Sweep
+    int32_t v3 = SendCommand(a1, ENG_TERMINATE /*7*/, 1, &v2); // 0x10004a49
     g3 = v3;
 // DD XXX
     v3=1;
@@ -3716,11 +3716,11 @@ int32_t CommTrigDetect(SET9052 *a1) {
     printf("num_cellsV: %d\n\n", *(pppp));
 
     if ((RdSweepCode(a1) & 1) == 0) {
-    	// DD: Engine Command 4 is related to "set trigger ...".
+    	// DD: Engine Command 4 is related to "set trigger details".
     	// v2 = 8 !
     	// v6 is sth. like a1->detect_code, see above
     	// but why are sent v2=8 words?
-        v9 = SendCommand(a1, 4, (int32_t)v2, ppp);
+        v9 = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t)v2, ppp);
         v10 = v9;
         v7 = 0x10000 * v9;
         v8 = v7 / 0x10000;
@@ -3739,7 +3739,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
     if (a1->trig_norm_flag /* *(int16_t *)(a1 + 110)*/  != IE_FALSE /*0*/) {
     }
 
-    v9 = SendCommand(a1, 4, (int32_t)v2, ppp);
+    v9 = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t)v2, ppp);
     v10 = v9;
     v7 = 0x10000 * v9;
     v8 = v7 / 0x10000;
@@ -3771,7 +3771,7 @@ int32_t CommInterrupts(SET9052 *a1) {
         // DD Engine Command 6 is related to "set comm interupts..."
         // param 3 is sth. like 1
         // v4 =  a1->intr_code
-        result = FuncStatusFromEngineReply((int16_t)SendCommand(a1, 6, (int32_t)1 | (int32_t)a1 & -0x10000, v4));
+        result = FuncStatusFromEngineReply((int16_t)SendCommand(a1, ENG_SET_INTMODE /*6*/, (int32_t)1 | (int32_t)a1 & -0x10000, v4));
     } else {
         result = GetFuncStatusCode(a1);
     }

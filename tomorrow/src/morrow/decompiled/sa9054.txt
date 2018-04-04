@@ -6,6 +6,22 @@ Engine Command Table
 Engine Commands are Commands for CPU P1 (acquisition CPU).
 The code allows Engine command values in range 0..16.
 
+See sa_defin.h
+/* ------------------------------------------------------------------------ */
+/*  Constant definitions of command numbers to the engine.                  */
+/* ------------------------------------------------------------------------ */
+#define ENG_INIT        0
+#define ENG_START_SWP   1
+#define ENG_START_ZSPAN 2
+#define ENG_START_FHOP  3
+#define ENG_SET_TRIGDET 4
+#define ENG_LOAD_HOPFRQ 5
+#define ENG_SET_INTMODE 6
+#define ENG_TERMINATE   7
+#define ENG_CALIBRATE   10
+
+Own findings:
+
 Command 	Function				Comment
 -------------------------------------------------------------------------
 0 			unknown					Not exposed by libs and not called by lib code.
@@ -31,9 +47,9 @@ Command 	Function				Comment
 
 Status
 
-bash-4.3$ ./morrow 
+-bash-4.3$ ./morrow 
 main start
-short:  d
+short:  2
 int     4
 void*   4
 int*    4
@@ -43,6 +59,8 @@ mr90xx_init
 mr90xx_OpenSession
 InitInstrData
 SetZSamplRate
+ftol(0.000000) -> 0
+IsValidStep
 OpenSession(vxi,126)
 function_10003844
 SetInterfaceType
@@ -50,40 +68,309 @@ VISA_OpenSessionStep
 viOpenDefaultRM()
         viOpen(vxi,126)
         iopen() -> 1
-vISetAttribute()
-vISetAttribute()
-vISetAttribute()
-VISA_InitEngine
-sendCommand: ffffc8ff
-_doSendWord c8ff
-        _imported_function_ord_261(1,1,10) - check?
-        dd_viWrite(1, 1, 14, 0xc8ff)
-        ivxiws() -> ret=0, response=fffe, rpe=0
-sendCommand: fffffcff
-_doSendWord fcff
-        _imported_function_ord_261(1,1,10) - check?
-        dd_viWrite(1, 1, 14, 0xfcff)
-        ivxiws() -> ret=0, response=ffff, rpe=0
-        function_100016c8
-        _imported_function_ord_261(1,1,4) - check?
-        dd_viWrite(1, 1, 4, 0x200)
-        ivxiws() -> ret=f, response=4000, rpe=200
-        _imported_function_ord_261(1,1,4) - check?
-sendCommand: 7c00
-_doSendWord 7c00
-        _imported_function_ord_261(1,1,10) - check?
-        dd_viWrite(1, 1, 14, 0x7c00)
-        ivxiws() -> ret=0, response=14, rpe=0
-BreakSweep
-sa.c:SendCommand 7
-VISA_SendCommand 7
-        _imported_function_ord_261(1,1,4) - check?
-        dd_viWrite(1, 1, 4, 0x1)
-        ivxiws() -> ret=11, response=4000, rpe=fffc
-        _imported_function_ord_261(1,1,4) - check?
-VISA_SendWord: 7
-sendWord(function_10001a0a): 7f00
-_doSendWord 7f00
-        _imported_function_ord_261(1,1,10) - check?
-        dd_viWrite(1, 1, 14, 0x7f00)
+Abort Normal Operation...
+... OK
+Begin Normal Operation...
+... OK
 
+Begin GETVERSION...
+... OK. Version: 1.4
+
+Begin RESETENG...
+... OK.
+        iopen() -> 2
+Begin VXI_ENGINECMD...
+ENGINECMD ret: 0, response=ffff, rpe=0
+... OK
+Begin ENG_INIT...
+ret: 0, response=ffff, rpe=0
+... OK
+viSetAttribute(2, 1073676314, 10000)
+viSetBuf(2,3,4000)
+viSetAttribute(2, 1073676333, 1)
+viSetAttribute(2, 1073676330, 1)
+VISA_InitEngine
+sendCommand: ffffc8ff=ABORT NORMAL OPERATION
+_doSendWord c8ff=ABORT NORMAL OPERATION
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0xc8ff=ABORT NORMAL OPERATION)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+sendCommand: fffffcff=BEGIN NORMAL OPERATION
+_doSendWord fcff=BEGIN NORMAL OPERATION
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0xfcff=BEGIN NORMAL OPERATION)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+        function_100016c8
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 200=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+sendCommand: 7c00=VXI_GETVERSION
+_doSendWord 7c00=VXI_GETVERSION
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7c00=VXI_GETVERSION)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+BreakSweep, mode=0
+sa.c:SendCommand 7
+VISA_SendCommand(7=P1_BREAK_SWEEP, 1, 7b03a920)
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 1=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+VISA_SendWord: 7=P1_BREAK_SWEEP
+sendWord(function_10001a0a): 7f00
+_doSendWord 7f00=VXI_ENGINECMD
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7f00=VXI_ENGINECMD)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+second word -1
+sendWord(function_10001a0a): 7
+_doSendWord 7=?
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7=?)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+                0, a4=7b03a920, v8=0
+                a4[0]=0x0/0
+VISA_SendWord: 0=P1_0?_MAY_BE_INIT
+sendWord(function_10001a0a): 7f00
+_doSendWord 7f00=VXI_ENGINECMD
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7f00=VXI_ENGINECMD)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+second word -1
+sendWord(function_10001a0a): 0
+_doSendWord 0=?
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x0=?)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+VISA_CheckSWStatus
+function_1000108e
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 1=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7e00=VXI_GETSTATUS)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+        function_100016c8
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 200=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+SetEngineReplyCode(0)
+function_1000108e
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 0=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7e00=VXI_GETSTATUS)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+        function_100016c8
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 200=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+SetEngineReplyCode(0)
+function_1000108e
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 0=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7e00=VXI_GETSTATUS)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+        function_100016c8
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 200=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+SetEngineReplyCode(0)
+VISA_SendCommand break 1
+VISA_SendWord: 7=P1_BREAK_SWEEP
+sendWord(function_10001a0a): 7f00
+_doSendWord 7f00=VXI_ENGINECMD
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7f00=VXI_ENGINECMD)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+second word -1
+sendWord(function_10001a0a): 7
+_doSendWord 7=?
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7=?)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+                1, a4=7b03a920, v8=0
+                a4[0]=0x0/0
+VISA_SendWord: 0=P1_0?_MAY_BE_INIT
+sendWord(function_10001a0a): 7f00
+_doSendWord 7f00=VXI_ENGINECMD
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7f00=VXI_ENGINECMD)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+second word -1
+sendWord(function_10001a0a): 0
+_doSendWord 0=?
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x0=?)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+VISA_CheckSWStatus
+function_1000108e
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 0=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7e00=VXI_GETSTATUS)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+        function_100016c8
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 200=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+SetEngineReplyCode(0)
+function_1000108e
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 0=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7e00=VXI_GETSTATUS)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+        function_100016c8
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 200=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+SetEngineReplyCode(0)
+function_1000108e
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 0=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7e00=VXI_GETSTATUS)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+        function_100016c8
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+        function_10001249 command 200=? LEFT OUT!
+        viFlush(2, 0x1, 0x4)
+iflush returned 0
+SetEngineReplyCode(0)
+VISA_SendCommand break 1
+VISA_SendWord: 7=P1_BREAK_SWEEP
+sendWord(function_10001a0a): 7f00
+_doSendWord 7f00=VXI_ENGINECMD
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7f00=VXI_ENGINECMD)
+VXI_GETSTATUS: ret: 0, response=ffff, rpe=1c28
+fifo: 0xf, status: 0xff
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28
+        ivxiws() -> ret=0x0, response=0xffff, rpe=0x1c28. Returning 0xffff
+second word -1
+sendWord(function_10001a0a): 7
+_doSendWord 7=?
+        viFlush(2, 0x1, 0xa)
+iflush returned 5
+        WScmdAlike(2, 1, 14, 0x7=?)
+
+-bash-4.3$  su
+Password:
+# init
+Usage: init [0123456SsQqabcMm]
+# init 0
+# Connection closed by foreign host.
