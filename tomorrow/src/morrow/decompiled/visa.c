@@ -957,6 +957,11 @@ int32_t dd_viWrite(int32_t session_handle, int32_t a2, int32_t a3, int32_t comma
 
 int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 	printf("viSetBuf(%d,%d,%d)\n", session_handle, mask, size);
+#if defined(__hp9000s700)
+	int ret = isetbuf(session_handle, mask, size);
+	return ret;
+#else
 	return VI_SUCCESS;
+#endif
 }
 
