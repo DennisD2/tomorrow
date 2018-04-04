@@ -3476,7 +3476,7 @@ int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
 }
 
 int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, /*int32_t*/uint16_t *wordPtr) {
-	printf("sa.c:SendCommand %x\n", command);
+	printf("\n\nsa.c:SendCommand %x\n", command);
 	SET9052 *v1 = a1; // 0x10003b52
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003b56
