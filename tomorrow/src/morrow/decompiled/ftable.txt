@@ -1,3 +1,4 @@
+ /* from mtcsa32.c */
        int32_t (*func)() = GetProcAddress((int32_t *)hModule, (char *)function_10003280(v1, (int32_t)"OpenSessionStep")); // 0x10003377
         *(int32_t *)(a1 + 720) = (int32_t)func;
         g8 = v1;

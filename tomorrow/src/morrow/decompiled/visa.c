@@ -129,8 +129,8 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
     if (dd_viOpen(g52_currentViSession, deviceId->sessionString/*deviceId + 210*/, 0, 0, vi_session_ptr) != VI_SUCCESS) {
         int32_t v5 = g52_currentViSession; // 0x10002247
         g52_currentViSession = 0;
-        // DD: _imported_function_ord_132 seems to analyze the error
-        int32_t result = _imported_function_ord_132(v5) | 0xffff; // 0x1000225d
+        // DD: _imported_function_ord_132 seems to close the session
+        int32_t result = dd_viClose(v5) | 0xffff; // 0x1000225d
         return result;
     }
     g53++;
@@ -144,7 +144,7 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
         int32_t result2 = VISA_CloseSession(deviceId) | 0xffff; // 0x100022b0
         return result2;
     }
-    if (_imported_function_ord_267(vi_session, 3, 4000) < 0) {
+    if (dd_viSetBuf(vi_session, 3, 4000) < 0) {
         g2 = deviceId;
         int32_t result3 = VISA_CloseSession(deviceId) | 0xffff; // 0x100022d9
         return result3;
@@ -182,11 +182,11 @@ int32_t VISA_CloseSession(SET9052 *deviceId) {
     int32_t * v1 = &deviceId->session_handle; //  (int32_t *)(deviceId + 468); // 0x10002386
     int32_t result; // 0x10002401
     if (*v1 != 0) {
-        _imported_function_ord_132(*v1);
+        dd_viClose(*v1);
         int32_t v2 = g53 - 1; // 0x100023a9
         g53 = v2;
         if (v2 == 0) {
-            _imported_function_ord_132(g52_currentViSession);
+            dd_viClose(g52_currentViSession);
             g52_currentViSession = 0;
         }
         g52_currentViSession = 0;
@@ -248,7 +248,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
             int32_t v9 = RdErrorStatus(deviceId); // 0x10002064
 // DD XXX
             v9=0;
-// DD XXXfunction_10001249
+// DD XXX
             if (v9 != 0) {
                 return v9 | 0xffff;
             }
@@ -274,9 +274,15 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
     return v4 | 0xffff;
 }
 
-// DD commands allowed 0..16.
-int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, /*int32_t*/uint16_t *a4) {
-	printf("VISA_SendCommand(%x=%s, %d, %lx)\n", command, getCmdNameP1(command), a3, a4);
+/**
+ * Sends command to P1 CPU. Command codes allowed 0..16.
+ * Command consists of a command code 'command and arguments. The function takes arguments as
+ * a number of bytes (numBytes) in memory, starting at location 'wordPtr'. All bytes are sent
+ * in chunks of a word (2 bytes) by using the function 'VISA_SendWord'.
+ * The
+ */
+int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /*int32_t*/uint16_t *wordPtr) {
+	printf("VISA_SendCommand(%x=%s, %d, %lx)\n", command, getCmdNameP1(command), numBytes, wordPtr);
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2 = 0; // bp-20
@@ -287,7 +293,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, /*int32
     if (command >= 0) {
         g7 = command;
         if (command <= 16) {
-            v3 = 0x10000 * a3;
+            v3 = 0x10000 * numBytes;
             v4 = 0;
             int16_t v6 = 3;
             //
@@ -315,17 +321,17 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, /*int32
                     if (v3 > 0) {
                         int32_t i = 0;
                         //printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=0.\n");
-                        printf("\t\t%d, a4=%lx, v8=%d\n", v4, a4, i);
-                        printf("\t\ta4[0]=0x%x/%d\n", a4[i], a4[i]);
-                        VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ a4[i] /* *(a4+2*v8) */);
+                        printf("\t\t%d, a4=%lx, v8=%d\n", v4, wordPtr, i);
+                        printf("\t\ta4[0]=0x%x/%d\n", wordPtr[i], wordPtr[i]);
+                        VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ wordPtr[2*i] /* *(a4+2*v8) */);
                         while (i + 1 < v3 / 0x10000) {
                         	// inner loop v8=0..<v3=a3
                             g5 = (int32_t)g5 & -0x10000 | i + 1 & 0xffff;
-                            i++;
+                            i+=2;
                             //printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=%d.\n", v8);
-                            printf("\t\ta4=%lx, v8=%d\n", a4, i);
-                            printf("\t\ta4[%d]=0x%x/%d\n", i, a4[i], a4[i]);
-                            VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ a4[i] /**(a4+2*v8)*/ );
+                            printf("\t\ta4=%lx, v8=%d\n", wordPtr, i);
+                            printf("\t\ta4[%d]=0x%x/%d\n", i, wordPtr[i/2], wordPtr[i/2]);
+                            VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ wordPtr[i/2] /**(a4+2*v8)*/ );
                         }
                         v7 = VISA_CheckSWStatus(deviceId);
                         v2 = v7;
@@ -359,7 +365,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, /*int32
         }
     	printf("VISA_SendCommand after loop\n");
         v2 = 17;
-        v3 = 0x10000 * a3;
+        v3 = 0x10000 * numBytes;
         v4 = 0;
         while (true) {
             v5 = 1;
@@ -367,7 +373,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t a3, /*int32
         }
     }
     v2 = 17;
-    v3 = 0x10000 * a3;
+    v3 = 0x10000 * numBytes;
     v4 = 0;
     while (true) {
         v5 = 1;
@@ -467,7 +473,10 @@ int32_t function_100016c8(SET9052 *deviceId) {
     return result2;
 }
 
-
+/**
+ * Calls dd_viWrite(), dd_viFlush() and checks for errors
+ * (protocol erros, using dd_viWrite() again)
+ */
 int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
 	printf("_doSendWord %x=%s\n", command, getCmdNameP2((command&0xffff)));
     int32_t v1 = g3; // bp-4
@@ -614,9 +623,15 @@ int32_t function_100011fc(SET9052 *deviceId, int32_t* a2) {
 }
 
 int32_t function_10001249(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) {
+#ifdef ORIG
+	// What is this call doing ???
 	printf("\tfunction_10001249, command %x=%s, what is this call intending?\n", command, getCmdNameP2(command));
 	int32_t v1 = deviceId->session_handle;
     int32_t v2 = dd_viWrite(v1, 1, 4, g2 & -0x10000 | command) != 0;
+#else
+	printf("\tfunction_10001249 command %x=%s LEFT OUT!\n", command, getCmdNameP2(command));
+    int32_t v2 = VI_SUCCESS;
+#endif
     g5 = deviceId;
     return SetErrorStatus(deviceId, v2) & -0x10000 | v2;
 }
@@ -763,6 +778,9 @@ int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
     return result2;
 }
 
+/**
+ * Wraps _doSendWord() and adds SetErrorStatus()
+ */
 int32_t sendWord(SET9052 *deviceId, int16_t command) {
 	printf("sendWord(function_10001a0a): %x\n", command);
     int32_t result;
@@ -847,11 +865,15 @@ int32_t VISA_ResetEngine(int32_t deviceId) {
 
 
 int32_t _imported_function_ord_129(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6) {
+	printf("\t_imported_function_ord_129(%d, %d, %d, %d, %d, %d)\n", a1, a2, a3, a4, a5, a6);
 	return 0;
 }
+
 int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	return 0;
+	printf("\t_imported_function_ord_130(%d, %d)\n", a1, a2);
 }
+
 int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int32_t *session_id) {
 	printf("\tviOpen(%s)\n", session_string);
 #if defined(__hp9000s700)
@@ -870,25 +892,30 @@ int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int3
 	return VI_SUCCESS;
 #endif
 }
-int32_t _imported_function_ord_132(int32_t a1) {
+int32_t dd_viClose(int32_t session_handle) {
+	printf("viClose(%d)\n", session_handle);
 	return 0;
 }
+
 int32_t _imported_function_ord_133(int32_t a1, int32_t a2, int32_t a3) {
+	printf("\t_imported_function_ord_133(%d, %d, %d)\n", a1, a2, a3);
 	return 0;
 }
+
 int32_t dd_viSetAttribute(int32_t a1, int32_t a2, int32_t a3) {
-	printf("viSetAttribute()\n");
+	printf("viSetAttribute(%d, %d, %d)\n", a1, a2, a3);
 	return VI_SUCCESS;
 }
 int32_t dd_viOpenDefaultRM(int32_t a1) {
 	printf("viOpenDefaultRM()\n");
 	return VI_SUCCESS;
 }
+
 int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* response) {
 	// a2: is always 1 (true?)
     // a3: 14 = 0xe = 1110 includes VI_READ_BUF_DISCARD
     // a3: 10 = 0xa = 1010 (also used as arg3)
-	printf("\tviFlush(%x,%d,%d)\n", session_handle, a2, mask);
+	// printf("\tviFlush(%x,%d,%d)\n", session_handle, a2, mask);
 	int siclMask=0x0;
 	if (mask & VI_READ_BUF) {
 		siclMask |= I_BUF_READ;
@@ -902,13 +929,14 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
 	if (mask & VI_WRITE_BUF_DISCARD) {
 		siclMask |= I_BUF_DISCARD_WRITE;
 	}
+	int ret;
 #if defined(__hp9000s700)
-	int ret = iflush(session_handle, siclMask);
+	ret = iflush(session_handle, siclMask);
 	printf("iflush returned %d\n", ret);
 #else
-	int ret = VI_SUCCESS;
 #endif
-	return ret;;
+	ret = VI_SUCCESS;
+	return ret;
 }
 
 int32_t dd_viWrite(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
@@ -921,14 +949,14 @@ int32_t dd_viWrite(int32_t session_handle, int32_t a2, int32_t a3, int32_t comma
 
 	// ret==0 => OK
 	ret = ivxiws(session_handle, cmd, &response, &rpe);
-	printf("\tivxiws() -> ret=%x, response=%x, rpe=%x\n", ret, response, rpe);
+	printf("\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x\n", ret, response, rpe);
 	ret = response;
 #endif
 	return ret;
 }
 
-int32_t _imported_function_ord_267(int32_t session_handle, int32_t a2, int32_t a3) {
-	printf("\t_imported_function_ord_267(%d,%d,%d)\n", session_handle, a2, a3);
+int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
+	printf("viSetBuf(%d,%d,%d)\n", session_handle, mask, size);
 	return VI_SUCCESS;
 }
 

@@ -16,7 +16,7 @@
 
 void sysInfo() {
 	int i = sizeof(short);
-	    printf("short: \td\n", i);
+	    printf("short: \t%d\n", i);
 	    i = sizeof(int);
 	    printf("int\t%d\n", i);
 	    i = sizeof(void *);

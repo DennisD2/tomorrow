@@ -20,6 +20,8 @@ static int32_t function_100119ba(char a1);
 static int32_t function_1000e8d2(char a1, int32_t a2);
 static int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
 
+
+
 static int32_t g3 = 0; // eax
 static int32_t g4 = 0; // ebp
 static int32_t g5 = 0; // ebx
@@ -3369,7 +3371,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
 	printf("BreakSweep, mode=%d\n", breakMode);
     int32_t v1 = g4; // bp-4
     g4 = &v1;
-    int32_t v2 = g3 & -0x10000 | (int32_t)breakMode; // 0x10004a0e
+    int16_t v2 = breakMode; // g3 & -0x10000 | (int32_t)breakMode; // 0x10004a0e
     g3 = v2;
     int32_t result; // 0x10004b83
     if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) >= 0x1ffff) {
@@ -3380,7 +3382,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
     }
     g8 = 1;
     // Engine Command 7 is related to Sweep or Break Sweep
-    int32_t v3 = SendCommand(a1, 7, 1, /*(int32_t)*/&v2); // 0x10004a49
+    int32_t v3 = SendCommand(a1, 7, 1, &v2); // 0x10004a49
     g3 = v3;
 // DD XXX
     v3=1;
@@ -3473,7 +3475,7 @@ int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
     return result;
 }
 
-int32_t SendCommand(SET9052 *a1, int32_t command, int32_t a3, /*int32_t*/uint16_t *a4) {
+int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, /*int32_t*/uint16_t *wordPtr) {
 	printf("sa.c:SendCommand %x\n", command);
 	SET9052 *v1 = a1; // 0x10003b52
     g3 = v1;
@@ -3499,7 +3501,7 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t a3, /*int32_t*/uint16_
             }
         }
 #else
-        VISA_SendCommand(a1, command, a3, a4);
+        VISA_SendCommand(a1, command, numBytes, wordPtr);
 #endif
         result = (int32_t)v1 & -0x10000 | 0xffeb;
     } else {
@@ -3683,17 +3685,42 @@ int32_t CommTrigDetect(SET9052 *a1) {
     int32_t v5 = a1->trig_freq; // *(int32_t *)(a1 + 120); // 0x10001613
     g8 = v5;
     function_10002df9(a1, (float64_t)(int64_t)v5);
-    int32_t v6 = g8 & -0x10000 | a1->detect_code ; // (int32_t)*(int16_t *)(a1 + 128); // bp-24
+    /*int32_t*/ int16_t *v6 = /*g8 & -0x10000 | <-- what the heck does this mean?*/ a1->detect_code ; // (int32_t)*(int16_t *)(a1 + 128); // bp-24
     int32_t v7;
     int32_t v8; // 0x100016e9
     int32_t v9; // 0x100016dd
     int16_t v10; // 0x100016dd
+
+   	// DD: Engine Command 4 is related to "set trigger ...".
+	// v2 = 8 !
+	// v6 is sth. like a1->detect_code, see above
+	printf("detect_code: %d\n", a1->detect_code);
+    printf("sweep_code: %d\n", a1->sweep_code);
+    printf("num_cells: %d\n\n", a1->num_cells);
+
+    int16 *p6 =&(a1->detect_code) ;
+	printf("detect_code1: %d\n", *p6);
+    printf("sweep_code1: %d\n", *(p6+1));
+    printf("num_cells1: %d\n\n", *(p6+2));
+
+    int16 *p7 = &(a1->detect_code) ;
+    uint32_t ii =0;
+	printf("detect_code1: %d\n", p7[ii]);
+    printf("sweep_code1: %d\n", p7[ii+1]);
+    printf("num_cells1: %d\n\n", p7[ii+2]);
+
+    uint8_t *ppp = &(a1->detect_code);
+	printf("detect_codeV: %d\n", *(ppp));
+    printf("sweep_codeV: %d\n", *(ppp+2));
+    int32 *pppp = ppp+4;
+    printf("num_cellsV: %d\n\n", *(pppp));
+
     if ((RdSweepCode(a1) & 1) == 0) {
     	// DD: Engine Command 4 is related to "set trigger ...".
     	// v2 = 8 !
     	// v6 is sth. like a1->detect_code, see above
     	// but why are sent v2=8 words?
-        v9 = SendCommand(a1, 4, (int32_t)v2, &v6);
+        v9 = SendCommand(a1, 4, (int32_t)v2, ppp);
         v10 = v9;
         v7 = 0x10000 * v9;
         v8 = v7 / 0x10000;
@@ -3711,25 +3738,8 @@ int32_t CommTrigDetect(SET9052 *a1) {
     }
     if (a1->trig_norm_flag /* *(int16_t *)(a1 + 110)*/  != IE_FALSE /*0*/) {
     }
-   	// DD: Engine Command 4 is related to "set trigger ...".
-	// v2 = 8 !
-	// v6 is sth. like a1->detect_code, see above
-	printf("detect_code: %d\n", a1->detect_code);
-    printf("sweep_code: %d\n", a1->sweep_code);
-    printf("num_cells: %d\n", a1->num_cells);
 
-    int16 *p6 =&(a1->detect_code) ;
-	printf("detect_code1: %d\n", *p6);
-    printf("sweep_code1: %d\n", *(p6+1));
-    printf("num_cells1: %d\n", *(p6+2));
-
-    int16 *p7 =&(a1->detect_code) ;
-    uint32_t ii =0;
-	printf("detect_code1: %d\n", p7[ii]);
-    printf("sweep_code1: %d\n", p7[ii+1]);
-    printf("num_cells1: %d\n", p7[ii+2]);
-
-    v9 = SendCommand(a1, 4, (int32_t)v2, &v6);
+    v9 = SendCommand(a1, 4, (int32_t)v2, ppp);
     v10 = v9;
     v7 = 0x10000 * v9;
     v8 = v7 / 0x10000;
@@ -3980,5 +3990,1445 @@ int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
     }
     return result;
 }
+
+/*------------------------------------------------------------------------------------*/
+/* InitGuiSweep related code */
+/*------------------------------------------------------------------------------------*/
+
+#ifdef InitGuiSweep_is_on
+
+int32_t SetRefLevel(SET9052 *a1, int16_t a2);
+int32_t SetAutoCell(SET9052 *a1, int16_t a2);
+int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t a3);
+int32_t SwpTimeMode(SET9052 *a1, int16_t a2, int32_t a3);
+int32_t SetRBWmode(SET9052 *a1, int16_t a2);
+int32_t SetRBW(SET9052 *a1, int16_t a2);
+
+float80_t g159 = 0.0L; // st0
+int32_t g13 = 0x1000505d;
+
+int32_t InitGuiSweep(SET9052 *a1, int16_t a2, int32_t a3, int32_t a4,
+		int32_t a5, int32_t a6, int32_t a7, int32_t a8, uint32_t a9) {
+    int16_t v1 = a8;
+    int16_t v2 = a3;
+    if (a1 != 0) {
+        // 0x10009d9a
+        if ((0x10000 * FreqInRange(a1, (float64_t)(int64_t)a4) || 0xffff) >= 0x1ffff) {
+            // 0x10009dbe
+            if ((0x10000 * FreqInRange(a1, (float64_t)(int64_t)a6) || 0xffff) >= 0x1ffff) {
+                // 0x10009de2
+                if (a9 >= 1) {
+                    // 0x10009de8
+                    if (a9 <= 0xffff) {
+                        // 0x10009dfa
+                        if ((int16_t)SetAutoCell(a1, 0) == 0) {
+                            // 0x10009e1d
+                            if ((int16_t)SetCellMode(a1, 1) == 0) {
+                                // 0x10009e40
+                                if ((int16_t)StepSizeMode(a1, 1, 0) == 0) {
+                                    // 0x10009e63
+                                    if ((int16_t)SwpTimeMode(a1, 1, 0) == 0) {
+                                        // 0x10009e86
+                                        int32_t result; // 0x1000a0cf
+                                        int32_t v3; // 0x10009f69
+                                        int32_t v4; // 0x1000a0bb
+                                        int32_t v5; // 0x1000a0af
+                                        if (a2 != 5) {
+                                            int32_t v6 = SetRBWmode(a1, 0); // 0x10009eba
+                                            if ((int16_t)v6 != 0) {
+                                                // 0x10009ece
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v6 / 0x10000 | 0xffff;
+                                            }
+                                            int32_t v7 = SetRBW(a1, a2); // 0x10009ee0
+                                            int32_t v8 = 0x10000 * v7;
+                                            int32_t v9 = v8 / 0x10000; // 0x10009eec
+                                            if ((int16_t)v7 != 0) {
+                                                // 0x10009ef4
+                                                if (v8 != -0x30000) {
+                                                    // 0x10009f06
+                                                    result = v9 | 0xffff;
+                                                    // branch -> 0x1000a0cc
+                                                } else {
+                                                    // 0x10009efd
+                                                    result = v9;
+                                                    // branch -> 0x1000a0cc
+                                                }
+                                                // 0x1000a0cc
+                                                return result;
+                                            }
+                                            // 0x10009f0f
+                                            int32_t v10; // 0x1000a003
+                                            int32_t v11; // 0x1000a026
+                                            int32_t v12; // 0x10009fb8
+                                            int32_t v13; // 0x10009fde
+                                            int32_t v14; // 0x1000a06d
+                                            int32_t v15; // 0x1000a08d
+                                            int32_t v16; // 0x1000a04f
+                                            if (0x10000 * a3 == 0x80000) {
+                                                int32_t v17 = SetVBWmode(a1, 1); // 0x10009f1e
+                                                if ((int16_t)v17 != 0) {
+                                                    // 0x10009f32
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v17 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x10009f98
+                                                ConfigStartFreq(a1, a4, 0x10000 * a5 / 0x10000);
+                                                v12 = ConfigStopFreq(a1, a6, 0x10000 * a7 / 0x10000);
+                                                if ((int16_t)v12 != 0) {
+                                                    // 0x10009fcc
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v12 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x10009fd5
+                                                v13 = SetRefLevel(a1, v1);
+                                                if ((int16_t)v13 < 0) {
+                                                    // 0x10009ff2
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v13 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x10009ffb
+                                                v10 = SetNumCells(a1, 0x10000 * a9 / 0x10000);
+                                                if ((int16_t)v10 != 0) {
+                                                    // 0x1000a017
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v10 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x1000a020
+                                                v11 = SetSwpIdx(a1, 0);
+                                                if ((int16_t)v11 != 0) {
+                                                    // 0x1000a03a
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v11 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x1000a043
+                                                v16 = SetDefltPts(a1, 501, 0);
+                                                if ((int16_t)v16 != 0) {
+                                                    // 0x1000a063
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v16 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x1000a069
+                                                v14 = SetDetectLog(a1, 0);
+                                                if ((int16_t)v14 != 0) {
+                                                    // 0x1000a081
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v14 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x1000a087
+                                                v15 = SetSweepCode(a1, 5);
+                                                if ((int16_t)v15 != 0) {
+                                                    // 0x1000a0a1
+                                                    // branch -> 0x1000a0cc
+                                                    // 0x1000a0cc
+                                                    return 0x10000 * v15 / 0x10000 | 0xffff;
+                                                }
+                                                // 0x1000a0a7
+                                                v5 = SetTrigMode(a1, 0, 1, 0);
+                                                v4 = 0x10000 * v5 / 0x10000;
+                                                if ((int16_t)v5 == 0) {
+                                                    // 0x1000a0c9
+                                                    result = v4 & -0x10000;
+                                                    // branch -> 0x1000a0cc
+                                                } else {
+                                                    // 0x1000a0c3
+                                                    result = v4 | 0xffff;
+                                                    // branch -> 0x1000a0cc
+                                                }
+                                                // 0x1000a0cc
+                                                return result;
+                                            }
+                                            int32_t v18 = SetVBWmode(a1, 0); // 0x10009f43
+                                            if ((int16_t)v18 != 0) {
+                                                // 0x10009f57
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v18 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x10009f60
+                                            g6 = a1;
+                                            v3 = SetVBW(a1, v2);
+                                            int32_t v19 = 0x10000 * v3;
+                                            int32_t v20 = v19 / 0x10000; // 0x10009f75
+                                            if ((int16_t)v3 != 0) {
+                                                // 0x10009f7d
+                                                if (v19 != -0x30000) {
+                                                    // 0x10009f8f
+                                                    result = v20 | 0xffff;
+                                                    // branch -> 0x1000a0cc
+                                                } else {
+                                                    // 0x10009f86
+                                                    result = v20;
+                                                    // branch -> 0x1000a0cc
+                                                }
+                                                // 0x1000a0cc
+                                                return result;
+                                            }
+                                            // 0x10009f98
+                                            ConfigStartFreq(a1, a4, 0x10000 * a5 / 0x10000);
+                                            v12 = ConfigStopFreq(a1, a6, 0x10000 * a7 / 0x10000);
+                                            if ((int16_t)v12 != 0) {
+                                                // 0x10009fcc
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v12 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x10009fd5
+                                            v13 = SetRefLevel(a1, v1);
+                                            if ((int16_t)v13 < 0) {
+                                                // 0x10009ff2
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v13 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x10009ffb
+                                            v10 = SetNumCells(a1, 0x10000 * a9 / 0x10000);
+                                            if ((int16_t)v10 != 0) {
+                                                // 0x1000a017
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v10 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x1000a020
+                                            v11 = SetSwpIdx(a1, 0);
+                                            if ((int16_t)v11 != 0) {
+                                                // 0x1000a03a
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v11 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x1000a043
+                                            v16 = SetDefltPts(a1, 501, 0);
+                                            if ((int16_t)v16 != 0) {
+                                                // 0x1000a063
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v16 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x1000a069
+                                            v14 = SetDetectLog(a1, 0);
+                                            if ((int16_t)v14 != 0) {
+                                                // 0x1000a081
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v14 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x1000a087
+                                            v15 = SetSweepCode(a1, 5);
+                                            if ((int16_t)v15 != 0) {
+                                                // 0x1000a0a1
+                                                // branch -> 0x1000a0cc
+                                                // 0x1000a0cc
+                                                return 0x10000 * v15 / 0x10000 | 0xffff;
+                                            }
+                                            // 0x1000a0a7
+                                            v5 = SetTrigMode(a1, 0, 1, 0);
+                                            v4 = 0x10000 * v5 / 0x10000;
+                                            if ((int16_t)v5 == 0) {
+                                                // 0x1000a0c9
+                                                result = v4 & -0x10000;
+                                                // branch -> 0x1000a0cc
+                                            } else {
+                                                // 0x1000a0c3
+                                                result = v4 | 0xffff;
+                                                // branch -> 0x1000a0cc
+                                            }
+                                            // 0x1000a0cc
+                                            return result;
+                                        }
+                                        int32_t v21 = SetRBWmode(a1, 1); // 0x10009e95
+                                        if ((int16_t)v21 != 0) {
+                                            // 0x10009ea9
+                                            // branch -> 0x1000a0cc
+                                            // 0x1000a0cc
+                                            return 0x10000 * v21 / 0x10000 | 0xffff;
+                                        }
+                                        // 0x10009f0f
+                                        if (0x10000 * a3 != 0x80000) {
+                                            // 0x10009f3d
+                                            if ((int16_t)SetVBWmode(a1, 0) == 0) {
+                                                // 0x10009f60
+                                                g6 = a1;
+                                                v3 = SetVBW(a1, v2);
+                                                if ((int16_t)v3 == 0) {
+                                                    // 0x10009f98
+                                                    ConfigStartFreq(a1, a4, 0x10000 * a5 / 0x10000);
+                                                    if ((int16_t)ConfigStopFreq(a1, a6, 0x10000 * a7 / 0x10000) == 0) {
+                                                        // 0x10009fd5
+                                                        if ((int16_t)SetRefLevel(a1, v1) >= 0) {
+                                                            // 0x10009ffb
+                                                            if ((int16_t)SetNumCells(a1, 0x10000 * a9 / 0x10000) == 0) {
+                                                                // 0x1000a020
+                                                                if ((int16_t)SetSwpIdx(a1, 0) == 0) {
+                                                                    // 0x1000a043
+                                                                    if ((int16_t)SetDefltPts(a1, 501, 0) == 0) {
+                                                                        // 0x1000a069
+                                                                        if ((int16_t)SetDetectLog(a1, 0) == 0) {
+                                                                            // 0x1000a087
+                                                                            if ((int16_t)SetSweepCode(a1, 5) == 0) {
+                                                                                // 0x1000a0a7
+                                                                                v5 = SetTrigMode(a1, 0, 1, 0);
+                                                                                v4 = 0x10000 * v5 / 0x10000;
+                                                                                if ((int16_t)v5 == 0) {
+                                                                                    // 0x1000a0c9
+                                                                                    result = v4 & -0x10000;
+                                                                                    // branch -> 0x1000a0cc
+                                                                                } else {
+                                                                                    // 0x1000a0c3
+                                                                                    result = v4 | 0xffff;
+                                                                                    // branch -> 0x1000a0cc
+                                                                                }
+                                                                                // 0x1000a0cc
+                                                                                return result;
+                                                                            }
+                                                                            // 0x1000a0a1
+                                                                            // branch -> 0x1000a0cc
+                                                                            // Detected a possible infinite recursion (goto support failed); quitting...
+                                                                        }
+                                                                        // Detected a possible infinite recursion (goto support failed); quitting...
+                                                                    }
+                                                                    // Detected a possible infinite recursion (goto support failed); quitting...
+                                                                }
+                                                                // Detected a possible infinite recursion (goto support failed); quitting...
+                                                            }
+                                                            // Detected a possible infinite recursion (goto support failed); quitting...
+                                                        }
+                                                        // Detected a possible infinite recursion (goto support failed); quitting...
+                                                    }
+                                                    // Detected a possible infinite recursion (goto support failed); quitting...
+                                                } else {
+                                                    // 0x10009f7d
+                                                    if (0x10000 * v3 != -0x30000) {
+                                                        // 0x10009f8f
+                                                        // branch -> 0x1000a0cc
+                                                    }
+                                                    // Detected a possible infinite recursion (goto support failed); quitting...
+                                                }
+                                                // Detected a possible infinite recursion (goto support failed); quitting...
+                                            }
+                                            // Detected a possible infinite recursion (goto support failed); quitting...
+                                        } else {
+                                            // 0x10009f18
+                                            if ((int16_t)SetVBWmode(a1, 1) != 0) {
+                                                // 0x10009f32
+                                                // branch -> 0x1000a0cc
+                                                // Detected a possible infinite recursion (goto support failed); quitting...
+                                            }
+                                        }
+                                        // 0x10009f98
+                                        ConfigStartFreq(a1, a4, 0x10000 * a5 / 0x10000);
+                                        if ((int16_t)ConfigStopFreq(a1, a6, 0x10000 * a7 / 0x10000) == 0) {
+                                            // 0x10009fd5
+                                            if ((int16_t)SetRefLevel(a1, v1) >= 0) {
+                                                // 0x10009ffb
+                                                if ((int16_t)SetNumCells(a1, 0x10000 * a9 / 0x10000) == 0) {
+                                                    // 0x1000a020
+                                                    if ((int16_t)SetSwpIdx(a1, 0) == 0) {
+                                                        // 0x1000a043
+                                                        if ((int16_t)SetDefltPts(a1, 501, 0) == 0) {
+                                                            // 0x1000a069
+                                                            if ((int16_t)SetDetectLog(a1, 0) == 0) {
+                                                                // 0x1000a087
+                                                                if ((int16_t)SetSweepCode(a1, 5) == 0) {
+                                                                    // 0x1000a0a7
+                                                                    if ((int16_t)SetTrigMode(a1, 0, 1, 0) == 0) {
+                                                                        // 0x1000a0c9
+                                                                        // branch -> 0x1000a0cc
+                                                                    }
+                                                                    // Detected a possible infinite recursion (goto support failed); quitting...
+                                                                }
+                                                                // Detected a possible infinite recursion (goto support failed); quitting...
+                                                            }
+                                                            // Detected a possible infinite recursion (goto support failed); quitting...
+                                                        }
+                                                        // Detected a possible infinite recursion (goto support failed); quitting...
+                                                    }
+                                                    // Detected a possible infinite recursion (goto support failed); quitting...
+                                                }
+                                                // Detected a possible infinite recursion (goto support failed); quitting...
+                                            }
+                                            // Detected a possible infinite recursion (goto support failed); quitting...
+                                        }
+                                        // Detected a possible infinite recursion (goto support failed); quitting...
+                                    }
+                                    // Detected a possible infinite recursion (goto support failed); quitting...
+                                }
+                                // Detected a possible infinite recursion (goto support failed); quitting...
+                            }
+                            // Detected a possible infinite recursion (goto support failed); quitting...
+                        }
+                        // Detected a possible infinite recursion (goto support failed); quitting...
+                    }
+                }
+                // 0x10009df1
+                // branch -> 0x1000a0cc
+            }
+            // Detected a possible infinite recursion (goto support failed); quitting...
+        }
+        // Detected a possible infinite recursion (goto support failed); quitting...
+    }
+    // Detected a possible infinite recursion (goto support failed); quitting...
+}
+
+int32_t FreqInRange(SET9052 * a1, float64_t a2) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10008a07
+    g3 = v2;
+    int32_t result;
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        // 0x10008a1c
+        g8 = a1;
+        SetFuncStatusCode(a1, 0);
+        RdMinFreqLimit(a1);
+        g11++;
+        int32_t v3 = RdMaxFreqLimit(a1); // 0x10008a3d
+        int32_t v4 = g11 + 1; // 0x10008a45
+        g11 = v4;
+        if ((v3 & 256) == 0) {
+            // 0x10008a55
+            g11 = v4;
+            if ((v3 & 0x4100) != 0) {
+                g4 = v1;
+                return 1 | v3 & -0x10000;
+            }
+        }
+        result = v3 & -0x10000;
+    } else {
+        result = v2 | 0xffff;
+    }
+    g4 = v1;
+    return result;
+}
+
+int32_t RdMaxFreqLimit(SET9052 *a1) {
+    g3 = a1;
+    int32_t result = TestFuncStatusAndPtr(a1); // 0x10008770
+    g3 = result;
+    if ((0x10000 * result || 0xffff) >= 0x1ffff) {
+        g159 = -1.0L;
+        g11--;
+        return result;
+    }
+    g8 = a1;
+    SetFuncStatusCode(a1, 0);
+    int32_t result4 = RdEngineModel(a1); // 0x10008799
+    g3 = result4;
+    int32_t v1 = 0x10000 * result4; // 0x100087a1
+    int32_t v2 = v1 / 0x10000; // 0x100087a1
+    int32_t result3; // 0x100087f6
+    if (v1 != 0x3000000 && v1 < 0x3000000 == (767 - v2 & v2) < 0) {
+        int32_t result2; // 0x10008807
+        if (v1 == 0x4000000) {
+            g159 = 3.4e+9L;
+            g11--;
+            result2 = result4;
+        } else {
+            g8 = a1;
+            result3 = SetFuncStatusCode(a1, -13);
+            g159 = -1.0L;
+            g11--;
+            result2 = result3;
+        }
+        return result2;
+    }
+    if (v1 == 0x3000000) {
+        g159 = 8.5e+9L;
+        g11--;
+    } else {
+        if (v1 != 0x1000000) {
+            if (v1 != 0x2000000) {
+                g8 = a1;
+                result3 = SetFuncStatusCode(a1, -13);
+                g159 = -1.0L;
+                g11--;
+                return result3;
+            }
+        }
+        g159 = 1.6e+9L;
+        g11--;
+    }
+    return result4;
+}
+
+int32_t RdMinFreqLimit(SET9052 *a1) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10008812
+    g3 = v2;
+    int32_t result2; // 0x100088a8
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        int32_t v3 = RdEngineModel(a1); // 0x1000883c
+        g3 = v3;
+        int32_t v4 = 0x10000 * v3; // 0x10008844
+        int32_t v5 = v4 / 0x10000; // 0x10008844
+        g8 = v5;
+        int32_t result; // 0x10008897
+        if (v4 != 0x3000000 && v4 < 0x3000000 == (767 - v5 & v5) < 0) {
+            if (v4 != 0x4000000) {
+                result = SetFuncStatusCode(a1, -13);
+                g159 = -1.0L;
+                g11--;
+                g4 = v1;
+                return result;
+            }
+        } else {
+            if (v4 != 0x3000000) {
+                if (v4 != 0x1000000) {
+                    if (v4 != 0x2000000) {
+                        result = SetFuncStatusCode(a1, -13);
+                        g159 = -1.0L;
+                        g11--;
+                        g4 = v1;
+                        return result;
+                    }
+                }
+            }
+        }
+        g3 = a1;
+        g159 = 1.0e+5L;
+        g11--;
+        result2 = SetFuncStatusCode(a1, 0);
+    } else {
+        g8 = a1;
+        int32_t v6 = 0x10000 * GetFuncStatusCode(a1) / 0x10000; // 0x1000882d
+        g159 = v6;
+        g11--;
+        result2 = v6;
+    }
+    g4 = v1;
+    return result2;
+}
+
+int32_t RdEngineModel(SET9052 *a1) {
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008666
+    g3 = v1;
+    int32_t v2 = 0x10000 * v1; // 0x1000866e
+    g6 = v2 / 0x10000;
+    int32_t result;
+    if ((v2 || 0xffff) < 0x1ffff) {
+        g8 = a1;
+        SetFuncStatusCode(a1, 0);
+        //result = (int32_t)*(int16_t *)(a1 + 2) | a1 & -0x10000;
+        a1->engine_model; // | (int32_t) a1 & -0x10000;
+    } else {
+        result = v1 & -0x10000;
+    }
+    return result;
+}
+
+int32_t SetDetectLog(SET9052 *a1, int32_t a2) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005bd1
+    g3 = v1;
+    int32_t result; // 0x10005c51
+    if ((0x10000 * v1 || 0xffff) >= 0x1ffff) {
+        // 0x10005be0
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10005c4e
+        // 0x10005c4e
+        return result;
+    }
+    int16_t * v2 = (int16_t *)(a1 + 128); // 0x10005bf1
+    int32_t v3 = (int32_t)*v2 | 6; // 0x10005bfb
+    *v2 = (int16_t)v3;
+    *v2 = (int16_t)(v3 & -42);
+    int32_t v4 = SetRefLevel(a1, *(int16_t *)(a1 + 98)); // 0x10005c31
+    int32_t v5 = 0x10000 * v4 / 0x10000; // 0x10005c3d
+    if ((int16_t)v4 >= 0) {
+        // 0x10005c4b
+        result = v5 & -0x10000;
+        // branch -> 0x10005c4e
+    } else {
+        // 0x10005c45
+        result = v5 & -0x10000 | 0xfff1;
+        // branch -> 0x10005c4e
+    }
+    // 0x10005c4e
+    return result;
+}
+
+int32_t SetRefLevel(SET9052 *a1, int16_t a2) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    int32_t v2 = g9; // 0x100063ec
+    g3 = a1;
+    int32_t v3 = TestFuncStatusAndPtr(a1); // 0x100063f7
+    g3 = v3;
+    int32_t result; // 0x1000664a
+    if ((0x10000 * v3 || 0xffff) < 0x1ffff) {
+        // 0x10006417
+        *(int16_t *)(a1 + 98) = a2;
+        int32_t v4 = 0x10000 * RdDetect(a1); // 0x1000642e
+        int32_t v5 = a2; // 0x10006560
+        int32_t v6 = 0x10000 * RdMaxAttLimit(a1) / 0x10000 - 40; // 0x10006573
+        g8 = v6;
+        int32_t v7; // eax
+        int16_t v8;
+        int32_t v9;
+        if (v4 != 0x200000) {
+            // 0x10006560
+            int16_t v10;
+            int32_t v11;
+            if ((int16_t)v5 > (int16_t)v6) {
+                // 0x1000657a
+                v10 = 0x10000 * RdMaxAttLimit(a1) / 0x10000 + 0xffd8;
+                v11 = 1;
+                // branch -> 0x100065d4
+            } else {
+                // 0x10006598
+                g8 = v5;
+                if (a2 < -40) {
+                    // 0x100065b5
+                    g8 = 0;
+                    v10 = -40;
+                    v11 = 1;
+                    // branch -> 0x100065d4
+                } else {
+                    v10 = a2;
+                    v11 = 0;
+                }
+            }
+            int32_t v12 = (int32_t)v10 + 40; // 0x100065d8
+            int16_t * v13; // 0x10006606
+            if (v10 < -40) {
+                // 0x100065dd
+                if (*(int16_t *)(a1 + 100) != 0) {
+                    // 0x100065f8
+                    *(int16_t *)(a1 + 102) = 1;
+                    v13 = (int16_t *)(a1 + 128);
+                    *v13 = *v13 | 64;
+                    *(int16_t *)(a1 + 96) = (int16_t)v12;
+                    v8 = v10;
+                    // branch -> 0x10006637
+                    // 0x10006637
+                    *(int16_t *)(a1 + 106) = v8;
+                    // branch -> 0x10006646
+                    // 0x10006646
+                    g9 = v2;
+                    g4 = v1;
+                    return (v12 & -0x10000 | (int32_t)v8) & -0x10000 | v11 & 0xffff;
+                }
+            }
+            // 0x100065f1
+            // branch -> 0x100065f8
+            // 0x100065f8
+            *(int16_t *)(a1 + 102) = 0;
+            v13 = (int16_t *)(a1 + 128);
+            *v13 = *v13 | 64;
+            v7 = v12;
+            *(int16_t *)(a1 + 96) = (int16_t)v12;
+            v8 = v10;
+            v9 = v11;
+            // branch -> 0x10006637
+        } else {
+            // 0x1000643a
+            int16_t v14;
+            int32_t v15;
+            if ((int16_t)v5 > (int16_t)v6) {
+                // 0x10006454
+                v14 = 0x10000 * RdMaxAttLimit(a1) / 0x10000 + 0xffd8;
+                v15 = 1;
+                // branch -> 0x100064ae
+            } else {
+                // 0x10006472
+                g8 = v5;
+                if (a2 < -70) {
+                    // 0x1000648f
+                    g8 = 0;
+                    v14 = -70;
+                    v15 = 1;
+                    // branch -> 0x100064ae
+                } else {
+                    v14 = a2;
+                    v15 = 0;
+                }
+            }
+            int32_t v16 = v14; // 0x100064ae
+            int32_t v17 = v16 + 70; // 0x100064b2
+            int32_t v18;
+            int32_t v19; // 0x100064e5
+            char v20; // 0x10006501
+            int16_t * v21; // 0x100064fa
+            int16_t v22; // 0x100064fa
+            int32_t v23; // 0x100064fa
+            if (v14 < -70) {
+                // 0x100064b7
+                if (*(int16_t *)(a1 + 100) != 0) {
+                    // 0x100064d2
+                    *(int16_t *)(a1 + 102) = 1;
+                    v19 = RdMaxAttLimit(a1);
+                    v21 = (int16_t *)(a1 + 128);
+                    v22 = *v21;
+                    v23 = v22;
+                    v20 = v22;
+                    if ((int16_t)v16 > (int16_t)(0x10000 * v19 / 0x10000 + 0xffba)) {
+                        // 0x100064f7
+                        v18 = (int32_t)(v20 & -65) | v23 & -256;
+                        // branch -> 0x10006525
+                    } else {
+                        // 0x1000650f
+                        v18 = (int32_t)(v20 | 64) | v23 & -256;
+                        // branch -> 0x10006525
+                    }
+                    // 0x10006525
+                    *v21 = (int16_t)v18;
+                    g8 = a1;
+                    RdLinearAttn(a1);
+                    *(int16_t *)(a1 + 96) = (int16_t)v17;
+                    v8 = v14;
+                    // branch -> 0x10006637
+                    // 0x10006637
+                    *(int16_t *)(a1 + 106) = v8;
+                    // branch -> 0x10006646
+                    // 0x10006646
+                    g9 = v2;
+                    g4 = v1;
+                    return ((int32_t)a1 & -0x10000 | (int32_t)v8) & -0x10000 | v15 & 0xffff;
+                }
+            }
+            // 0x100064cb
+            // branch -> 0x100064d2
+            // 0x100064d2
+            *(int16_t *)(a1 + 102) = 0;
+            v19 = RdMaxAttLimit(a1);
+            v21 = (int16_t *)(a1 + 128);
+            v22 = *v21;
+            v23 = v22;
+            v20 = v22;
+            if ((int16_t)v16 > (int16_t)(0x10000 * v19 / 0x10000 + 0xffba)) {
+                // 0x100064f7
+                v18 = (int32_t)(v20 & -65) | v23 & -256;
+                // branch -> 0x10006525
+            } else {
+                // 0x1000650f
+                v18 = (int32_t)(v20 | 64) | v23 & -256;
+                // branch -> 0x10006525
+            }
+            // 0x10006525
+            *v21 = (int16_t)v18;
+            g8 = a1;
+            RdLinearAttn(a1);
+            v7 = a1;
+            *(int16_t *)(a1 + 96) = (int16_t)v17;
+            v8 = v14;
+            v9 = v15;
+            // branch -> 0x10006637
+        }
+        // 0x10006637
+        *(int16_t *)(a1 + 106) = v8;
+        int32_t v24 = v7 & -0x10000 | (int32_t)v8; // 0x10006642
+        result = v24 & -0x10000 | v9 & 0xffff;
+        // branch -> 0x10006646
+    } else {
+        // 0x10006406
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10006646
+    }
+    // 0x10006646
+    g9 = v2;
+    g4 = v1;
+    return result;
+}
+
+int32_t RdMaxAttLimit(SET9052 *a1) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10006366
+    g3 = v1;
+    if ((0x10000 * v1 || 0xffff) >= 0x1ffff) {
+        // 0x10006375
+        // branch -> 0x100063e2
+        // 0x100063e2
+        return v1 | 0xffff;
+    }
+    // 0x1000637b
+    g8 = a1;
+    SetFuncStatusCode(a1, 0);
+    g3 = a1;
+    int16_t v2 = *(int16_t *)(a1 + 2); // 0x1000638c
+    int32_t v3 = v2; // 0x1000638c
+    int32_t result; // 0x100063e5
+    if (v2 != 768 && v2 < 768 == (767 - v3 & v3) < 0) {
+        // 0x100063b9
+        if (v2 == 1024) {
+            // 0x100063c4
+            result = (int32_t)a1 & -0x10000 | 60;
+            // branch -> 0x100063e2
+        } else {
+            // 0x100063d0
+            g8 = a1;
+            result = SetFuncStatusCode(a1, -13) | 0xffff;
+            // branch -> 0x100063e2
+        }
+        // 0x100063e2
+        return result;
+    }
+    // 0x1000639c
+    if (v2 == 768) {
+        // 0x100063ca
+        result = (int32_t)a1 & -0x10000 | 70;
+        // branch -> 0x100063e2
+    } else {
+        // 0x100063a5
+        if (v2 != 256) {
+            // 0x100063ae
+            if (v2 != 512) {
+                // 0x100063d0
+                g8 = a1;
+                int32_t result2 = SetFuncStatusCode(a1, -13) | 0xffff; // 0x100063de
+                // branch -> 0x100063e2
+                // 0x100063e2
+                return result2;
+            }
+        }
+        // 0x100063c4
+        result = (int32_t)a1 & -0x10000 | 60;
+        // branch -> 0x100063e2
+    }
+    // 0x100063e2
+    return result;
+}
+
+int32_t RdDetect(SET9052 *a1) {
+    int16_t v1 = 0; // bp-8
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005d72
+    g3 = v2;
+    int32_t result; // 0x10005de9
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        int16_t * v3 = (int16_t *)(a1 + 128); // 0x10005d92
+        if ((*v3 & 2) != 0) {
+            // 0x10005da0
+            v1 = 2;
+            // branch -> 0x10005da6
+        }
+        // 0x10005da6
+        if ((*v3 & 32) != 0) {
+            // 0x10005db7
+            v1 = 32;
+            // branch -> 0x10005dbd
+        }
+        int32_t v4 = (int32_t)*v3 & 8; // 0x10005dc7
+        g8 = v4;
+        if (v4 != 0) {
+            // 0x10005dce
+            v1 = 8;
+            // branch -> 0x10005dd4
+        }
+        // 0x10005dd4
+        g3 = a1;
+        result = (int32_t)v1 | SetFuncStatusCode(a1, 0) & -0x10000;
+        // branch -> 0x10005de6
+    } else {
+        // 0x10005d81
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10005de6
+    }
+    // 0x10005de6
+    return result;
+}
+
+int32_t RdLinearAttn(SET9052 *a1) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002cd3
+    g3 = v1;
+    int32_t result; // 0x10002d11
+    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+        // 0x10002cf0
+        g3 = a1;
+        SetFuncStatusCode(a1, 0);
+        result = ((int32_t)*(int16_t *)(a1 + 128) & 64) / 64 + 1;
+        // branch -> 0x10002d10
+    } else {
+        // 0x10002ce2
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10002d10
+    }
+    // 0x10002d10
+    return result;
+}
+
+int32_t SetAutoCell(SET9052 *a1, int16_t a2) {
+    int16_t v1 = 0; // bp-8
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006090
+    g3 = v2;
+    int32_t result; // 0x100060ea
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        int32_t v3 = a2; // eax
+        if (a2 != 0) {
+            // 0x100060c0
+            if (a2 != 1) {
+                // 0x100060d4
+                *(int16_t *)(a1 + 66) = 1;
+                v1 = -1;
+                // branch -> 0x100060e3
+            } else {
+                // 0x100060c9
+                v3 = a1;
+                *(int16_t *)(a1 + 66) = 1;
+                // branch -> 0x100060e3
+            }
+            // 0x100060e3
+            // branch -> 0x100060e7
+            // 0x100060e7
+            return v3 & -0x10000 | (int32_t)v1;
+        }
+        // 0x100060b5
+        *(int16_t *)(a1 + 66) = 0;
+        // branch -> 0x100060e3
+        // 0x100060e3
+        result = v3 & -0x10000 | (int32_t)v1;
+        // branch -> 0x100060e7
+    } else {
+        // 0x1000609f
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x100060e7
+    }
+    // 0x100060e7
+    return result;
+}
+
+int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t a3) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005015
+    g3 = v2;
+    int32_t result; // 0x100050c5
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+#ifdef ORIG
+        int32_t v3 = *(int32_t *)(4 * (int32_t)a2 + (int32_t)&g13); // 0x10005045
+        __pseudo_branch(v3);
+#else
+        printf("StepSizeMode() - TBI\n");
+#endif
+        *(int16_t *)(a1 + 32) = 1;
+        result = function_10001718(a1) & -0x10000 | 1;
+        // branch -> 0x100050c2
+    } else {
+        // 0x10005024
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x100050c2
+    }
+    // 0x100050c2
+    g4 = v1;
+    return result;
+}
+
+int32_t SwpTimeMode(SET9052 *a1, int16_t a2, int32_t a3) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005433
+    g3 = v2;
+    int32_t result; // 0x100054cf
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        // 0x10005450
+        if (*(int32_t *)(a1 + 36) >= 1) {
+            // 0x10005459
+            if (a2 != 1) {
+                // 0x100054c8
+                // branch -> 0x100054cc
+                // 0x100054cc
+                g4 = v1;
+                return 0xfff9 | (int32_t)a1 & -0x10000;
+            }
+        }
+        // 0x1000546a
+        int32_t v3;
+        switch ((int32_t)a2) {
+            default: {
+                // 0x100054ad
+                *(int16_t *)(a1 + 34) = 1;
+                v3 = 1;
+                // branch -> 0x100054bc
+                break;
+            }
+            case 0: {
+                // 0x1000548c
+                *(int16_t *)(a1 + 34) = 0;
+                v3 = 0;
+                // branch -> 0x100054bc
+                break;
+            }
+            case 1: {
+                // 0x10005481
+                *(int16_t *)(a1 + 34) = 1;
+                v3 = 0;
+                // branch -> 0x100054bc
+                break;
+            }
+            case 2: {
+                // 0x10005497
+                *(int16_t *)(a1 + 34) = 2;
+                v3 = 0;
+                // branch -> 0x100054bc
+                break;
+            }
+            case 3: {
+                // 0x100054a2
+                *(int16_t *)(a1 + 34) = 3;
+                v3 = 0;
+                // branch -> 0x100054bc
+                break;
+            }
+        }
+        // 0x100054bc
+        // branch -> 0x100054c8
+        // 0x100054c8
+        result = v3 & 0xffff | function_10001b13(a1) & -0x10000;
+        // branch -> 0x100054cc
+    } else {
+        // 0x10005442
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x100054cc
+    }
+    // 0x100054cc
+    g4 = v1;
+    return result;
+}
+
+int32_t SetRBWmode(SET9052 *a1, int16_t a2) {
+    int16_t v1 = 0; // bp-8
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005828
+    g3 = v2;
+    int32_t result; // 0x1000589b
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        // 0x10005845
+        int32_t v3; // 0x10005894
+        if (a2 != 0) {
+            // 0x10005858
+            if (a2 != 1) {
+                // 0x10005861
+                v1 = 1;
+                // branch -> 0x10005867
+            }
+            // 0x10005867
+            *(int16_t *)(a1 + 74) = 1;
+            function_10001d01(a1);
+            function_10001718(a1);
+            v3 = function_10001b13(a1);
+            // branch -> 0x10005894
+        } else {
+            // 0x1000584d
+            *(int16_t *)(a1 + 74) = 0;
+            v3 = a2;
+            // branch -> 0x10005894
+        }
+        // 0x10005894
+        result = (int32_t)v1 | v3 & -0x10000;
+        // branch -> 0x10005898
+    } else {
+        // 0x10005837
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10005898
+    }
+    // 0x10005898
+    return result;
+}
+
+int32_t function_10001d01(int32_t a1) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    g8 = a1;
+    int32_t v2 = 0x10000 * TestFuncStatusAndPtr(a1); // 0x10001d2d
+    int32_t result = v2 / 0x10000; // 0x10001e97
+    if ((v2 || 0xffff) < 0x1ffff) {
+        int16_t v3 = *(int16_t *)(a1 + 74); // 0x10001d3c
+        g8 = v3;
+        if (v3 != 0) {
+            float64_t v4 = *(float64_t *)(a1 + 16); // 0x10001d4f
+            float64_t v5 = *(float64_t *)(a1 + 8); // 0x10001d52
+            float64_t v6 = (float80_t)v5 - (float80_t)v4; // 0x10001d55
+            int16_t * v7 = (int16_t *)(a1 + 64); // 0x10001d5b
+            float64_t v8;
+            if (*v7 != 0) {
+                // 0x10001d83
+                if (*v7 == 1) {
+                    int32_t v9 = *(int32_t *)(a1 + 168); // 0x10001d92
+                    v8 = (float80_t)(v9 - 1) / (float80_t)v6;
+                    // branch -> 0x10001dad
+                } else {
+                    v8 = 0.0;
+                }
+            } else {
+                int32_t v10 = *(int32_t *)(a1 + 164) - 1; // 0x10001d72
+                v8 = (float80_t)v10 / (float80_t)v6;
+                // branch -> 0x10001dad
+            }
+            int32_t v11 = GetRBWwide(0); // 0x10001daf
+            int32_t v12 = (0x100000000 * (int64_t)(v11 >> 31) | (int64_t)v11) / 3; // 0x10001dbd
+            int16_t v13; // 0x10001e7f
+            if ((v12 & 256) == 0) {
+                // 0x10001dcf
+                *(int16_t *)(a1 + 72) = 0;
+                // branch -> 0x10001e6d
+                // 0x10001e6d
+                *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                *(int32_t *)(a1 + 28) = 0;
+                v13 = *(int16_t *)(a1 + 78);
+                g8 = v13;
+                if (v13 != 1) {
+                    // 0x10001e6d
+                    result = 0;
+                    // branch -> 0x10001e94
+                } else {
+                    // 0x10001e88
+                    result = function_10001e98(a1);
+                    // branch -> 0x10001e94
+                }
+                // 0x10001e94
+                g4 = v1;
+                return result;
+            }
+            int32_t v14 = GetRBWwide(1); // 0x10001ddf
+            int32_t v15 = (0x100000000 * (int64_t)(v14 >> 31) | (int64_t)v14) / 3; // 0x10001ded
+            if ((v15 & 256) == 0) {
+                // 0x10001dff
+                *(int16_t *)(a1 + 72) = 1;
+                // branch -> 0x10001e6d
+                // 0x10001e6d
+                *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                *(int32_t *)(a1 + 28) = 0;
+                v13 = *(int16_t *)(a1 + 78);
+                g8 = v13;
+                if (v13 != 1) {
+                    // 0x10001e6d
+                    result = 0;
+                    // branch -> 0x10001e94
+                } else {
+                    // 0x10001e88
+                    result = function_10001e98(a1);
+                    // branch -> 0x10001e94
+                }
+                // 0x10001e94
+                g4 = v1;
+                return result;
+            }
+            int32_t v16 = GetRBWwide(2); // 0x10001e0c
+            int32_t v17 = (0x100000000 * (int64_t)(v16 >> 31) | (int64_t)v16) / 3; // 0x10001e1a
+            if ((v17 & 256) == 0) {
+                // 0x10001e2c
+                *(int16_t *)(a1 + 72) = 2;
+                // branch -> 0x10001e6d
+                // 0x10001e6d
+                *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+                *(int32_t *)(a1 + 28) = 0;
+                v13 = *(int16_t *)(a1 + 78);
+                g8 = v13;
+                if (v13 != 1) {
+                    // 0x10001e6d
+                    result = 0;
+                    // branch -> 0x10001e94
+                } else {
+                    // 0x10001e88
+                    result = function_10001e98(a1);
+                    // branch -> 0x10001e94
+                }
+                // 0x10001e94
+                g4 = v1;
+                return result;
+            }
+            int32_t v18 = GetRBWwide(3); // 0x10001e39
+            int32_t v19 = (0x100000000 * (int64_t)(v18 >> 31) | (int64_t)v18) / 3; // 0x10001e47
+            if ((v19 & 256) != 0) {
+                // 0x10001e64
+                *(int16_t *)(a1 + 72) = 4;
+                // branch -> 0x10001e6d
+            } else {
+                // 0x10001e59
+                *(int16_t *)(a1 + 72) = 3;
+                // branch -> 0x10001e6d
+            }
+            // 0x10001e6d
+            *(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+            *(int32_t *)(a1 + 28) = 0;
+            v13 = *(int16_t *)(a1 + 78);
+            g8 = v13;
+            if (v13 != 1) {
+                // 0x10001e6d
+                result = 0;
+                // branch -> 0x10001e94
+            } else {
+                // 0x10001e88
+                result = function_10001e98(a1);
+                // branch -> 0x10001e94
+            }
+            // 0x10001e94
+            g4 = v1;
+            return result;
+        }
+        result = 0;
+    }
+    // 0x10001e94
+    g4 = v1;
+    return result;
+}
+
+int32_t function_10001e98(int32_t a1) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001eb0
+    int32_t result = v2; // 0x10001f52
+    if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+        // 0x10001ec4
+        g8 = a1;
+        int16_t v3 = *(int16_t *)(a1 + 78); // 0x10001ec7
+        if (v3 != 0) {
+            // 0x10001ed1
+            RBWFreqFromCode((int16_t)RdRBW(a1));
+            float64_t v4 = *(float64_t *)(a1 + 88); // 0x10001ee9
+            g11++;
+            int32_t v5 = VBWFreqFromCode(7); // 0x10001ef1
+            g11++;
+            int32_t v6 = v5; // 0x10001f5211
+            int16_t v7 = 7;
+            if ((v5 & 0x4100) == 0) {
+                int32_t v8 = VBWFreqFromCode(1); // 0x10001f0d
+                g11++;
+                if ((v8 & 256) != 0) {
+                    // 0x10001f27
+                    g3 = 0;
+                    int32_t v9 = VBWCodeFromFreq((float64_t)((float80_t)v4 * g159), 0); // 0x10001f2f
+                    v6 = v9;
+                    v7 = v9;
+                    // branch -> 0x10001f3b
+                } else {
+                    v6 = v8;
+                    v7 = 1;
+                }
+            }
+            // 0x10001f3b
+            g8 = v7;
+            if (v7 != -1) {
+                // 0x10001f44
+                *(int16_t *)(a1 + 76) = v7;
+                result = a1;
+                // branch -> 0x10001f4f
+            } else {
+                result = v6;
+            }
+            // 0x10001f4f
+            g4 = v1;
+            return result;
+        }
+        result = v3;
+    }
+    // 0x10001f4f
+    g4 = v1;
+    return result;
+}
+
+int32_t SetRBW(SET9052 *a1, int16_t a2) {
+    // entry
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000576c
+    g3 = v1;
+    int32_t result; // 0x100057e6
+    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+        // 0x10005789
+        int32_t v2; // 0x100057df
+        int32_t v3; // 0x100057df
+        if (*(int16_t *)(a1 + 74) != 1) {
+            int32_t v4 = a2; // 0x1000579d
+            g8 = v4;
+            int32_t v5 = a1; // 0x100057df4
+            if (a2 >= 0) {
+                // 0x100057a5
+                if (a2 == 4 || a2 < 4 != (3 - v4 & v4) < 0) {
+                    // 0x100057ae
+                    g8 = v4 & -0x10000 | (int32_t)a2;
+                    *(int16_t *)(a1 + 72) = a2;
+                    function_10001718(a1);
+                    v3 = function_10001b13(a1);
+                    // branch -> 0x100057df
+                    // 0x100057df
+                    // branch -> 0x100057e3
+                    // 0x100057e3
+                    return v3 & -0x10000;
+                }
+                v5 = v4;
+            }
+            // 0x100057d9
+            v3 = v5;
+            v2 = -3;
+            // branch -> 0x100057df
+        } else {
+            // 0x10005795
+            v3 = a1;
+            v2 = -4;
+            // branch -> 0x100057df
+        }
+        // 0x100057df
+        result = v3 & -0x10000 | v2;
+        // branch -> 0x100057e3
+    } else {
+        // 0x1000577b
+        g8 = a1;
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x100057e3
+    }
+    // 0x100057e3
+    return result;
+}
+
+int32_t SetVBWmode(SET9052 *a1, int16_t a2) {
+    int16_t v1 = 0; // bp-8
+    g3 = a1;
+    int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005993
+    g3 = v2;
+    int32_t v3 = 0x10000 * v2; // 0x1000599b
+    g6 = v3 / 0x10000;
+    int32_t result; // 0x100059ed
+    if ((v3 || 0xffff) < 0x1ffff) {
+        int32_t v4 = a2; // 0x100059b0
+        int32_t v5 = v4; // eax
+        if (a2 != 0) {
+            // 0x100059c3
+            g8 = v4;
+            if (a2 != 1) {
+                // 0x100059d7
+                g6 = a1;
+                *(int16_t *)(a1 + 78) = 1;
+                v1 = 1;
+                // branch -> 0x100059e6
+            } else {
+                // 0x100059cc
+                v5 = a1;
+                *(int16_t *)(a1 + 78) = 1;
+                // branch -> 0x100059e6
+            }
+            // 0x100059e6
+            // branch -> 0x100059ea
+            // 0x100059ea
+            return v5 & -0x10000 | (int32_t)v1;
+        }
+        // 0x100059b8
+        g6 = a1;
+        *(int16_t *)(a1 + 78) = 0;
+        // branch -> 0x100059e6
+        // 0x100059e6
+        result = v5 & -0x10000 | (int32_t)v1;
+        // branch -> 0x100059ea
+    } else {
+        // 0x100059a2
+        g8 = a1;
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x100059ea
+    }
+    // 0x100059ea
+    return result;
+}
+
+int32_t ConfigStartFreq(SET9052 *a1, int32_t a2, int32_t a3) {
+    // entry
+    g8 = a1;
+    int32_t v1 = 0x10000 * FreqInRange(a1, (float64_t)(int64_t)a2); // 0x1000b75b
+    g3 = v1 / 0x10000;
+    int32_t result; // 0x1000b7d6
+    if ((v1 || 0xffff) < 0x1ffff) {
+        // 0x1000b762
+        result = SetFuncStatusCode(a1, -3);
+        // branch -> 0x1000b7d5
+        // 0x1000b7d5
+        return result;
+    }
+    // 0x1000b772
+    *(int32_t *)(a1 + 8) = a2;
+    *(int32_t *)(a1 + 12) = a3;
+    g8 = a1;
+    g3 = a1;
+    if ((a1 & 0x4100) == 0) {
+        // 0x1000b794
+        result = SetFuncStatusCode(a1, 3);
+        // branch -> 0x1000b7d5
+        // 0x1000b7d5
+        return result;
+    }
+    // 0x1000b7a4
+    g8 = a1;
+    int32_t v2 = 0x10000 * function_10001718(a1); // 0x1000b7b0
+    g3 = v2 / 0x10000;
+    if ((v2 || 0xffff) < 0x1ffff) {
+        // 0x1000b7c7
+        g8 = a1;
+        result = SetFuncStatusCode(a1, 0);
+        // branch -> 0x1000b7d5
+    } else {
+        // 0x1000b7b7
+        result = SetFuncStatusCode(a1, -6);
+        // branch -> 0x1000b7d5
+    }
+    // 0x1000b7d5
+    return result;
+}
+int32_t ConfigStopFreq(SET9052 *a1, int32_t a2, int32_t a3) {
+    // entry
+    g8 = a1;
+    int32_t v1 = 0x10000 * FreqInRange(a1, (float64_t)(int64_t)a2); // 0x1000b89d
+    g3 = v1 / 0x10000;
+    int32_t result; // 0x1000b918
+    if ((v1 || 0xffff) < 0x1ffff) {
+        // 0x1000b8a4
+        result = SetFuncStatusCode(a1, -3);
+        // branch -> 0x1000b917
+        // 0x1000b917
+        return result;
+    }
+    // 0x1000b8b4
+    *(int32_t *)(a1 + 16) = a2;
+    *(int32_t *)(a1 + 20) = a3;
+    g8 = a1;
+    g3 = a1;
+    if ((a1 & 0x4100) == 0) {
+        // 0x1000b8d6
+        result = SetFuncStatusCode(a1, 3);
+        // branch -> 0x1000b917
+        // 0x1000b917
+        return result;
+    }
+    // 0x1000b8e6
+    g8 = a1;
+    int32_t v2 = 0x10000 * function_10001718(a1); // 0x1000b8f2
+    g3 = v2 / 0x10000;
+    if ((v2 || 0xffff) < 0x1ffff) {
+        // 0x1000b909
+        g8 = a1;
+        result = SetFuncStatusCode(a1, 0);
+        // branch -> 0x1000b917
+    } else {
+        // 0x1000b8f9
+        result = SetFuncStatusCode(a1, -6);
+        // branch -> 0x1000b917
+    }
+    // 0x1000b917
+    return result;
+}
+
+
+
+#endif
+
+/*------------------------------------------------------------------------------------*/
+/* End of file */
+/*------------------------------------------------------------------------------------*/
 
 
