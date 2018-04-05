@@ -390,7 +390,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /
  * will then be forwarded to P1.
  */
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
-	dlog( LOG_DEBUG, "VISA_SendWord: %x=%s\n", command, getCmdNameP1(command));
+	dlog( LOG_INFO, "VISA_SendWord: %x=%s\n", command, getCmdNameP1(command));
     int16_t v1 = -2; // bp-8
     g2 = deviceId;
     // DD: 0x7f00 = VXI_ENGINECOMMAND
@@ -405,11 +405,14 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
     dlog( LOG_DEBUG, "second word %d\n", v2);
 #endif
     if (v2 != 0) {
+        dlog( LOG_ERROR, "VISA_SendWord: failed (1)\n");
         return (int32_t)v1 | v2 & -0x10000;
     }
     int32_t v3 = sendWord(deviceId, command); // 0x100019f0
     if (v3 == 0) {
         v1 = 0;
+    } else {
+        dlog( LOG_ERROR, "VISA_SendWord: failed (2)\n");
     }
     return (int32_t)v1 | v3 & -0x10000;
 }
