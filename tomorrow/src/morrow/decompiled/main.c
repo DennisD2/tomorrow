@@ -176,6 +176,7 @@ readLoop(INST id) {
 	unsigned short rpe;
 	unsigned int ret;
 
+#if defined(__hp9000s700)
 	int i=0;
 	while (0) {
 		ret = ivxiws(id, VXI_GETSTATUS, &dataResponse, &rpe);
@@ -222,6 +223,7 @@ readLoop(INST id) {
 		usleep(1000);
 
 	}
+#endif
 }
 
 int main(int argc, char **argv) {

@@ -18,7 +18,7 @@
 #include <sicl.h>
 //#endif
 
-int32_t sendCommand(SET9052 *deviceId, int16_t command) ;
+int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
 
 static int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t *response) ;
@@ -72,26 +72,26 @@ char *getCmdNameP2(int id) {
 			return cmds_p2[i].name;
 		}
 	}
-	return "?";
+	return "P2?";
 }
 
 CmdInfo_t cmds_p1[] = {
-		{ 0x0, "P1_0?_MAY_BE_INIT" },
-		{ 0x1, "P1_START_SWEEP" },
-		{ 0x2, "P1_START_ZSPAN" },
-		{ 0x3, "P1_START_FREQHOP" },
-		{ 0x4, "P1_SET_TRIGGER_RELATED" },
-		{ 0x5, "P1_5?_NOT_USED" },
-		{ 0x6, "P1_COMM_INTERRUPT" },
-		{ 0x7, "P1_BREAK_SWEEP" },
-		{ 0x8, "P1_8?_NOT_USED" },
-		{ 0x9, "P1_9?_NOT_USED" },
-		{ 0xa, "P1_GET_CAL_POINT" },
-		{ 0xb, "P1_PULSE_FUNCTION_RELATED" },
-		{ 0xc, "P1_c?_NOT_USED" },
-		{ 0xc, "P1_d?_NOT_USED" },
-		{ 0xc, "P1_e?_NOT_USED" },
-		{ 0xc, "P1_f?_NOT_USED" },
+		{ 0x0, "ENG_INIT" },
+		{ 0x1, "ENG_START_SWP" },
+		{ 0x2, "ENG_START_ZSPAN" },
+		{ 0x3, "ENG_START_FHOP" },
+		{ 0x4, "ENG_SET_TRIGDET" },
+		{ 0x5, "ENG_LOAD_HOPFRQ" },
+		{ 0x6, "ENG_SET_INTMODE" },
+		{ 0x7, "ENG_TERMINATE" },
+		{ 0x8, "ENG_8?_NOT_USED" },
+		{ 0x9, "ENG_9?_NOT_USED" },
+		{ 0xa, "ENG_CALIBRATE" },
+		{ 0xb, "ENG_PULSE_FUNCTION_RELATED" },
+		{ 0xc, "ENG_c?_NOT_USED" },
+		{ 0xd, "ENG_d?_NOT_USED" },
+		{ 0xe, "ENG_e?_NOT_USED" },
+		{ 0xf, "ENG_f?_NOT_USED" },
 };
 int cmdsP1Size = 16;
 
@@ -102,7 +102,7 @@ char *getCmdNameP1(int id) {
 			return cmds_p1[i].name;
 		}
 	}
-	return "?";
+	return "P1?";
 }
 
 
@@ -210,7 +210,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
     SetTimeoutWait(deviceId, 100);
     g5 = deviceId;
     // DD: -0x3701 = 0xc8ff ANO
-    int32_t v2 = sendCommand(deviceId, 0xc8ff /*-0x3701*/); // 0x10001fbe
+    int32_t v2 = _sendCommand(deviceId, 0xc8ff /*-0x3701*/); // 0x10001fbe
     int32_t v3 = RdErrorStatus(deviceId); // 0x10001fce
     int32_t v4 = v3; // 0x10001fe3
 
@@ -226,7 +226,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
         if (v5 == -0x20000) {
             g5 = deviceId;
             // DD: -769 = -0x301 = 0xfcff BNO
-            int32_t v6 = sendCommand(deviceId, 0xfcff /*-769*/); // 0x10001ff5
+            int32_t v6 = _sendCommand(deviceId, 0xfcff /*-769*/); // 0x10001ff5
             int32_t v7 = RdErrorStatus(deviceId); // 0x10002005
 // DD XXX
             v7 = 0;
@@ -244,7 +244,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
                 return v8 | 0xffff;
             }
             // DD: 0x7c00 = VXI_GETVERSION
-            sendCommand(deviceId, 0x7c00);
+            _sendCommand(deviceId, 0x7c00);
             int32_t v9 = RdErrorStatus(deviceId); // 0x10002064
 // DD XXX
             v9=0;
@@ -393,10 +393,14 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
     // DD: 0x7f00 = VXI_ENGINECOMMAND
     int32_t v2 = sendWord(deviceId, 0x7f00); // 0x100019db
     g2 = v2;
+#ifndef __hp9000s700
+    // DD XXX
     printf("second word %d\n", v2);
-// DD XXX
     v2=0;
 // DD XXX
+#else
+    printf("second word %d\n", v2);
+#endif
     if (v2 != 0) {
         return (int32_t)v1 | v2 & -0x10000;
     }
@@ -411,7 +415,7 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
 /**
  * Function to send a command/word to P2 CPU. Simply the command is written.
  */
-int32_t sendCommand(SET9052 *deviceId, int16_t command) {
+int32_t _sendCommand(SET9052 *deviceId, int16_t command) {
 	printf("sendCommand: %x=%s\n", command, getCmdNameP2((command&0xffff)));
     int32_t v1 = g3; // bp-4
     g3 = &v1;
@@ -731,7 +735,7 @@ int32_t dd_readEngineStatus(SET9052 *deviceId) {
     function_100010e1(deviceId, 0x10000 * (int32_t)g5 / 0x10000);
     g5 = deviceId;
     // DD: 0x7e00 = VXI_GETSTATUS
-    int32_t v1 = sendCommand(deviceId, 0x7e00); // 0x100010a7
+    int32_t v1 = _sendCommand(deviceId, 0x7e00); // 0x100010a7
     function_100016c8(deviceId);
     g7 = deviceId;
     return SetEngineReplyCode(deviceId, (uint32_t)g5 & -0x10000 | v1 & 255);
@@ -821,7 +825,7 @@ int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
 
 int32_t VISA_ResetEngine(int32_t deviceId) {
     // DD: 0x3701 = 0xcaff = Read Interrupters
-    int16_t v1 = sendCommand(deviceId, 0xcaff /*-0x3701*/); // bp-8
+    int16_t v1 = _sendCommand(deviceId, 0xcaff /*-0x3701*/); // bp-8
     g5 = deviceId;
     int32_t v2; // 0x10002169
     int16_t v3; // 0x1000215a
@@ -830,7 +834,7 @@ int32_t VISA_ResetEngine(int32_t deviceId) {
     if (RdErrorStatus(deviceId) == 0) {
         if (v1 == -2) {
             // DD: -769 = -0x301 = 0xfcff BNO
-            v1 = sendCommand(deviceId, 0xfcff /*-769*/);
+            v1 = _sendCommand(deviceId, 0xfcff /*-769*/);
             if (RdErrorStatus(deviceId) != 0) {
                 v3 = 64;
             } else {
@@ -881,17 +885,115 @@ int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 #define VXI_GETSTATUS  0x7e00
 #define VXI_ENGINECMD  0x7f00
 
-int getStatus(INST id, int *fifo, int *status) {
+int16_t _dd_sendCommand(INST id, int16_t command) {
+	unsigned short response;
+	unsigned short rpe;
+	unsigned int ret;
+
+#if defined(__hp9000s700)
+	ret = ivxiws(id, command, &response, &rpe);
+	printf("ivxiws -> ret: %u, response=0x%x, rpe=0x%x\n", ret, response, rpe);
+	if (ret != 0) {
+		printf("Error: %x\n", ret);
+		return -1;
+	}
+#endif
+	return response;
+}
+
+void _initEngine(INST id, int argc) {
+	unsigned short response;
+	unsigned short rpe;
+	unsigned int ret;
+
+#if defined(__hp9000s700)
+	unsigned short cmd = 0xc8ff; //ANO
+	response = _dd_sendCommand(id, cmd);
+	if (response != 0xfffe) {
+		printf("Error1: %x\n", response);
+		return;
+	}
+	printf("Abort Normal Operation: OK\n");
+
+	cmd = 0xfcff; // begin normal operation
+	response = _dd_sendCommand(id, cmd);
+	/* See page 16 what to check for success. I do not understand what is said there. */
+	printf("Begin Normal Operation: OK\n\n");
+
+	cmd = VXI_GETVERSION; // get version
+	response = _dd_sendCommand(id, cmd);
+	int major = response >> 4;
+	int minor = response & 0xf;
+	printf("Version: %d.%d\n\n", major, minor);
+
+	int fifo, status;
+	ret = _getStatus(id, &fifo, &status);
+	printf("VXI_GETSTATUS: OK\n\n");
+
+	cmd = VXI_RESETENG;
+	response = _dd_sendCommand(id, cmd);
+	printf("Response: %x\n\n", response);
+
+	//-----------------------------------------------------------------
+	if (argc > 1) {
+		printf("No further engine command.\n");
+		return;
+	}
+
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	printf("ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
+	if (ret != 0) {
+		printf("Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	printf("VXI_ENGINECMD: OK\n");
+
+	cmd = ENG_TERMINATE; // Engine command
+	ret = ivxiws(id, cmd, &response, &rpe);
+	printf("ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		printf("Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	printf("ENG_TERMINATE: OK\n");
+
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	printf("ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
+	if (ret != 0) {
+		printf("Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	printf("VXI_ENGINECMD: OK\n");
+
+	cmd = ENG_INIT; // Engine command
+	ret = ivxiws(id, cmd, &response, &rpe);
+	printf("ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		printf("Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	printf("ENG_INIT: OK\n");
+
+	ret = _getStatus(id, &fifo, &status);
+	printf("VXI_GETSTATUS: OK\n\n");
+#endif
+}
+
+
+int _getStatus(INST id, int *fifo, int *status) {
 	unsigned short cmd = VXI_GETSTATUS;
 	unsigned short response;
 	unsigned short rpe;
 	unsigned int ret;
 
+#if defined(__hp9000s700)
 	ret = ivxiws(id, cmd, &response, &rpe);
 	printf("ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
 	if (ret != 0) {
 		printf("Error: %d\n", ret);
-		return ret;
+		return -1;
 	}
 
 	// fifo are bits 11..8 in response
@@ -917,123 +1019,28 @@ int getStatus(INST id, int *fifo, int *status) {
 	if (*status == ENG_REPLY_INMAIN) {
 		printf("ENG_REPLY_INMAIN\n");
 	}
+#endif
 
 	return ret;
 }
-
 int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int32_t *session_id) {
 	printf("\tviOpen(%s)\n", session_string);
 #if defined(__hp9000s700)
 	INST id = iopen(session_string);
-	printf("\tiopen() -> %x\n", id);
+	printf("\tviopen() -> %x\n", id);
 
-	if (id != 0) {
-		*session_id = id;
-		itimeout (id, 10000);
-
-		unsigned short response;
-		unsigned short rpe;
-		unsigned int ret;
-		unsigned short cmd;
-
-		printf("Abort Normal Operation...\n");
-		cmd = 0xc8ff; //ANO
-		ret = ivxiws(id, cmd, &response, &rpe);
-		if (ret != 0) {
-			printf("Error ANO: %d, %x\n", ret, response);
-			return;
-		}
-		if (response != 0xfffe) {
-			printf("Error1: %x\n", response);
-			return;
-		}
-		printf("... OK\n");
-
-		printf("Begin Normal Operation...\n");
-		cmd = 0xfcff; // begin normal operation
-		ret = ivxiws(id, cmd, &response, &rpe);
-		if (ret != 0) {
-			printf("Error BNO: %d, %x\n", ret, response);
-			return;
-		}
-		/* See page 16 what to check for success. I do not understand what is said there. */
-		printf("... OK\n\n");
-
-		printf("Begin GETVERSION...\n");
-		cmd = VXI_GETVERSION; // get version
-		ret = ivxiws(id, cmd, &response, &rpe);
-		if (ret != 0) {
-			printf("Error GETVERSION: %d, %x\n", ret, response);
-			return;
-		}
-		int major = response >> 4;
-		int minor = response & 0xf;
-		printf("... OK. Version: %d.%d\n\n", major, minor);
-
-		int fifo, status;
-		ret = getStatus(id, &fifo, &status);
-		printf("VXI_GETSTATUS: OK\n\n");
-
-		printf("Begin RESETENG...\n");
-		cmd = VXI_RESETENG;
-		ret = ivxiws(id, cmd, &response, &rpe);
-		if (ret != 0) {
-			printf("Error ANO: %d, %x\n", ret, response);
-			return;
-		}
-		printf("... OK.\n");
-
-		//-----------------------------------------------------------------
-		cmd = VXI_ENGINECMD; // VXI_ENGINECMD
-		ret = ivxiws(id, cmd, &response, &rpe);
-		printf("ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
-		if (ret != 0) {
-			printf("Error ENGINECMD: %d, %x\n", ret, response);
-			return;
-		}
-		printf("VXI_ENGINECMD: OK\n");
-
-		cmd = ENG_TERMINATE; // Engine command
-		ret = ivxiws(id, cmd, &response, &rpe);
-		printf("ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
-		if (ret != 0) {
-			printf("Error Engine command: %d, %x\n", ret, response);
-			return;
-		}
-		printf("ENG_TERMINATE: OK\n");
-
-		printf("Begin VXI_ENGINECMD...\n");
-		cmd = VXI_ENGINECMD; // VXI_ENGINECMD
-		ret = ivxiws(id, cmd, &response, &rpe);
-		printf("ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
-		if (ret != 0) {
-			printf("Error ENGINECMD: %d, %x\n", ret, response);
-			return;
-		}
-		printf("... OK\n");
-
-		printf("Begin ENG_INIT...\n");
-		cmd = ENG_INIT; // Engine command
-		ret = ivxiws(id, cmd, &response, &rpe);
-		printf("ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
-		if (ret != 0) {
-			printf("Error Engine command: %d, %x\n", ret, response);
-			return;
-		}
-		printf("... OK\n");
-
-		ret = getStatus(id, &fifo, &status);
-		printf("VXI_GETSTATUS: OK\n\n");
-
-		return VI_SUCCESS;
-	} else {
-		return 1;
+	if (id == 0) {
+		return 0;
 	}
-
+	*session_id = id;
+	itimeout (id, 10000);
+	_initEngine(id, 0);
 #else
 	*session_id = 11;
-	return VI_SUCCESS;
 #endif
+	//usleep(1000000L);
+	sleep(1);
+	return VI_SUCCESS;
 }
 int32_t dd_viClose(int32_t session_handle) {
 	printf("viClose(%d)\n", session_handle);
@@ -1070,21 +1077,23 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
 	if (mask & VI_READ_BUF_DISCARD) {
 		siclMask |= I_BUF_DISCARD_READ;
 	}
-	if (mask & VI_WRITE_BUF_DISCARD) {
+	/*if (mask & VI_WRITE_BUF_DISCARD) {
 		siclMask |= I_BUF_DISCARD_WRITE;
-	}
+	}*/
 	int ret;
 #if defined(__hp9000s700)
 	ret = iflush(session_handle, siclMask);
 	printf("iflush returned %d\n", ret);
-
-	sleep(1);
 #else
 #endif
 	ret = VI_SUCCESS;
 	return ret;
 }
 
+/**
+ * Return value is 0 on success. This can be seen e.g. in _doSendWord() where processing stops
+ * if we return sth. different from 0.
+ */
 int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
 	printf("\tWScmdAlike(%d, %d, %d, 0x%x=%s)\n", session_handle, a2, a3, command, getCmdNameP2(command));
 	uint16_t ret;
@@ -1092,30 +1101,21 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 	uint16_t response;
 	uint16_t rpe;
 #if defined(__hp9000s700)
-	/*ret = ivxiws(session_handle, VXI_GETSTATUS, &response, &rpe);
-	printf("\tVXI_GETSTATUS: ret: %u, response=0x%x, rpe=0x%x\n", ret, response, rpe);
-	if (ret != 0) {
-		printf("Error: %d\n", ret);
-		return;
-	}
-	sleep(1);
-	// fifo are bits 11..8 in response
-	uint16_t fifo = (response >> 8) & 0xf;
-	uint16_t status = response & 0xff;
-	printf("\tfifo: 0x%x, status: 0x%x\n", fifo, status);*/
-
-	// ret==0 => OK
 	ret = ivxiws(session_handle, cmd, &response, &rpe);
 	printf("\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x\n", ret, response, rpe);
-
-	sleep(1);
 #else
 	ret = 0;
 	response = 0;
 	rpe = 0;
 #endif
-	printf("\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, response);
-	return response;
+	printf("\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
+
+	// Sanity check
+	if (command == VXI_GETVERSION && response != 0x14) {
+		printf("KAPUTT\n");
+		exit(-1);
+	}
+	return ret;
 }
 
 int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
