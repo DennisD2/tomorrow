@@ -18,6 +18,9 @@
 #include <sicl.h>
 //#endif
 
+#include "helper.h"
+
+
 int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
 
@@ -107,7 +110,7 @@ char *getCmdNameP1(int id) {
 
 
 int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
-	printf("VISA_OpenSessionStep\n");
+	dlog( LOG_DEBUG, "VISA_OpenSessionStep\n");
     if (deviceId == NULL) {
         return g2 & -0x10000 | 0xfff6;
     }
@@ -204,7 +207,7 @@ int32_t VISA_CloseSession(SET9052 *deviceId) {
 
 // DD: dd_WriteCommand = write( device, command ) yippie!
 int32_t VISA_InitEngine(SET9052 *deviceId) {
-	printf("VISA_InitEngine\n");
+	dlog( LOG_DEBUG, "VISA_InitEngine\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     SetTimeoutWait(deviceId, 100);
@@ -282,7 +285,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
  * The
  */
 int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /*int32_t*/uint16_t *wordPtr) {
-	printf("VISA_SendCommand(%x=%s, %d, %lx)\n", command, getCmdNameP1(command), numBytes, wordPtr);
+	dlog( LOG_DEBUG, "VISA_SendCommand(%x=%s, %d, %lx)\n", command, getCmdNameP1(command), numBytes, wordPtr);
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2 = 0; // bp-20
@@ -312,7 +315,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /
                   lab_0x10001d34:
                     if (v5 != 3) {
                         if (v5 != 4) {
-                        	printf("VISA_SendCommand before return 1\n");
+                        	dlog( LOG_DEBUG, "VISA_SendCommand before return 1\n");
                             return (int32_t)v2 | function_100016c8(deviceId) & -0x10000;
                         }
                     }
@@ -320,23 +323,23 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /
                     int32_t v7; // 0x10001da2
                     if (v3 > 0) {
                         int32_t i = 0;
-                        //printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=0.\n");
-                        printf("\t\t%d, a4=%lx, v8=%d\n", v4, wordPtr, i);
-                        printf("\t\ta4[0]=0x%x/%d\n", wordPtr[i], wordPtr[i]);
+                        //dlog( LOG_DEBUG, "TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=0.\n");
+                        dlog( LOG_DEBUG, "\t\t%d, a4=%lx, v8=%d\n", v4, wordPtr, i);
+                        dlog( LOG_DEBUG, "\t\ta4[0]=0x%x/%d\n", wordPtr[i], wordPtr[i]);
                         VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ wordPtr[2*i] /* *(a4+2*v8) */);
                         while (i + 1 < v3 / 0x10000) {
                         	// inner loop v8=0..<v3=a3
                             g5 = (int32_t)g5 & -0x10000 | i + 1 & 0xffff;
                             i+=2;
-                            //printf("TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=%d.\n", v8);
-                            printf("\t\ta4=%lx, v8=%d\n", wordPtr, i);
-                            printf("\t\ta4[%d]=0x%x/%d\n", i, wordPtr[i/2], wordPtr[i/2]);
+                            //dlog( LOG_DEBUG, "TODO: Writing commands from an array: a4+2*i where i=v8 and a4 seems to be g3. v8=%d.\n", v8);
+                            dlog( LOG_DEBUG, "\t\ta4=%lx, v8=%d\n", wordPtr, i);
+                            dlog( LOG_DEBUG, "\t\ta4[%d]=0x%x/%d\n", i, wordPtr[i/2], wordPtr[i/2]);
                             VISA_SendWord(deviceId, /* DDD XXX offset in array TODO *(int16_t *)(2 * v8 + a4) */ wordPtr[i/2] /**(a4+2*v8)*/ );
                         }
                         v7 = VISA_CheckSWStatus(deviceId);
                         v2 = v7;
                         if ((v7 & 0xffff) != 1) {
-                        	printf("VISA_SendCommand break 1\n");
+                        	dlog( LOG_DEBUG, "VISA_SendCommand break 1\n");
                            break;
                         }
                         v5 = 0;
@@ -345,7 +348,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /
                     v7 = VISA_CheckSWStatus(deviceId);
                     v2 = v7;
                     if ((v7 & 0xffff) != 1) {
-                    	printf("VISA_SendCommand break 2\n");
+                    	dlog( LOG_DEBUG, "VISA_SendCommand break 2\n");
                         break;
                     }
                     v5 = 0;
@@ -363,7 +366,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /
                 v6 = 4;
             }
         }
-    	printf("VISA_SendCommand after loop\n");
+    	dlog( LOG_DEBUG, "VISA_SendCommand after loop\n");
         v2 = 17;
         v3 = 0x10000 * numBytes;
         v4 = 0;
@@ -387,7 +390,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, /
  * will then be forwarded to P1.
  */
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
-	printf("VISA_SendWord: %x=%s\n", command, getCmdNameP1(command));
+	dlog( LOG_DEBUG, "VISA_SendWord: %x=%s\n", command, getCmdNameP1(command));
     int16_t v1 = -2; // bp-8
     g2 = deviceId;
     // DD: 0x7f00 = VXI_ENGINECOMMAND
@@ -395,11 +398,11 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
     g2 = v2;
 #ifndef __hp9000s700
     // DD XXX
-    printf("second word %d\n", v2);
+    dlog( LOG_DEBUG, "second word %d\n", v2);
     v2=0;
 // DD XXX
 #else
-    printf("second word %d\n", v2);
+    dlog( LOG_DEBUG, "second word %d\n", v2);
 #endif
     if (v2 != 0) {
         return (int32_t)v1 | v2 & -0x10000;
@@ -416,7 +419,7 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
  * Function to send a command/word to P2 CPU. Simply the command is written.
  */
 int32_t _sendCommand(SET9052 *deviceId, int16_t command) {
-	printf("sendCommand: %x=%s\n", command, getCmdNameP2((command&0xffff)));
+	dlog( LOG_DEBUG, "sendCommand: %x=%s\n", command, getCmdNameP2((command&0xffff)));
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t response; // bp-12
@@ -432,7 +435,7 @@ int32_t _sendCommand(SET9052 *deviceId, int16_t command) {
 }
 
 int32_t function_100016c8(SET9052 *deviceId) {
-	printf("\tfunction_100016c8\n");
+	dlog( LOG_DEBUG, "\tfunction_100016c8\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x100016d2
@@ -482,7 +485,7 @@ int32_t function_100016c8(SET9052 *deviceId) {
  * (protocol erros, using dd_viWrite() again)
  */
 int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
-	printf("_doSendWord %x=%s\n", command, getCmdNameP2((command&0xffff)));
+	dlog( LOG_DEBUG, "_doSendWord %x=%s\n", command, getCmdNameP2((command&0xffff)));
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t session_handle = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x1000136a
@@ -628,13 +631,13 @@ int32_t function_100011fc(SET9052 *deviceId, int32_t* a2) {
 
 int32_t function_10001249(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) {
 	// What is this call doing ???
-	printf("\tfunction_10001249, command %x=%s, what is this call intending?\n", command, getCmdNameP2(command));
+	dlog( LOG_DEBUG, "\tfunction_10001249, command %x=%s, what is this call intending?\n", command, getCmdNameP2(command));
 #ifdef ORIG
 	int32_t v1 = deviceId->session_handle;
     int32_t v2 = dd_viWsCmdAlike(v1, 1, 4, g2 & -0x10000 | command) != 0;
 #else
     int32_t v2;
-	printf("Command %x left out.\n", command);
+	dlog( LOG_DEBUG, "Command %x left out.\n", command);
 	v2 = VI_SUCCESS;
 #endif
     g5 = deviceId;
@@ -694,7 +697,7 @@ int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
 }
 
 int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
-	printf("VISA_CheckSWStatus\n");
+	dlog( LOG_DEBUG, "VISA_CheckSWStatus\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = dd_readEngineStatus(deviceId); // 0x10001bd6
@@ -731,7 +734,7 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
 }
 
 int32_t dd_readEngineStatus(SET9052 *deviceId) {
-	printf("function_1000108e\n") ;
+	dlog( LOG_DEBUG, "function_1000108e\n") ;
     function_100010e1(deviceId, 0x10000 * (int32_t)g5 / 0x10000);
     g5 = deviceId;
     // DD: 0x7e00 = VXI_GETSTATUS
@@ -787,7 +790,7 @@ int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
  * Wraps _doSendWord() and adds SetErrorStatus()
  */
 int32_t sendWord(SET9052 *deviceId, int16_t command) {
-	printf("sendWord(function_10001a0a): %x\n", command);
+	dlog( LOG_DEBUG, "sendWord(function_10001a0a): %x\n", command);
     int32_t result;
     if ((int16_t)_doSendWord(deviceId, command, 0, 0) > -1) {
         g5 = deviceId;
@@ -870,20 +873,15 @@ int32_t VISA_ResetEngine(int32_t deviceId) {
 
 
 int32_t _imported_function_ord_129(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6) {
-	printf("\t_imported_function_ord_129(%d, %d, %d, %d, %d, %d)\n", a1, a2, a3, a4, a5, a6);
+	dlog( LOG_DEBUG, "\t_imported_function_ord_129(%d, %d, %d, %d, %d, %d)\n", a1, a2, a3, a4, a5, a6);
 	return 0;
 }
 
 int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	return 0;
-	printf("\t_imported_function_ord_130(%d, %d)\n", a1, a2);
+	dlog( LOG_DEBUG, "\t_imported_function_ord_130(%d, %d)\n", a1, a2);
 }
 
-#define VXI_RESETENG   0x7b00
-#define VXI_GETVERSION 0x7c00
-#define VXI_ENGINEDATA 0x7d00
-#define VXI_GETSTATUS  0x7e00
-#define VXI_ENGINECMD  0x7f00
 
 int16_t _dd_sendCommand(INST id, int16_t command) {
 	unsigned short response;
@@ -892,9 +890,9 @@ int16_t _dd_sendCommand(INST id, int16_t command) {
 
 #if defined(__hp9000s700)
 	ret = ivxiws(id, command, &response, &rpe);
-	printf("ivxiws -> ret: %u, response=0x%x, rpe=0x%x\n", ret, response, rpe);
+	dlog( LOG_DEBUG, "ivxiws -> ret: %u, response=0x%x, rpe=0x%x\n", ret, response, rpe);
 	if (ret != 0) {
-		printf("Error: %x\n", ret);
+		dlog( LOG_ERROR, "Error: %x\n", ret);
 		return -1;
 	}
 #endif
@@ -910,74 +908,74 @@ void _initEngine(INST id, int argc) {
 	unsigned short cmd = 0xc8ff; //ANO
 	response = _dd_sendCommand(id, cmd);
 	if (response != 0xfffe) {
-		printf("Error1: %x\n", response);
+		dlog( LOG_ERROR, "Error1: %x\n", response);
 		return;
 	}
-	printf("Abort Normal Operation: OK\n");
+	dlog( LOG_DEBUG, "Abort Normal Operation: OK\n");
 
 	cmd = 0xfcff; // begin normal operation
 	response = _dd_sendCommand(id, cmd);
 	/* See page 16 what to check for success. I do not understand what is said there. */
-	printf("Begin Normal Operation: OK\n\n");
+	dlog( LOG_DEBUG, "Begin Normal Operation: OK\n\n");
 
 	cmd = VXI_GETVERSION; // get version
 	response = _dd_sendCommand(id, cmd);
 	int major = response >> 4;
 	int minor = response & 0xf;
-	printf("Version: %d.%d\n\n", major, minor);
+	dlog( LOG_DEBUG, "Version: %d.%d\n\n", major, minor);
 
 	int fifo, status;
 	ret = _getStatus(id, &fifo, &status);
-	printf("VXI_GETSTATUS: OK\n\n");
+	dlog( LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
 
 	cmd = VXI_RESETENG;
 	response = _dd_sendCommand(id, cmd);
-	printf("Response: %x\n\n", response);
+	dlog( LOG_DEBUG, "Response: %x\n\n", response);
 
 	//-----------------------------------------------------------------
 	if (argc > 1) {
-		printf("No further engine command.\n");
+		dlog( LOG_DEBUG, "No further engine command.\n");
 		return;
 	}
 
 	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
 	ret = ivxiws(id, cmd, &response, &rpe);
-	printf("ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
+	dlog( LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
 	if (ret != 0) {
-		printf("Error ENGINECMD: %d, %x\n", ret, response);
+		dlog( LOG_ERROR, "Error ENGINECMD: %d, %x\n", ret, response);
 		return;
 	}
-	printf("VXI_ENGINECMD: OK\n");
+	dlog( LOG_DEBUG, "VXI_ENGINECMD: OK\n");
 
 	cmd = ENG_TERMINATE; // Engine command
 	ret = ivxiws(id, cmd, &response, &rpe);
-	printf("ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	dlog( LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
 	if (ret != 0) {
-		printf("Error Engine command: %d, %x\n", ret, response);
+		dlog( LOG_ERROR, "Error Engine command: %d, %x\n", ret, response);
 		return;
 	}
-	printf("ENG_TERMINATE: OK\n");
+	dlog( LOG_DEBUG, "ENG_TERMINATE: OK\n");
 
 	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
 	ret = ivxiws(id, cmd, &response, &rpe);
-	printf("ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
+	dlog( LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
 	if (ret != 0) {
-		printf("Error ENGINECMD: %d, %x\n", ret, response);
+		dlog( LOG_ERROR, "Error ENGINECMD: %d, %x\n", ret, response);
 		return;
 	}
-	printf("VXI_ENGINECMD: OK\n");
+	dlog( LOG_DEBUG, "VXI_ENGINECMD: OK\n");
 
 	cmd = ENG_INIT; // Engine command
 	ret = ivxiws(id, cmd, &response, &rpe);
-	printf("ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	dlog( LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
 	if (ret != 0) {
-		printf("Error Engine command: %d, %x\n", ret, response);
+		dlog( LOG_ERROR, "Error Engine command: %d, %x\n", ret, response);
 		return;
 	}
-	printf("ENG_INIT: OK\n");
+	dlog( LOG_DEBUG, "ENG_INIT: OK\n");
 
 	ret = _getStatus(id, &fifo, &status);
-	printf("VXI_GETSTATUS: OK\n\n");
+	dlog( LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
 #endif
 }
 
@@ -990,44 +988,44 @@ int _getStatus(INST id, int *fifo, int *status) {
 
 #if defined(__hp9000s700)
 	ret = ivxiws(id, cmd, &response, &rpe);
-	printf("ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
+	dlog( LOG_DEBUG, "ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
 	if (ret != 0) {
-		printf("Error: %d\n", ret);
+		dlog( LOG_ERROR, "Error: %d\n", ret);
 		return -1;
 	}
 
 	// fifo are bits 11..8 in response
 	*fifo = (response >> 8) & 0xf;
 	*status = response & 0xff;
-	printf("fifo: 0x%x, status: 0x%x\n", *fifo, *status);
+	dlog( LOG_DEBUG, "fifo: 0x%x, status: 0x%x\n", *fifo, *status);
 
 	// fifo checks
 	/*if (*fifo == (STAT_EMPTY>>8)&0xff) {
-	 printf("Engine has no data\n");
+	 dlog( LOG_DEBUG, "Engine has no data\n");
 	 }*/
 	if (response & (1 << 8)) {
 		// bit8=0 => no data
-		printf("Engine has data\n");
+		dlog( LOG_DEBUG, "Engine has data\n");
 	} else {
-		printf("Engine has no data\n");
+		dlog( LOG_DEBUG, "Engine has no data\n");
 	}
 
 	// status checks
 	if (*status == ENG_REPLY_BAD_CMD) {
-		printf("ENG_REPLY_BAD_CMD\n");
+		dlog( LOG_DEBUG, "ENG_REPLY_BAD_CMD\n");
 	}
 	if (*status == ENG_REPLY_INMAIN) {
-		printf("ENG_REPLY_INMAIN\n");
+		dlog( LOG_DEBUG, "ENG_REPLY_INMAIN\n");
 	}
 #endif
 
 	return ret;
 }
 int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int32_t *session_id) {
-	printf("\tviOpen(%s)\n", session_string);
+	dlog( LOG_DEBUG, "\tviOpen(%s)\n", session_string);
 #if defined(__hp9000s700)
 	INST id = iopen(session_string);
-	printf("\tviopen() -> %x\n", id);
+	dlog( LOG_DEBUG, "\tviopen() -> %x\n", id);
 
 	if (id == 0) {
 		return 0;
@@ -1035,29 +1033,29 @@ int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int3
 	*session_id = id;
 	itimeout (id, 10000);
 	_initEngine(id, 0);
+	//usleep(1000000L);
+	sleep(1);
 #else
 	*session_id = 11;
 #endif
-	//usleep(1000000L);
-	sleep(1);
 	return VI_SUCCESS;
 }
 int32_t dd_viClose(int32_t session_handle) {
-	printf("viClose(%d)\n", session_handle);
+	dlog( LOG_DEBUG, "viClose(%d)\n", session_handle);
 	return 0;
 }
 
 int32_t _imported_function_ord_133(int32_t a1, int32_t a2, int32_t a3) {
-	printf("\t_imported_function_ord_133(%d, %d, %d)\n", a1, a2, a3);
+	dlog( LOG_DEBUG, "\t_imported_function_ord_133(%d, %d, %d)\n", a1, a2, a3);
 	return 0;
 }
 
 int32_t dd_viSetAttribute(int32_t a1, int32_t a2, int32_t a3) {
-	printf("viSetAttribute(%d, %d, %d)\n", a1, a2, a3);
+	dlog( LOG_DEBUG, "viSetAttribute(%d, %d, %d)\n", a1, a2, a3);
 	return VI_SUCCESS;
 }
 int32_t dd_viOpenDefaultRM(int32_t a1) {
-	printf("viOpenDefaultRM()\n");
+	dlog( LOG_DEBUG, "viOpenDefaultRM()\n");
 	return VI_SUCCESS;
 }
 
@@ -1066,7 +1064,7 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
     // mask: 4 = 0x4 = VI_READ_BUF_DISCARD
 	// mask: 10 = 0xa = 1010 VI_WRITE_BUF|VI_WRITE_BUF_DISCARD
     // mask: 14 = 0xe = 1110 includes VI_READ_BUF_DISCARD
- 	printf("\tviFlush(%d, 0x%x, 0x%x)\n", session_handle, a2, mask);
+ 	dlog( LOG_DEBUG, "\tviFlush(%d, 0x%x, 0x%x)\n", session_handle, a2, mask);
 	int siclMask=0x0;
 	if (mask & VI_READ_BUF) {
 		siclMask |= I_BUF_READ;
@@ -1083,7 +1081,7 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
 	int ret;
 #if defined(__hp9000s700)
 	ret = iflush(session_handle, siclMask);
-	printf("iflush returned %d\n", ret);
+	dlog( LOG_DEBUG, "iflush returned %d\n", ret);
 #else
 #endif
 	ret = VI_SUCCESS;
@@ -1095,31 +1093,31 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
  * if we return sth. different from 0.
  */
 int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
-	printf("\tWScmdAlike(%d, %d, %d, 0x%x=%s)\n", session_handle, a2, a3, command, getCmdNameP2(command));
+	dlog( LOG_DEBUG, "\tWScmdAlike(%d, %d, %d, 0x%x=%s)\n", session_handle, a2, a3, command, getCmdNameP2(command));
 	uint16_t ret;
 	uint16_t cmd = command;
 	uint16_t response;
 	uint16_t rpe;
 #if defined(__hp9000s700)
 	ret = ivxiws(session_handle, cmd, &response, &rpe);
-	printf("\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x\n", ret, response, rpe);
+	dlog( LOG_DEBUG, "\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x\n", ret, response, rpe);
 #else
 	ret = 0;
 	response = 0;
 	rpe = 0;
 #endif
-	printf("\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
+	dlog( LOG_DEBUG, "\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
 
 	// Sanity check
 	if (command == VXI_GETVERSION && response != 0x14) {
-		printf("KAPUTT\n");
+		dlog( LOG_ERROR, "KAPUTT\n");
 		exit(-1);
 	}
 	return ret;
 }
 
 int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
-	printf("viSetBuf(%d,%d,%d)\n", session_handle, mask, size);
+	dlog( LOG_DEBUG, "viSetBuf(%d,%d,%d)\n", session_handle, mask, size);
 #if defined(__hp9000s700)
 	int ret = isetbuf(session_handle, mask, size);
 	return ret;

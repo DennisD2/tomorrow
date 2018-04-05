@@ -11,6 +11,9 @@
 
 #include "pnp.h"
 
+#include "helper.h"
+
+
 static int32_t g3 = 0; // ebp
 static int32_t g5 = 0; // ecx
 static int32_t g4 = 0; // esi
@@ -63,7 +66,7 @@ int32_t __nh_malloc(int32_t a1, int32_t a2) {
 #define SESSION_STRING_IS_NULO 0xbffc0801ZZ
 
 int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, void** session_id) {
-	printf("mr90xx_init\n");
+	dlog( LOG_DEBUG, "mr90xx_init\n");
 
 	void *v1 = session_id;
 	*session_id = NULL;
@@ -144,7 +147,7 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag
 }
 
 int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
-	printf("mr90xx_OpenSession\n");
+	dlog( LOG_DEBUG, "mr90xx_OpenSession\n");
 	int32_t v1 = g3; // bp-4
 	g3 = &v1;
 	SET9052 *v2 = AllocGlobal(-1); // 0x1000470f
@@ -237,7 +240,7 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 }
 
 int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3) {
-	printf("mr90xx_SetEngineModel\n");
+	dlog( LOG_DEBUG, "mr90xx_SetEngineModel\n");
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x100025eb
@@ -252,7 +255,7 @@ int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3) {
 }
 
 int32_t mr90xx_CloseSession(int32_t a1) {
-	printf("mr90xx_CloseSession\n");
+	dlog( LOG_DEBUG, "mr90xx_CloseSession\n");
 	int32_t v1 = 0; // bp-8
 	int32_t v2 = function_10004310(a1, &v1); // 0x10004a2f
 	int32_t result = v2;
@@ -266,7 +269,7 @@ int32_t mr90xx_CloseSession(int32_t a1) {
 }
 
 int32_t mr90xx_InitEngine(void *session_id, int32_t a2) {
-	printf("mr90xx_InitEngine\n");
+	dlog( LOG_DEBUG, "mr90xx_InitEngine\n");
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(session_id, &v1); // 0x10003830
 	int32_t result; // 0x1000386f
@@ -279,7 +282,7 @@ int32_t mr90xx_InitEngine(void *session_id, int32_t a2) {
 }
 
 int32_t mr90xx_reset(int32_t a1) {
-	printf("mr90xx_reset\n");
+	dlog( LOG_DEBUG, "mr90xx_reset\n");
 	int32_t result = mr90xx_ResetEngine(a1, g5); // 0x10003121
 	if (result != 0x3ffc0811) {
 		return result;
@@ -297,7 +300,7 @@ int32_t mr90xx_reset(int32_t a1) {
 }
 
 int32_t mr90xx_ResetEngine(int32_t a1, int32_t a2) {
-	printf("mr90xx_ResetEngine\n");
+	dlog( LOG_DEBUG, "mr90xx_ResetEngine\n");
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x1000387e
 	int32_t result; // 0x100038bd
@@ -311,7 +314,7 @@ int32_t mr90xx_ResetEngine(int32_t a1, int32_t a2) {
 }
 
 int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
-	printf("mr90xx_SetTimeoutWait\n");
+	dlog( LOG_DEBUG, "mr90xx_SetTimeoutWait\n");
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x10004c2f
@@ -696,7 +699,7 @@ int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 }
 
 int32_t function_10004310(int32_t a1, int32_t *a2) {
-	printf("function_10004310\n");
+	dlog( LOG_DEBUG, "function_10004310\n");
 	int32_t v1 = (int32_t) a2;
 	if (a2 == NULL) {
 		return MR90XX_IE_WARN_SPAN; // -0x4003f7fe;

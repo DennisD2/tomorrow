@@ -14,6 +14,8 @@
 #include "sa.h"
 #include "visa.h"
 
+#include "helper.h"
+
 static int32_t function_10002d12(SET9052 *a1, uint16_t a2);
 static int32_t function_10003f7a(SET9052 *a1);
 static int32_t function_100119ba(char a1);
@@ -55,7 +57,7 @@ static float80_t g159_rbwFrequency = 0.0L; // st0
 static float80_t g160_currentStepWidth = 0.0L; // st1
 
 int32_t InitEngine(SET9052 *a1) {
-	printf("InitEngine\n");
+	dlog( LOG_DEBUG, "InitEngine\n");
 	SET9052 *v1 = a1; // 0x10003c79
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003c7d
@@ -82,7 +84,7 @@ int32_t InitEngine(SET9052 *a1) {
 }
 
 int32_t ResetEngine(int16_t a1) {
-	printf("ResetEngine\n");
+	dlog( LOG_DEBUG, "ResetEngine\n");
 	SET9052 *v1 = a1; // 0x10003cd5
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003cd9
@@ -117,7 +119,7 @@ void *ClearFuncStatusCode(SET9052 *a1) {
 }
 
 int32_t RdSessionString(SET9052 *a1, int32_t a2) {
-	//printf("RdSessionString\n");
+	//dlog( LOG_DEBUG, "RdSessionString\n");
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008d6f
 	g3 = v1;
@@ -137,7 +139,7 @@ int32_t RdSessionString(SET9052 *a1, int32_t a2) {
 }
 
 int32_t TestFuncStatusAndPtr(SET9052 *a1) {
-	//printf("TestFuncStatusAndPtr\n");
+	//dlog( LOG_DEBUG, "TestFuncStatusAndPtr\n");
 	if (a1 == NULL) {
 		return g3 & -0x10000 | 0xfff6;
 	}
@@ -147,7 +149,7 @@ int32_t TestFuncStatusAndPtr(SET9052 *a1) {
 	int32_t v2 = 0x10000 * v1; // 0x1000143f
 	g6 = v2 / 0x10000;
 	if ((v2 || 0xffff) < 0x1ffff) {
-		//printf("Xnok %x\n", v2);
+		//dlog( LOG_DEBUG, "Xnok %x\n", v2);
 		return v1 & -0x10000;
 	}
 	g8 = a1;
@@ -159,12 +161,12 @@ int32_t TestFuncStatusAndPtr(SET9052 *a1) {
 	} else {
 		result = v4;
 	}
-	//printf("Xok %x\n", result);
+	//dlog( LOG_DEBUG, "Xok %x\n", result);
 	return result;
 }
 
 int32_t SetFuncStatusCode(SET9052 *a1, uint16_t code) {
-	//printf("SetFuncStatusCode\n");
+	//dlog( LOG_DEBUG, "SetFuncStatusCode\n");
 	int32_t v1 = g4; // 0x10001365
 	int32_t v2 = v1; // bp-4
 	g4 = &v2;
@@ -199,7 +201,7 @@ int32_t SetFuncStatusCode(SET9052 *a1, uint16_t code) {
 }
 
 int32_t SetEngineReplyCode(SET9052 *a1, uint16_t code) {
-	printf("SetEngineReplyCode(%x)\n", code);
+	dlog( LOG_DEBUG, "SetEngineReplyCode(%x)\n", code);
     int32_t result;
     if (a1 != NULL) {
         //*(int16_t *)(a1 + 206) = a2;
@@ -216,7 +218,7 @@ int32_t SetEngineReplyCode(SET9052 *a1, uint16_t code) {
 #define ENG_OPT_2 2
 /* Inquire engine option 0x01, 0x02, 0x04 depending on option value. */
 int32_t RdEngOption(SET9052 *a1, int32_t option) {
-	//printf("RdEngOption(%d)\n", option);
+	//dlog( LOG_DEBUG, "RdEngOption(%d)\n", option);
 	if (a1 == 0) {
 		return g3 & -0x10000 | 0xfff6;
 	}
@@ -350,7 +352,7 @@ int32_t function_1000d5e1(char * a1) {
 // DD: because (a1 + 2) == engine_model, a1 must be (struct SAStruct *) = SET9052 !!! yippie 2
 // Address range: 0x10004b94 - 0x10004ee4
 int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
-	printf("InitInstrData\n");
+	dlog( LOG_DEBUG, "InitInstrData\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	int32_t result;
@@ -545,7 +547,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 
 // Address range: 0x100067d5 - 0x10006851
 int32_t SetZSamplRate(/*int32_t a1*/ SET9052 *a1, int64_t rate) {
-	printf("SetZSamplRate\n");
+	dlog( LOG_DEBUG, "SetZSamplRate\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100067e3
     g3 = v1;
@@ -1038,7 +1040,7 @@ int32_t absValue(int32_t a1) {
 }
 
 int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
-	printf("OpenSession(%s)\n", session_string);
+	dlog( LOG_DEBUG, "OpenSession(%s)\n", session_string);
     if (a1 == NULL) {
         return g3 & -0x10000 | 0xfff6;
     }
@@ -1327,7 +1329,7 @@ int32_t function_10003f7a(SET9052 *a1) {
 }
 
 int32_t IdQuery(int16_t a1, int32_t a2) {
-	printf("IdQuery\n");
+	dlog( LOG_DEBUG, "IdQuery\n");
     int32_t v1 = a1; // 0x10003fda
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003fde
@@ -1357,7 +1359,7 @@ int32_t IdQuery(int16_t a1, int32_t a2) {
 
 // Address range: 0x10004036 - 0x100040c8
 int32_t CloseSession(SET9052 *a1) {
-	printf("CloseSession\n");
+	dlog( LOG_DEBUG, "CloseSession\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000403e
     g3 = v1;
@@ -1398,7 +1400,7 @@ int32_t CloseSession(SET9052 *a1) {
 }
 
 int32_t function_10003844(SET9052 *a1, char* a2) {
-	printf("function_10003844\n");
+	dlog( LOG_DEBUG, "function_10003844\n");
 #ifdef ORIG
     int32_t v1 = get_os_version_dummy(); // 0x10003847
     if (v1 == 0) {
@@ -1587,7 +1589,7 @@ int32_t function_10003613(char * a1) {
 }
 
 int32_t SetInterfaceType(SET9052* a1, int16_t a2, int32_t a3) {
-	printf("SetInterfaceType\n");
+	dlog( LOG_DEBUG, "SetInterfaceType\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10004f22
     g3 = v1;
@@ -1603,7 +1605,7 @@ int32_t SetInterfaceType(SET9052* a1, int16_t a2, int32_t a3) {
 }
 
 int32_t IsValidStep(SET9052 *a1) {
-	printf("IsValidStep\n");
+	dlog( LOG_DEBUG, "IsValidStep\n");
     int32_t v1 = g9; // 0x10006dd2
     g3 = a1;
     int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006dd7
@@ -3124,7 +3126,7 @@ int32_t __ftol(/*int32_t*/float32_t in) {
 	int exponent  = ((a & 0x7fffffff) >> 23) - 127;
 	int r         = ((unsigned int)(mantissa) << 8) >> (31 - exponent);
 	int32_t out = ((r ^ (sign)) - sign ) &~ (exponent >> 31);
-	printf("ftol(%f) -> %d\n", in, out);
+	dlog( LOG_DEBUG, "ftol(%f) -> %d\n", in, out);
 	return out;
 }
 
@@ -3177,7 +3179,7 @@ int32_t SetTimeoutWait(SET9052 *a1, int32_t time) {
 }
 
 int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
-	printf("SetCellMode(%d)\n", mode);
+	dlog( LOG_DEBUG, "SetCellMode(%d)\n", mode);
     int16_t v1 = 0; // bp-8
     g3 = a1;
     int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005fd7
@@ -3368,7 +3370,7 @@ int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
 }
 
 int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
-	printf("BreakSweep, mode=%d\n", breakMode);
+	dlog( LOG_DEBUG, "BreakSweep, mode=%d\n", breakMode);
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int16_t v2 = breakMode; // g3 & -0x10000 | (int32_t)breakMode; // 0x10004a0e
@@ -3476,7 +3478,7 @@ int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
 }
 
 int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, /*int32_t*/uint16_t *wordPtr) {
-	printf("\n\nsa.c:SendCommand %x\n", command);
+	dlog( LOG_INFO, "\n\nsa.c:SendCommand %x\n", command);
 	SET9052 *v1 = a1; // 0x10003b52
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003b56
@@ -3509,10 +3511,11 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, /*int32_t*/u
         result = GetFuncStatusCode(v1);
     }
     return result;
+	dlog( LOG_INFO, "\n\nsa.c:SendCommand done\n");
 }
 
 int32_t FuncStatusFromEngineReply(int16_t a1) {
-	//printf("FuncStatusFromEngineReply\n");
+	//dlog( LOG_DEBUG, "FuncStatusFromEngineReply\n");
     int32_t v1 = a1; // 0x10001006
     g8 = v1;
     unsigned char v2 = *(char *)(v1 + (int32_t)&g12); // 0x1000101c
@@ -3667,7 +3670,7 @@ int32_t FuncStatusFromEngineReply(int16_t a1) {
 }
 
 int32_t CommTrigDetect(SET9052 *a1) {
-	printf("CommTrigDetect\n");
+	dlog( LOG_DEBUG, "CommTrigDetect\n");
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int16_t v2 = 8; // bp-32
@@ -3694,26 +3697,26 @@ int32_t CommTrigDetect(SET9052 *a1) {
    	// DD: Engine Command 4 is related to "set trigger ...".
 	// v2 = 8 !
 	// v6 is sth. like a1->detect_code, see above
-	printf("detect_code: %d\n", a1->detect_code);
-    printf("sweep_code: %d\n", a1->sweep_code);
-    printf("num_cells: %d\n\n", a1->num_cells);
+	dlog( LOG_DEBUG, "detect_code: %d\n", a1->detect_code);
+    dlog( LOG_DEBUG, "sweep_code: %d\n", a1->sweep_code);
+    dlog( LOG_DEBUG, "num_cells: %d\n\n", a1->num_cells);
 
     int16 *p6 =&(a1->detect_code) ;
-	printf("detect_code1: %d\n", *p6);
-    printf("sweep_code1: %d\n", *(p6+1));
-    printf("num_cells1: %d\n\n", *(p6+2));
+	dlog( LOG_DEBUG, "detect_code1: %d\n", *p6);
+    dlog( LOG_DEBUG, "sweep_code1: %d\n", *(p6+1));
+    dlog( LOG_DEBUG, "num_cells1: %d\n\n", *(p6+2));
 
     int16 *p7 = &(a1->detect_code) ;
     uint32_t ii =0;
-	printf("detect_code1: %d\n", p7[ii]);
-    printf("sweep_code1: %d\n", p7[ii+1]);
-    printf("num_cells1: %d\n\n", p7[ii+2]);
+	dlog( LOG_DEBUG, "detect_code1: %d\n", p7[ii]);
+    dlog( LOG_DEBUG, "sweep_code1: %d\n", p7[ii+1]);
+    dlog( LOG_DEBUG, "num_cells1: %d\n\n", p7[ii+2]);
 
     uint8_t *ppp = &(a1->detect_code);
-	printf("detect_codeV: %d\n", *(ppp));
-    printf("sweep_codeV: %d\n", *(ppp+2));
+	dlog( LOG_DEBUG, "detect_codeV: %d\n", *(ppp));
+    dlog( LOG_DEBUG, "sweep_codeV: %d\n", *(ppp+2));
     int32 *pppp = ppp+4;
-    printf("num_cellsV: %d\n\n", *(pppp));
+    dlog( LOG_DEBUG, "num_cellsV: %d\n\n", *(pppp));
 
     if ((RdSweepCode(a1) & 1) == 0) {
     	// DD: Engine Command 4 is related to "set trigger details".
@@ -3757,7 +3760,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
 }
 
 int32_t CommInterrupts(SET9052 *a1) {
-	printf("CommInterrupts\n");
+	dlog( LOG_DEBUG, "CommInterrupts\n");
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -3966,7 +3969,7 @@ int32_t function_1000ce50(int64_t a1, int32_t a2) {
 }
 
 int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
-	printf("SetEngineModel\n");
+	dlog( LOG_DEBUG, "SetEngineModel\n");
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008698
     g3 = v1;
@@ -4915,7 +4918,7 @@ int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t a3) {
         int32_t v3 = *(int32_t *)(4 * (int32_t)a2 + (int32_t)&g13); // 0x10005045
         __pseudo_branch(v3);
 #else
-        printf("StepSizeMode() - TBI\n");
+        dlog( LOG_DEBUG, "StepSizeMode() - TBI\n");
 #endif
         *(int16_t *)(a1 + 32) = 1;
         result = function_10001718(a1) & -0x10000 | 1;
