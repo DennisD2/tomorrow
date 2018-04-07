@@ -12,8 +12,8 @@
 #include <mr_defin.h>
 
 #include "sa.h"
-#include "visa.h"
 
+#include "dvisa.h"
 #include "helper.h"
 
 static int32_t function_10002d12(SET9052 *a1, uint16_t a2);

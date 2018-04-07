@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------------------*/
-/* Distributed by IVI Foundation Inc.                                        */
+/* Distributed by VXIplug&play Systems Alliance                              */
 /*                                                                           */
 /* Do not modify the contents of this file.                                  */
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /* Title   : VISATYPE.H                                                      */
-/* Date    : 04-14-2006                                                      */
+/* Date    : 01-01-96                                                        */
 /* Purpose : Fundamental VISA data types and macro definitions               */
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
@@ -13,13 +13,7 @@
 #ifndef __VISATYPE_HEADER__
 #define __VISATYPE_HEADER__
 
-#if defined(_WIN64)
-#define _VI_FAR
-#define _VI_FUNC            __fastcall
-#define _VI_FUNCC           __fastcall
-#define _VI_FUNCH           __fastcall
-#define _VI_SIGNED          signed
-#elif (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)) && !defined(_NI_mswin16_)
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)) && !defined(_NI_mswin16_)
 #define _VI_FAR
 #define _VI_FUNC            __stdcall
 #define _VI_FUNCC           __cdecl
@@ -56,51 +50,11 @@
 
 /*- VISA Types --------------------------------------------------------------*/
 
-#ifndef _VI_INT64_UINT64_DEFINED
-#if defined(_WIN64) || ((defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)) && !defined(_NI_mswin16_))
-#if (defined(_MSC_VER) && (_MSC_VER >= 1200)) || (defined(_CVI_) && (_CVI_ >= 700)) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0520))
-typedef unsigned   __int64  ViUInt64;
-typedef _VI_SIGNED __int64  ViInt64;
-#define _VI_INT64_UINT64_DEFINED
-#if defined(_WIN64)
-#define _VISA_ENV_IS_64_BIT
-#else
-/* This is a 32-bit OS, not a 64-bit OS */
-#endif
-#endif
-#elif defined(__GNUC__) && (__GNUC__ >= 3)
-#include <limits.h>
-#include <sys/types.h>
-typedef u_int64_t           ViUInt64;
-typedef int64_t             ViInt64;
-#define _VI_INT64_UINT64_DEFINED
-#if defined(LONG_MAX) && (LONG_MAX > 0x7FFFFFFFL)
-#define _VISA_ENV_IS_64_BIT
-#else
-/* This is a 32-bit OS, not a 64-bit OS */
-#endif
-#else
-/* This platform does not support 64-bit types */
-#endif
-#endif
-
-#if defined(_VI_INT64_UINT64_DEFINED)
-typedef ViUInt64    _VI_PTR ViPUInt64;
-typedef ViUInt64    _VI_PTR ViAUInt64;
-typedef ViInt64     _VI_PTR ViPInt64;
-typedef ViInt64     _VI_PTR ViAInt64;
-#endif
-
-#if defined(LONG_MAX) && (LONG_MAX > 0x7FFFFFFFL)
-typedef unsigned int        ViUInt32;
-typedef _VI_SIGNED int      ViInt32;
-#else
 typedef unsigned long       ViUInt32;
-typedef _VI_SIGNED long     ViInt32;
-#endif
-
 typedef ViUInt32    _VI_PTR ViPUInt32;
 typedef ViUInt32    _VI_PTR ViAUInt32;
+
+typedef _VI_SIGNED long     ViInt32;
 typedef ViInt32     _VI_PTR ViPInt32;
 typedef ViInt32     _VI_PTR ViAInt32;
 
@@ -172,12 +126,6 @@ typedef ViObject            ViSession;
 typedef ViSession   _VI_PTR ViPSession;
 typedef ViSession   _VI_PTR ViASession;
 
-typedef ViUInt32             ViAttr;
-
-#ifndef _VI_CONST_STRING_DEFINED
-typedef const ViChar * ViConstString;
-#define _VI_CONST_STRING_DEFINED
-#endif  
 
 /*- Completion and Error Codes ----------------------------------------------*/
 
