@@ -31,141 +31,272 @@ void sysInfo() {
 	dlog(LOG_DEBUG, "double\t%d\n", i);
 }
 
-/*
- int _getStatus(INST id, int *fifo, int *status) {
- unsigned short cmd = VXI_GETSTATUS;
- unsigned short response;
- unsigned short rpe;
- unsigned int ret;
+int __getStatus(INST id, int *fifo, int *status) {
+	unsigned short cmd = VXI_GETSTATUS;
+	unsigned short response;
+	unsigned short rpe;
+	unsigned int ret;
 
- ret = ivxiws(id, cmd, &response, &rpe);
- dlog(LOG_DEBUG,"ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
- if (ret != 0) {
- dlog(LOG_DEBUG,"Error: %d\n", ret);
- return -1;
- }
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error: %d\n", ret);
+		return -1;
+	}
 
- // fifo are bits 11..8 in response
- *fifo = (response >> 8) & 0xf;
- *status = response & 0xff;
- dlog(LOG_DEBUG,"fifo: 0x%x, status: 0x%x\n", *fifo, *status);
+	// fifo are bits 11..8 in response
+	*fifo = (response >> 8) & 0xf;
+	*status = response & 0xff;
+	dlog(LOG_DEBUG, "fifo: 0x%x, status: 0x%x\n", *fifo, *status);
 
- // fifo checks
- //if (*fifo == (STAT_EMPTY>>8)&0xff) {
- // dlog(LOG_DEBUG,"Engine has no data\n");
- // }
- if (response & (1 << 8)) {
- // bit8=0 => no data
- dlog(LOG_DEBUG,"Engine has data\n");
- } else {
- dlog(LOG_DEBUG,"Engine has no data\n");
- }
+	// fifo checks
+	//if (*fifo == (STAT_EMPTY>>8)&0xff) {
+	// dlog(LOG_DEBUG,"Engine has no data\n");
+	// }
+	if (response & (1 << 8)) {
+		// bit8=0 => no data
+		dlog(LOG_DEBUG, "Engine has data\n");
+	} else {
+		dlog(LOG_DEBUG, "Engine has no data\n");
+	}
 
- // status checks
- if (*status == ENG_REPLY_BAD_CMD) {
- dlog(LOG_DEBUG,"ENG_REPLY_BAD_CMD\n");
- }
- if (*status == ENG_REPLY_INMAIN) {
- dlog(LOG_DEBUG,"ENG_REPLY_INMAIN\n");
- }
+	// status checks
+	if (*status == ENG_REPLY_BAD_CMD) {
+		dlog(LOG_DEBUG, "ENG_REPLY_BAD_CMD\n");
+	}
+	if (*status == ENG_REPLY_INMAIN) {
+		dlog(LOG_DEBUG, "ENG_REPLY_INMAIN\n");
+	}
 
- return ret;
- } */
+	return ret;
+}
 
-/*int16_t _sendCommand(INST id, int16_t command) {
- unsigned short response;
- unsigned short rpe;
- unsigned int ret;
+int16_t __sendCommand(INST id, int16_t command) {
+	dlog(LOG_DEBUG, "command: %x\n", command);
+	unsigned short response;
+	unsigned short rpe;
+	unsigned int ret;
 
- ret = ivxiws(id, command, &response, &rpe);
- dlog(LOG_DEBUG,"ivxiws -> ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
- if (ret != 0) {
- dlog(LOG_DEBUG,"Error: %x\n", ret);
- return -1;
- }
- return response;
- }*/
+	ret = ivxiws(id, command, &response, &rpe);
+	dlog(LOG_DEBUG, "ivxiws -> ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error: %x\n", ret);
+		return -1;
+	}
+	return response;
+}
 
-/*
- void _initEngine(INST id, int argc) {
- unsigned short response;
- unsigned short rpe;
- unsigned int ret;
+void __initEngine(INST id, int argc) {
+	unsigned short response;
+	unsigned short rpe;
+	unsigned int ret;
 
- unsigned short cmd = 0xc8ff; //ANO
- response = _sendCommand(id, cmd);
- if (response != 0xfffe) {
- dlog(LOG_DEBUG,"Error1: %x\n", response);
- return;
- }
- dlog(LOG_DEBUG,"Abort Normal Operation: OK\n");
+	unsigned short cmd = 0xc8ff; //ANO
+	response = __sendCommand(id, cmd);
+	if (response != 0xfffe) {
+		dlog(LOG_DEBUG, "Error1: %x\n", response);
+		return;
+	}
+	dlog(LOG_DEBUG, "Abort Normal Operation: OK\n");
 
- cmd = 0xfcff; // begin normal operation
- response = _sendCommand(id, cmd);
- // See page 16 what to check for success. I do not understand what is said there.
- dlog(LOG_DEBUG,"Begin Normal Operation: OK\n\n");
+	cmd = 0xfcff; // begin normal operation
+	response = __sendCommand(id, cmd);
+	// See page 16 what to check for success. I do not understand what is said there.
+	dlog(LOG_DEBUG, "Begin Normal Operation: OK\n\n");
 
- cmd = VXI_GETVERSION; // get version
- response = _sendCommand(id, cmd);
- int major = response >> 4;
- int minor = response & 0xf;
- dlog(LOG_DEBUG,"Version: %d.%d\n\n", major, minor);
+	cmd = VXI_GETVERSION; // get version
+	response = __sendCommand(id, cmd);
+	int major = response >> 4;
+	int minor = response & 0xf;
+	dlog(LOG_DEBUG, "Version: %d.%d\n\n", major, minor);
 
- int fifo, status;
- ret = getStatus(id, &fifo, &status);
- dlog(LOG_DEBUG,"VXI_GETSTATUS: OK\n\n");
+	int fifo, status;
+	ret = __getStatus(id, &fifo, &status);
+	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
 
- cmd = VXI_RESETENG;
- response = _sendCommand(id, cmd);
- dlog(LOG_DEBUG,"Response: %x\n\n", response);
-
-
- if (argc > 1) {
- dlog(LOG_DEBUG,"No engine command.\n");
- return;
- }
-
- cmd = VXI_ENGINECMD; // VXI_ENGINECMD
- ret = ivxiws(id, cmd, &response, &rpe);
- dlog(LOG_DEBUG,"ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
- if (ret != 0) {
- dlog(LOG_DEBUG,"Error ENGINECMD: %d, %x\n", ret, response);
- return;
- }
- dlog(LOG_DEBUG,"VXI_ENGINECMD: OK\n");
-
- cmd = ENG_TERMINATE; // Engine command
- ret = ivxiws(id, cmd, &response, &rpe);
- dlog(LOG_DEBUG,"ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
- if (ret != 0) {
- dlog(LOG_DEBUG,"Error Engine command: %d, %x\n", ret, response);
- return;
- }
- dlog(LOG_DEBUG,"ENG_TERMINATE: OK\n");
+	/*cmd = VXI_RESETENG;
+	response = __sendCommand(id, cmd);
+	dlog(LOG_DEBUG, "Response: %x\n\n", response);
+	sleep(1);
+	ret = __getStatus(id, &fifo, &status);
+	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
+	*/
 
 
- cmd = VXI_ENGINECMD; // VXI_ENGINECMD
- ret = ivxiws(id, cmd, &response, &rpe);
- dlog(LOG_DEBUG,"ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
- if (ret != 0) {
- dlog(LOG_DEBUG,"Error ENGINECMD: %d, %x\n", ret, response);
- return;
- }
- dlog(LOG_DEBUG,"VXI_ENGINECMD: OK\n");
 
- cmd = ENG_INIT; // Engine command
- ret = ivxiws(id, cmd, &response, &rpe);
- dlog(LOG_DEBUG,"ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
- if (ret != 0) {
- dlog(LOG_DEBUG,"Error Engine command: %d, %x\n", ret, response);
- return;
- }
- dlog(LOG_DEBUG,"ENG_INIT: OK\n");
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+	sleep(1);
 
- ret = getStatus(id, &fifo, &status);
- dlog(LOG_DEBUG,"VXI_GETSTATUS: OK\n\n");
+	cmd = ENG_INIT; // ENG_TERMINATE; // Engine command
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_TERMINATE: OK\n");
 
- }*/
+
+
+#ifdef NOT_YET
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+
+	cmd = ENG_INIT; // ENG_TERMINATE; // Engine command
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_TERMINATE: OK\n");
+	ret = __getStatus(id, &fifo, &status);
+	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+
+	cmd = 0x0; // parameter
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_INIT: OK\n");
+	ret = __getStatus(id, &fifo, &status);
+	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
+
+
+	//-------------------------
+
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+
+	cmd = ENG_SET_TRIGDET; // parameter
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_INIT: OK\n");
+
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+
+	cmd = 0x24; // parameter1
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_INIT: OK\n");
+
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+
+	cmd = 0x5; // parameter2
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_INIT: OK\n");
+
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+
+	cmd = 0x0; // parameter
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_INIT: OK\n");
+
+	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
+			rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error ENGINECMD: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "VXI_ENGINECMD: OK\n");
+
+	cmd = 0x1f5; // parameter
+	ret = ivxiws(id, cmd, &response, &rpe);
+	dlog(LOG_DEBUG, "ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "Error Engine command: %d, %x\n", ret, response);
+		return;
+	}
+	dlog(LOG_DEBUG, "ENG_INIT: OK\n");
+
+	ret = __getStatus(id, &fifo, &status);
+	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
+
+	cmd = VXI_GETVERSION; // get version
+	response = __sendCommand(id, cmd);
+	 major = response >> 4;
+	 minor = response & 0xf;
+	dlog(LOG_DEBUG, "Version: %d.%d\n\n", major, minor);
+#endif
+
+}
 
 readLoop(INST id) {
 	unsigned short response, dataResponse;
@@ -224,42 +355,46 @@ readLoop(INST id) {
 
 int main(int argc, char **argv) {
 
+	setLogLevel(LOG_DEBUG);
 	sysInfo();
+
+	printf("hello\n");
 	dlog(LOG_DEBUG, "----------------------------------------\n");
 
-	/*INST id = iopen("vxi,126");
-	 itimeout(id, 10000);
-	 int ret = isetbuf(id, 0x3, 4000);
-	 if (ret != 0) {
-	 dlog(LOG_DEBUG,"isetbuf Error: %d\n", ret);
-	 return -1;
-	 }
-	 _initEngine(id, argc);
+	INST id = iopen("vxi,126");
+	itimeout(id, 10000);
+	int ret = isetbuf(id, 0x3, 4000);
+	if (ret != 0) {
+		dlog(LOG_DEBUG, "isetbuf Error: %d\n", ret);
+		return -1;
+	}
 
-	 if (argc==1) {
+	__initEngine(id, argc);
+
+	/*if (argc==1) {
 	 readLoop(id);
 	 }
 	 dlog(LOG_DEBUG,"DONE.\n");
 	 */
 
-	char sessionString[50];
-	ViChar message[128];
-	ViStatus mr90xxStatus;
-	ViSession sessionId;
+	/*char sessionString[50];
+	 ViChar message[128];
+	 ViStatus mr90xxStatus;
+	 ViSession sessionId;
 
-	setLogLevel(LOG_INFO);
-	printf("main start\n");
-	sysInfo();
+	 setLogLevel(LOG_DEBUG);
+	 printf("main start\n");
+	 sysInfo();
 
-	sprintf(sessionString, "vxi,126");
+	 sprintf(sessionString, "vxi,126");
 
-	mr90xxStatus = mr90xx_init(sessionString, VI_TRUE, VI_TRUE, &sessionId);
-	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		printf("Error mr90xx_init");
-		exit(-1);
-	} else {
-		printf("mr90xx_init OK");
-	}
+	 mr90xxStatus = mr90xx_init(sessionString, VI_TRUE, VI_TRUE, &sessionId);
+	 if (mr90xxStatus != MR90XX_IE_SUCCESS) {
+	 printf("Error mr90xx_init");
+	 exit(-1);
+	 } else {
+	 printf("mr90xx_init OK");
+	 }*/
 
 	/*mr90xxStatus = mr90xx_SetEngineModel( sessionId, SA9054 );
 	 if (mr90xxStatus != MR90XX_IE_SUCCESS) {
