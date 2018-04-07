@@ -119,7 +119,7 @@ void *ClearFuncStatusCode(SET9052 *a1) {
 }
 
 int32_t RdSessionString(SET9052 *a1, int32_t a2) {
-	//dlog( LOG_DEBUG, "RdSessionString\n");
+	dlog( LOG_DEBUG, "RdSessionString(%x)\n", a2);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008d6f
 	g3 = v1;
@@ -149,7 +149,7 @@ int32_t TestFuncStatusAndPtr(SET9052 *a1) {
 	int32_t v2 = 0x10000 * v1; // 0x1000143f
 	g6 = v2 / 0x10000;
 	if ((v2 || 0xffff) < 0x1ffff) {
-		//dlog( LOG_DEBUG, "Xnok %x\n", v2);
+		//dlog( LOG_DEBUG, "TestFuncStatusAndPtr() --> %x, %x\n", v1, v2);
 		return v1 & -0x10000;
 	}
 	g8 = a1;
@@ -161,12 +161,12 @@ int32_t TestFuncStatusAndPtr(SET9052 *a1) {
 	} else {
 		result = v4;
 	}
-	//dlog( LOG_DEBUG, "Xok %x\n", result);
+	//dlog( LOG_DEBUG, "TestFuncStatusAndPtr() --> %x\n", result);
 	return result;
 }
 
 int32_t SetFuncStatusCode(SET9052 *a1, uint16_t code) {
-	//dlog( LOG_DEBUG, "SetFuncStatusCode\n");
+	dlog( LOG_DEBUG, "SetFuncStatusCode(%x)\n", code);
 	int32_t v1 = g4; // 0x10001365
 	int32_t v2 = v1; // bp-4
 	g4 = &v2;
@@ -174,7 +174,7 @@ int32_t SetFuncStatusCode(SET9052 *a1, uint16_t code) {
 	int32_t v3; // 0x100013af
 	if (a1 != 0) {
 		g3 = a1;
-		int16_t * v4 = &a1->func_status_code; // (int16_t *) (a1 + 204); // 0x10001377
+		int16_t *v4 = &a1->func_status_code; // (int16_t *) (a1 + 204); // 0x10001377
 		int16_t v5 = *v4; // 0x10001377
 		g6 = v5;
 		if (v5 >= 0) {
@@ -487,7 +487,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 		//*(int16_t *)(a1 + 184) = 0;//extern_ref
 		a1->extern_ref = 0;
 		//*(int32_t *)(a1 + 188) = 0;//z_cell_size added by me
-		a1->err_status = 0;
+		a1->z_cell_size = 0;
 
 		//*(int32_t *) (a1 + 192) = 0; //err_status
 		a1->err_status = 0;
@@ -3339,28 +3339,34 @@ int32_t GetFuncStatusCode(SET9052 *a1) {
 
 int32_t RdErrorStatus(SET9052 *a1) {
     g3 = a1;
-    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000858b
+    int32_t v1 = TestFuncStatusAndPtr(a1);
     g3 = v1;
-    int32_t v2 = 0x10000 * v1; // 0x10008593
+    int32_t v2 = 0x10000 * v1;
     g6 = v2 / 0x10000;
-    int32_t result; // 0x100085ae
+    int32_t result;
     if ((v2 || 0xffff) < 0x1ffff) {
-        result = a1->err_status; // *(int32_t *)(a1 + 192);
+        result = a1->err_status;
         g6 = result;
     } else {
         g8 = a1;
         result = 0x10000 * GetFuncStatusCode(a1) / 0x10000;
     }
+    if (a1->err_status != 0) {
+    	dlog( LOG_DEBUG, "RdErrorStatus() --> %x %x\n", a1->err_status, result);
+    }
     return result;
 }
 
 int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
+    if (status != 0) {
+    	dlog(LOG_DEBUG, "SetErrorStatus(%x)\n", status);
+    }
     g3 = a1;
-    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002dc8
+    int32_t v1 = TestFuncStatusAndPtr(a1);
     g3 = v1;
-    int32_t result; // 0x10002df8
+    int32_t result;
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-        int32_t v2 = status; // 0x10002de8
+        int32_t v2 = status;
         a1->err_status = v2;
         result = (int32_t)a1 & -0x10000 | v2;
     } else {
@@ -3370,7 +3376,7 @@ int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
 }
 
 int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
-	dlog( LOG_DEBUG, "BreakSweep, mode=%d\n", breakMode);
+	dlog( LOG_DEBUG, "\n\nsa.c:BreakSweep, mode=%d\n", breakMode);
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     int16_t v2 = breakMode; // g3 & -0x10000 | (int32_t)breakMode; // 0x10004a0e
@@ -3477,8 +3483,8 @@ int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
     return result;
 }
 
-int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, /*int32_t*/uint16_t *wordPtr) {
-	dlog( LOG_INFO, "\n\nsa.c:SendCommand %x\n", command);
+int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, uint16_t *wordPtr) {
+	dlog( LOG_INFO, "\nsa.c:SendCommand %x\n", command);
 	SET9052 *v1 = a1; // 0x10003b52
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003b56
