@@ -1,10 +1,8 @@
 #include <sicl.h>
-#include <stdio.h>
 
+#include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-
-#include <stdio.h>
 
 #include <sapform.h>
 #include <sa_defin.h>
@@ -31,6 +29,7 @@ void sysInfo() {
 	dlog(LOG_DEBUG, "double\t%d\n", i);
 }
 
+#if defined(__hp9000s700)
 int __getStatus(INST id, int *fifo, int *status) {
 	unsigned short cmd = VXI_GETSTATUS;
 	unsigned short response;
@@ -105,7 +104,7 @@ void __initEngine(INST id, int argc) {
 	// See page 16 what to check for success. I do not understand what is said there.
 	dlog(LOG_DEBUG, "Begin Normal Operation: OK\n\n");
 
-	cmd = VXI_GETVERSION; // get version
+	cmd = VXI_GETVERSION;// get version
 	response = __sendCommand(id, cmd);
 	int major = response >> 4;
 	int minor = response & 0xf;
@@ -116,16 +115,14 @@ void __initEngine(INST id, int argc) {
 	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
 
 	/*cmd = VXI_RESETENG;
-	response = __sendCommand(id, cmd);
-	dlog(LOG_DEBUG, "Response: %x\n\n", response);
-	sleep(1);
-	ret = __getStatus(id, &fifo, &status);
-	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
-	*/
+	 response = __sendCommand(id, cmd);
+	 dlog(LOG_DEBUG, "Response: %x\n\n", response);
+	 sleep(1);
+	 ret = __getStatus(id, &fifo, &status);
+	 dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
+	 */
 
-
-
-	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	cmd = VXI_ENGINECMD;// VXI_ENGINECMD
 	ret = ivxiws(id, cmd, &response, &rpe);
 	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
 	if (ret != 0) {
@@ -143,8 +140,6 @@ void __initEngine(INST id, int argc) {
 		return;
 	}
 	dlog(LOG_DEBUG, "ENG_TERMINATE: OK\n");
-
-
 
 #ifdef NOT_YET
 	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
@@ -188,10 +183,9 @@ void __initEngine(INST id, int argc) {
 	ret = __getStatus(id, &fifo, &status);
 	dlog(LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
 
-
 	//-------------------------
 
-	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
+	cmd = VXI_ENGINECMD;// VXI_ENGINECMD
 	ret = ivxiws(id, cmd, &response, &rpe);
 	dlog(LOG_DEBUG, "ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response,
 			rpe);
@@ -291,12 +285,13 @@ void __initEngine(INST id, int argc) {
 
 	cmd = VXI_GETVERSION; // get version
 	response = __sendCommand(id, cmd);
-	 major = response >> 4;
-	 minor = response & 0xf;
+	major = response >> 4;
+	minor = response & 0xf;
 	dlog(LOG_DEBUG, "Version: %d.%d\n\n", major, minor);
 #endif
 
 }
+#endif
 
 readLoop(INST id) {
 	unsigned short response, dataResponse;
@@ -361,15 +356,15 @@ int main(int argc, char **argv) {
 	printf("hello\n");
 	dlog(LOG_DEBUG, "----------------------------------------\n");
 
-	INST id = iopen("vxi,126");
-	itimeout(id, 10000);
-	int ret = isetbuf(id, 0x3, 4000);
-	if (ret != 0) {
-		dlog(LOG_DEBUG, "isetbuf Error: %d\n", ret);
-		return -1;
-	}
+	/*INST id = iopen("vxi,126");
+	 itimeout(id, 10000);
+	 int ret = isetbuf(id, 0x3, 4000);
+	 if (ret != 0) {
+	 dlog(LOG_DEBUG, "isetbuf Error: %d\n", ret);
+	 return -1;
+	 }
 
-	__initEngine(id, argc);
+	 __initEngine(id, argc);*/
 
 	/*if (argc==1) {
 	 readLoop(id);
@@ -377,24 +372,24 @@ int main(int argc, char **argv) {
 	 dlog(LOG_DEBUG,"DONE.\n");
 	 */
 
-	/*char sessionString[50];
-	 ViChar message[128];
-	 ViStatus mr90xxStatus;
-	 ViSession sessionId;
+	char sessionString[50];
+	ViChar message[128];
+	ViStatus mr90xxStatus;
+	ViSession sessionId;
 
-	 setLogLevel(LOG_DEBUG);
-	 printf("main start\n");
-	 sysInfo();
+	setLogLevel(LOG_DEBUG);
+	printf("main start\n");
+	sysInfo();
 
-	 sprintf(sessionString, "vxi,126");
+	sprintf(sessionString, "vxi,126");
 
-	 mr90xxStatus = mr90xx_init(sessionString, VI_TRUE, VI_TRUE, &sessionId);
-	 if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-	 printf("Error mr90xx_init");
-	 exit(-1);
-	 } else {
-	 printf("mr90xx_init OK");
-	 }*/
+	mr90xxStatus = mr90xx_init(sessionString, VI_TRUE, VI_TRUE, &sessionId);
+	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
+		printf("Error mr90xx_init");
+		exit(-1);
+	} else {
+		printf("mr90xx_init OK");
+	}
 
 	/*mr90xxStatus = mr90xx_SetEngineModel( sessionId, SA9054 );
 	 if (mr90xxStatus != MR90XX_IE_SUCCESS) {

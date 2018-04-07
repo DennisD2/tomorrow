@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-
 #include <stdio.h>
 
 #include <sapform.h>
@@ -12,7 +11,7 @@
 #include <mr_defin.h>
 
 #include <visa.h>
-#include "visa.h"
+#include "dvisa.h"
 
 //#if defined(__hp9000s700)
 #include <sicl.h>
@@ -331,7 +330,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
                             return (int32_t)v2 | function_100016c8(deviceId) & -0x10000;
                         }
                     }
-#ifdef ORIG
+
                     VISA_SendWord(deviceId, command);
                     int32_t v7; // 0x10001da2
                     if (v3 > 0) {
