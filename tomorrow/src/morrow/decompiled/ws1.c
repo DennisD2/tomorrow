@@ -11,188 +11,219 @@
 
 //#include <nivxi.h>
 //#include <ansi_c.h>
-#include <stdint.h>
+#include <sicl.h>
+#include "helper.h"
+
+#define UINT16 unsigned short
+#define INT16 short
+
 
 #define TRUE  1
 #define FALSE 0
 #define MAXINSTR 256
-#define RESPONSE 0x0a
-#define DATALOW 0xe
-#define WRITEREADYDIR 0x900
-#define WRITEREADYDOR 0x2200
+
+// register numbers (not: byte offsets as in official doc)
+#define REG_ID 0x00
+#define REG_DEVTYPE 1
+#define REG_STATUSCRTL 2
+
+#define REG_RESPONSE 5
+#define REG_DATALOW 7
+
+#define REG_RESPONSE_WR_BITV (UINT16)(1<<9)
+#define REG_RESPONSE_RD_BITV (UINT16)(1<<10)
+#define REG_RESPONSE_DIR_BITV (UINT16)(1<<12)
+#define REG_RESPONSE_DOR_BITV (UINT16)(1<<13)
+#define REG_RESPONSE_ERR_BITV (UINT16)(1<<11)
+
+
+#define WRITEREADYDIR /*0x0900*/ (UINT16)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DIR_BITV)
+#define WRITEREADYDOR /*0x2200*/ (UINT16)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DOR_BITV)
+
+// Device has put sth. in Datalow
 #define READREADY 0x400
-#define TIMEOUT 100
+// Device is ok to read  from Datalow
+#define WRITEREADY 0x200
+
+#define TIMEOUT 10000
 #define NORMALCHAR 0xBC00
 #define FINALCHAR 0xBD00
 #define CHARMASK 0xFF
 #define ENDMASK 0xFF00
 #define NOMOREDATA 0xFF00
 
-#define UINT16 uint16_t
-#define INT16 int16_t
 
 int main(int argc, char *argv[]) {
 	UINT16 offset;
 	UINT16 regdata;
-	INT16 myinstrLA;
 	INT16 status;
 	UINT16 responseReg;
-	UINT16 sendchar;
 
-	char sendstring[100] = "";
-	char receivestring[100] = "";
-	int validLA = FALSE;
 	int timeoutCnt = 0;
-	int lengthCnt = 0;
-	int sendstrLen = 0;
-	char currentChar;
-	int readagain = TRUE;
-	int receivecnt = 0;
+	int err;
 
-	//	Initialize the VXI driver
-	//status = InitVXIlibrary();
+	setLogLevel(LOG_DEBUG);
 
-	//	Prompt the user for the logical address of the instrument
-	//	make sure we are talking with a valid logical address.
-	//	User can enter the string to send to the intrument
-	while (!validLA) {
-		printf("Enter the LA of the Message Based Device\n");
-		scanf("%hd", &myinstrLA);
-		if (myinstrLA < MAXINSTR) {
-			validLA = TRUE;
-		}
+	INST id = iopen("vxi,126");
+	if (id == 0) {
+		err = igeterrno();
+		dlog(LOG_DEBUG, "iopen FAILED with ID 0 %d\n", err);
+		return -1;
+	}
+	dlog(LOG_DEBUG, "iopen returned ID=%d\n", id);
 
-		printf("Enter the string to send (ex. *IDN? )\n");
-		scanf("%s", sendstring);
-		sendstrLen = strlen(sendstring);
+	int ret = itimeout(id, 10000);
+	if (ret != 0) {
+		err = igeterrno();
+		dlog(LOG_DEBUG, "itimeout Error: %d %d\n", ret, err);
+		return -1;
 	}
 
-	// 	While we have characters to send send each character via a word //	serial write
-	while (lengthCnt < sendstrLen) {
+	int windowCount;
+	int windowSize;
+	ret = imapinfo(id, I_MAP_A24/*I_MAP_A16*/, &windowCount, &windowSize);
+	if (err != I_ERR_NOERROR) {
+		err = igeterrno();
+		dlog(LOG_DEBUG, "imapinfo Error: %d %d\n", ret, err);
+		return -1;
+	}
+	dlog(LOG_INFO, "window count: %d, size: %d\n", windowCount, windowSize);
+	ret = imapinfo(id, I_MAP_VXIDEV, &windowCount, &windowSize);
+	if (err != I_ERR_NOERROR) {
+		err = igeterrno();
+		dlog(LOG_DEBUG, "imapinfo Error: %d %d\n", ret, err);
+		return -1;
+	}
+	dlog(LOG_INFO, "window count: %d, size: %d\n", windowCount, windowSize);
 
-		regdata = 0;
-		timeoutCnt = 0;
+	// Memory map the device registers
+	char *mapped = imap(id, I_MAP_VXIDEV, 0x0, 0x0, 0);
+	if (mapped == 0) {
+		err = igeterrno();
+		dlog(LOG_DEBUG, "imap Error returned NULL, err=%d\n", err);
+		return -1;
+	}
+	dlog(LOG_DEBUG, "imap returned valid pointer %lx\n", mapped);
+	UINT16 *q = mapped;
+	int i;
 
-		//	Read RESPONSE register 0xA of instrument and wait till
-		//	instrument is ready for write or until timeout occurs
-		while ((regdata != WRITEREADYDIR) && (timeoutCnt < TIMEOUT)) {
-			status = VXIinReg(myinstrLA, RESPONSE, &regdata);
-//  	Mask for the WRITEREADY and DIR bits this will be
-//	checked by the while loop and if the instrument is
-//	ready we will exit the loop and continue
-			regdata = (WRITEREADYDIR & regdata);
+	dlog(LOG_DEBUG, "Vendor ID: 0x%x\n", iwpeek(&q[REG_ID]));
+	dlog(LOG_DEBUG, "Device type: 0x%x\n", iwpeek(&q[REG_DEVTYPE]));
 
-			//	Increment timeout timer so we keep track
-			timeoutCnt++;
-		}
-
-		//	If we exited the loop because of a timeout quit the program
-//	 with and error
-		if (timeoutCnt >= TIMEOUT) {
-			printf(
-					"Timeout occured while checking write ready, hit Enter to quit\n");
-			getchar();
-			getchar();
-			return -1;
-		}
-
-		// 	Get the character to send this iteration
-		currentChar = sendstring[lengthCnt];
-
-		//	Check to see if we are sending the last character, if we are
-		//  	then we will concatonate the ascii code with the flag for the
-//	final Character.  If not we will concatonate the ascii code with
-//	the flag for a normal character
-		if (lengthCnt == (sendstrLen - 1)) {
-			sendchar = FINALCHAR + currentChar;
-		} else {
-			sendchar = NORMALCHAR + currentChar;
-		}
-
-//	Write the current character to send to the DATALOW
-//	register 0xe
-		status = VXIoutReg(myinstrLA, DATALOW, sendchar);
-
-		//  Move on to the next character
-		lengthCnt++;
-
+	/*for (q = mappedReg, i = 0; i < 32; i++, q++) {
+		printf("[%02d]=0x%x\n", i, *q);
+	}*/
+	q = mapped;
+	for (i=0; i<32; i++) {
+		printf("reg[%d @ byte offset %02x]=x%04x\n", i, 2*i, iwpeek(&q[i]));
 	}
 
-	printf("Hit Enter when instrument is ready to read from...\n");
-	getchar();
-	getchar();
+	dlog(LOG_DEBUG, "------------------------------------------------------\n");
+
+	ret = _dd_sendCommand(id, WS_CMD_RP /*WS_CMD_RMOD /*WS_CMD_RPE*/);
+	dlog(LOG_DEBUG, "_dd_sendCommand WS_CMD_RP result: %x\n", (short)(ret & 0xefff));
+
+
+	regdata = 0;
+	timeoutCnt = 0;
+	// Let point word pointer to memory
+	q = mapped;
+
+	UINT16 old_regdata = 12345;
+	// Read RESPONSE register 0xA of instrument and wait till instrument is ready for write
+	// or until timeout occurs
+	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
+		//status = VXIinReg(myinstrLA, REG_RESPONSE, &regdata);
+		//regdata = q[REG_RESPONSE];
+		regdata = iwpeek(&(q[REG_RESPONSE]));
+		// Mask for the WRITEREADY and DIR bits. this will be checked by the while loop and
+		// if the instrument is ready we will exit the loop and continue
+		if (regdata != old_regdata) {
+			dlog(LOG_DEBUG, "reg[0x%x]=0x%x mask=0x%x masked=%x\n", REG_RESPONSE, regdata, WRITEREADY,
+					(WRITEREADY & regdata));
+			old_regdata = regdata;
+		}
+		regdata = (WRITEREADY & regdata);
+		// Increment timeout timer so we keep track
+		timeoutCnt++;
+	}
+	if (timeoutCnt >= TIMEOUT) {
+		printf("Timeout occurred while checking WRITEREADYDIR.\n");
+		return -1;
+	}
+	dlog(LOG_DEBUG, "WRITEREADY after %d loops\n", timeoutCnt);
+
+	UINT16 cmd = WS_CMD_ANO; // WS_CMD_RP; // WS_CMD_ANO;
+	// Write the command to send to the DATALOW register 0xe
+	//q[REG_DATALOW] = cmd;
+	iwpoke(&(q[REG_DATALOW]), cmd);
+	//dlog(LOG_DEBUG, "q[REG_DATALOW] = 0x%x\n", *(&(q[REG_DATALOW])));
+
+	// ---------------------- READ ANSWER ----------------------
 
 	timeoutCnt = 0;
-	receivecnt = 0;
-
-	//  Read characters from the instrument until there are no more to send
-	while (readagain) {
-
-		//	Wait for WRITEREADY and DOR bit to be set in the
-//	response registor or timeout if it takes to long
-		while ((regdata != WRITEREADYDOR) && (timeoutCnt < TIMEOUT)) {
-			status = VXIinReg(myinstrLA, RESPONSE, &regdata);
-
-			//	Masking for WRITEREADY and DOR
-			regdata = (WRITEREADYDOR & regdata);
-
-			//	Keep track of timeout time
-			timeoutCnt++;
-			if (timeoutCnt > TIMEOUT) {
-				printf("Timeout occurred during read...hit Enter to quit\n");
-				getchar();
-				getchar();
-				return -1;
-			}
+	// Read RESPONSE register 0xA of instrument and wait till instrument is ready for read
+	// or until timeout occurs
+	old_regdata = 12345;
+	// Wait for WRITEREADY and DOR bit to be set in the response register or timeout
+	// if it takes to long
+	while ((regdata != READREADY) && (timeoutCnt < TIMEOUT)) {
+		//status = VXIinReg(myinstrLA, RESPONSE, &regdata);
+		regdata = q[REG_RESPONSE];
+		if (regdata != old_regdata) {
+			dlog(LOG_DEBUG, "reg[0x%x]=0x%x mask=0x%x masked=%x\n", REG_RESPONSE, regdata, READREADY, (READREADY & regdata));
+			old_regdata = regdata;
 		}
+		// Masking for READREADY
+		regdata = (READREADY & regdata);
+		// Keep track of timeout time
+		timeoutCnt++;
+	}
+	for (i=0; i<32; i++) {
+		printf("reg[%d @ byte offset %02x]=x%04x\n", i, 2*i, iwpeek(&q[i]));
+	}
 
-		timeoutCnt = 0;
+	// If we exited the loop because of a timeout quit the program with an error
+	if (timeoutCnt >= TIMEOUT) {
+		printf("Timeout occurred during wait for WRITEREADYDOR.\n");
+		return -1;
+	}
+	dlog(LOG_DEBUG, "WRITEREADYDOR after %d loops\n", timeoutCnt);
 
-		//	Send 0xDEFF to DATALOW register of the intrument to
-//	request a byte to be transferred from the device
-		sendchar = 0xDEFF;
+#ifdef NOT
+	// Send 0xDEFF to DATALOW register of the instrument to request a byte to be transferred
+	// from the device
+	cmd = WS_CMD_BR;
+	//status = VXIoutReg(myinstrLA, DATALOW, sendchar);
+	q[REG_DATALOW] = cmd;
 
-		status = VXIoutReg(myinstrLA, DATALOW, sendchar);
+	// Wait until the READREADY bit is set in the RESPONSE register or timeout
+	// if it takes too long
+	while ((regdata != READREADY) && (timeoutCnt < TIMEOUT)) {
+		//status = VXIinReg(myinstrLA, RESPONSE, &regdata);
+		regdata = q[REG_RESPONSE];
+		// Mask for READREADY bit
+		regdata = (READREADY & regdata);
+		// Keep track of timeout time
+		timeoutCnt++;
+	}
+	if (timeoutCnt > TIMEOUT) {
+		printf("Timeout occurred during wait for READREADY\n");
+		return -1;
+	}
+	dlog(LOG_DEBUG, "READREADY after %d loops\n", timeoutCnt);
 
-//  	Wait until the READREADY bit is set in the RESPONSE
-//	register or timeout if it takes too long
-		while ((regdata != READREADY) && (timeoutCnt < TIMEOUT)) {
-			status = VXIinReg(myinstrLA, RESPONSE, &regdata);
+	// Now read a word from the instrument
+	//status = VXIinReg(myinstrLA, DATALOW, &regdata);
+	regdata = q[REG_DATALOW];
 
-			//  Mask for READREADY bit
-			regdata = (READREADY & regdata);
+	dlog(LOG_DEBUG, "regdata = 0x%x\n", regdata);
+#endif
 
-			//	Keep track of timeout time
-			timeoutCnt++;
-			if (timeoutCnt > TIMEOUT) {
-				printf("Timeout occurred during read...hit Enter to 
-						quit\n");
-						getchar();
-						getchar();
-						return -1;
-					}
-				}
-
-				// 	Now read a character from the instrument and determine if it //	is the final character to be sent.
-				status = VXIinReg(myinstrLA, DATALOW, &regdata);
-
-				//	Mask to get the data
-				receivestring[receivecnt] = (regdata & CHARMASK);
-
-				//	Mask for the bits that tell us if it is the last character
-				regdata = (ENDMASK & regdata);
-
-				//	Check to see if it the last character and set the flag to quit
-//	the loop if it is
-				if (regdata == NOMOREDATA) {
-					readagain = FALSE;
-				}
-				receivecnt++;
-			}
-
-			printf("Received String: %s\n", receivestring);
-
+#ifdef NOTYET
 			//	Close the VXI driver
 			status = CloseVXIlibrary();
 			return 0;
 		}
+#endif
+}

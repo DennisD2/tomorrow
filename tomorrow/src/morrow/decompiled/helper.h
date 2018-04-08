@@ -27,4 +27,8 @@
 void dlog( int level, const char *format, ... );
 void setLogLevel(int level);
 
+#include <sicl.h>
+
+short _dd_sendCommand(INST id, short command);
+
 #endif /* HELPER_H_ */

@@ -30,3 +30,20 @@ void dlog(int level, const char *format, ...) {
 	va_end(args);
 }
 
+short _dd_sendCommand(INST id, short command) {
+	unsigned short response;
+	unsigned short rpe;
+	unsigned int ret;
+
+#if defined(__hp9000s700)
+	ret = ivxiws(id, command, &response, &rpe);
+	dlog( LOG_DEBUG, "ivxiws -> ret: %u, response=0x%x, rpe=0x%x\n", ret, response, rpe);
+	if (ret != 0) {
+		dlog( LOG_ERROR, "Error: %x\n", ret);
+		return -1;
+	}
+#endif
+	return response;
+}
+
+

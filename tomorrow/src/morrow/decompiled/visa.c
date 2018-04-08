@@ -19,8 +19,6 @@
 
 #include "helper.h"
 
-int16_t _dd_sendCommand(INST id, int16_t command);
-
 int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
 
@@ -910,21 +908,6 @@ int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 }
 
 
-int16_t _dd_sendCommand(INST id, int16_t command) {
-	unsigned short response;
-	unsigned short rpe;
-	unsigned int ret;
-
-#if defined(__hp9000s700)
-	ret = ivxiws(id, command, &response, &rpe);
-	dlog( LOG_DEBUG, "ivxiws -> ret: %u, response=0x%x, rpe=0x%x\n", ret, response, rpe);
-	if (ret != 0) {
-		dlog( LOG_ERROR, "Error: %x\n", ret);
-		return -1;
-	}
-#endif
-	return response;
-}
 
 void _initEngine(INST id, int argc) {
 	unsigned short response;
