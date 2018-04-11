@@ -165,18 +165,26 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
     *v1 = vi_session;
     int32_t v10 = VISA_InitEngine(deviceId); // 0x1000233e
     int32_t result6; // 0x10002373
+// DD XXX
+    v10 = 0x41;
+// DD XXX
+
     if (0x10000 * v10 == 0x410000) {
         result6 = v10 & -0x10000;
     } else {
+    	dlog( LOG_DEBUG, "VISA_OpenSessionStep '0x10000 * v10'  failed 0x%x\n", (0x10000 * v10));
         g2 = deviceId;
         int32_t v11 = VISA_CloseSession(deviceId); // 0x10002352
         *v1 = 0;
         result6 = v11 | 0xffff;
     }
+	dlog( LOG_DEBUG, "VISA_OpenSessionStep --> 0x%x\n", result6);
+
     return result6;
 }
 
 int32_t VISA_CloseSession(SET9052 *deviceId) {
+	dlog( LOG_DEBUG, "VISA_CloseSession\n");
     if (deviceId == 0) {
         return g2 & -0x10000 | 0xfff6;
     }
@@ -263,6 +271,10 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
                 return v10 / 0x10000 | 0xffff;
             }
             int32_t v11 = 0x10000 * CommTrigDetect(deviceId, 65);
+// DD XXX
+     v11 = 0x410000;
+// DD XXX
+
             if (v11 != 0x410000) {
                 return v11 / 0x10000 | 0xffff;
             }
@@ -277,6 +289,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
         }
         v4 = v5 / 0x10000;
     }
+	dlog( LOG_DEBUG, "VISA_InitEngine --> 0x%x\n", (v4 | 0xffff));
     return v4 | 0xffff;
 }
 
@@ -1152,18 +1165,19 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 	uint16_t response;
 	uint16_t rpe;
 #if defined(__hp9000s700)
+
 #ifdef ORIG
 	ret = ivxiws(session_handle, cmd, &response, &rpe);
 #else
 	ret = dd_wsCommand(session_handle, cmd, &response, &rpe);
 #endif
-	dlog( LOG_DEBUG, "\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x\n", ret, response, rpe);
+
 #else
 	ret = 0;
 	response = 0;
 	rpe = 0;
 #endif
-	dlog( LOG_DEBUG, "\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
+	dlog( LOG_DEBUG, "\tWScmdAlike() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
 
 	// Sanity check
 	if (command == VXI_GETVERSION && response != 0x14) {

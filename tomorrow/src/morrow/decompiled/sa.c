@@ -1039,7 +1039,7 @@ int32_t absValue(int32_t a1) {
 }
 
 int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
-	dlog( LOG_DEBUG, "OpenSession(%s)\n", session_string);
+	dlog( LOG_DEBUG, "OpenSession(%s,%d)\n", session_string,a3);
     if (a1 == NULL) {
         return g3 & -0x10000 | 0xfff6;
     }
@@ -1062,9 +1062,38 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
             g8 = a1;
             int32_t v6 = dd_loadWindowsDll(a1, session_string, v2); // 0x10003db4
             int32_t v7 = 0x10000 * v6 / 0x10000; // 0x10003dc0
+        	dlog( LOG_DEBUG, "OpenSession v6=0x%x\n", v6);
             if (v6 == 0) {
-                SetInterfaceType(a1, 1, v7);
+                SetInterfaceType(a1, ISAp /*1*/, v7);
                 function_1000d570(a1->sessionString /* a1 + 210 */);
+                a1->openStep = 0;
+                v3 = a3;
+                if (a3 != 0) {
+                    v4 = function_10003f7a(a1);
+                    v5 = v4;
+                    result = 0x10000 * v4 / 0x10000;
+                    while (v5 >= 1) {
+                        v4 = function_10003f7a(a1);
+                        v5 = v4;
+                        result = 0x10000 * v4 / 0x10000;
+                    }
+                	dlog( LOG_DEBUG, "OpenSession v5=0x%x, should be 0\n", v5);
+                    if (v5 != 0) {
+                        return result;
+                    }
+                    v3 = result;
+                }
+            	dlog( LOG_DEBUG, "OpenSession@1 --> 0x%x\n", (v3 & -0x10000));
+                return v3 & -0x10000;
+            }
+            g3 = a1;
+            int32_t v8 = function_10003838(a1, session_string, v7); // 0x10003de3
+            int32_t v9 = 0x10000 * v8 / 0x10000; // 0x10003def
+            if ((int16_t)v8 == 0) {
+                g8 = a1;
+                SetInterfaceType(a1, SERIALp /*3*/, v9);
+                function_1000d570(&a1->sessionString /* a1 + 210 */);
+                //*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
@@ -1083,49 +1112,23 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
                 }
                 return v3 & -0x10000;
             }
-            g3 = a1;
-            int32_t v8 = function_10003838(a1, session_string, v7); // 0x10003de3
-            int32_t v9 = 0x10000 * v8 / 0x10000; // 0x10003def
-            if ((int16_t)v8 == 0) {
-                g8 = a1;
-                SetInterfaceType(a1, 3, v9);
-                function_1000d570(&a1->sessionString /* a1 + 210 */);
-                //*(int16_t *)(a1 + 208) = 0;
-                a1->openStep = 0;
-                v3 = a3;
-                if (a3 != 0) {
-                    v4 = function_10003f7a((int16_t)a1);
-                    v5 = v4;
-                    result = 0x10000 * v4 / 0x10000;
-                    while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
-                        v5 = v4;
-                        result = 0x10000 * v4 / 0x10000;
-                    }
-                    if (v5 != 0) {
-                        return result;
-                    }
-                    v3 = result;
-                }
-                return v3 & -0x10000;
-            }
             g3 = session_string;
             int32_t v10 = function_1000382c(a1, session_string, v9); // 0x10003e12
             g3 = v10;
             int32_t v11 = 0x10000 * v10 / 0x10000; // 0x10003e1e
             g8 = v11;
             if ((int16_t)v10 == 0) {
-                SetInterfaceType(a1, 6, v11);
+                SetInterfaceType(a1, MODEMp /*6*/, v11);
                 function_1000d570(&a1->sessionString /* a1 + 210 */);
                 //*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
-                    v4 = function_10003f7a((int16_t)a1);
+                    v4 = function_10003f7a(a1);
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
+                        v4 = function_10003f7a(a1);
                         v5 = v4;
                         result = 0x10000 * v4 / 0x10000;
                     }
@@ -1138,19 +1141,20 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
             }
             g8 = a1;
             int32_t v12 = function_100038c1(a1, session_string, v11); // 0x10003e41
+
             int32_t v13 = 0x10000 * v12 / 0x10000; // 0x10003e4d
             if ((int16_t)v12 == 0) {
-                SetInterfaceType(a1, 4, v13);
+                SetInterfaceType(a1, NIVXIp /*4*/, v13);
                 function_1000d570(&a1->sessionString /* a1 + 210 */);
                 //*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
-                    v4 = function_10003f7a((int16_t)a1);
+                    v4 = function_10003f7a(a1);
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
+                        v4 = function_10003f7a(a1);
                         v5 = v4;
                         result = 0x10000 * v4 / 0x10000;
                     }
@@ -1167,17 +1171,17 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
             int32_t v15 = 0x10000 * v14 / 0x10000; // 0x10003e7c
             if ((int16_t)v14 == 0) {
                 g8 = a1;
-                SetInterfaceType(a1, 5, v15);
+                SetInterfaceType(a1, SICLp /*5*/, v15);
                 function_1000d570(&a1->sessionString /* a1 + 210 */);
                 //*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;
                 v3 = a3;
                 if (a3 != 0) {
-                    v4 = function_10003f7a((int16_t)a1);
+                    v4 = function_10003f7a(a1);
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
+                        v4 = function_10003f7a(a1);
                         v5 = v4;
                         result = 0x10000 * v4 / 0x10000;
                     }
@@ -1192,17 +1196,17 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
             int32_t v17 = 0x10000 * v16 / 0x10000; // 0x10003eab
             g8 = v17;
             if ((int16_t)v16 == 0) {
-                SetInterfaceType(a1, 7, v17);
+                SetInterfaceType(a1, SIMp /*7*/, v17);
                 function_1000d570(&a1->sessionString /* a1 + 210 */);
 				//*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;                
                 v3 = a3;
                 if (a3 != 0) {
-                    v4 = function_10003f7a((int16_t)a1);
+                    v4 = function_10003f7a(a1);
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
+                        v4 = function_10003f7a(a1);
                         v5 = v4;
                         result = 0x10000 * v4 / 0x10000;
                     }
@@ -1218,17 +1222,17 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
             int32_t v18 = function_100036f0(a1, (char *)session_string, v17); // 0x10003ecb
             int32_t v19 = 0x10000 * v18 / 0x10000; // 0x10003ed7
             if ((int16_t)v18 == 0) {
-                SetInterfaceType(a1, 9, v19);
+                SetInterfaceType(a1, TCPIPp /*9*/, v19);
                 function_1000d570(&a1->sessionString /* a1 + 210 */);
 				//*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;                
                 v3 = a3;
                 if (a3 != 0) {
-                    v4 = function_10003f7a((int16_t)a1);
+                    v4 = function_10003f7a(a1);
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
+                        v4 = function_10003f7a(a1);
                         v5 = v4;
                         result = 0x10000 * v4 / 0x10000;
                     }
@@ -1246,17 +1250,17 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
                 result2 = v21 & -0x10000 | 0xffef;
             } else {
                 g8 = a1;
-                SetInterfaceType(a1, 2, v21);
+                SetInterfaceType(a1, VISAp/*2*/, v21);
                 function_1000d570(&a1->sessionString /* a1 + 210 */);
 				//*(int16_t *)(a1 + 208) = 0;
                 a1->openStep = 0;                
                 v3 = a3;
                 if (a3 != 0) {
-                    v4 = function_10003f7a((int16_t)a1);
+                    v4 = function_10003f7a(a1);
                     v5 = v4;
                     result = 0x10000 * v4 / 0x10000;
                     while (v5 >= 1) {
-                        v4 = function_10003f7a((int16_t)a1);
+                        v4 = function_10003f7a(a1);
                         v5 = v4;
                         result = 0x10000 * v4 / 0x10000;
                     }
@@ -1269,17 +1273,18 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
             }
             return result2;
         }
-        SetInterfaceType(a1, 1, v2);
+    	dlog( LOG_DEBUG, "OpenSession, fall through to interface type ISAp\n");
+        SetInterfaceType(a1, ISAp /*1*/, v2);
         function_1000d570(&a1->sessionString /* a1 + 210 */);
 		//*(int16_t *)(a1 + 208) = 0;
         a1->openStep = 0;                
         v3 = a3;
         if (a3 != 0) {
-            v4 = function_10003f7a((int16_t)a1);
+            v4 = function_10003f7a(a1);
             v5 = v4;
             result = 0x10000 * v4 / 0x10000;
             while (v5 >= 1) {
-                v4 = function_10003f7a((int16_t)a1);
+                v4 = function_10003f7a(a1);
                 v5 = v4;
                 result = 0x10000 * v4 / 0x10000;
             }
@@ -1292,10 +1297,12 @@ int32_t OpenSession(SET9052 *a1, char* session_string, int16_t a3) {
     } else {
         result2 = (int32_t)a1 & -0x10000 | 0xffed;
     }
+	dlog( LOG_DEBUG, "OpenSession --> 0x%x\n", result2);
     return result2;
 }
 
 int32_t function_10003f7a(SET9052 *a1) {
+	dlog( LOG_DEBUG, "function_10003f7a\n");
 	SET9052 * v1 = a1; // 0x10003f7e
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003f82
@@ -1587,14 +1594,14 @@ int32_t function_10003613(char * a1) {
 */
 }
 
-int32_t SetInterfaceType(SET9052* a1, int16_t a2, int32_t a3) {
-	dlog( LOG_DEBUG, "SetInterfaceType\n");
+int32_t SetInterfaceType(SET9052* a1, /*int16_t*/InterfaceEnum type, int32_t a3) {
+	dlog( LOG_DEBUG, "SetInterfaceType(%d)\n", type);
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10004f22
     g3 = v1;
     int32_t result; // 0x10004f51
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-        a1->interfaceType = a2;
+        a1->interfaceType = type;
         result = (int32_t)a1 & -0x10000;
     } else {
         g8 = a1;
@@ -3508,7 +3515,7 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, uint16_t *wo
             }
         }
 #else
-        VISA_SendCommand(a1, command, numBytes, wordPtr);
+        v1 = VISA_SendCommand(a1, command, numBytes, wordPtr);
 #endif
         result = (int32_t)v1 & -0x10000 | 0xffeb;
     } else {
@@ -3734,6 +3741,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
         v8 = v7 / 0x10000;
         if (v7 == 0x130000) {
             g4 = v1;
+            dlog( LOG_DEBUG, "ComTrigDetect exit 1, v7 == 0x130000\n");
             return v8 & -0x10000 | 144;
         }
         if (v10 < 20) {
@@ -3742,9 +3750,11 @@ int32_t CommTrigDetect(SET9052 *a1) {
             result = v8 & -0x10000 | 145;
         }
         g4 = v1;
+        dlog( LOG_DEBUG, "ComTrigDetect exit 2\n");
         return result;
     }
     if (a1->trig_norm_flag /* *(int16_t *)(a1 + 110)*/  != IE_FALSE /*0*/) {
+        dlog( LOG_DEBUG, "ComTrigDetect exit ->a1->trig_norm_flag != IE_FALSE =>  NOP ???\n");
     }
 
     v9 = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t)v2, ppp);
@@ -3753,6 +3763,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
     v8 = v7 / 0x10000;
     if (v7 == 0x130000) {
         g4 = v1;
+        dlog( LOG_DEBUG, "ComTrigDetect exit 1, v7 == 0x130000\n");
         return v8 & -0x10000 | 144;
     }
     if (v10 < 20) {
@@ -3761,6 +3772,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
         result = v8 & -0x10000 | 145;
     }
     g4 = v1;
+    dlog( LOG_DEBUG, "ComTrigDetect --> 0x%0x\n", result);
     return result;
 }
 
@@ -3779,7 +3791,7 @@ int32_t CommInterrupts(SET9052 *a1) {
         // DD Engine Command 6 is related to "set comm interupts..."
         // param 3 is sth. like 1
         // v4 =  a1->intr_code
-        result = FuncStatusFromEngineReply((int16_t)SendCommand(a1, ENG_SET_INTMODE /*6*/, (int32_t)1 | (int32_t)a1 & -0x10000, v4));
+        result = FuncStatusFromEngineReply((int16_t)SendCommand(a1, ENG_SET_INTMODE /*6*/, 1 /*(int32_t)1 | (int32_t)a1 & -0x10000*/, v4));
     } else {
         result = GetFuncStatusCode(a1);
     }

@@ -14,10 +14,10 @@ See sa_defin.h
 #define ENG_START_SWP   1
 #define ENG_START_ZSPAN 2
 #define ENG_START_FHOP  3
-#define ENG_SET_TRIGDET 4
+#define ENG_SET_TRIGDET 4			8 Bytes: detect_code(2), sweep_code(2), num_cells(4)
 #define ENG_LOAD_HOPFRQ 5
-#define ENG_SET_INTMODE 6
-#define ENG_TERMINATE   7
+#define ENG_SET_INTMODE 6			2 Bytes: intr_code(2)
+#define ENG_TERMINATE   7			2 Bytes: breakMode, value seen: 0
 #define ENG_CALIBRATE   10
 
 Own findings:

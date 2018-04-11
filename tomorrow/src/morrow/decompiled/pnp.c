@@ -91,7 +91,7 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag
 	}
 	void* v4 = *session_id; // 0x10003041
 	g7 = v4;
-	int32_t result2 = mr90xx_SetEngineModel(v4, 256, 0); // 0x10003044
+	int32_t result2 = mr90xx_SetEngineModel(v4, SA9052 /*256*/, 0); // 0x10003044
 	if (result2 != 0) {
 		mr90xx_CloseSession(*session_id);
 		return result2;
@@ -184,6 +184,7 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 		return MR90XX_IE_ERROR; // -0x4003f7ff;
 	}
 	int16_t status = OpenSession(v2, session_string, 1); // 0x100047fb
+	dlog( LOG_DEBUG, "mr90xx_OpenSession, OpenSession() call returned 0x%x\n", status);
 	int32_t result; // 0x1000495f
 	if (status == 0) {
 		*session_id = RdSessionHandle(v2);
@@ -230,6 +231,8 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 			g3 = v1;
 			return 0;
 		}
+#else
+		result = 0;
 #endif
 	} else {
 		function_1000498f(v2);
@@ -460,6 +463,7 @@ int32_t function_1000a4b0(char * a1, int32_t a2) {
 }
 
 int32_t function_1000498f(int32_t a1) {
+	dlog( LOG_DEBUG, "function_1000498f\n");
 	int32_t v1 = 0; // bp-8
 	int32_t v2 = 0; // 0x1000499c
 	int32_t hMem; // 0x10004a10
