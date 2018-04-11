@@ -293,7 +293,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
     for (ii=0; ii<numBytes; ii+=2) {
     	dlog( LOG_DEBUG, "wordPtr[%d]=0x%x\n", ii, wordPtr[ii/2] );
     }
-
+#ifdef ORIG
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2 = 0; // bp-20
@@ -392,6 +392,26 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
         v5 = 1;
         goto lab_0x10001d34_3;
     }
+#else
+    if (command < 0 || command >16) {
+    	return -1;
+    }
+    // Send command
+    VISA_SendWord(deviceId, command);
+    // Send parameter words
+    if (numBytes>0) {
+    	int i;
+    	for (i=0; i<numBytes; i+=2) {
+    		VISA_SendWord(deviceId, wordPtr[i/2]);
+    		// check for protocol errors
+    	    int32_t v1 = _sendCommand(deviceId, 0xcdff);
+    	}
+		int32_t status = VISA_CheckSWStatus(deviceId);
+        if ((status & 0xffff) != 1) {
+        	dlog( LOG_DEBUG, "VISA_SendCommand failed, status=%d.\n", status);
+        }
+    }
+#endif
 }
 
 /**
@@ -400,9 +420,10 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
  * will then be forwarded to P1.
  */
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
-	dlog( LOG_INFO, "VISA_SendWord: %x=%s\n", command, getCmdNameP1(command));
+	dlog( LOG_INFO, "VISA_SendWord: %x\n", command);
     int16_t v1 = -2; // bp-8
     g2 = deviceId;
+#ifdef ORIG
     int32_t v2 = sendWord(deviceId, VXI_ENGINECMD /*0x7f00*/); // 0x100019db
     g2 = v2;
     if (v2 != 0) {
@@ -415,6 +436,11 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
     } else {
         dlog( LOG_ERROR, "VISA_SendWord: failed (2)\n");
     }
+#else
+    int readAnswer = 0;
+    dd_p1Command(deviceId->session_handle, command, readAnswer);
+    int32_t v3 = 1;
+#endif
     return (int32_t)v1 | v3 & -0x10000;
 }
 
@@ -721,7 +747,7 @@ int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
 }
 
 int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
-	dlog( LOG_DEBUG, "VISA_CheckSWStatus\n");
+	dlog( LOG_DEBUG, "VISA_CheckSWStatus: \n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = dd_readEngineStatus(deviceId); // 0x10001bd6
@@ -740,6 +766,7 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
         g5 = v9;
         if (v9 != 0) {
             g3 = v1;
+        	dlog( LOG_DEBUG, "VISA_CheckSWStatus -> %x\n", ((int32_t)v9 | v7 & -0x10000));
             return (int32_t)v9 | v7 & -0x10000;
         }
         int32_t v10 = dd_readEngineStatus(deviceId); // 0x10001c28
@@ -754,17 +781,19 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
         v7 = v8;
     }
     g3 = v1;
+	dlog( LOG_DEBUG, "VISA_CheckSWStatus -> %x\n", ((int32_t)v3 | v8 & -0x10000));
     return (int32_t)v3 | v8 & -0x10000;
 }
 
 int32_t dd_readEngineStatus(SET9052 *deviceId) {
-	dlog( LOG_DEBUG, "function_1000108e\n") ;
+	dlog( LOG_DEBUG, "dd_readEngineStatus\n") ;
     function_100010e1(deviceId, 0x10000 * (int32_t)g5 / 0x10000);
     g5 = deviceId;
     // DD: 0x7e00 = VXI_GETSTATUS
     int32_t v1 = _sendCommand(deviceId, 0x7e00); // 0x100010a7
     function_100016c8(deviceId);
     g7 = deviceId;
+	dlog( LOG_DEBUG, "dd_readEngineStatus result=%x\n", ((uint32_t)g5 & -0x10000 | v1 & 255)) ;
     return SetEngineReplyCode(deviceId, (uint32_t)g5 & -0x10000 | v1 & 255);
 }
 
@@ -1038,7 +1067,11 @@ int _getStatus(INST id, int *fifo, int *status) {
 int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int32_t *session_id) {
 	dlog( LOG_DEBUG, "\tviOpen(%s)\n", session_string);
 #if defined(__hp9000s700)
+#ifdef HP_SICL
 	INST id = iopen(session_string);
+#else
+	INST id = dd_iOpen(session_string);
+#endif
 	dlog( LOG_DEBUG, "\tviopen() -> %x\n", id);
 
 	if (id == 0) {
@@ -1046,9 +1079,10 @@ int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int3
 	}
 	*session_id = id;
 	itimeout (id, 10000);
-	_initEngine(id, 2);
-	//usleep(1000000L);
+
+	//_initEngine(id, 2);
 	sleep(1);
+
 #else
 	*session_id = 11;
 #endif
@@ -1078,7 +1112,7 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
     // mask: 4 = 0x4 = VI_READ_BUF_DISCARD
 	// mask: 10 = 0xa = 1010 VI_WRITE_BUF|VI_WRITE_BUF_DISCARD
     // mask: 14 = 0xe = 1110 includes VI_READ_BUF_DISCARD
- 	dlog( LOG_DEBUG, "\tviFlush(%d, 0x%x, 0x%x)\n", session_handle, a2, mask);
+ 	//dlog( LOG_TRACE, "\tviFlush(%d, 0x%x, 0x%x)\n", session_handle, a2, mask);
 	int siclMask=0x0;
 	if (mask & VI_READ_BUF) {
 		siclMask |= I_BUF_READ;
@@ -1118,7 +1152,11 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 	uint16_t response;
 	uint16_t rpe;
 #if defined(__hp9000s700)
+#ifdef ORIG
 	ret = ivxiws(session_handle, cmd, &response, &rpe);
+#else
+	ret = dd_wsCommand(session_handle, cmd, &response, &rpe);
+#endif
 	dlog( LOG_DEBUG, "\tivxiws() -> ret=0x%x, response=0x%x, rpe=0x%x\n", ret, response, rpe);
 #else
 	ret = 0;
@@ -1138,7 +1176,11 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 	dlog( LOG_DEBUG, "viSetBuf(%d,%d,%d)\n", session_handle, mask, size);
 #if defined(__hp9000s700)
+#ifdef ORIG
 	int ret = isetbuf(session_handle, mask, size);
+#else
+	int ret = 0;
+#endif
 	return ret;
 #else
 	return VI_SUCCESS;

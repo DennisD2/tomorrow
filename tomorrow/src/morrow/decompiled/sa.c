@@ -204,7 +204,6 @@ int32_t SetEngineReplyCode(SET9052 *a1, uint16_t code) {
 	dlog( LOG_DEBUG, "SetEngineReplyCode(%x)\n", code);
     int32_t result;
     if (a1 != NULL) {
-        //*(int16_t *)(a1 + 206) = a2;
     	a1->engine_reply_code = code;
         result = (int32_t)a1 & -0x10000 | (int32_t)code;
     } else {
@@ -3929,6 +3928,7 @@ int32_t RdNumDataPts(SET9052 *a1) {
     return result2;
 }
 
+// Returns a1->ie_duration
 int32_t RdTimeoutWait(SET9052 *a1) {
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d8d

@@ -9,62 +9,38 @@
  as some instruments may not respond fast enough.  In the interest of space,
  most error checking has been left out of this example.	  */
 
-//#include <nivxi.h>
-//#include <ansi_c.h>
-#include <sicl.h>
+#include "ws.h"
+
 #include "helper.h"
+#include <stdio.h>
+#include <time.h>
 
-#define UINT16 unsigned short
-#define INT16 short
+#define TIMEOUT 1000000L
 
+// memory mapped device registers
+static char *mapped = 0L;
 
-#define TRUE  1
-#define FALSE 0
-#define MAXINSTR 256
+dumpRegisters() {
+	UINT16 *q = (UINT16 *)mapped;
+	int i;
+	/*for (q = mappedReg, i = 0; i < 32; i++, q++) {
+		printf("[%02d]=0x%x\n", i, *q);
+	}*/
+	for (i=0; i<32; i++) {
+		UINT16 v = iwpeek(&q[i]);
+		if (v != (UINT16)0xffff) {
+			dlog(LOG_TRACE, "reg[%d @ byte offset %02x]=x%04x\n", i, 2*i, v);
+		}
+	}
+}
 
-// register numbers (not: byte offsets as in official doc)
-#define REG_ID 0x00
-#define REG_DEVTYPE 1
-#define REG_STATUSCRTL 2
-
-#define REG_RESPONSE 5
-#define REG_DATALOW 7
-
-#define REG_RESPONSE_WR_BITV (UINT16)(1<<9)
-#define REG_RESPONSE_RD_BITV (UINT16)(1<<10)
-#define REG_RESPONSE_DIR_BITV (UINT16)(1<<12)
-#define REG_RESPONSE_DOR_BITV (UINT16)(1<<13)
-#define REG_RESPONSE_ERR_BITV (UINT16)(1<<11)
-
-
-#define WRITEREADYDIR /*0x0900*/ (UINT16)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DIR_BITV)
-#define WRITEREADYDOR /*0x2200*/ (UINT16)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DOR_BITV)
-
-// Device has put sth. in Datalow
-#define READREADY 0x400
-// Device is ok to read  from Datalow
-#define WRITEREADY 0x200
-
-#define TIMEOUT 10000
-#define NORMALCHAR 0xBC00
-#define FINALCHAR 0xBD00
-#define CHARMASK 0xFF
-#define ENDMASK 0xFF00
-#define NOMOREDATA 0xFF00
-
-
-int main(int argc, char *argv[]) {
-	UINT16 offset;
-	UINT16 regdata;
-	INT16 status;
-	UINT16 responseReg;
-
-	int timeoutCnt = 0;
+/**
+ * Opens a device and reads/dumps some basic information about device.
+ */
+INST dd_iOpen(char *sessionString) {
+	dlog(LOG_DEBUG, "dd_iOpen\n");
+	INST id = iopen(sessionString);
 	int err;
-
-	setLogLevel(LOG_DEBUG);
-
-	INST id = iopen("vxi,126");
 	if (id == 0) {
 		err = igeterrno();
 		dlog(LOG_DEBUG, "iopen FAILED with ID 0 %d\n", err);
@@ -72,7 +48,7 @@ int main(int argc, char *argv[]) {
 	}
 	dlog(LOG_DEBUG, "iopen returned ID=%d\n", id);
 
-	int ret = itimeout(id, 10000);
+	int ret = itimeout(id, 0/*10000*/);
 	if (ret != 0) {
 		err = igeterrno();
 		dlog(LOG_DEBUG, "itimeout Error: %d %d\n", ret, err);
@@ -81,97 +57,125 @@ int main(int argc, char *argv[]) {
 
 	int windowCount;
 	int windowSize;
+#ifdef NOT
 	ret = imapinfo(id, I_MAP_A24/*I_MAP_A16*/, &windowCount, &windowSize);
 	if (err != I_ERR_NOERROR) {
 		err = igeterrno();
 		dlog(LOG_DEBUG, "imapinfo Error: %d %d\n", ret, err);
 		return -1;
 	}
-	dlog(LOG_INFO, "window count: %d, size: %d\n", windowCount, windowSize);
+	dlog(LOG_INFO, "window count: 0x%x, size: 0x%x\n", windowCount, windowSize);
 	ret = imapinfo(id, I_MAP_VXIDEV, &windowCount, &windowSize);
 	if (err != I_ERR_NOERROR) {
 		err = igeterrno();
 		dlog(LOG_DEBUG, "imapinfo Error: %d %d\n", ret, err);
 		return -1;
 	}
-	dlog(LOG_INFO, "window count: %d, size: %d\n", windowCount, windowSize);
-
+	dlog(LOG_INFO, "window count: 0x%x, size: 0x%x\n", windowCount, windowSize);*/
+#endif
 	// Memory map the device registers
-	char *mapped = imap(id, I_MAP_VXIDEV, 0x0, 0x0, 0);
+	mapped = imap(id, I_MAP_VXIDEV, 0x0, 0x0, 0);
 	if (mapped == 0) {
 		err = igeterrno();
 		dlog(LOG_DEBUG, "imap Error returned NULL, err=%d\n", err);
 		return -1;
 	}
 	dlog(LOG_DEBUG, "imap returned valid pointer %lx\n", mapped);
-	UINT16 *q = mapped;
+	UINT16 *q = (UINT16 *)mapped;
 	int i;
 
 	dlog(LOG_DEBUG, "Vendor ID: 0x%x\n", iwpeek(&q[REG_ID]));
 	dlog(LOG_DEBUG, "Device type: 0x%x\n", iwpeek(&q[REG_DEVTYPE]));
 
-	/*for (q = mappedReg, i = 0; i < 32; i++, q++) {
-		printf("[%02d]=0x%x\n", i, *q);
-	}*/
-	q = mapped;
-	for (i=0; i<32; i++) {
-		printf("reg[%d @ byte offset %02x]=x%04x\n", i, 2*i, iwpeek(&q[i]));
+	dumpRegisters();
+
+	return id;
+}
+
+/**
+ * Standard implementation of the word serial protocol.
+ *
+ * This function sends a word (2 bytes) to a device.
+ * It checks the device RESPONSE register until the device is ready to be written to (WriteReady bit).
+ * Then it writes the word to the DATALOW register.
+ * To read the answer, it then checks the device RESPONSE register until the device is ready to be read from (ReadReady bit).
+ * Then it reads the answer word from the DATALOW register.
+
+ * If a timeout value is reached, the waits are interrupted and the function returns immediatedly.
+ *
+ */
+//
+UINT32 dd_wsCommand(INST id, UINT16 command, UINT16 *theResponse, UINT16 *rpe ) {
+	dlog(LOG_DEBUG, "\ndd_wsCommand(0x%x)\n", command);
+	UINT16 regdata = 0;
+	int timeoutCnt = 0;
+
+	// Let point word pointer to memory
+	UINT16 *q =(UINT16 *)mapped;
+
+	struct timespec start, stop;
+	double accum;
+
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		perror("clock gettime");
+		exit(-1);
 	}
 
-	dlog(LOG_DEBUG, "------------------------------------------------------\n");
+	// ---------------------- WRITE COMMAND ----------------------
 
-	ret = _dd_sendCommand(id, WS_CMD_RP /*WS_CMD_RMOD /*WS_CMD_RPE*/);
-	dlog(LOG_DEBUG, "_dd_sendCommand WS_CMD_RP result: %x\n", (short)(ret & 0xefff));
-
-
-	regdata = 0;
-	timeoutCnt = 0;
-	// Let point word pointer to memory
-	q = mapped;
-
-	UINT16 old_regdata = 12345;
-	// Read RESPONSE register 0xA of instrument and wait till instrument is ready for write
-	// or until timeout occurs
+	UINT16 old_regdata = 0;
+	// Read RESPONSE register until instrument is ready for write or timeout.
+	// Wait for WRITEREADY bit value to be set.
 	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
-		//status = VXIinReg(myinstrLA, REG_RESPONSE, &regdata);
 		//regdata = q[REG_RESPONSE];
 		regdata = iwpeek(&(q[REG_RESPONSE]));
-		// Mask for the WRITEREADY and DIR bits. this will be checked by the while loop and
-		// if the instrument is ready we will exit the loop and continue
 		if (regdata != old_regdata) {
-			dlog(LOG_DEBUG, "reg[0x%x]=0x%x mask=0x%x masked=%x\n", REG_RESPONSE, regdata, WRITEREADY,
-					(WRITEREADY & regdata));
+			// trace: dump register data if something changes
+			dlog(LOG_TRACE, "reg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
+					(WRITEREADY & regdata),
+					((regdata&READREADY)? "RR" : ""),
+					((regdata&WRITEREADY)? "WR" : "")
+			);
 			old_regdata = regdata;
 		}
+		// Mask for the WRITEREADY bit
 		regdata = (WRITEREADY & regdata);
-		// Increment timeout timer so we keep track
+		// Increment timeout
 		timeoutCnt++;
 	}
+	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
 	if (timeoutCnt >= TIMEOUT) {
-		printf("Timeout occurred while checking WRITEREADYDIR.\n");
+		printf("Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_DEBUG, "WRITEREADY after %d loops\n", timeoutCnt);
+	dlog(LOG_DEBUG, "WRITEREADY after %ldus (%d tries).\n", (stop.tv_nsec - start.tv_nsec)/1000L, timeoutCnt);
 
-	UINT16 cmd = WS_CMD_ANO; // WS_CMD_RP; // WS_CMD_ANO;
-	// Write the command to send to the DATALOW register 0xe
+	// Write the command to send to the DATALOW register
 	//q[REG_DATALOW] = cmd;
-	iwpoke(&(q[REG_DATALOW]), cmd);
-	//dlog(LOG_DEBUG, "q[REG_DATALOW] = 0x%x\n", *(&(q[REG_DATALOW])));
+	iwpoke(&(q[REG_DATALOW]), command);
 
 	// ---------------------- READ ANSWER ----------------------
 
 	timeoutCnt = 0;
-	// Read RESPONSE register 0xA of instrument and wait till instrument is ready for read
-	// or until timeout occurs
-	old_regdata = 12345;
-	// Wait for WRITEREADY and DOR bit to be set in the response register or timeout
-	// if it takes to long
+	old_regdata = 0;
+	// Read RESPONSE register until instrument is ready for read or timeout.
+	// Wait for READREADY bit to be set.
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
 	while ((regdata != READREADY) && (timeoutCnt < TIMEOUT)) {
-		//status = VXIinReg(myinstrLA, RESPONSE, &regdata);
 		regdata = q[REG_RESPONSE];
 		if (regdata != old_regdata) {
-			dlog(LOG_DEBUG, "reg[0x%x]=0x%x mask=0x%x masked=%x\n", REG_RESPONSE, regdata, READREADY, (READREADY & regdata));
+			// trace: dump register data if something changes
+			dlog(LOG_TRACE, "reg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata,
+					READREADY, (READREADY & regdata),
+					((regdata&READREADY)? "RR" : ""),
+					((regdata&WRITEREADY)? "WR" : "")
+			);
 			old_regdata = regdata;
 		}
 		// Masking for READREADY
@@ -179,51 +183,245 @@ int main(int argc, char *argv[]) {
 		// Keep track of timeout time
 		timeoutCnt++;
 	}
-	for (i=0; i<32; i++) {
-		printf("reg[%d @ byte offset %02x]=x%04x\n", i, 2*i, iwpeek(&q[i]));
+	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
+		perror("clock gettime");
+		exit(-1);
 	}
+
+	//dumpRegisters();
 
 	// If we exited the loop because of a timeout quit the program with an error
 	if (timeoutCnt >= TIMEOUT) {
-		printf("Timeout occurred during wait for WRITEREADYDOR.\n");
+		printf("Timeout occurred during wait for READREADY.\n");
 		return -1;
 	}
-	dlog(LOG_DEBUG, "WRITEREADYDOR after %d loops\n", timeoutCnt);
+	dlog(LOG_DEBUG, "READREADY after %ldus (%d tries).\n", (stop.tv_nsec - start.tv_nsec)/1000L, timeoutCnt);
 
-#ifdef NOT
-	// Send 0xDEFF to DATALOW register of the instrument to request a byte to be transferred
-	// from the device
-	cmd = WS_CMD_BR;
-	//status = VXIoutReg(myinstrLA, DATALOW, sendchar);
-	q[REG_DATALOW] = cmd;
+	// Read result from Datalow
+	UINT16 response = q[REG_DATALOW];
+	dlog(LOG_DEBUG, "Response: 0x%x\n", response);
 
-	// Wait until the READREADY bit is set in the RESPONSE register or timeout
-	// if it takes too long
+	*rpe = 0; // ???
+	*theResponse = response;
+	return 0;
+}
+
+/**
+ * Sends a word (2 byte) command to the P1 CPU.
+ * This is not strictly following Word Serial Protocol but goes as follows.
+ *
+ * It checks the device RESPONSE register until the device is ready to be written to (WriteReady bit).
+ * Then it writes the special command 'VXI_ENGINECMD' to the DATALOW register.
+ * The device temporarily unsets the WriteReady bit. After some short time it sets the WriteReady bit again.
+ * Then the command itself (the parameter value for the function) is written to the DATALOW register.
+ *
+ * If the command we are sending to P1 CPU consists of more than one word, we must repeat call this function
+ * for each word.
+ *
+ * After calling the function, the Protocol Error Register can be checked. There should be no errors.
+ * Moreover, the engine P1 status can be checked. As long as the command is not complete (not all parameters have been sent)
+ * the status is '0' (BUSY). If all parameters have been send the status becomes '1' (ACK). P1 CPU then executes the command.
+ *
+ * The function also allows to read an answer from the P1 CPU. To do that, the flag 'readAnswer' must be != 0.
+ * Note that most P1 commands DO NOT send an answer and you will get a timeout then (slowing down communication).
+ *
+ * The following text needs rework. It is currently not finally clear how answers from P1 must be handled.
+ *
+ * To read the answer, it then checks the device RESPONSE register until the device is ready to be read from (ReadReady bit).
+ * Then it reads the answer word from the DATALOW register.
+ */
+UINT32 dd_p1Command(INST id, UINT16 command, int readAnswer) {
+	dlog(LOG_DEBUG, "\ndd_p1Command(0x%x)\n", command);
+	UINT16 regdata = 0;
+	int timeoutCnt = 0;
+
+	// Let point word pointer to memory
+	UINT16 *q =(UINT16 *)mapped;
+
+	struct timespec start, stop;
+	double accum;
+
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
+
+	// ---------------------- WRITE VXI_ENGINECMD ----------------------
+
+	UINT16 old_regdata = 0;
+	// Read RESPONSE register until instrument is ready for write or timeout.
+	// Wait for WRITEREADY bit value to be set.
+	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
+		//regdata = q[REG_RESPONSE];
+		regdata = iwpeek(&(q[REG_RESPONSE]));
+		if (regdata != old_regdata) {
+			// trace: dump register data if something changes
+			dlog(LOG_TRACE, "reg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
+					(WRITEREADY & regdata),
+					((regdata&READREADY)? "RR" : ""),
+					((regdata&WRITEREADY)? "WR" : "")
+			);
+			old_regdata = regdata;
+		}
+		// Mask for the WRITEREADY bit
+		regdata = (WRITEREADY & regdata);
+		// Increment timeout
+		timeoutCnt++;
+	}
+	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
+	printf("WR time: %ld us\n", (stop.tv_nsec - start.tv_nsec)/1000L );
+	if (timeoutCnt >= TIMEOUT) {
+		printf("Timeout occurred while checking WRITEREADY.\n");
+		return -1;
+	}
+	dlog(LOG_DEBUG, "WRITEREADY after %d tries.\n", timeoutCnt);
+
+	// Write the command to send to the DATALOW register
+	//q[REG_DATALOW] = cmd;
+	iwpoke(&(q[REG_DATALOW]), VXI_ENGINECMD);
+
+	// ---------------------- WAIT TILL SECOND WORD CAN BE WRITTEN ----------------------
+
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
+
+	old_regdata = 0;
+	// Read RESPONSE register until instrument is ready for write or timeout.
+	// Wait for WRITEREADY bit value to be set.
+	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
+		//regdata = q[REG_RESPONSE];
+		regdata = iwpeek(&(q[REG_RESPONSE]));
+		if (regdata != old_regdata) {
+			// trace: dump register data if something changes
+			dlog(LOG_TRACE, "reg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
+					(WRITEREADY & regdata),
+					((regdata&READREADY)? "RR" : ""),
+					((regdata&WRITEREADY)? "WR" : "")
+			);
+			old_regdata = regdata;
+		}
+		// Mask for the WRITEREADY bit
+		regdata = (WRITEREADY & regdata);
+		// Increment timeout
+		timeoutCnt++;
+	}
+	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
+	printf("WR2 time: %ld us\n", (stop.tv_nsec - start.tv_nsec)/1000L );
+	if (timeoutCnt >= TIMEOUT) {
+		printf("Timeout occurred while checking WRITEREADY2.\n");
+		return -1;
+	}
+	dlog(LOG_DEBUG, "WRITEREADY2 after %d tries.\n", timeoutCnt);
+
+	// ---------------------- WRITE SECOND WORD ----------------------
+
+	// Write the command to send to the DATALOW register
+	//q[REG_DATALOW] = cmd;
+	iwpoke(&(q[REG_DATALOW]), command);
+
+	if (!readAnswer) {
+		dlog( LOG_DEBUG, "Not asking for answer.\n");
+		return 0;
+	}
+
+	// ---------------------- READ ANSWER ----------------------
+
+	timeoutCnt = 0;
+	old_regdata = 0;
+	// Read RESPONSE register until instrument is ready for read or timeout.
+	// Wait for READREADY bit to be set.
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
 	while ((regdata != READREADY) && (timeoutCnt < TIMEOUT)) {
-		//status = VXIinReg(myinstrLA, RESPONSE, &regdata);
 		regdata = q[REG_RESPONSE];
-		// Mask for READREADY bit
+		if (regdata != old_regdata) {
+			// trace: dump register data if something changes
+			dlog(LOG_TRACE, "reg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, READREADY,
+					(READREADY & regdata),
+					((regdata&READREADY)? "RR" : ""),
+					((regdata&WRITEREADY)? "WR" : "")
+			);
+			old_regdata = regdata;
+		}
+		// Masking for READREADY
 		regdata = (READREADY & regdata);
 		// Keep track of timeout time
 		timeoutCnt++;
 	}
-	if (timeoutCnt > TIMEOUT) {
-		printf("Timeout occurred during wait for READREADY\n");
+	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
+	printf("RR time: %ld us\n", (stop.tv_nsec - start.tv_nsec)/1000L );
+
+	//dumpRegisters();
+
+	// If we exited the loop because of a timeout quit the program with an error
+	if (timeoutCnt >= TIMEOUT) {
+		printf("Timeout occurred during wait for READREADY.\n");
 		return -1;
 	}
-	dlog(LOG_DEBUG, "READREADY after %d loops\n", timeoutCnt);
+	dlog(LOG_DEBUG, "READREADY after %d tries\n", timeoutCnt);
 
-	// Now read a word from the instrument
-	//status = VXIinReg(myinstrLA, DATALOW, &regdata);
-	regdata = q[REG_DATALOW];
+	// Read result from Datalow
+	UINT16 response = q[REG_DATALOW];
+	dlog(LOG_DEBUG, "Response: 0x%x\n", response);
 
-	dlog(LOG_DEBUG, "regdata = 0x%x\n", regdata);
-#endif
-
-#ifdef NOTYET
-			//	Close the VXI driver
-			status = CloseVXIlibrary();
-			return 0;
-		}
-#endif
+	return response;
 }
+
+//#define WS_MAIN
+#ifdef WS_MAIN
+int main(int argc, char *argv[]) {
+	UINT16 offset;
+	UINT16 regdata;
+	INT16 status;
+	UINT16 responseReg;
+
+	int timeoutCnt = 0;
+	int err;
+	int ret;
+
+	setLogLevel(LOG_TRACE);
+
+	INST id = dd_iOpen("vxi,126");
+
+	dlog(LOG_DEBUG, "------------------------------------------------------\n");
+
+	//ret = _dd_sendCommand(id, WS_CMD_RP /*WS_CMD_RMOD /*WS_CMD_RPE*/);
+	//dlog(LOG_DEBUG, "_dd_sendCommand WS_CMD_RP result: %x\n", (short)(ret & 0xefff));
+
+	UINT16 response, rpe;
+	dd_wsCommand(id, WS_CMD_ANO, &response, &rpe);
+	//dd_wsCommand(id, WS_CMD_RMOD, &response, &rpe);
+	//dd_wsCommand(id, WS_CMD_RP, &response, &rpe);
+	dd_wsCommand(id, WS_CMD_BNO, &response, &rpe);
+
+	// V9054
+	dd_wsCommand(id, VXI_GETVERSION, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+
+	// Send ENG_TERMINATE with parameter 0
+	dd_p1Command(id, 7, 0);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+	dd_p1Command(id, 0, 0);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+
+	//dd_p1Command(id, 0);
+	//dd_wsCommand(id, WS_CMD_RPE);
+
+}
+#endif

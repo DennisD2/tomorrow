@@ -352,34 +352,15 @@ int main(int argc, char **argv) {
 
 	setLogLevel(LOG_DEBUG);
 	sysInfo();
-
-	printf("hello\n");
 	dlog(LOG_DEBUG, "----------------------------------------\n");
-
-	/*INST id = iopen("vxi,126");
-	 itimeout(id, 10000);
-	 int ret = isetbuf(id, 0x3, 4000);
-	 if (ret != 0) {
-	 dlog(LOG_DEBUG, "isetbuf Error: %d\n", ret);
-	 return -1;
-	 }
-
-	 __initEngine(id, argc);*/
-
-	/*if (argc==1) {
-	 readLoop(id);
-	 }
-	 dlog(LOG_DEBUG,"DONE.\n");
-	 */
 
 	char sessionString[50];
 	ViChar message[128];
 	ViStatus mr90xxStatus;
 	ViSession sessionId;
 
-	setLogLevel(LOG_DEBUG);
+	setLogLevel(LOG_TRACE);
 	printf("main start\n");
-	sysInfo();
 
 	sprintf(sessionString, "vxi,126");
 

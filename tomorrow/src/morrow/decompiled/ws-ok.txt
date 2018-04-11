@@ -1,0 +1,108 @@
+bash-4.3$ ./ws
+dd_iOpen
+iopen returned ID=1
+imap returned valid pointer f040df80
+Vendor ID: 0xbece
+Device type: 0x100
+reg[0 @ byte offset 00]=xbece
+reg[1 @ byte offset 02]=x0100
+reg[2 @ byte offset 04]=x7fac
+reg[3 @ byte offset 06]=x0000
+reg[5 @ byte offset 0a]=x4b80
+reg[7 @ byte offset 0e]=xaa00
+reg[8 @ byte offset 10]=x0db0
+reg[9 @ byte offset 12]=x5570
+reg[10 @ byte offset 14]=x5e7d
+reg[11 @ byte offset 16]=xfa06
+------------------------------------------------------
+
+dd_wsCommand(0xc8ff)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 166us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 311us (53 tries).
+Response: 0xfffe
+
+dd_wsCommand(0xfcff)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 108us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 157us (2 tries).
+Response: 0xffff
+
+dd_wsCommand(0x7c00)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 110us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 6481us (6905 tries).
+Response: 0x14
+
+dd_wsCommand(0x7e00)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 110us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 157us (2 tries).
+Response: 0xaa13
+
+dd_wsCommand(0xcdff)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 109us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 157us (2 tries).
+Response: 0xffff
+
+dd_p1Command(0x7)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WR time: 110 us
+WRITEREADY after 1 tries.
+WR2 time: 15 us
+WRITEREADY2 after 1 tries.
+Not asking for answer.
+
+dd_wsCommand(0xcdff)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 83us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 226us (2 tries).
+Response: 0xffff
+
+dd_wsCommand(0x7e00)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 188us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 224us (2 tries).
+Response: 0xaa00 <========== BUSY
+
+dd_p1Command(0x0)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WR time: 193 us
+WRITEREADY after 1 tries.
+WR2 time: 21 us
+WRITEREADY2 after 1 tries.
+Not asking for answer.
+
+dd_wsCommand(0xcdff)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 85us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 9484us (2 tries).
+Response: 0xffff
+
+dd_wsCommand(0x7e00)
+reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+WRITEREADY after 182us (1 tries).
+reg[0x5]=0x4980 mask=0x400 masked=0, ,
+reg[0x5]=0x4f80 mask=0x400 masked=400, RR,WR
+READREADY after 9267us (2 tries).
+Response: 0xaa01 <========== ACK
+bash-4.3$ 
+
+bash
