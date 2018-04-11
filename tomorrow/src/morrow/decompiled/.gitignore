@@ -2,3 +2,4 @@
 /types
 **/*.o
 *.o
+/timetest
