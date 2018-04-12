@@ -118,8 +118,8 @@ void *ClearFuncStatusCode(SET9052 *a1) {
 	return a1;
 }
 
-int32_t RdSessionString(SET9052 *a1, int32_t a2) {
-	dlog( LOG_DEBUG, "RdSessionString(%x)\n", a2);
+int32_t RdSessionString(SET9052 *a1, char *sessionString) {
+	dlog( LOG_DEBUG, "RdSessionString(%x)\n", sessionString);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008d6f
 	g3 = v1;
@@ -128,9 +128,9 @@ int32_t RdSessionString(SET9052 *a1, int32_t a2) {
 		result = GetFuncStatusCode(a1);
 		return result;
 	}
-	if (a2 != 0) {
-		g8 = a2;
-		result = function_1000d570(a2) & -0x10000;
+	if (sessionString != 0) {
+		g8 = sessionString;
+		result = function_1000d570(sessionString) & -0x10000;
 	} else {
 		g3 = a1;
 		result = SetFuncStatusCode(a1, -3);
