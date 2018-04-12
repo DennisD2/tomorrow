@@ -13,7 +13,6 @@
 
 #include "helper.h"
 
-
 static int32_t g3 = 0; // ebp
 static int32_t g5 = 0; // ecx
 static int32_t g4 = 0; // esi
@@ -28,8 +27,17 @@ static int32_t g40 = 0;
 
 static SET9052 *g_sa9054_data = 0;
 
-static int32_t g59 = 0;
-static int32_t g60 = 0;
+/*
+ * session and session2:
+ * These are arrays with index = session_handle (e.g. from VXI) of pointers to SET9052
+ * structs. The lib obviously supports multiple sessions. The value 100 used below at
+ * many places shows that this is the maximum number of sessions.
+ */
+#define PNP_MAXSESSIONS 100
+
+static SET9052 *session2[PNP_MAXSESSIONS];
+static SET9052 *session[PNP_MAXSESSIONS];
+
 static int32_t g62 = 0;
 static int32_t g63 = 0;
 
@@ -65,7 +73,8 @@ int32_t __nh_malloc(int32_t a1, int32_t a2) {
 #define SESSION_STRING_IS_NULL 0xbffc0001
 #define SESSION_STRING_IS_NULO 0xbffc0801ZZ
 
-int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, void** session_id) {
+int32_t mr90xx_init(char* session_string, int32_t query_flag,
+		int32_t reset_flag, void** session_id) {
 	dlog( LOG_DEBUG, "mr90xx_init\n");
 
 	void *v1 = session_id;
@@ -150,53 +159,72 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 	dlog( LOG_DEBUG, "mr90xx_OpenSession\n");
 	int32_t v1 = g3; // bp-4
 	g3 = &v1;
-	SET9052 *v2 = AllocGlobal(-1); // 0x1000470f
-	if (v2 == NULL) {
+	SET9052 *newSession = AllocGlobal(-1); // 0x1000470f
+	if (newSession == NULL) {
 		g3 = v1;
 		return -1;
 	}
-	ClearFuncStatusCode(v2);
+	ClearFuncStatusCode(newSession);
 	char *v3; // bp-280
 	int32_t v4 = &v3; // 0x10004770
 	int32_t v5 = 0; // 0x1000475512
 #ifdef ORIG
 	while (true) {
-		int32_t * v6 = (int32_t *) (4 * v5 + (int32_t) &g60); // 0x10004764
+		//int32_t * v6 = (int32_t *) (4 * v5 + (int32_t) &session); // 0x10004764
+		int32_t *v6 = session[v5];
 		if (*v6 != NULL) {
 			RdSessionString(*v6, v4);
 			g5 = v4;
-			if (function_1000a4b0((char *) &v3, session_string) == 0) {
-				function_1000498f(v2);
+			if (compareStrings((char *) &v3, session_string) == 0) {
+				freeMemory(newSession);
 				g3 = v1;
 				return MR90XX_ERROR_NOSESSION; // -0x4003f7f4;
 			}
 		}
 		int32_t v7 = v5 + 1; // 0x1000474c
-		if ((int16_t) v7 >= 100) {
+		if ((int16_t) v7 >=PNP_MAXSESSIONS) {
 			break;
 		}
-		v5 = 0x10000 * v7 / 0x10000;
+		//v5 = 0x10000 * v7 / 0x10000;
+		v5 = v7;
+	}
+#else
+	int i;
+	for (i = 0; i < PNP_MAXSESSIONS; i++) {
+		SET9052 *s = session[i];
+		if (s != NULL) {
+			RdSessionString(s, v4);
+			g5 = v4;
+			if (compareStrings(&v3, session_string) == 0) {
+				// For this session_string, we already have a session
+				freeMemory(newSession);
+				g3 = v1;
+				return MR90XX_ERROR_NOSESSION;
+			}
+		}
 	}
 #endif
-	if ((0x10000 * InitInstrData(v2) || 0xffff) >= 0x1ffff) {
-		function_1000498f(v2);
+	if ((0x10000 * InitInstrData(newSession) || 0xffff) >= 0x1ffff) {
+		// Init failed
+		freeMemory(newSession);
 		g3 = v1;
-		return MR90XX_IE_ERROR; // -0x4003f7ff;
+		return MR90XX_IE_ERROR;
 	}
-	int16_t status = OpenSession(v2, session_string, 1); // 0x100047fb
-	dlog( LOG_DEBUG, "mr90xx_OpenSession, OpenSession() call returned 0x%x\n", status);
+	int16_t status = OpenSession(newSession, session_string, 1); // 0x100047fb
+	dlog( LOG_DEBUG, "mr90xx_OpenSession, OpenSession() call returned 0x%x\n",
+			status);
 	int32_t result; // 0x1000495f
 	if (status == 0) {
-		*session_id = RdSessionHandle(v2);
+		*session_id = RdSessionHandle(newSession);
 		int32_t v9 = 0; // 0x1000486810
 		int16_t v10 = 0;
 #ifdef ORIG
 		// DD XXX whats geing on below ???
 		while (true) {
-			if (*(int32_t *) (4 * v9 + (int32_t) &g60) != 0) {
+			if (*(int32_t *) (4 * v9 + (int32_t) &session) != 0) {
 				int32_t v11 = v9 + 1; // 0x1000485f
-				int16_t v12 = v11; // 0x10004862
-				if (v12 >= 100) {
+				int16_t v12 = v11;// 0x10004862
+				if (v12 >= PNP_MAXSESSIONS) {
 					break;
 				}
 				v9 = 0x10000 * v11 / 0x10000;
@@ -204,55 +232,84 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t * session_id) {
 				continue;
 			}
 			if (v10 == -1) {
-				function_1000498f(v2);
+				freeMemory(newSession);
 				g3 = v1;
 				return MR90XX_IE_ERROR; // -0x4003f7ff;
 			}
 			int32_t v13 = 0; // 0x100048d38
 			while (true) {
-				int32_t * v14 = (int32_t *) (4 * v13 + (int32_t) &g60); // 0x100048e2
+				int32_t * v14 = (int32_t *) (4 * v13 + (int32_t) &session); // 0x100048e2
 				if (*v14 != 0) {
 					if (*session_id == RdSessionHandle(*v14)) {
-						function_1000498f(v2);
+						freeMemory(newSession);
 						g3 = v1;
 						return MR90XX_ERROR_NOSESSION; //-0x4003f7f4;
 					}
 				}
 				int32_t v15 = v13 + 1; // 0x100048ca
-				if ((int16_t) v15 >= 100) {
+				if ((int16_t) v15 >= PNP_MAXSESSIONS) {
 					break;
 				}
 				v13 = 0x10000 * v15 / 0x10000;
 			}
 			int32_t v16 = 4 * (int32_t) v10; // 0x10004930
-			*(int32_t *) (v16 + (int32_t) &g60) = v2;
-			*(int32_t *) (v16 + (int32_t) &g59) = g_sa9054_data;
-			ClearFuncStatusCode(v2);
+			*(int32_t *) (v16 + (int32_t) &session) = newSession;
+			*(int32_t *) (v16 + (int32_t) &session2) = g_sa9054_data;
+			ClearFuncStatusCode(newSession);
 			g3 = v1;
 			return 0;
 		}
 #else
-		result = 0;
+		int i,j;
+		for (i = 0; i < PNP_MAXSESSIONS; i++) {
+			if (session[i] != NULL) {
+				// Overread all occupied session slots
+				continue;
+			}
+			if (i == -1) {
+				// When can this be true?
+				// Free memory
+				freeMemory(newSession);
+				return MR90XX_IE_ERROR;
+			}
+			int j;
+			for (j = 0; j < PNP_MAXSESSIONS; j++) {
+				SET9052 *v14 = session[j];
+				if (v14 != NULL) {
+					if (*session_id == RdSessionHandle(v14)) {
+						freeMemory(newSession);
+						return MR90XX_IE_ERROR;
+					}
+				}
+			}
+		}
+		// All fine
+		session[j] = newSession;
+		session2[j] = g_sa9054_data;
+		return 0;
 #endif
 	} else {
-		function_1000498f(v2);
+		freeMemory(newSession);
 		result = mapVisaErrorToAPIError(status);
 	}
 	g3 = v1;
 	return result;
 }
 
-int32_t mr90xx_SetEngineModel(int32_t a1, int16_t a2, int32_t a3) {
-	dlog( LOG_DEBUG, "mr90xx_SetEngineModel\n");
-	g5 = a1;
-	int32_t v1 = 0; // bp-16
-	int32_t v2 = function_10004310(a1, &v1); // 0x100025eb
+// DD third parameter does not exist in original function - TODO remove it
+int32_t mr90xx_SetEngineModel(int32_t sessionId, int16_t model, int32_t a3) {
+	dlog( LOG_DEBUG, "mr90xx_SetEngineModel(%0x%x)\n", model);
+	g5 = sessionId;
+	int32_t modelFound = SAUNKNOWN; // bp-16
+	// This seems to look up the engine model value by using the session id. Return value 0 if found.
+	int32_t ret = function_10004310(sessionId, &modelFound); // 0x100025eb
 	int32_t result; // 0x1000262f
-	if (v2 == 0) {
+	if (ret == 0) {
+		// function_10004402 seems to map the looked up engine value to a value usable by SetEngineModel().
 		result = mapVisaErrorToAPIError(
-				(int16_t) SetEngineModel(function_10004402(v1)));
+				(int16_t) SetEngineModel(function_10004402(modelFound)));
 	} else {
-		result = v2;
+		result = ret;
 	}
 	return result;
 }
@@ -263,9 +320,9 @@ int32_t mr90xx_CloseSession(int32_t a1) {
 	int32_t v2 = function_10004310(a1, &v1); // 0x10004a2f
 	int32_t result = v2;
 	if (v2 == 0) {
-		int32_t v3 = *(int32_t *) (4 * v1 + (int32_t) &g60); // 0x10004a48
+		int32_t v3 = *(int32_t *) (4 * v1 + (int32_t) &session); // 0x10004a48
 		CloseSession(v3, 0x10000 * RdInterfaceType(v3) / 0x10000);
-		function_1000498f(v3);
+		freeMemory(v3);
 		result = 0;
 	}
 	return result;
@@ -277,7 +334,8 @@ int32_t mr90xx_InitEngine(void *session_id, int32_t a2) {
 	int32_t v2 = function_10004310(session_id, &v1); // 0x10003830
 	int32_t result; // 0x1000386f
 	if (v2 == 0) {
-		result = mapVisaErrorToAPIError((int16_t) InitEngine(function_10004402(v1)));
+		result = mapVisaErrorToAPIError(
+				(int16_t) InitEngine(function_10004402(v1)));
 	} else {
 		result = v2;
 	}
@@ -337,7 +395,8 @@ int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) {
 	int32_t v2 = function_10004310(a1, &v1); // 0x100037de
 	int32_t result; // 0x10003821
 	if (v2 == 0) {
-		result = mapVisaErrorToAPIError((int16_t) IdQuery(function_10004402(v1)));
+		result = mapVisaErrorToAPIError(
+				(int16_t) IdQuery(function_10004402(v1)));
 	} else {
 		result = v2;
 	}
@@ -355,12 +414,13 @@ void *AllocGlobal(void *a1) {
 	return (void *) GlobalLock(hMem);
 }
 
-int32_t function_1000a4b0(char * a1, int32_t a2) {
+int32_t compareStrings(char * a1, char *a2) {
+#ifdef ORIG
 	int32_t v1 = g6; // 0x1000a4b3
-	int32_t v2 = g8; // 0x1000a4b4
-	int32_t v3 = g4; // 0x1000a4b5
+	int32_t v2 = g8;// 0x1000a4b4
+	int32_t v3 = g4;// 0x1000a4b5
 	g8 = a2;
-	int32_t v4 = (int32_t) a1; // 0x1000a4b9
+	int32_t v4 = (int32_t) a1;// 0x1000a4b9
 	g6 = v4;
 	if (g94 != 0) {
 		int32_t v5 = g98; // 0x1000a503
@@ -374,27 +434,27 @@ int32_t function_1000a4b0(char * a1, int32_t a2) {
 			v6 = 0;
 		}
 		int32_t v7 = 0; // 0x1000a53b
-		int32_t v8 = 0; // 0x1000a53414
-		int32_t result2; // 0x1000a534
+		int32_t v8 = 0;// 0x1000a53414
+		int32_t result2;// 0x1000a534
 		while (true) {
 			int32_t v9 = g8; // 0x1000a538
-			unsigned char v10 = *(char *) v9; // 0x1000a538
+			unsigned char v10 = *(char *) v9;// 0x1000a538
 			g8 = v9 + 1;
-			int32_t v11 = g6; // 0x1000a53b
-			unsigned char v12 = *(char *) v11; // 0x1000a53b
+			int32_t v11 = g6;// 0x1000a53b
+			unsigned char v12 = *(char *) v11;// 0x1000a53b
 			g6 = v11 + 1;
 			result2 = (int32_t) v10 | v8;
-			int32_t v13 = (int32_t) v12 | v7 & -256; // 0x1000a53b30
+			int32_t v13 = (int32_t) v12 | v7 & -256;// 0x1000a53b30
 			if (v10 != v12) {
 				g4 = 0x1000000 * function_10006643(v12) / 0x1000000;
 				int32_t v14 = function_10006643(v12); // 0x1000a54e
-				int32_t v15 = g4; // 0x1000a556
-				unsigned char v16 = (char) v15; // 0x1000a556
-				unsigned char v17 = (char) v14; // 0x1000a556
+				int32_t v15 = g4;// 0x1000a556
+				unsigned char v16 = (char) v15;// 0x1000a556
+				unsigned char v17 = (char) v14;// 0x1000a556
 				if (v16 != v17) {
 					int32_t v18 = v16 < v17 ? 2 : 1; // 0x1000a55c
 					int32_t result = (int32_t) (v16 < v17
-							& (v14 != -1 | v14 < (int32_t) (v16 < v17))) + v18; // 0x1000a55c
+							& (v14 != -1 | v14 < (int32_t) (v16 < v17))) + v18;// 0x1000a55c
 					if (v6 != 0) {
 						function_1000729a(19);
 						g4 = v3;
@@ -430,19 +490,19 @@ int32_t function_1000a4b0(char * a1, int32_t a2) {
 	int32_t v19 = (int32_t) &g93 & -256; // 0x1000a4cc24
 	while (true) {
 		unsigned char v20 = *(char *) a2; // 0x1000a4d0
-		int32_t v21 = v20; // 0x1000a4d0
-		unsigned char v22 = *(char *) v4; // 0x1000a4d3
-		int32_t v23 = 256 * (int32_t) v22 | v21 | v19 & -0x10000; // 0x1000a4d3
-		uint32_t v24 = v23 / 256; // 0x1000a4d6
-		unsigned char v25 = (char) v24; // 0x1000a4d6
+		int32_t v21 = v20;// 0x1000a4d0
+		unsigned char v22 = *(char *) v4;// 0x1000a4d3
+		int32_t v23 = 256 * (int32_t) v22 | v21 | v19 & -0x10000;// 0x1000a4d3
+		uint32_t v24 = v23 / 256;// 0x1000a4d6
+		unsigned char v25 = (char) v24;// 0x1000a4d6
 		if (v25 != v20) {
 			uint32_t v26 = 256 * v21 | v19 & -0x10000; // 0x1000a4e7
 			g5 &= -256;
-			unsigned char v27 = (char) (v26 / 256); // 0x1000a4f6
+			unsigned char v27 = (char) (v26 / 256);// 0x1000a4f6
 			if (v25 != v27) {
 				int32_t v28 = v25 < v27 ? 2 : 1; // 0x1000a4fc
 				int32_t v29 = (int32_t) (v25 < v27
-						& (v25 != -1 | v25 < (char) (v25 < v27))) + v28 | v26; // 0x1000a4fc
+						& (v25 != -1 | v25 < (char) (v25 < v27))) + v28 | v26;// 0x1000a4fc
 				g4 = v3;
 				g8 = v2;
 				g6 = v1;
@@ -460,9 +520,13 @@ int32_t function_1000a4b0(char * a1, int32_t a2) {
 		a2++;
 		v19 = v23 & -256;
 	}
+#else
+	int b = strcmp(a1, a2);
+	return b;
+#endif
 }
 
-int32_t function_1000498f(int32_t a1) {
+int32_t freeMemory(/*int32_t*/SET9052 *a1) {
 	dlog( LOG_DEBUG, "function_1000498f\n");
 	int32_t v1 = 0; // bp-8
 	int32_t v2 = 0; // 0x1000499c
@@ -474,43 +538,44 @@ int32_t function_1000498f(int32_t a1) {
 	int32_t * v5; // 0x100049e0
 	while (true) {
 		v3 = v2;
-		if (*(int32_t *) (4 * v2 + (int32_t) &g60) != a1) {
+		// Iterate starting at g60... search for a1 pointer
+		if (*(int32_t *) (4 * v2 + (int32_t) &session) != a1) {
 			int32_t v6 = v2 + 1; // 0x1000499f
 			v1 = v6;
-			if (v6 >= 100) {
-				v3 = 100;
+			if (v6 >= PNP_MAXSESSIONS) {
+				v3 = PNP_MAXSESSIONS;
 				break;
 			}
 			v2 = v6;
 			continue;
 		}
-		if (v3 >= 100) {
+		if (v3 >= PNP_MAXSESSIONS) {
 			GlobalUnlock((int32_t *) g_sa9054_data);
 			hMem = g_sa9054_data;
 			g5 = hMem;
 			int32_t result = (int32_t) GlobalFree((int32_t *) hMem); // 0x10004a17
 			return result;
 		}
-		hMem2 = *(int32_t *) (4 * v3 + (int32_t) &g59);
+		hMem2 = *(int32_t *) (4 * v3 + (int32_t) &session2);
 		GlobalUnlock((int32_t *) hMem2);
-		hMem3 = *(int32_t *) (4 * v1 + (int32_t) &g59);
+		hMem3 = *(int32_t *) (4 * v1 + (int32_t) &session2);
 		v5 = GlobalFree((int32_t *) hMem3);
 		v4 = v1;
 		g5 = v4;
-		*(int32_t *) (4 * v4 + (int32_t) &g59) = 0;
-		*(int32_t *) (4 * v1 + (int32_t) &g60) = 0;
+		*(int32_t *) (4 * v4 + (int32_t) &session2) = 0;
+		*(int32_t *) (4 * v1 + (int32_t) &session) = 0;
 		return (int32_t) v5;
 	}
 	int32_t result2; // 0x10004a20
-	if (v3 < 100) {
-		hMem2 = *(int32_t *) (4 * v3 + (int32_t) &g59);
+	if (v3 < PNP_MAXSESSIONS) {
+		hMem2 = *(int32_t *) (4 * v3 + (int32_t) &session2);
 		GlobalUnlock((int32_t *) hMem2);
-		hMem3 = *(int32_t *) (4 * v1 + (int32_t) &g59);
+		hMem3 = *(int32_t *) (4 * v1 + (int32_t) &session2);
 		v5 = GlobalFree((int32_t *) hMem3);
 		v4 = v1;
 		g5 = v4;
-		*(int32_t *) (4 * v4 + (int32_t) &g59) = 0;
-		*(int32_t *) (4 * v1 + (int32_t) &g60) = 0;
+		*(int32_t *) (4 * v4 + (int32_t) &session2) = 0;
+		*(int32_t *) (4 * v1 + (int32_t) &session) = 0;
 		result2 = (int32_t) v5;
 	} else {
 		GlobalUnlock((int32_t *) g_sa9054_data);
@@ -535,31 +600,31 @@ int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 	int32_t result; // 0x100045a3
 	switch (v1) {
 	default: {
-		result = MR90XX_ERROR_SESSIONINUSE|_VI_ERROR; // -0x4003f7f5; // 0xbffc.080c
+		result = MR90XX_ERROR_SESSIONINUSE | _VI_ERROR; // -0x4003f7f5; // 0xbffc.080c
 		break;
 	}
 	case 0: {
-		result = -0x4003f7d1;// 0xbffc.0830
+		result = -0x4003f7d1; // 0xbffc.0830
 		break;
 	}
 	case 1: {
-		result = MR90XX_IE_ENG_BAD_PARM5|_VI_ERROR; // -0x4003f7e1;
+		result = MR90XX_IE_ENG_BAD_PARM5 | _VI_ERROR; // -0x4003f7e1;
 		break;
 	}
 	case 2: {
-		result = MR90XX_IE_UNKNOWN|_VI_ERROR; // -0x4003f7f6;
+		result = MR90XX_IE_UNKNOWN | _VI_ERROR; // -0x4003f7f6;
 		break;
 	}
 	case 3: {
-		result = MR90XX_IE_ERR_ENGMOD|_VI_ERROR; //-0x4003f7f7;
+		result = MR90XX_IE_ERR_ENGMOD | _VI_ERROR; //-0x4003f7f7;
 		break;
 	}
 	case 4: {
-		result = MR90XX_IE_ERR_NULLPTR|_VI_ERROR; //-0x4003f7f8;
+		result = MR90XX_IE_ERR_NULLPTR | _VI_ERROR; //-0x4003f7f8;
 		break;
 	}
 	case 5: {
-		result = MR90XX_IE_ERR_DIFDTEC|_VI_ERROR; // -0x4003f7f9;
+		result = MR90XX_IE_ERR_DIFDTEC | _VI_ERROR; // -0x4003f7f9;
 		break;
 	}
 	case 6: {
@@ -567,27 +632,27 @@ int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 		break;
 	}
 	case 7: {
-		result = MR90XX_IE_ERR_STEP|_VI_ERROR; //-0x4003f7fb;
+		result = MR90XX_IE_ERR_STEP | _VI_ERROR; //-0x4003f7fb;
 		break;
 	}
 	case 8: {
-		result = MR90XX_IE_ERR_SPAN|_VI_ERROR; // -0x4003f7fc;
+		result = MR90XX_IE_ERR_SPAN | _VI_ERROR; // -0x4003f7fc;
 		break;
 	}
 	case 9: {
-		result = MR90XX_IE_ERR_AUTO|_VI_ERROR; // -0x4003f7fd;
+		result = MR90XX_IE_ERR_AUTO | _VI_ERROR; // -0x4003f7fd;
 		break;
 	}
 	case 10: {
-		result = MR90XX_IE_ERR_VALS|_VI_ERROR; // -0x4003f7fe;
+		result = MR90XX_IE_ERR_VALS | _VI_ERROR; // -0x4003f7fe;
 		break;
 	}
 	case 11: {
-		result = MR90XX_IE_ERROR|_VI_ERROR; // -0x4003f7ff;
+		result = MR90XX_IE_ERROR | _VI_ERROR; // -0x4003f7ff;
 		break;
 	}
 	case 12: {
-		result = MR90XX_IE_SUCCESS|_VI_ERROR; // 0;
+		result = MR90XX_IE_SUCCESS | _VI_ERROR; // 0;
 		break;
 	}
 	case 13: {
@@ -702,33 +767,41 @@ int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 	return result;
 }
 
-int32_t function_10004310(int32_t a1, int32_t *a2) {
+int32_t function_10004310(int32_t sessionId, int32_t *model) {
 	dlog( LOG_DEBUG, "function_10004310\n");
-	int32_t v1 = (int32_t) a2;
-	if (a2 == NULL) {
+	int32_t v1 = (int32_t) model;
+	if (model == NULL) {
 		return MR90XX_IE_WARN_SPAN; // -0x4003f7fe;
 	}
-	if (a1 == 0) {
+	if (sessionId == 0) {
 		return MR90XX_IE_ENG_BUSY; // -0x4003f7f1;
 	}
 	int32_t v2; // 0x100043e3
 	int32_t v3; // 0x100043c4
-	if (g63 != a1) {
+	if (g63 != sessionId) {
 		int32_t v4 = 0;
+		// This looks like a loop.
+		// iterator is v4/v6, incremented by 1, ending by PNP_MAXSESSIONS
 		while (true) {
 			g5 = v4;
-			int32_t * v5 = (int32_t *) (4 * v4 + (int32_t) &g60); // 0x10004374
+			// v5 points into arrray of 32bit-sized values, base = g60
+			// v5 = uint32_t g60[v4]
+			int32_t * v5 = (int32_t *) (4 * v4 + (int32_t) &session); // 0x10004374
 			int32_t v6;
 			if (*v5 != 0) {
+				// v5 has some value != 0
 				g7 = v4;
-				if (*v5 != a1) {
+				if (*v5 != sessionId) {
+					// v5 does not equal sessionId
 					g5 = v4;
 					int32_t v7 = *v5; // 0x10004394
 					g7 = v7;
-					if (RdSessionHandle(v7) != a1) {
+					// Here they are using v7=*v5 suddenly as a SET9052 pointer....
+					if (RdSessionHandle(v7) != sessionId) {
+						// Loop increment
 						v6 = v4 + 1;
 						g7 = (g7 | v4) & -0x10000 | v6;
-						if (v6 >= 100) {
+						if (v6 >= PNP_MAXSESSIONS) {
 							break;
 						}
 						v4 = v6;
@@ -739,7 +812,7 @@ int32_t function_10004310(int32_t a1, int32_t *a2) {
 			} else {
 				v6 = v4 + 1;
 				g7 = (g7 | v4) & -0x10000 | v6;
-				if (v6 >= 100) {
+				if (v6 >= PNP_MAXSESSIONS) {
 					break;
 				}
 				v4 = v6;
@@ -748,17 +821,17 @@ int32_t function_10004310(int32_t a1, int32_t *a2) {
 			if (v2 == -1) {
 				return -0x4003f7ff;
 			}
-			v3 = *(int32_t *) (4 * v2 + (int32_t) &g60);
+			v3 = *(int32_t *) (4 * v2 + (int32_t) &session);
 			g7 = v3;
-			g5 = a1;
-			if (*(int32_t *) (v3 + 468) != a1) {
+			g5 = sessionId;
+			if (*(int32_t *) (v3 + 468) != sessionId) {
 				return -0x4003f7f2;
 			}
 			g62 = v2;
-			g63 = a1;
+			g63 = sessionId;
 			g5 = v1;
 			g7 = v2;
-			*a2 = v2;
+			*model = v2;
 			return 0;
 		}
 		v2 = -1;
@@ -770,16 +843,16 @@ int32_t function_10004310(int32_t a1, int32_t *a2) {
 	if (v2 == -1) {
 		return -0x4003f7ff;
 	}
-	v3 = *(int32_t *) (4 * v2 + (int32_t) &g60);
+	v3 = *(int32_t *) (4 * v2 + (int32_t) &session);
 	g7 = v3;
-	g5 = a1;
+	g5 = sessionId;
 	int32_t result; // 0x10004401
-	if (*(int32_t *) (v3 + 468) == a1) {
+	if (*(int32_t *) (v3 + 468) == sessionId) {
 		g62 = v2;
-		g63 = a1;
+		g63 = sessionId;
 		g5 = v1;
 		g7 = v2;
-		*a2 = v2;
+		*model = v2;
 		result = 0;
 	} else {
 		result = -0x4003f7f2;
@@ -788,7 +861,11 @@ int32_t function_10004310(int32_t a1, int32_t *a2) {
 }
 
 int32_t function_10004402(int32_t a1) {
-	return *(int32_t *) (4 * a1 + (int32_t) &g60);
+	// Array, base = g60. a1 = index. WORD size.
+	// return g60[a1];
+	// idea: why not just returning a1 ?
+	// g60 has index "session_id" from VXI. It keeps pointers to SET9052 structs.
+	return *(int32_t *) (4 * a1 + (int32_t) &session);
 }
 
 // Schrott

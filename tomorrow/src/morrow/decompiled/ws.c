@@ -17,7 +17,7 @@
 
 #define TIMEOUT 1000000L
 
-// memory mapped device registers
+// Memory mapped device registers
 static char *mapped = 0L;
 
 dumpRegisters() {
@@ -57,22 +57,7 @@ INST dd_iOpen(char *sessionString) {
 
 	int windowCount;
 	int windowSize;
-#ifdef NOT
-	ret = imapinfo(id, I_MAP_A24/*I_MAP_A16*/, &windowCount, &windowSize);
-	if (err != I_ERR_NOERROR) {
-		err = igeterrno();
-		dlog(LOG_DEBUG, "imapinfo Error: %d %d\n", ret, err);
-		return -1;
-	}
-	dlog(LOG_INFO, "window count: 0x%x, size: 0x%x\n", windowCount, windowSize);
-	ret = imapinfo(id, I_MAP_VXIDEV, &windowCount, &windowSize);
-	if (err != I_ERR_NOERROR) {
-		err = igeterrno();
-		dlog(LOG_DEBUG, "imapinfo Error: %d %d\n", ret, err);
-		return -1;
-	}
-	dlog(LOG_INFO, "window count: 0x%x, size: 0x%x\n", windowCount, windowSize);*/
-#endif
+
 	// Memory map the device registers
 	mapped = imap(id, I_MAP_VXIDEV, 0x0, 0x0, 0);
 	if (mapped == 0) {
