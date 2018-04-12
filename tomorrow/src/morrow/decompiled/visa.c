@@ -285,6 +285,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
             } else {
                 result = v12 / 0x10000 | 0xffff;
             }
+        	dlog( LOG_DEBUG, "VISA_InitEngine result --> 0x%x\n", result);
             return result;
         }
         v4 = v5 / 0x10000;
@@ -424,6 +425,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
         	dlog( LOG_DEBUG, "VISA_SendCommand failed, status=%d.\n", status);
         }
     }
+    return 0;
 #endif
 }
 
@@ -686,6 +688,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 }
 
 int32_t function_100011fc(SET9052 *deviceId, int32_t* a2) {
+	dlog( LOG_DEBUG, "function_100011fc\n");
     int32_t v1 = deviceId->session_handle; //*(int32_t *)(deviceId + 468); // 0x1000120d
     g7 = v1;
     int32_t v2 = dd_viFlush(v1, 1, 4, a2) != 0;
@@ -708,6 +711,7 @@ int32_t function_10001249(SET9052 *deviceId, uint16_t command, int32_t a3, int32
 }
 
 int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
+	dlog( LOG_DEBUG, "function_100017e1\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2; // 0x10001834
@@ -738,6 +742,7 @@ int32_t function_100015d0(SET9052 * deviceId, int32_t a2, int16_t a3, int32_t* a
 }
 
 int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
+	dlog( LOG_DEBUG, "function_10001654\n");
     g5 = deviceId;
     if (dd_viFlush(deviceId->session_handle, 1, 10, a3) != 0) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0x8020; // 0x10001686
@@ -871,6 +876,7 @@ int32_t sendWord(SET9052 *deviceId, int16_t command) {
 }
 
 int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
+	dlog( LOG_DEBUG, "function_10001297\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2; // 0x100012ea
@@ -894,6 +900,7 @@ int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
 }
 
 int32_t VISA_ResetEngine(int32_t deviceId) {
+	dlog( LOG_DEBUG, "VISA_ResetEngine\n");
     // DD: 0x3701 = 0xcaff = Read Interrupters
     int16_t v1 = _sendCommand(deviceId, WS_CMD_RI /*0xcaff*/ /*-0x3701*/); // bp-8
     g5 = deviceId;

@@ -3522,8 +3522,8 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, uint16_t *wo
         g8 = v1;
         result = GetFuncStatusCode(v1);
     }
+	dlog( LOG_INFO, "\n\nsa.c:SendCommand done --> 0x%x\n", result);
     return result;
-	dlog( LOG_INFO, "\n\nsa.c:SendCommand done\n");
 }
 
 int32_t FuncStatusFromEngineReply(int16_t a1) {
@@ -3795,6 +3795,7 @@ int32_t CommInterrupts(SET9052 *a1) {
     } else {
         result = GetFuncStatusCode(a1);
     }
+	dlog( LOG_DEBUG, "CommInterrupts --> 0x%0x\n", result);
     return result;
 }
 
@@ -3987,7 +3988,7 @@ int32_t function_1000ce50(int64_t a1, int32_t a2) {
 }
 
 int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
-	dlog( LOG_DEBUG, "SetEngineModel\n");
+	dlog( LOG_DEBUG, "SetEngineModel(0x%x)\n", engine_model);
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008698
     g3 = v1;
