@@ -10,9 +10,7 @@
 
 #include <sicl.h>
 
-#define UINT16 unsigned short
-#define INT16 short
-#define UINT32 unsigned int
+#include "compatibility.h"
 
 
 // register numbers (not: byte offsets as in official doc)
@@ -24,11 +22,11 @@
 #define REG_DATALOW 7
 
 // RESPONSE register bit values
-#define REG_RESPONSE_WR_BITV (UINT16)(1<<9)
-#define REG_RESPONSE_RD_BITV (UINT16)(1<<10)
-#define REG_RESPONSE_DIR_BITV (UINT16)(1<<12)
-#define REG_RESPONSE_DOR_BITV (UINT16)(1<<13)
-#define REG_RESPONSE_ERR_BITV (UINT16)(1<<11)
+#define REG_RESPONSE_WR_BITV (uint16_t)(1<<9)
+#define REG_RESPONSE_RD_BITV (uint16_t)(1<<10)
+#define REG_RESPONSE_DIR_BITV (uint16_t)(1<<12)
+#define REG_RESPONSE_DOR_BITV (uint16_t)(1<<13)
+#define REG_RESPONSE_ERR_BITV (uint16_t)(1<<11)
 
 // RESPONSE register special values
 // Device has put sth. in Datalow
@@ -38,10 +36,10 @@
 
 
 // RESPONSE register bit masks
-#define WRITEREADYDIR (UINT16)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DIR_BITV)
-#define WRITEREADYDOR (UINT16)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DOR_BITV)
+#define WRITEREADYDIR (uint16_t)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DIR_BITV)
+#define WRITEREADYDOR (uint16_t)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DOR_BITV)
 
-UINT32 dd_p1Command(INST id, UINT16 command, int readAnswer);
-UINT32 dd_wsCommand(INST id, UINT16 command, UINT16 *response, UINT16 *rpe);
+uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer);
+uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *response, uint16_t *rpe);
 
 #endif /* WS_H_ */

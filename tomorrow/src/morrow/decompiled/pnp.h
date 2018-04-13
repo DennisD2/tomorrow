@@ -14,4 +14,7 @@
 int32_t mr90xx_init(char* session_string, int32_t query_flag, int32_t reset_flag, int32_t *session_id);
 int32_t mr90xx_SetEngineModel(int32_t sessionId, int16_t model) ;
 
+int32_t __amsg_exit(int32_t a1);
+
+
 #endif /* PNP_H_ */

@@ -13,6 +13,8 @@ typedef float float32_t;
 typedef double float64_t;
 typedef double float80_t;
 
+#include <inttypes.h>
+
 #if defined(__hp9000s700)
 
 #define true 1
@@ -24,6 +26,5 @@ typedef double float80_t;
 #include <stdint.h>
 
 #endif
-
 
 #endif /* COMPATIBILITY_H_ */

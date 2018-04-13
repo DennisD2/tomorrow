@@ -15,7 +15,7 @@
 
 static int32_t g3 = 0; // ebp
 static int32_t g5 = 0; // ecx
-static int32_t g4 = 0; // esi
+//static int32_t g4 = 0; // esi
 static int32_t g6 = 0; // edi
 static int32_t g7 = 0; // edx
 static int32_t g8 = 0; // esi
@@ -38,31 +38,35 @@ static SET9052 *g_sa9054_data = 0;
 static SET9052 *session2[PNP_MAXSESSIONS];
 static SET9052 *session[PNP_MAXSESSIONS];
 
-static int32_t g62 = 0;
-static int32_t g63 = 0;
+//static int32_t g62 = 0;
+//static int32_t g63 = 0;
 
-static int32_t g93 = 0;
+//static int32_t g93 = 0;
 static int32_t g94 = 0;
 //static int32_t g95 = 0;
-static int32_t g96 = 0;
-static int32_t g97 = 0;
-static int32_t g98 = 0;
+//static int32_t g96 = 0;
+//static int32_t g97 = 0;
+//static int32_t g98 = 0;
+
 
 static int32_t mapVisaErrorToAPIError(int16_t errorCode);
+static SET9052 *sessionForId(int32_t sessionId);
+static int32_t freeMemory(SET9052 *a1) ;
+
 static int32_t function_10006643(char a1);
 static int32_t function_1000655f(char a1, int32_t a2);
 static int32_t function_10009277(int32_t a1, int32_t a2, char a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7, int32_t a8);
-SET9052 *sessionForId(int32_t sessionId);
+static int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) ;
+static int32_t function_10004310(int32_t sessionId, int32_t *returnId);
+static int32_t function_1000729a(int32_t a1);
+static int32_t function_100074d5(int32_t a1);
 
-void *AllocGlobal(void *a1);
+static int32_t function_100073ec(int32_t a1); /* abort1 */
+static int32_t function_1000912e(char * a1, int32_t a2, int32_t a3, int32_t a4,
+		int32_t a5, int32_t a6, int32_t a7); /* abort 2 */
 
-int32_t __amsg_exit(int32_t a1) {
-	return 0;
-}
-int32_t __nh_malloc(int32_t a1, int32_t a2) {
-	return 0;
-}
+static void *AllocGlobal(void *a1);
 
 #define SESSION_STRING_IS_NULL 0xbffc0001
 #define SESSION_STRING_IS_NULO 0xbffc0801ZZ
@@ -102,7 +106,8 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag,
 	}
 	g7 = v1;
 	int32_t result3 = mr90xx_InitEngine(*session_id, 0);
-	dlog( LOG_DEBUG, "mr90xx_init, mr90xx_InitEngine returned: 0x%x\n", result3);
+	dlog( LOG_DEBUG, "mr90xx_init, mr90xx_InitEngine returned: 0x%x\n",
+			result3);
 	if (result3 != 0x3ffc0811) {
 		int32_t v5 = *session_id;
 		g7 = v5;
@@ -117,7 +122,8 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag,
 		if (v3 != 0) {
 			g7 = v1;
 			result4 = mr90xx_reset(*session_id);
-			dlog( LOG_DEBUG, "mr90xx_init, mr90xx_reset returned: 0x%x\n", result4);
+			dlog( LOG_DEBUG, "mr90xx_init, mr90xx_reset returned: 0x%x\n",
+					result4);
 			if (result4 < 0) {
 				v6 = *session_id;
 				g7 = v6;
@@ -256,38 +262,49 @@ int32_t mr90xx_OpenSession(char* session_string, int32_t *session_id) {
 			g3 = v1;
 			return 0;
 		}
-#else
-		int i;
-		for (i = 0; i < PNP_MAXSESSIONS; i++) {
-			if (session[i] == NULL) {
-				break;
-			}
-		}
-		dlog( LOG_DEBUG, "mr90xx_OpenSession, free index at %d\n", i);
 
-		if (i == PNP_MAXSESSIONS) {
-			// All full
+		/*
+		 * Code replacement close to original
+		 for (i = 0; i < PNP_MAXSESSIONS; i++) {
+		 if (session[i] == NULL) {
+		 break;
+		 }
+		 }
+		 dlog( LOG_DEBUG, "mr90xx_OpenSession, free index at %d\n", i);
+
+		 if (i == PNP_MAXSESSIONS) {
+		 // All full
+		 freeMemory(newSession);
+		 return MR90XX_IE_ERROR;
+		 }
+
+		 int j;
+		 for (j = 0; j < PNP_MAXSESSIONS; j++) {
+		 SET9052 *v14 = session[j];
+		 if (v14 != NULL) {
+		 if (*session_id == RdSessionHandle(v14)) {
+		 dlog( LOG_ERROR,
+		 "mr90xx_OpenSession, session already open for %s.\n",
+		 session_string);
+		 freeMemory(newSession);
+		 return MR90XX_IE_ERROR;
+		 }
+		 }
+		 }
+		 */
+#else
+		if (session[*session_id] != NULL) {
+			dlog( LOG_ERROR,
+					"mr90xx_OpenSession, session already open for session_id %d.\n",
+					*session_id);
 			freeMemory(newSession);
 			return MR90XX_IE_ERROR;
 		}
-
-		int j;
-		for (j = 0; j < PNP_MAXSESSIONS; j++) {
-			SET9052 *v14 = session[j];
-			if (v14 != NULL) {
-				if (*session_id == RdSessionHandle(v14)) {
-					dlog( LOG_ERROR,
-							"mr90xx_OpenSession, session already open for %s.\n",
-							session_string);
-					freeMemory(newSession);
-					return MR90XX_IE_ERROR;
-				}
-			}
-		}
-
 		// All fine
-		session[i] = newSession;
-		session2[i] = g_sa9054_data;
+		dlog( LOG_INFO, "mr90xx_OpenSession, session added to position %d.\n",
+				*session_id);
+		session[*session_id] = newSession;
+		session2[*session_id] = g_sa9054_data;
 		ClearFuncStatusCode(newSession);
 		g3 = v1;
 		return 0;
@@ -321,19 +338,8 @@ int32_t mr90xx_SetEngineModel(int32_t sessionId, int16_t model) {
 
 	// DD this function was reimplemented different from original. Because
 	// I could not find out how to reproduce. It looks decompiled wrong.
-	SET9052 *sessionFound;
-	int j;
-	for (j = 0; j < PNP_MAXSESSIONS; j++) {
-		SET9052 *v14 = session[j];
-		if (v14 != NULL) {
-			if (sessionId == RdSessionHandle(v14)) {
-				sessionFound = v14;
-				break;
-			}
-		}
-	}
 	result = mapVisaErrorToAPIError(
-			(int16_t) SetEngineModel(sessionFound, model));
+			SetEngineModel(sessionForId(sessionId), model));
 #endif
 	dlog( LOG_DEBUG, "mr90xx_SetEngineModel --> 0x%x\n", result);
 	return result;
@@ -345,7 +351,8 @@ int32_t mr90xx_CloseSession(int32_t a1) {
 	int32_t v2 = function_10004310(a1, &v1); // 0x10004a2f
 	int32_t result = v2;
 	if (v2 == 0) {
-		int32_t v3 = *(int32_t *) (4 * v1 + (int32_t) &session); // 0x10004a48
+		//int32_t v3 = *(int32_t *) (4 * v1 + (int32_t) &session); // 0x10004a48
+		SET9052 *v3 = sessionForId(v1);
 		CloseSession(v3, 0x10000 * RdInterfaceType(v3) / 0x10000);
 		freeMemory(v3);
 		result = 0;
@@ -359,8 +366,7 @@ int32_t mr90xx_InitEngine(void *session_id, int32_t a2) {
 	int32_t v2 = function_10004310(session_id, &v1); // 0x10003830
 	int32_t result; // 0x1000386f
 	if (v2 == 0) {
-		result = mapVisaErrorToAPIError(
-				(int16_t) InitEngine(sessionForId(v1)));
+		result = mapVisaErrorToAPIError((int16_t) InitEngine(sessionForId(v1)));
 	} else {
 		result = v2;
 	}
@@ -418,14 +424,13 @@ int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
 	return result;
 }
 
-int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) {
+static int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) {
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
 	int32_t v2 = function_10004310(a1, &v1); // 0x100037de
 	int32_t result; // 0x10003821
 	if (v2 == 0) {
-		result = mapVisaErrorToAPIError(
-				(int16_t) IdQuery(sessionForId(v1)));
+		result = mapVisaErrorToAPIError((int16_t) IdQuery(sessionForId(v1)));
 	} else {
 		result = v2;
 	}
@@ -433,7 +438,7 @@ int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10004960 - 0x1000498e
-void *AllocGlobal(void *a1) {
+static void *AllocGlobal(void *a1) {
 	// DD: GlobalAlloc(_In_ UINT uFlags, _In_ SIZE_T dwBytes)
 	// See https://technet.microsoft.com/de-de/library/aa366574(v=vs.85).aspx
 	// 0x2000 is 'no flag'
@@ -555,8 +560,8 @@ int32_t compareStrings(char * a1, char *a2) {
 #endif
 }
 
-int32_t freeMemory(/*int32_t*/SET9052 *a1) {
-	dlog( LOG_DEBUG, "function_1000498f\n");
+static int32_t freeMemory(SET9052 *a1) {
+	dlog( LOG_DEBUG, "freeMemory\n");
 	int32_t v1 = 0; // bp-8
 	int32_t v2 = 0; // 0x1000499c
 	int32_t hMem; // 0x10004a10
@@ -615,7 +620,7 @@ int32_t freeMemory(/*int32_t*/SET9052 *a1) {
 	return result2;
 }
 
-int32_t mapVisaErrorToAPIError(int16_t errorCode) {
+static int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 	dlog( LOG_DEBUG, "mapVisaErrorToAPIError(0x%x)\n", errorCode);
 	// looks like offset in an array???
 // DD XXX
@@ -801,17 +806,19 @@ int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 	return result;
 }
 
-int32_t function_10004310(int32_t sessionId, int32_t *model) {
+// returns an id in *returnId; looks like a kind of id mapping
+static int32_t function_10004310(int32_t sessionId, int32_t *returnId) {
 	dlog( LOG_DEBUG, "function_10004310\n");
-	int32_t v1 = (int32_t) model;
-	if (model == NULL) {
+#ifdef ORIG
+	int32_t v1 = (int32_t) returnId;
+	if (returnId == NULL) {
 		return MR90XX_IE_WARN_SPAN; // -0x4003f7fe;
 	}
 	if (sessionId == 0) {
 		return MR90XX_IE_ENG_BUSY; // -0x4003f7f1;
 	}
 	int32_t v2; // 0x100043e3
-	int32_t v3; // 0x100043c4
+	int32_t v3;// 0x100043c4
 	if (g63 != sessionId) {
 		int32_t v4 = 0;
 		// This looks like a loop.
@@ -828,7 +835,7 @@ int32_t function_10004310(int32_t sessionId, int32_t *model) {
 				if (*v5 != sessionId) {
 					// v5 does not equal sessionId
 					g5 = v4;
-					int32_t v7 = *v5;			// 0x10004394
+					int32_t v7 = *v5;// 0x10004394
 					g7 = v7;
 					// Here they are using v7=*v5 suddenly as a SET9052 pointer....
 					if (RdSessionHandle(v7) != sessionId) {
@@ -865,7 +872,7 @@ int32_t function_10004310(int32_t sessionId, int32_t *model) {
 			g63 = sessionId;
 			g5 = v1;
 			g7 = v2;
-			*model = v2;
+			*returnId = v2;
 			return 0;
 		}
 		v2 = -1;
@@ -886,15 +893,20 @@ int32_t function_10004310(int32_t sessionId, int32_t *model) {
 		g63 = sessionId;
 		g5 = v1;
 		g7 = v2;
-		*model = v2;
+		*returnId = v2;
 		result = 0;
 	} else {
 		result = -0x4003f7f2;
 	}
+#else
+	// mapping is 1:1
+	int32_t result = 0;
+	*returnId = sessionId;
+#endif
 	return result;
 }
 
-SET9052 *sessionForId(int32_t sessionId) {
+static SET9052 *sessionForId(int32_t sessionId) {
 	// Array, base = g60. a1 = index. WORD size.
 	// return g60[a1];
 	// idea: why not just returning a1 ?
@@ -904,7 +916,7 @@ SET9052 *sessionForId(int32_t sessionId) {
 }
 
 // Schrott
-int32_t function_10006643(char a1) {
+static int32_t function_10006643(char a1) {
 	char v1 = a1;
 	char v2 = g5; // bp-8
 	int32_t v3 = &v2; // 0x10006646
@@ -1050,7 +1062,7 @@ int32_t function_10006643(char a1) {
 }
 
 // Schrott
-int32_t function_10007239(int32_t a1) {
+static int32_t function_10007239(int32_t a1) {
 	int32_t v1 = g8; // 0x1000723f
 	int32_t lpCriticalSection2 = 4 * a1 + (int32_t) &g40; // 0x10007240
 	g8 = lpCriticalSection2;
@@ -1093,14 +1105,19 @@ int32_t function_10007239(int32_t a1) {
 	return (int32_t) &v3;
 }
 
-int32_t function_1000729a(int32_t a1) {
+int32_t __amsg_exit(int32_t a1) {
+	// also called by sa.c
+	return 0;
+}
+
+static int32_t function_1000729a(int32_t a1) {
 	int32_t lpCriticalSection = *(int32_t *) (4 * a1 + (int32_t) &g40); // 0x100072a0
 	LeaveCriticalSection((struct _RTL_CRITICAL_SECTION *) lpCriticalSection);
 	int32_t * v1;
 	return (int32_t) &v1;
 }
 
-int32_t function_1000655f(char a1, int32_t a2) {
+static int32_t function_1000655f(char a1, int32_t a2) {
 	int16_t v1 = a2;
 	int32_t v2 = g3; // bp-4
 	char v3 = g5; // bp-8
@@ -1132,25 +1149,25 @@ int32_t function_1000655f(char a1, int32_t a2) {
 }
 
 // Address range: 0x10009277 - 0x1000949a
-int32_t function_10009277(int32_t a1, int32_t a2, char a3, int32_t a4,
+static int32_t function_10009277(int32_t a1, int32_t a2, char a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
 	// 0x10009277
 	abort();
 	// UNREACHABLE
 }
 
-int32_t function_100074d5(int32_t a1) {
+static int32_t function_100074d5(int32_t a1) {
 	// 0x100074d5
-	return __nh_malloc(a1, g96);
+	return 0;
 }
 
-int32_t function_100073ec(int32_t a1) {
+static int32_t function_100073ec(int32_t a1) {
 	// 0x100073ec
 	abort();
 	// UNREACHABLE
 }
 
-int32_t function_1000912e(char * a1, int32_t a2, int32_t a3, int32_t a4,
+static int32_t function_1000912e(char * a1, int32_t a2, int32_t a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7) {
 	// 0x1000912e
 	abort();

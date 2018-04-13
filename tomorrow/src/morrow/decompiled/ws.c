@@ -21,14 +21,14 @@
 static char *mapped = 0L;
 
 dumpRegisters() {
-	UINT16 *q = (UINT16 *)mapped;
+	uint16_t *q = (uint16_t *)mapped;
 	int i;
 	/*for (q = mappedReg, i = 0; i < 32; i++, q++) {
 		printf("[%02d]=0x%x\n", i, *q);
 	}*/
 	for (i=0; i<32; i++) {
-		UINT16 v = iwpeek(&q[i]);
-		if (v != (UINT16)0xffff) {
+		uint16_t v = iwpeek(&q[i]);
+		if (v != (uint16_t)0xffff) {
 			dlog(LOG_TRACE, "reg[%d @ byte offset %02x]=x%04x\n", i, 2*i, v);
 		}
 	}
@@ -66,7 +66,7 @@ INST dd_iOpen(char *sessionString) {
 		return -1;
 	}
 	dlog(LOG_DEBUG, "imap returned valid pointer %lx\n", mapped);
-	UINT16 *q = (UINT16 *)mapped;
+	uint16_t *q = (uint16_t *)mapped;
 	int i;
 
 	dlog(LOG_DEBUG, "Vendor ID: 0x%x\n", iwpeek(&q[REG_ID]));
@@ -90,13 +90,13 @@ INST dd_iOpen(char *sessionString) {
  *
  */
 //
-UINT32 dd_wsCommand(INST id, UINT16 command, UINT16 *theResponse, UINT16 *rpe ) {
+uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse, uint16_t *rpe ) {
 	dlog(LOG_DEBUG, "\ndd_wsCommand(0x%x)\n", command);
-	UINT16 regdata = 0;
+	uint16_t regdata = 0;
 	int timeoutCnt = 0;
 
 	// Let point word pointer to memory
-	UINT16 *q =(UINT16 *)mapped;
+	uint16_t *q =(uint16_t *)mapped;
 
 	struct timespec start, stop;
 	double accum;
@@ -108,7 +108,7 @@ UINT32 dd_wsCommand(INST id, UINT16 command, UINT16 *theResponse, UINT16 *rpe ) 
 
 	// ---------------------- WRITE COMMAND ----------------------
 
-	UINT16 old_regdata = 0;
+	uint16_t old_regdata = 0;
 	// Read RESPONSE register until instrument is ready for write or timeout.
 	// Wait for WRITEREADY bit value to be set.
 	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
@@ -183,7 +183,7 @@ UINT32 dd_wsCommand(INST id, UINT16 command, UINT16 *theResponse, UINT16 *rpe ) 
 	dlog(LOG_DEBUG, "\tREADREADY after %ldus (%d tries).\n", (stop.tv_nsec - start.tv_nsec)/1000L, timeoutCnt);
 
 	// Read result from Datalow
-	UINT16 response = q[REG_DATALOW];
+	uint16_t response = q[REG_DATALOW];
 	dlog(LOG_DEBUG, "\tResponse: 0x%x\n", response);
 
 	*rpe = 0; // ???
@@ -215,13 +215,13 @@ UINT32 dd_wsCommand(INST id, UINT16 command, UINT16 *theResponse, UINT16 *rpe ) 
  * To read the answer, it then checks the device RESPONSE register until the device is ready to be read from (ReadReady bit).
  * Then it reads the answer word from the DATALOW register.
  */
-UINT32 dd_p1Command(INST id, UINT16 command, int readAnswer) {
+uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 	dlog(LOG_DEBUG, "\ndd_p1Command(0x%x)\n", command);
-	UINT16 regdata = 0;
+	uint16_t regdata = 0;
 	int timeoutCnt = 0;
 
 	// Let point word pointer to memory
-	UINT16 *q =(UINT16 *)mapped;
+	uint16_t *q =(uint16_t *)mapped;
 
 	struct timespec start, stop;
 	double accum;
@@ -233,7 +233,7 @@ UINT32 dd_p1Command(INST id, UINT16 command, int readAnswer) {
 
 	// ---------------------- WRITE VXI_ENGINECMD ----------------------
 
-	UINT16 old_regdata = 0;
+	uint16_t old_regdata = 0;
 	// Read RESPONSE register until instrument is ready for write or timeout.
 	// Wait for WRITEREADY bit value to be set.
 	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
@@ -359,7 +359,7 @@ UINT32 dd_p1Command(INST id, UINT16 command, int readAnswer) {
 	dlog(LOG_DEBUG, "\tREADREADY after %d tries\n", timeoutCnt);
 
 	// Read result from Datalow
-	UINT16 response = q[REG_DATALOW];
+	uint16_t response = q[REG_DATALOW];
 	dlog(LOG_DEBUG, "\tResponse: 0x%x\n", response);
 	return response;
 }
@@ -367,10 +367,10 @@ UINT32 dd_p1Command(INST id, UINT16 command, int readAnswer) {
 //#define WS_MAIN
 #ifdef WS_MAIN
 int main(int argc, char *argv[]) {
-	UINT16 offset;
-	UINT16 regdata;
+	uint16_t offset;
+	uint16_t regdata;
 	INT16 status;
-	UINT16 responseReg;
+	uint16_t responseReg;
 
 	int timeoutCnt = 0;
 	int err;

@@ -56,6 +56,10 @@ static int32_t g129 = 0;
 static float80_t g159_rbwFrequency = 0.0L; // st0
 static float80_t g160_currentStepWidth = 0.0L; // st1
 
+int32_t __nh_malloc(int32_t a1, int32_t a2) {
+	return 0;
+}
+
 int32_t InitEngine(SET9052 *a1) {
 	dlog( LOG_DEBUG, "InitEngine\n");
 	SET9052 *v1 = a1; // 0x10003c79
