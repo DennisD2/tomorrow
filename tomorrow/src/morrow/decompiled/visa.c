@@ -412,7 +412,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
     	return -1;
     }
 	uint16_t response, rpe;
-	// Check ststus before sending command
+	// Check status before sending command
 	dd_wsCommand(deviceId, VXI_GETSTATUS, &response, &rpe);
     // Send command
     VISA_SendWord(deviceId, command);
@@ -983,26 +983,6 @@ int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	dlog( LOG_DEBUG, "\t_imported_function_ord_130(%d, %d)\n", a1, a2);
 }
 
-int checkResponse(uint32_t response) {
-	uint32_t r = response & 0xff;
-	char *p = "?";
-	switch (r) {
-	case ENG_REPLY_ACK:
-		p = "ACK";
-		break;
-	case ENG_REPLY_BUSY:
-		p = "BUSY";
-		break;
-	case ENG_REPLY_BAD_CMD:
-		p = "Bad Command";
-		break;
-	}
-	dlog(LOG_INFO, "%s\n", p);
-	if (r != ENG_REPLY_ACK) {
-		return -1;
-	}
-	return 0;
-}
 
 void _initEngine(INST id, int argc) {
 	unsigned int ret;

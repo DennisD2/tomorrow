@@ -39,8 +39,13 @@
 #define WRITEREADYDIR (uint16_t)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DIR_BITV)
 #define WRITEREADYDOR (uint16_t)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DOR_BITV)
 
+// Generic
 uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer);
 uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *response, uint16_t *rpe);
 uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *response, uint16_t *rpe);
+
+// Morrow
+uint32_t dd_SendCommand(INST id, uint16_t command, uint16_t numWords, uint16_t *words);
+int checkResponse(uint32_t response);
 
 #endif /* WS_H_ */

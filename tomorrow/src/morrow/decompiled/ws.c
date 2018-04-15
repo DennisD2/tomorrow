@@ -15,21 +15,24 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <sapform.h>
+#include <sa_defin.h>
+
 #define TIMEOUT 1000000L
 
 // Memory mapped device registers
 static char *mapped = 0L;
 
 dumpRegisters() {
-	uint16_t *q = (uint16_t *)mapped;
+	uint16_t *q = (uint16_t *) mapped;
 	int i;
 	/*for (q = mappedReg, i = 0; i < 32; i++, q++) {
-		printf("[%02d]=0x%x\n", i, *q);
-	}*/
-	for (i=0; i<32; i++) {
+	 printf("[%02d]=0x%x\n", i, *q);
+	 }*/
+	for (i = 0; i < 32; i++) {
 		uint16_t v = iwpeek(&q[i]);
-		if (v != (uint16_t)0xffff) {
-			dlog(LOG_SILLY, "reg[%d @ byte offset %02x]=x%04x\n", i, 2*i, v);
+		if (v != (uint16_t) 0xffff) {
+			dlog(LOG_SILLY, "reg[%d @ byte offset %02x]=x%04x\n", i, 2 * i, v);
 		}
 	}
 }
@@ -66,7 +69,7 @@ INST dd_iOpen(char *sessionString) {
 		return -1;
 	}
 	dlog(LOG_DEBUG, "imap returned valid pointer %lx\n", mapped);
-	uint16_t *q = (uint16_t *)mapped;
+	uint16_t *q = (uint16_t *) mapped;
 	int i;
 
 	dlog(LOG_DEBUG, "Vendor ID: 0x%x\n", iwpeek(&q[REG_ID]));
@@ -77,13 +80,14 @@ INST dd_iOpen(char *sessionString) {
 	return id;
 }
 
-uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse, uint16_t *rpe ) {
+uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse,
+		uint16_t *rpe) {
 	dlog(LOG_DEBUG, "\ndd_wsCommand(0x%x)\n", command);
 	uint16_t regdata = 0;
 	int timeoutCnt = 0;
 
 	// Let point word pointer to memory
-	uint16_t *q =(uint16_t *)mapped;
+	uint16_t *q = (uint16_t *) mapped;
 
 	struct timespec start, stop;
 	double accum;
@@ -103,11 +107,10 @@ uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse, 
 		regdata = iwpeek(&(q[REG_RESPONSE]));
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
-					(WRITEREADY & regdata),
-					((regdata&READREADY)? "RR" : ""),
-					((regdata&WRITEREADY)? "WR" : "")
-			);
+			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
+					((regdata & READREADY) ? "RR" : ""),
+					((regdata & WRITEREADY) ? "WR" : ""));
 			old_regdata = regdata;
 		}
 		// Mask for the WRITEREADY bit
@@ -123,7 +126,8 @@ uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse, 
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_SILLY, "\tWRITEREADY after %ldus (%d tries).\n", (stop.tv_nsec - start.tv_nsec)/1000L, timeoutCnt);
+	dlog(LOG_SILLY, "\tWRITEREADY after %ldus (%d tries).\n",
+			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 
 	// Write the command to send to the DATALOW register
 	//q[REG_DATALOW] = cmd;
@@ -135,11 +139,10 @@ uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse, 
 		regdata = iwpeek(&(q[REG_RESPONSE]));
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
-					(WRITEREADY & regdata),
-					((regdata&READREADY)? "RR" : ""),
-					((regdata&WRITEREADY)? "WR" : "")
-			);
+			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
+					((regdata & READREADY) ? "RR" : ""),
+					((regdata & WRITEREADY) ? "WR" : ""));
 			old_regdata = regdata;
 		}
 		// Mask for the WRITEREADY bit
@@ -155,7 +158,8 @@ uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse, 
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_SILLY, "\tWRITEREADY after %ldus (%d tries).\n", (stop.tv_nsec - start.tv_nsec)/1000L, timeoutCnt);
+	dlog(LOG_SILLY, "\tWRITEREADY after %ldus (%d tries).\n",
+			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 
 }
 /**
@@ -171,13 +175,14 @@ uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse, 
  *
  */
 //
-uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse, uint16_t *rpe ) {
+uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse,
+		uint16_t *rpe) {
 	dlog(LOG_DEBUG, "\ndd_wsCommand(0x%x)\n", command);
 	uint16_t regdata = 0;
 	int timeoutCnt = 0;
 
 	// Let point word pointer to memory
-	uint16_t *q =(uint16_t *)mapped;
+	uint16_t *q = (uint16_t *) mapped;
 
 	struct timespec start, stop;
 	double accum;
@@ -197,11 +202,10 @@ uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse, uint16_t
 		regdata = iwpeek(&(q[REG_RESPONSE]));
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
-					(WRITEREADY & regdata),
-					((regdata&READREADY)? "RR" : ""),
-					((regdata&WRITEREADY)? "WR" : "")
-			);
+			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
+					((regdata & READREADY) ? "RR" : ""),
+					((regdata & WRITEREADY) ? "WR" : ""));
 			old_regdata = regdata;
 		}
 		// Mask for the WRITEREADY bit
@@ -217,7 +221,8 @@ uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse, uint16_t
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_SILLY, "\tWRITEREADY after %ldus (%d tries).\n", (stop.tv_nsec - start.tv_nsec)/1000L, timeoutCnt);
+	dlog(LOG_SILLY, "\tWRITEREADY after %ldus (%d tries).\n",
+			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 
 	// Write the command to send to the DATALOW register
 	//q[REG_DATALOW] = cmd;
@@ -237,11 +242,11 @@ uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse, uint16_t
 		regdata = q[REG_RESPONSE];
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata,
+			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					REG_RESPONSE, regdata,
 					READREADY, (READREADY & regdata),
-					((regdata&READREADY)? "RR" : ""),
-					((regdata&WRITEREADY)? "WR" : "")
-			);
+					((regdata & READREADY) ? "RR" : ""),
+					((regdata & WRITEREADY) ? "WR" : ""));
 			old_regdata = regdata;
 		}
 		// Masking for READREADY
@@ -261,7 +266,8 @@ uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse, uint16_t
 		dlog(LOG_ERROR, "Timeout occurred during wait for READREADY.\n");
 		return -1;
 	}
-	dlog(LOG_SILLY, "\tREADREADY after %ldus (%d tries).\n", (stop.tv_nsec - start.tv_nsec)/1000L, timeoutCnt);
+	dlog(LOG_SILLY, "\tREADREADY after %ldus (%d tries).\n",
+			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 
 	// Read result from Datalow
 	uint16_t response = q[REG_DATALOW];
@@ -302,7 +308,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 	int timeoutCnt = 0;
 
 	// Let point word pointer to memory
-	uint16_t *q =(uint16_t *)mapped;
+	uint16_t *q = (uint16_t *) mapped;
 
 	struct timespec start, stop;
 	double accum;
@@ -322,11 +328,10 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		regdata = iwpeek(&(q[REG_RESPONSE]));
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
-					(WRITEREADY & regdata),
-					((regdata&READREADY)? "RR" : ""),
-					((regdata&WRITEREADY)? "WR" : "")
-			);
+			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
+					((regdata & READREADY) ? "RR" : ""),
+					((regdata & WRITEREADY) ? "WR" : ""));
 			old_regdata = regdata;
 		}
 		// Mask for the WRITEREADY bit
@@ -338,7 +343,8 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		perror("clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_SILLY, "\tWR time: %ld us\n", (stop.tv_nsec - start.tv_nsec)/1000L );
+	dlog(LOG_SILLY, "\tWR time: %ld us\n",
+			(stop.tv_nsec - start.tv_nsec) / 1000L);
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "\tTimeout occurred while checking WRITEREADY.\n");
 		return -1;
@@ -364,11 +370,10 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		regdata = iwpeek(&(q[REG_RESPONSE]));
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, WRITEREADY,
-					(WRITEREADY & regdata),
-					((regdata&READREADY)? "RR" : ""),
-					((regdata&WRITEREADY)? "WR" : "")
-			);
+			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
+					((regdata & READREADY) ? "RR" : ""),
+					((regdata & WRITEREADY) ? "WR" : ""));
 			old_regdata = regdata;
 		}
 		// Mask for the WRITEREADY bit
@@ -380,7 +385,8 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		perror("clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_SILLY, "\tWR2 time: %ld us\n", (stop.tv_nsec - start.tv_nsec)/1000L );
+	dlog(LOG_SILLY, "\tWR2 time: %ld us\n",
+			(stop.tv_nsec - start.tv_nsec) / 1000L);
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY2.\n");
 		return -1;
@@ -412,11 +418,10 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		regdata = q[REG_RESPONSE];
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n", REG_RESPONSE, regdata, READREADY,
-					(READREADY & regdata),
-					((regdata&READREADY)? "RR" : ""),
-					((regdata&WRITEREADY)? "WR" : "")
-			);
+			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					REG_RESPONSE, regdata, READREADY, (READREADY & regdata),
+					((regdata & READREADY) ? "RR" : ""),
+					((regdata & WRITEREADY) ? "WR" : ""));
 			old_regdata = regdata;
 		}
 		// Masking for READREADY
@@ -428,7 +433,8 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		perror("clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_SILLY, "\tRR time: %ld us\n", (stop.tv_nsec - start.tv_nsec)/1000L );
+	dlog(LOG_SILLY, "\tRR time: %ld us\n",
+			(stop.tv_nsec - start.tv_nsec) / 1000L);
 
 	//dumpRegisters();
 
@@ -445,3 +451,91 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 	return response;
 }
 
+uint32_t waitForAck(INST id, long millis) {
+	uint16_t response, rpe;
+	struct timespec now, stop;
+	double accum;
+	sleep(1);
+
+	if (clock_gettime( CLOCK_REALTIME, &now) == -1) {
+		perror("clock gettime");
+		exit(-1);
+	}
+	stop.tv_sec = now.tv_sec;
+	stop.tv_nsec = now.tv_nsec + (millis * 1000L);
+	while (true) {
+		dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+		if ((response & 0xff) == 0x01 /* ACK */) {
+			dlog(LOG_INFO, "ACK\n");
+			return 0;
+		} else {
+			checkResponse(response);
+		}
+		if (clock_gettime( CLOCK_REALTIME, &now) == -1) {
+			perror("clock gettime");
+			exit(-1);
+		}
+		// TODO comparison is not 100% correct;!!!
+		if (now.tv_sec > stop.tv_sec) {
+			dlog(LOG_WARN, "Timeout!\n");
+			return -1;
+		} else {
+			if (now.tv_nsec > stop.tv_nsec) {
+				dlog(LOG_WARN, "Timeout!\n");
+				return -1;
+			}
+		}
+		usleep(100L); // us
+	}
+}
+
+uint32_t dd_SendCommand(INST id, uint16_t command, uint16_t numWords,
+		uint16_t *words) {
+	dlog( LOG_DEBUG, "dd_SendCommand(%x=%s, %d, %lx)\n", command,
+			getCmdNameP1(command), numWords, words);
+	int i;
+	for (i = 0; i < numWords; i++) {
+		dlog( LOG_DEBUG, "words[%d]=0x%x\n", i, words[i]);
+	}
+
+	uint16_t response, rpe;
+	// Check status before sending command
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+	checkResponse(response);
+
+	dd_p1Command(id, command, 0);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+	for (i = 0; i < numWords; i++) {
+		dd_p1Command(id, words[i], 0);
+		dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+		dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+		checkResponse(response);
+	}
+	return waitForAck(id, 900);
+}
+
+int checkResponse(uint32_t response) {
+	uint32_t r = response & 0xff;
+	char *p = "?";
+	switch (r) {
+	case ENG_REPLY_ACK:
+		p = "ACK";
+		break;
+	case ENG_REPLY_BUSY:
+		p = "BUSY";
+		break;
+	case ENG_REPLY_BAD_CMD:
+		p = "Bad Command";
+		break;
+	case ENG_REPLY_INMAIN:
+		p = "Initial state after reset";
+		break;
+	}
+	dlog(LOG_INFO, "%s\n", p);
+	if (r != ENG_REPLY_ACK) {
+		return -1;
+	}
+	return 0;
+}
