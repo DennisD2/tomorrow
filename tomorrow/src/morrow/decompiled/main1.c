@@ -444,7 +444,7 @@ int main(int argc, char **argv) {
 	dd_SendCommand(id, ENG_SET_TRIGDET, 8, trigdet_params);
 
 	// Send ENG_SET_INTMODE with parameter 0
-	dlog(LOG_DEBUG, "--- ENG_SET_TRIGDET\n");
+	dlog(LOG_DEBUG, "--- ENG_SET_INTMODE\n");
 	uint16_t intmode_params[1] = { 0 };
 	dd_SendCommand(id, ENG_SET_INTMODE, 1, intmode_params);
 
