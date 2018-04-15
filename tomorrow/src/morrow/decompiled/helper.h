@@ -24,6 +24,7 @@
 #define LOG_TRACE 5
 #define LOG_SILLY 6
 #define LOG_ALL 7
+#define LOG_EXCLUDED 999
 
 void sysInfo();
 

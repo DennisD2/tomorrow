@@ -340,7 +340,7 @@ int main(int argc, char **argv) {
 	ViStatus mr90xxStatus;
 	ViSession sessionId;
 
-	setLogLevel(LOG_DEBUG);
+	setLogLevel(LOG_SILLY);
 	printf("main start\n");
 
 	INST id = dd_iOpen("vxi,126");
@@ -352,18 +352,17 @@ int main(int argc, char **argv) {
 
 	uint16_t response, rpe;
 	dd_wsCommand(id, WS_CMD_ANO, &response, &rpe);
-	//dd_wsCommand(id, WS_CMD_RMOD, &response, &rpe);
-	//dd_wsCommand(id, WS_CMD_RP, &response, &rpe);
 	dd_wsCommand(id, WS_CMD_BNO, &response, &rpe);
 
 	dd_wsCommandNoAnswer(id, VXI_RESETENG, &response, &rpe);
 	sleep(1);
 	dd_wsCommand(id, VXI_GETVERSION, &response, &rpe);
 
+
+#ifdef BASIC_COMMAND
 	// Send ENG_INIT with parameter 0
 	// Testing shows that 3 words are required.
 	// In the code, 4 are sent !?!
-#ifdef BASIC_COMMAND
 	dlog(LOG_DEBUG, "--- ENG_INIT\n");
 	dd_p1Command(id, ENG_INIT, 0);
 	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
@@ -383,7 +382,9 @@ int main(int argc, char **argv) {
 #endif
 	uint16_t params[4] = { 0, 0, 0, 0 };
 	dd_SendCommand(id, ENG_INIT, 3, params);
+
 	return 0;
+
 	// V9054
 	//dd_wsCommand(id, VXI_GETVERSION, &response, &rpe);
 	//dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
