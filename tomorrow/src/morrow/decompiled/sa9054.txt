@@ -10,16 +10,17 @@ See sa_defin.h
 /* ------------------------------------------------------------------------ */
 /*  Constant definitions of command numbers to the engine.                  */
 /* ------------------------------------------------------------------------ */
-#define ENG_INIT        0
-#define ENG_START_SWP   1
-#define ENG_START_ZSPAN 2
-#define ENG_START_FHOP  3
-#define ENG_SET_TRIGDET 4			8 Bytes: detect_code(2), sweep_code(2), num_cells(4)
+#define ENG_INIT        0			4 WORDS:  unknown(4), Wert = 0. 
+									Testing shows that 3 (!?!) values are required.
+#define ENG_START_SWP   1			12 WORDS
+#define ENG_START_ZSPAN 2			10 WORDS
+#define ENG_START_FHOP  3			5 WORDS
+#define ENG_SET_TRIGDET 4			8 WORDS: detect_code(2), sweep_code(2), num_cells(4)
 #define ENG_LOAD_HOPFRQ 5
-#define ENG_SET_INTMODE 6			2 Bytes: intr_code(2)
-#define ENG_TERMINATE   7			2 Bytes: breakMode, value seen: 0
-#define ENG_CALIBRATE   10
-
+#define ENG_SET_INTMODE 6			2 WORDS: intr_code(2)
+#define ENG_TERMINATE   7			1 WORD: breakMode, value seen: 0
+#define ENG_CALIBRATE   10			(6 WORDS???)
+#define ENG_UNKNOWN1    11          8 WORDS, 6 WORDS, 2 WORDS
 Own findings:
 
 Command 	Function				Comment

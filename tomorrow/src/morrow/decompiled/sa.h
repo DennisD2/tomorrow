@@ -29,6 +29,9 @@ int32_t SendCommand(SET9052 *a1, int32_t a2, int32_t a3, /*int32_t*/uint16_t *a4
 int32_t FuncStatusFromEngineReply(int16_t a1) ;
 int32_t SetEngineModel(SET9052 *a1, int16_t engine_model);
 
+int32_t __amsg_exit(int32_t a1);
+
+
 int32_t __ftol(/*int32_t*/float32_t in);
 
 #endif /* SA_H_ */

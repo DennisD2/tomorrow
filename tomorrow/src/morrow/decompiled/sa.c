@@ -3340,7 +3340,7 @@ int32_t GetFuncStatusCode(SET9052 *a1) {
     	// TODO: what is "func_status_code | a1 & -0x10000" doing: why ORing with a1 ?
     	// Maybe my replacement is not the same as the original line. Check this.
         //result = (int32_t)*(int16_t *)(a1 + 204) | a1 & -0x10000;
-    	result = a1->func_status_code | (int32_t)a1 & -0x10000;
+    	result = a1->func_status_code | /*(int32_t)a1 &*/ -0x10000;
     } else {
          result = g3 & -0x10000 | 0xfff6;
     }
@@ -3378,7 +3378,7 @@ int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         int32_t v2 = status;
         a1->err_status = v2;
-        result = (int32_t)a1 & -0x10000 | v2;
+        result = /*(int32_t)a1 & */ -0x10000 | v2;
     } else {
         result = GetFuncStatusCode(a1);
     }
@@ -3790,7 +3790,7 @@ int32_t CommInterrupts(SET9052 *a1) {
     int32_t result; // 0x100015d5
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         int32_t v3 = a1->intr_code; // (int32_t)*(int16_t *)(a1 + 136); // bp-8
-        int32_t v4 = &v3; // 0x100015aa
+        int32_t *v4 = &v3; // 0x100015aa
         g8 = v4;
         // DD Engine Command 6 is related to "set comm interupts..."
         // param 3 is sth. like 1
@@ -4016,6 +4016,12 @@ int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
     }
     return result;
 }
+
+int32_t __amsg_exit(int32_t a1) {
+	// also called by sa.c
+	return 0;
+}
+
 
 /*------------------------------------------------------------------------------------*/
 /* InitGuiSweep related code */

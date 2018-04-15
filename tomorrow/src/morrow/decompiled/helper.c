@@ -10,8 +10,29 @@
 
 #include "helper.h"
 
+/**
+ * Dumps sizes of datatypes
+ */
+void sysInfo() {
+	int i = sizeof(short);
+	dlog(LOG_DEBUG, "short: \t%d\n", i);
+	i = sizeof(int);
+	dlog(LOG_DEBUG, "int\t%d\n", i);
+	i = sizeof(void *);
+	dlog(LOG_DEBUG, "void*\t%d\n", i);
+	i = sizeof(int *);
+	dlog(LOG_DEBUG, "int*\t%d\n", i);
+	i = sizeof(float);
+	dlog(LOG_DEBUG, "float\t%d\n", i);
+	i = sizeof(double);
+	dlog(LOG_DEBUG, "double\t%d\n", i);
+}
+
 static int logLevel = LOG_ERROR;
 
+/**
+ * Set log level.
+ */
 void setLogLevel(int level) {
 	if (level < LOG_NONE)
 		level = LOG_NONE;
@@ -20,6 +41,9 @@ void setLogLevel(int level) {
 	logLevel = level;
 }
 
+/**
+ * Log a message.
+ */
 void dlog(int level, const char *format, ...) {
 	if (level > logLevel) {
 		return;

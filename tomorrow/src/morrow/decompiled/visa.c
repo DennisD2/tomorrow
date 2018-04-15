@@ -296,16 +296,17 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
 
 /**
  * Sends command to P1 CPU. Command codes allowed 0..16.
+ *
+ * Guess:
  * Command consists of a command code 'command and arguments. The function takes arguments as
  * a number of bytes (numBytes) in memory, starting at location 'wordPtr'. All bytes are sent
  * in chunks of a word (2 bytes) by using the function 'VISA_SendWord'.
- * The
  */
 int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, uint16_t *wordPtr) {
 	dlog( LOG_DEBUG, "VISA_SendCommand(%x=%s, %d, %lx)\n", command, getCmdNameP1(command), numBytes, wordPtr);
-    int ii;
-    for (ii=0; ii<numBytes; ii+=2) {
-    	dlog( LOG_DEBUG, "wordPtr[%d]=0x%x\n", ii, wordPtr[ii/2] );
+    int i;
+    for (i=0; i<numBytes; i++) {
+    	dlog( LOG_DEBUG, "wordPtr[%d]=0x%x\n", i, wordPtr[i] );
     }
 #ifdef ORIG
     int32_t v1 = g3; // bp-4
@@ -410,16 +411,26 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
     if (command < 0 || command >16) {
     	return -1;
     }
+	uint16_t response, rpe;
+	// Check ststus before sending command
+	dd_wsCommand(deviceId, VXI_GETSTATUS, &response, &rpe);
     // Send command
     VISA_SendWord(deviceId, command);
     // Send parameter words
     if (numBytes>0) {
     	int i;
+#ifdef TRY1
     	for (i=0; i<numBytes; i+=2) {
     		VISA_SendWord(deviceId, wordPtr[i/2]);
+#endif
+        for (i=0; i<numBytes; i++) {
+        	VISA_SendWord(deviceId, wordPtr[i]);
     		// check for protocol errors
-    	    int32_t v1 = _sendCommand(deviceId, 0xcdff);
-    	}
+    	    //int32_t v1 = _sendCommand(deviceId, 0xcdff);
+    		//uint16_t response, rpe;
+    		dd_wsCommand(deviceId, VXI_GETSTATUS, &response, &rpe);
+    		checkResponse(response);
+        }
 		int32_t status = VISA_CheckSWStatus(deviceId);
         if ((status & 0xffff) != 1) {
         	dlog( LOG_DEBUG, "VISA_SendCommand failed, status=%d.\n", status);
@@ -489,6 +500,7 @@ int32_t function_100016c8(SET9052 *deviceId) {
         g5 = deviceId;
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001707
         g3 = v1;
+    	dlog( LOG_DEBUG, "\tfunction_100016c8 leave 1 --> 0x%x\n", result);
         return result;
     }
     int32_t v4 = v3; // 0x10001710
@@ -507,6 +519,7 @@ int32_t function_100016c8(SET9052 *deviceId) {
                 g5 = v7;
                 SetErrorStatus(deviceId, v7);
                 g3 = v1;
+            	dlog( LOG_DEBUG, "\tfunction_100016c8 leave 1 --> 0x%x\n", -2);
                 return -2;
             }
             if ((0x10000 * _TestTimeoutDone(v2) || 0xffff) >= 0x1ffff) {
@@ -522,6 +535,7 @@ int32_t function_100016c8(SET9052 *deviceId) {
         result2 = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
     }
     g3 = v1;
+	dlog( LOG_DEBUG, "\tfunction_100016c8 leave 2 --> 0x%x\n", result2);
     return result2;
 }
 
@@ -689,10 +703,14 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 
 int32_t function_100011fc(SET9052 *deviceId, int32_t* a2) {
 	dlog( LOG_DEBUG, "function_100011fc\n");
-    int32_t v1 = deviceId->session_handle; //*(int32_t *)(deviceId + 468); // 0x1000120d
-    g7 = v1;
-    int32_t v2 = dd_viFlush(v1, 1, 4, a2) != 0;
-    return SetErrorStatus(deviceId, v2) & -0x10000 | v2;
+    int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
+    g7 = session_handle;
+    int32_t v2 = dd_viFlush(session_handle, 1, 4, a2);
+	//dlog( LOG_DEBUG, "function_100011fc v2: 0x%x, response: 0x%x\n", v2, *a2);
+
+    int32_t ret = SetErrorStatus(deviceId, v2) & -0x10000 | v2;
+	//dlog( LOG_DEBUG, "function_100011fc --> 0x%x\n", ret);
+    return ret;
 }
 
 int32_t function_10001249(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) {
@@ -714,14 +732,21 @@ int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
 	dlog( LOG_DEBUG, "function_100017e1\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2; // 0x10001834
-    if ((0x10000 * function_100011fc(deviceId, (int32_t*)a2) || 0xffff) >= 0x1ffff) {
+    int32_t v2;
+    int32_t a2tmp;
+    if ((0x10000 * function_100011fc(deviceId, &a2tmp) || 0xffff) >= 0x1ffff) {
+    	*a2 = a2tmp;
         v2 = SetErrorStatus(deviceId, 1);
         g3 = v1;
-        return (int32_t)1 | v2 & -0x10000;
+        int ret = (int32_t)1 | v2 & -0x10000;
+    	//dlog( LOG_DEBUG, "function_100017e1 1 --> 0x%x\n", ret);
+        return ret;
     }
+	*a2 = a2tmp;
     int16_t v3; // bp-12
     int32_t v4; // 0x1000182b
+    // *a2 needs 256 set, othewise we get error status 3!
+	//dlog( LOG_DEBUG, "function_100017e1 a2: 0x%x\n", *a2);
     if ((*a2 & 256) != 0) {
         v3 = 0;
         v4 = 0;
@@ -731,7 +756,9 @@ int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
     }
     v2 = SetErrorStatus(deviceId, v4);
     g3 = v1;
-    return (int32_t)v3 | v2 & -0x10000;
+    int ret = (int32_t)v3 | v2 & -0x10000;
+	//dlog( LOG_DEBUG, "function_100017e1 2 --> 0x%x\n", ret);
+    return ret;
 }
 
 int32_t function_100015d0(SET9052 * deviceId, int32_t a2, int16_t a3, int32_t* a4) {
@@ -956,90 +983,57 @@ int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	dlog( LOG_DEBUG, "\t_imported_function_ord_130(%d, %d)\n", a1, a2);
 }
 
-
+int checkResponse(uint32_t response) {
+	uint32_t r = response & 0xff;
+	char *p = "?";
+	switch (r) {
+	case ENG_REPLY_ACK:
+		p = "ACK";
+		break;
+	case ENG_REPLY_BUSY:
+		p = "BUSY";
+		break;
+	case ENG_REPLY_BAD_CMD:
+		p = "Bad Command";
+		break;
+	}
+	dlog(LOG_INFO, "%s\n", p);
+	if (r != ENG_REPLY_ACK) {
+		return -1;
+	}
+	return 0;
+}
 
 void _initEngine(INST id, int argc) {
-	unsigned short response;
-	unsigned short rpe;
 	unsigned int ret;
+	uint16_t response, rpe;
 
-#if defined(__hp9000s700)
-	unsigned short cmd = WS_CMD_ANO /*0xc8ff*/; //ANO
-	response = _dd_sendCommand(id, cmd);
-	if (response != 0xfffe) {
-		dlog( LOG_ERROR, "Error1: %x\n", response);
-		return;
+	dlog(LOG_DEBUG, "_initEngine\n");
+	dd_wsCommand(id, WS_CMD_ANO, &response, &rpe);
+	dd_wsCommand(id, WS_CMD_BNO, &response, &rpe);
+
+	dd_wsCommandNoAnswer(id, VXI_RESETENG, &response, &rpe);
+
+	// Send ENG_INIT with 3 word parameters, all value 0
+	// This was tested and works.
+	// (Code is different and sends 4 words !?!).
+	dd_p1Command(id, ENG_INIT, 0);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+	dd_p1Command(id, 0, 0);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+	dd_p1Command(id, 0, 0);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+	dd_p1Command(id, 0, 0);
+	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
+	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
+
+	if (checkResponse(response) != 0) {
+		dlog(LOG_DEBUG, "_initEngine failed. Exiting.\n");
+		exit(0);
 	}
-	dlog( LOG_DEBUG, "Abort Normal Operation: OK\n");
-
-	cmd = WS_CMD_BNO; // begin normal operation
-	response = _dd_sendCommand(id, cmd);
-	/* See page 16 what to check for success. I do not understand what is said there. */
-	dlog( LOG_DEBUG, "Begin Normal Operation: OK\n\n");
-
-	cmd = VXI_GETVERSION; // get version
-	response = _dd_sendCommand(id, cmd);
-	int major = response >> 4;
-	int minor = response & 0xf;
-	dlog( LOG_DEBUG, "Version: %d.%d\n\n", major, minor);
-
-	int fifo, status;
-	ret = _getStatus(id, &fifo, &status);
-	dlog( LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
-
-	/*cmd = VXI_RESETENG;
-	response = _dd_sendCommand(id, cmd);
-	dlog( LOG_DEBUG, "Response: %x\n\n", response);*/
-
-	//-----------------------------------------------------------------
-	if (argc > 1) {
-		dlog( LOG_DEBUG, "No further engine command.\n");
-		return;
-	}
-
-	dlog( LOG_DEBUG, "VXI_ENGINECMD ...\n");
-	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
-	ret = ivxiws(id, cmd, &response, &rpe);
-	dlog( LOG_DEBUG, "VXI_ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
-	if (ret != 0) {
-		dlog( LOG_ERROR, "Error ENGINECMD: %d, %x\n", ret, response);
-		return;
-	}
-	dlog( LOG_DEBUG, "... OK\n");
-
-	dlog( LOG_DEBUG, "ENG_TERMINATE command word:\n");
-	cmd = ENG_TERMINATE; // Engine command
-	ret = ivxiws(id, cmd, &response, &rpe);
-	dlog( LOG_DEBUG, "ENG_TERMINATE ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
-	if (ret != 0) {
-		dlog( LOG_ERROR, "Error Engine command: %d, %x\n", ret, response);
-		return;
-	}
-	dlog( LOG_DEBUG, "... OK\n");
-
-	dlog( LOG_DEBUG, "VXI_ENGINECMD ...\n");
-	cmd = VXI_ENGINECMD; // VXI_ENGINECMD
-	ret = ivxiws(id, cmd, &response, &rpe);
-	dlog( LOG_DEBUG, "VXI_ENGINECMD ret: %u, response=%x, rpe=%x\n", ret, response, rpe);
-	if (ret != 0) {
-		dlog( LOG_ERROR, "Error ENGINECMD: %d, %x\n", ret, response);
-		return;
-	}
-	dlog( LOG_DEBUG, "... OK\n");
-
-	dlog( LOG_DEBUG, "ENG_TERMINATE parameter word:\n");
-	cmd = 0x0; // 1 Parameter for ENG_TERMINATE
-	ret = ivxiws(id, cmd, &response, &rpe);
-	dlog( LOG_DEBUG, "ENG_TERMINATE parameter ret: %u, response=%x, rpe=%u\n", ret, response, rpe);
-	if (ret != 0) {
-		dlog( LOG_ERROR, "Error Engine command: %d, %x\n", ret, response);
-		return;
-	}
-	dlog( LOG_DEBUG, "... OK\n");
-
-	ret = _getStatus(id, &fifo, &status);
-	dlog( LOG_DEBUG, "VXI_GETSTATUS: OK\n\n");
-#endif
 }
 
 
@@ -1100,7 +1094,7 @@ int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int3
 	*session_id = id;
 	itimeout (id, 10000);
 
-	//_initEngine(id, 2);
+	_initEngine(id, 2);
 	sleep(1);
 
 #else
@@ -1152,9 +1146,11 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
 	if (ret != 0) {
 		dlog( LOG_DEBUG, "iflush returned %d\n", ret);
 	}
-	// next bits are required and checked in _doSendWord() .
+	// bits 9,10 are required and checked in _doSendWord().
+	// bit 8 required by function_100017e1().
 	// DD XXX analyze what they might mean
-	*response = (1<<9)|(1<<10);
+	*response = (1<<9)|(1<<10)|(1<<8);
+	//dlog( LOG_DEBUG, "iflush response 0x%x\n", *response);
 #else
 #endif
 	ret = VI_SUCCESS;

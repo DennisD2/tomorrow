@@ -1105,10 +1105,6 @@ static int32_t function_10007239(int32_t a1) {
 	return (int32_t) &v3;
 }
 
-int32_t __amsg_exit(int32_t a1) {
-	// also called by sa.c
-	return 0;
-}
 
 static int32_t function_1000729a(int32_t a1) {
 	int32_t lpCriticalSection = *(int32_t *) (4 * a1 + (int32_t) &g40); // 0x100072a0

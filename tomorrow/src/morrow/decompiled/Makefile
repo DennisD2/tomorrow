@@ -3,14 +3,11 @@ CFLAGS=-I ../include -w -g
 #OFLAGS=-lsicl
 OFLAGS=
 
-WSFLAGS=-D WS_MAIN
-WSFLAGS=
-
 morrow : main.o sa.o pnp.o visa.o helper.o ws.o wsfake.o
 	gcc -o morrow sa.o pnp.o visa.o main.o helper.o ws.o wsfake.o $(OFLAGS)
 
-ws: ws.o helper.o visa.o sa.o 
-	gcc -o ws ws.o helper.o visa.o sa.o $(OFLAGS)
+main1: main1.o helper.o visa.o sa.o ws.o
+	gcc -o main1 main1.o ws.o helper.o visa.o sa.o $(OFLAGS)
 
 sa.o : sa.c
 	gcc $(CFLAGS) -c sa.c
@@ -29,6 +26,9 @@ helper.o : helper.c
 
 ws.o : ws.c
 	gcc $(CFLAGS) $(WSFLAGS) -c ws.c
+
+main1.o : main1.c
+	gcc $(CFLAGS) -c main1.c
 
 wsfake.o : wsfake.c
 	gcc $(CFLAGS) -c wsfake.c

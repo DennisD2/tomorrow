@@ -41,5 +41,6 @@
 
 uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer);
 uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *response, uint16_t *rpe);
+uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *response, uint16_t *rpe);
 
 #endif /* WS_H_ */

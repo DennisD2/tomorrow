@@ -22,8 +22,10 @@
 #define LOG_INFO 3
 #define LOG_DEBUG 4
 #define LOG_TRACE 5
-#define LOG_ALL 6
+#define LOG_SILLY 6
+#define LOG_ALL 7
 
+void sysInfo();
 
 void dlog( int level, const char *format, ... );
 void setLogLevel(int level);
