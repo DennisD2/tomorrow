@@ -354,11 +354,11 @@ int main(int argc, char **argv) {
 	dd_wsCommandNoAnswer(id, VXI_RESETENG, &response, &rpe);
 	dd_wsCommand(id, VXI_GETVERSION, &response, &rpe);
 
-#ifdef BAREFOOT_COMMAND
 	// Send ENG_INIT with parameter 0
 	// Testing shows that 3 words are required.
 	// In the code, 4 are sent !?!
 	dlog(LOG_DEBUG, "--- ENG_INIT\n");
+#ifdef BAREFOOT_INIT_COMMAND
 	dd_p1Command(id, ENG_INIT, 0);
 	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
 	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
@@ -378,9 +378,9 @@ int main(int argc, char **argv) {
 	uint16_t init_params[4] = { 0, 0, 0, 0 };
 	dd_SendCommand(id, ENG_INIT, 3, init_params);
 
-#ifdef BAREFOOT_COMMAND
 	// Send ENG_TERMINATE with 1 parameter, value 0
 	dlog(LOG_DEBUG, "--- ENG_TERMINATE\n");
+#ifdef BAREFOOT_TERMINATE_COMMAND
 	dd_p1Command(id, ENG_TERMINATE, 0);
 	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
 	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
@@ -394,10 +394,12 @@ int main(int argc, char **argv) {
 #endif
 	uint16_t terminate_params[1] = { 0 };
 	dd_SendCommand(id, ENG_TERMINATE, 1, terminate_params);
-	return 0;
+	//return 0;
 
 	// Send ENG_SET_TRIGDET with parameter 0x24, 0x5, 0x0, 0x1f5
 	dlog(LOG_DEBUG, "--- ENG_SET_TRIGDET\n");
+//#define BAREFOOT_SET_TRIGDET_COMMAND
+#ifdef BAREFOOT_SET_TRIGDET_COMMAND
 	dd_p1Command(id, ENG_SET_TRIGDET, 0);
 	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
 	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
@@ -437,5 +439,13 @@ int main(int argc, char **argv) {
 	if (checkResponse(response) != 0) {
 		return 1;
 	}
+#endif
+	uint16_t trigdet_params[8] =  { 0x24, 0, 0x5, 0, 0x0, 0, 0x1f5, 0 };
+	dd_SendCommand(id, ENG_SET_TRIGDET, 8, trigdet_params);
+
+	// Send ENG_SET_INTMODE with parameter 0
+	dlog(LOG_DEBUG, "--- ENG_SET_TRIGDET\n");
+	uint16_t intmode_params[1] = { 0 };
+	dd_SendCommand(id, ENG_SET_INTMODE, 1, intmode_params);
 
 }
