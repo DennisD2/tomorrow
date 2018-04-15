@@ -347,19 +347,14 @@ int main(int argc, char **argv) {
 
 	dlog(LOG_DEBUG, "------------------------------------------------------\n");
 
-	//ret = _dd_sendCommand(id, WS_CMD_RP /*WS_CMD_RMOD /*WS_CMD_RPE*/);
-	//dlog(LOG_DEBUG, "_dd_sendCommand WS_CMD_RP result: %x\n", (short)(ret & 0xefff));
-
+	// V9054 minimal initialization
 	uint16_t response, rpe;
 	dd_wsCommand(id, WS_CMD_ANO, &response, &rpe);
 	dd_wsCommand(id, WS_CMD_BNO, &response, &rpe);
-
 	dd_wsCommandNoAnswer(id, VXI_RESETENG, &response, &rpe);
-	sleep(1);
 	dd_wsCommand(id, VXI_GETVERSION, &response, &rpe);
 
-
-#ifdef BASIC_COMMAND
+#ifdef BAREFOOT_COMMAND
 	// Send ENG_INIT with parameter 0
 	// Testing shows that 3 words are required.
 	// In the code, 4 are sent !?!
@@ -380,18 +375,10 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 #endif
-	uint16_t params[4] = { 0, 0, 0, 0 };
-	dd_SendCommand(id, ENG_INIT, 3, params);
+	uint16_t init_params[4] = { 0, 0, 0, 0 };
+	dd_SendCommand(id, ENG_INIT, 3, init_params);
 
-	return 0;
-
-	// V9054
-	//dd_wsCommand(id, VXI_GETVERSION, &response, &rpe);
-	//dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
-	//dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
-
-#define TEST_ENG_TERMINATE
-#ifdef TEST_ENG_TERMINATE
+#ifdef BAREFOOT_COMMAND
 	// Send ENG_TERMINATE with 1 parameter, value 0
 	dlog(LOG_DEBUG, "--- ENG_TERMINATE\n");
 	dd_p1Command(id, ENG_TERMINATE, 0);
@@ -404,8 +391,10 @@ int main(int argc, char **argv) {
 	if (checkResponse(response) != 0) {
 		return 1;
 	}
-
 #endif
+	uint16_t terminate_params[1] = { 0 };
+	dd_SendCommand(id, ENG_TERMINATE, 1, terminate_params);
+	return 0;
 
 	// Send ENG_SET_TRIGDET with parameter 0x24, 0x5, 0x0, 0x1f5
 	dlog(LOG_DEBUG, "--- ENG_SET_TRIGDET\n");

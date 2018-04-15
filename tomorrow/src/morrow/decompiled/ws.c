@@ -455,7 +455,8 @@ uint32_t dd_SendCommand(INST id, uint16_t command, uint16_t numWords,
 		dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
 		checkResponse(response);
 	}
-	return waitForAck(id, 100);
+	return 0;
+	//return waitForAck(id, 100);
 }
 
 int checkResponse(uint32_t response) {
