@@ -286,7 +286,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_SILLY, "\tWR time: %ld us\n",
+	dlog(LOG_EXCLUDED, "\tWR time: %ld us\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L);
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "\tTimeout occurred while checking WRITEREADY.\n");
@@ -328,7 +328,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_SILLY, "\tWR2 time: %ld us\n",
+	dlog(LOG_EXCLUDED, "\tWR2 time: %ld us\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L);
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY2.\n");
@@ -362,7 +362,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		regdata = q[REG_RESPONSE];
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_SILLY, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+			dlog(LOG_EXCLUDED, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
 			REG_RESPONSE, regdata, READREADY, (READREADY & regdata),
 					((regdata & READREADY) ? "RR" : ""),
 					((regdata & WRITEREADY) ? "WR" : ""));
@@ -377,7 +377,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_SILLY, "\tRR time: %ld us\n",
+	dlog(LOG_EXCLUDED, "\tRR time: %ld us\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L);
 
 	// If we exited the loop because of a timeout quit the program with an error
@@ -385,7 +385,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "Timeout occurred during wait for READREADY.\n");
 		return -1;
 	}
-	dlog(LOG_SILLY, "\tREADREADY after %d tries\n", timeoutCnt);
+	dlog(LOG_EXCLUDED, "\tREADREADY after %d tries\n", timeoutCnt);
 
 	// Read result from Datalow
 	uint16_t response = q[REG_DATALOW];
@@ -455,7 +455,7 @@ uint32_t dd_SendCommand(INST id, uint16_t command, uint16_t numWords,
 		dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
 		checkResponse(response);
 	}
-	return waitForAck(id, 900);
+	return waitForAck(id, 100);
 }
 
 int checkResponse(uint32_t response) {
