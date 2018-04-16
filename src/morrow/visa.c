@@ -411,6 +411,8 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
     if (command < 0 || command >16) {
     	return -1;
     }
+
+#ifdef TRY_1
 	uint16_t response, rpe;
 	// Check status before sending command
 	dd_wsCommand(deviceId, VXI_GETSTATUS, &response, &rpe);
@@ -419,10 +421,6 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
     // Send parameter words
     if (numBytes>0) {
     	int i;
-#ifdef TRY1
-    	for (i=0; i<numBytes; i+=2) {
-    		VISA_SendWord(deviceId, wordPtr[i/2]);
-#endif
         for (i=0; i<numBytes; i++) {
         	VISA_SendWord(deviceId, wordPtr[i]);
     		// check for protocol errors
@@ -436,6 +434,13 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
         	dlog( LOG_DEBUG, "VISA_SendCommand failed, status=%d.\n", status);
         }
     }
+#else
+    dd_SendCommand(deviceId, command, numBytes, wordPtr);
+	int32_t status = VISA_CheckSWStatus(deviceId);
+    if ((status & 0xffff) != 1) {
+    	dlog( LOG_DEBUG, "VISA_SendCommand failed, status=%d.\n", status);
+    }
+#endif
     return 0;
 #endif
 }
@@ -495,8 +500,8 @@ int32_t function_100016c8(SET9052 *deviceId) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x100016d2
-    int16_t v3; // bp-20
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)&v3) || 0xffff) >= 0x1ffff) {
+    int32_t v3; // bp-20
+    if ((0x10000 * function_100011fc(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         g5 = deviceId;
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001707
         g3 = v1;
@@ -701,7 +706,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 // XXX DD
 }
 
-int32_t function_100011fc(SET9052 *deviceId, int32_t* a2) {
+int32_t function_100011fc(SET9052 *deviceId, int32_t *a2) {
 	dlog( LOG_DEBUG, "function_100011fc\n");
     int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
     g7 = session_handle;
@@ -847,8 +852,8 @@ int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x100010eb
-    int16_t v3; // bp-20
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)&v3) || 0xffff) >= 0x1ffff) {
+    int32_t v3; // bp-20
+    if ((0x10000 * function_100011fc(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001120
         g3 = v1;
         return result;
@@ -907,7 +912,7 @@ int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2; // 0x100012ea
-    if ((0x10000 * function_100011fc(deviceId, (int32_t)a2) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * function_100011fc(deviceId, a2) || 0xffff) >= 0x1ffff) {
         v2 = SetErrorStatus(deviceId, 1);
         g3 = v1;
         return (int32_t)1 | v2 & -0x10000;
@@ -1126,13 +1131,14 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
 	if (ret != 0) {
 		dlog( LOG_DEBUG, "iflush returned %d\n", ret);
 	}
+#else
+#endif
 	// bits 9,10 are required and checked in _doSendWord().
 	// bit 8 required by function_100017e1().
 	// DD XXX analyze what they might mean
 	*response = (1<<9)|(1<<10)|(1<<8);
 	//dlog( LOG_DEBUG, "iflush response 0x%x\n", *response);
-#else
-#endif
+
 	ret = VI_SUCCESS;
 	return ret;
 }
@@ -1147,18 +1153,11 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 	uint16_t cmd = command;
 	uint16_t response;
 	uint16_t rpe;
-#if defined(__hp9000s700)
 
 #ifdef ORIG
 	ret = ivxiws(session_handle, cmd, &response, &rpe);
 #else
 	ret = dd_wsCommand(session_handle, cmd, &response, &rpe);
-#endif
-
-#else
-	ret = 0;
-	response = 0;
-	rpe = 0;
 #endif
 	dlog( LOG_DEBUG, "\tWScmdAlike() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
 

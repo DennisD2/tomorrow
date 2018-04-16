@@ -1,13 +1,20 @@
-/* Low Level Word Serial Implementation Example in C
-
- Below is an example that uses NI-VXI to implement Word Serial Protocol
- for one Word Serial Write and one Word Serial Read.  It will prompt the
- user for the LA of the message based device to communicate with and a
- string to send to the device.  It will then read the response from the
- device and print it to the screen.  In some systems you may need to adjust
- the timing of the register reads and writes by adding �waits� to the program
- as some instruments may not respond fast enough.  In the interest of space,
- most error checking has been left out of this example.	  */
+/**
+ * VXI layer for access Morrow V9054.
+ *
+ * This code includes implementation of standard Word Serial protocol and
+ * functions that can communicate with CPU P1
+ *
+ * The code uses only a small handful of SICL functions. It is supposed that it can be
+ * very easy moved to other implementions, e.g. NI-VISA.
+ *
+ * SICL functions used:
+ * iopen (must have)
+ * imap (must have)
+ * iwpeek (macro, not required)
+ * iwpoke (macro, not required)
+ * igeterrno (error handling, not required)
+ * itimeout (not required)
+ */
 
 #include "vximorrow.h"
 
@@ -19,7 +26,7 @@
 #include <sapform.h>
 #include <sa_defin.h>
 
-#define NUM_REGISTERS 32 /* Number of device registers  */
+#define NUM_REGISTERS 32 /* Number of device registers */
 #define TIMEOUT 1000000L /* timeout in us */
 
 // Memory mapped device registers

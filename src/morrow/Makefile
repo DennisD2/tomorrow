@@ -3,13 +3,13 @@
 ifeq ($(OSTYPE),linux)
    HAVE_SICL_LIBS=no
 endif
-ifeq ($(OSTYPE),hpux)
+ifneq ($(OSTYPE),linux)
    HAVE_SICL_LIBS=yes
 endif
 
 ifeq ($(HAVE_SICL_LIBS),yes)
    OFLAGS=-lsicl
-   EXTRA_OBJS=
+   EXTRA_OBJS=vximorrow.o
 else
    OFLAGS=
    EXTRA_OBJS=vximorrow_mock.o
@@ -18,8 +18,8 @@ endif
 CFLAGS=-I ./include -w -g
 WCFLAGS=-I ./include -g
 
-morrow : main.o sa.o pnp.o visa.o helper.o vximorrow.o $(EXTRA_OBJS)
-	gcc -o morrow main.o sa.o pnp.o visa.o helper.o vximorrow.o $(EXTRA_OBJS) $(OFLAGS)
+morrow : main.o sa.o pnp.o visa.o helper.o $(EXTRA_OBJS)
+	gcc -o morrow main.o sa.o pnp.o visa.o helper.o $(EXTRA_OBJS) $(OFLAGS)
 
 main1: main1.o helper.o visa.o sa.o $(EXTRA_OBJS)
 	gcc -o main1 main1.o sa.o visa.o helper.o $(EXTRA_OBJS) $(OFLAGS)

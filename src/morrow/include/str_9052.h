@@ -50,7 +50,7 @@
 extern "C" {
 #endif
 
-typedef struct SAStruct SET9052 ;
+//typedef struct SAStruct SET9052 ;
 
 typedef struct SALibStruct
 {
@@ -62,7 +62,7 @@ typedef struct SALibStruct
     int     m_DllHandle ;
     #define WINAPI IE_FUNC IE_FUNCEXP   
 #endif
-
+#ifdef Some_Windows
     void    (WINAPI *m_ClearDataFIFO  )(SET9052 *p_instr );
     int16   (WINAPI *m_CheckSWStatus  )(SET9052 *p_instr );
     int16   (WINAPI *m_CheckHWStatus  )(SET9052 *p_instr );
@@ -80,7 +80,7 @@ typedef struct SALibStruct
     int16   (WINAPI *m_OpenSessionStep)(SET9052 *p_instr ) ;
     int16   (WINAPI *m_CloseSession   )(SET9052 *p_instr ) ;
     int16   (WINAPI *m_IdQuery   )(SET9052 *p_instr, int16 *query_flag ) ;
-    
+#endif
 } SET9052LIB ;
 
 
