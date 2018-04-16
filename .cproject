@@ -72,6 +72,7 @@
 					</folderInfo>
 					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.290123865.966389641" name="/" resourcePath="src/vxi-ws-server">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.662949412" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug" unusedChildren="">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1348994266" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1639624852"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.648609322" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.659137670"/>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.2062653317" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1846140005">
@@ -80,7 +81,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.378898896" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug.648662715"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.2120338841" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1997233429"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.2000910575" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.596722821">
-								<option id="gnu.both.asm.option.include.paths.432711059" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="gnu.both.asm.option.include.paths.432711059" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/tomorrow/src/vxi-ws-server}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.5331353" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -89,7 +90,6 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/instr-server"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/morrow/decompiled"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/vxi-ws-server"/>
 					</sourceEntries>
 				</configuration>
