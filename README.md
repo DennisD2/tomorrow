@@ -10,7 +10,7 @@ src/morrow/orig contains decompilation results for the original Windows 95 libra
 
 src/morrow/rpc* contains my try to use ONS/RPC together with the Morrow Spectrum Analyzer. This try failed because it seems the Word Serial Protocol (binary data stream) does not work via ONS/RPC.
 
-##State of code:
+## State of code:
 
 With some tweaks, the first basic function runs without errors, see main.c:
 
