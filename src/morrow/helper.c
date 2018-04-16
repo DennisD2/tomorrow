@@ -54,7 +54,7 @@ void dlog(int level, const char *format, ...) {
 	va_end(args);
 }
 
-short _dd_sendCommand(INST id, short command) {
+short xxx_to_be_removed__dd_sendCommand(INST id, short command) {
 	unsigned short response;
 	unsigned short rpe;
 	unsigned int ret;

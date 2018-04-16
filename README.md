@@ -27,9 +27,9 @@ With some tweaks, the first basic function runs without errors, see main.c:
 See Makefile for build targets.
 
 Build with
-	make
+	`make`
 
 Run with
-	./morrow
+	`./morrow`
 	
 	

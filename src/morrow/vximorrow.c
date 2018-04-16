@@ -9,7 +9,7 @@
  as some instruments may not respond fast enough.  In the interest of space,
  most error checking has been left out of this example.	  */
 
-#include "ws.h"
+#include "vximorrow.h"
 
 #include "helper.h"
 #include <stdio.h>
