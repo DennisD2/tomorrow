@@ -58,7 +58,7 @@ static int32_t function_1000655f(char a1, int32_t a2);
 static int32_t function_10009277(int32_t a1, int32_t a2, char a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7, int32_t a8);
 static int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) ;
-static int32_t function_10004310(int32_t sessionId, int32_t *returnId);
+static int32_t sessionForId2(int32_t sessionId, int32_t *returnId);
 static int32_t function_1000729a(int32_t a1);
 static int32_t function_100074d5(int32_t a1);
 
@@ -108,6 +108,9 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag,
 	int32_t result3 = mr90xx_InitEngine(*session_id, 0);
 	dlog( LOG_DEBUG, "mr90xx_init, mr90xx_InitEngine returned: 0x%x\n",
 			result3);
+// DD XXX
+	result3 = 0x3ffc0811;
+// DD XXX
 	if (result3 != 0x3ffc0811) {
 		int32_t v5 = *session_id;
 		g7 = v5;
@@ -117,6 +120,9 @@ int32_t mr90xx_init(char* session_string, int32_t query_flag,
 	int32_t result5;
 	int32_t result4;
 	int32_t v6;
+// DD XXX
+	v2 = 0;
+// DD XXX
 	if (v2 == 0) {
 		g5 = v3;
 		if (v3 != 0) {
@@ -324,7 +330,7 @@ int32_t mr90xx_SetEngineModel(int32_t sessionId, int16_t model) {
 	g5 = sessionId;
 	int32_t modelFound = SAUNKNOWN; // bp-16
 	// This seems to lookup
-	int32_t ret = function_10004310(sessionId, &modelFound);// 0x100025eb
+	int32_t ret = sessionForId2(sessionId, &modelFound);// 0x100025eb
 	int32_t result;// 0x1000262f
 	if (ret == 0) {
 		// function_10004402 seems to map the looked up engine value to a value usable by SetEngineModel().
@@ -348,7 +354,7 @@ int32_t mr90xx_SetEngineModel(int32_t sessionId, int16_t model) {
 int32_t mr90xx_CloseSession(int32_t a1) {
 	dlog( LOG_DEBUG, "mr90xx_CloseSession\n");
 	int32_t v1 = 0; // bp-8
-	int32_t v2 = function_10004310(a1, &v1); // 0x10004a2f
+	int32_t v2 = sessionForId2(a1, &v1); // 0x10004a2f
 	int32_t result = v2;
 	if (v2 == 0) {
 		//int32_t v3 = *(int32_t *) (4 * v1 + (int32_t) &session); // 0x10004a48
@@ -363,7 +369,7 @@ int32_t mr90xx_CloseSession(int32_t a1) {
 int32_t mr90xx_InitEngine(void *session_id, int32_t a2) {
 	dlog( LOG_DEBUG, "mr90xx_InitEngine\n");
 	int32_t v1 = 0; // bp-16
-	int32_t v2 = function_10004310(session_id, &v1); // 0x10003830
+	int32_t v2 = sessionForId2(session_id, &v1); // 0x10003830
 	int32_t result; // 0x1000386f
 	if (v2 == 0) {
 		result = mapVisaErrorToAPIError((int16_t) InitEngine(sessionForId(v1)));
@@ -377,12 +383,18 @@ int32_t mr90xx_InitEngine(void *session_id, int32_t a2) {
 int32_t mr90xx_reset(int32_t a1) {
 	dlog( LOG_DEBUG, "mr90xx_reset\n");
 	int32_t result = mr90xx_ResetEngine(a1, g5); // 0x10003121
+// DD XXX
+	result = 0x3ffc0811;
+// DD XXX
 	if (result != 0x3ffc0811) {
 		dlog( LOG_DEBUG, "mr90xx_reset 1 --> 0x%x\n", result);
 		return result;
 	}
 	int32_t v1 = mr90xx_InitEngine(a1, 0x3ffc0811); // 0x1000313e
 	int32_t result2; // 0x1000316d
+	// DD XXX
+		v1 = 0x3ffc0811;
+	// DD XXX
 	if (v1 == 0x3ffc0811) {
 		g7 = a1;
 		mr90xx_SetTimeoutWait(a1, 300, 0x3ffc0811);
@@ -397,7 +409,7 @@ int32_t mr90xx_reset(int32_t a1) {
 int32_t mr90xx_ResetEngine(int32_t a1, int32_t a2) {
 	dlog( LOG_DEBUG, "mr90xx_ResetEngine\n");
 	int32_t v1 = 0; // bp-16
-	int32_t v2 = function_10004310(a1, &v1); // 0x1000387e
+	int32_t v2 = sessionForId2(a1, &v1); // 0x1000387e
 	int32_t result; // 0x100038bd
 	if (v2 == 0) {
 		result = mapVisaErrorToAPIError(
@@ -413,7 +425,7 @@ int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
 	dlog( LOG_DEBUG, "mr90xx_SetTimeoutWait\n");
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
-	int32_t v2 = function_10004310(a1, &v1); // 0x10004c2f
+	int32_t v2 = sessionForId2(a1, &v1); // 0x10004c2f
 	int32_t result; // 0x10004c72
 	if (v2 == 0) {
 		result = mapVisaErrorToAPIError(
@@ -424,10 +436,10 @@ int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
 	return result;
 }
 
-static int32_t function_100037d0(int32_t a1, int32_t a2, int32_t a3) {
-	g5 = a1;
+static int32_t function_100037d0(int32_t session_handle, int32_t a2, int32_t a3) {
+	g5 = session_handle;
 	int32_t v1 = 0; // bp-16
-	int32_t v2 = function_10004310(a1, &v1); // 0x100037de
+	int32_t v2 = sessionForId2(session_handle, &v1); // 0x100037de
 	int32_t result; // 0x10003821
 	if (v2 == 0) {
 		result = mapVisaErrorToAPIError((int16_t) IdQuery(sessionForId(v1)));
@@ -807,8 +819,8 @@ static int32_t mapVisaErrorToAPIError(int16_t errorCode) {
 }
 
 // returns an id in *returnId; looks like a kind of id mapping
-static int32_t function_10004310(int32_t sessionId, int32_t *returnId) {
-	dlog( LOG_DEBUG, "function_10004310\n");
+static int32_t sessionForId2(int32_t sessionId, int32_t *returnId) {
+	dlog( LOG_DEBUG, "sessionForId2\n");
 #ifdef ORIG
 	int32_t v1 = (int32_t) returnId;
 	if (returnId == NULL) {

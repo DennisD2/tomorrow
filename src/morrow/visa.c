@@ -13,9 +13,7 @@
 #include <visa.h>
 #include "dvisa.h"
 
-//#if defined(__hp9000s700)
 #include <sicl.h>
-//#endif
 
 #include "helper.h"
 
@@ -438,7 +436,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
     dd_SendCommand(deviceId, command, numBytes, wordPtr);
 	int32_t status = VISA_CheckSWStatus(deviceId);
     if ((status & 0xffff) != 1) {
-    	dlog( LOG_DEBUG, "VISA_SendCommand failed, status=%d.\n", status);
+    	dlog( LOG_DEBUG, "VISA_SendCommand may have failed(?), status=%d.\n", status);
     }
 #endif
     return 0;
@@ -800,17 +798,22 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
 	dlog( LOG_DEBUG, "VISA_CheckSWStatus: \n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = dd_readEngineStatus(deviceId); // 0x10001bd6
+    int32_t v2 = dd_readEngineStatus(deviceId);
     int16_t v3 = v2; // bp-20
-    int32_t v4 = v2 & 0xffff; // 0x10001be27
+    int32_t v4 = v2 & 0xffff;
     g5 = v4;
     if (v4 != 1) {
         v3 = dd_readEngineStatus(deviceId);
     }
-    int32_t v5 = RdTimeoutWait(deviceId); // 0x10001c04
-    int32_t v6 = IeTimer(v5); // 0x10001c0f
+
+    // Below is some kind of timeout loop.
+    // Timeout value is loaded into 'timeout'.
+    // A running time value 'now' is checked if greater than 'timeout'. If yes, the loop breaks.
+    // Inside loop, dd_readEngineStatus() is used to check engine status. Status value is in v3,v9,v10.
+    int32_t timeout = RdTimeoutWait(deviceId); // 0x10001c04
+    int32_t v6 = IeTimer(timeout); // 0x10001c0f
     int32_t v7 = v6; // 0x10001c496
-    int32_t v8; // 0x10001c38
+    int32_t now; // 0x10001c38
     while (true) {
         int16_t v9 = v3; // 0x10001c17
         g5 = v9;
@@ -821,18 +824,18 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
         }
         int32_t v10 = dd_readEngineStatus(deviceId); // 0x10001c28
         v3 = v10;
-        v8 = IeTimerFrom(v6, 0x10000 * v10 / 0x10000);
+        now = IeTimerFrom(v6, 0x10000 * v10 / 0x10000);
 #ifndef __hp9000s700
-        v8=110;
+        now=110;
 #endif
-        if (v8 > v5) {
+        if (now > timeout) {
             break;
         }
-        v7 = v8;
+        v7 = now;
     }
     g3 = v1;
-	dlog( LOG_DEBUG, "VISA_CheckSWStatus -> %x\n", ((int32_t)v3 | v8 & -0x10000));
-    return (int32_t)v3 | v8 & -0x10000;
+	dlog( LOG_DEBUG, "VISA_CheckSWStatus -> %x\n", ((int32_t)v3 | now & -0x10000));
+    return (int32_t)v3 /* | now & -0x10000 */;
 }
 
 int32_t dd_readEngineStatus(SET9052 *deviceId) {
@@ -1136,7 +1139,7 @@ int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* re
 	// bits 9,10 are required and checked in _doSendWord().
 	// bit 8 required by function_100017e1().
 	// DD XXX analyze what they might mean
-	*response = (1<<9)|(1<<10)|(1<<8);
+	*response = (1<<9)|(1<<10)/*|(1<<8)*/;
 	//dlog( LOG_DEBUG, "iflush response 0x%x\n", *response);
 
 	ret = VI_SUCCESS;

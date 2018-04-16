@@ -16,7 +16,7 @@
 #include "dvisa.h"
 #include "helper.h"
 
-static int32_t function_10002d12(SET9052 *a1, uint16_t a2);
+static int32_t updateSweepInProgValue(SET9052 *a1, uint16_t value);
 static int32_t function_10003f7a(SET9052 *a1);
 static int32_t function_100119ba(char a1);
 static int32_t function_1000e8d2(char a1, int32_t a2);
@@ -87,7 +87,7 @@ int32_t InitEngine(SET9052 *a1) {
     return result;
 }
 
-int32_t ResetEngine(int16_t a1) {
+int32_t ResetEngine(SET9052 *a1) {
 	dlog( LOG_DEBUG, "ResetEngine\n");
 	SET9052 *v1 = a1; // 0x10003cd5
     g3 = v1;
@@ -1338,9 +1338,9 @@ int32_t function_10003f7a(SET9052 *a1) {
     return result;
 }
 
-int32_t IdQuery(int16_t a1, int32_t a2) {
+int32_t IdQuery(/*int16_t*/SET9052 *a1, int32_t a2) {
 	dlog( LOG_DEBUG, "IdQuery\n");
-    int32_t v1 = a1; // 0x10003fda
+	SET9052 *v1 = a1; // 0x10003fda
     g3 = v1;
     int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003fde
     g3 = v2;
@@ -1360,7 +1360,7 @@ int32_t IdQuery(int16_t a1, int32_t a2) {
 #else
         /* lpProcNamem, hopefully not needed */
 #endif
-        result = v1 & -0x10000 | 0xffeb;
+        result = (int32_t)v1 & -0x10000 | 0xffeb;
     } else {
         result = GetFuncStatusCode(v1);
     }
@@ -3423,7 +3423,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
             int32_t v5 = SetSwpIdx(a1, 0); // 0x10004ae1
             g3 = v5;
             if ((int16_t)v5 >= 0) {
-                int32_t v6 = function_10002d12(a1, 0); // 0x10004b0b
+                int32_t v6 = updateSweepInProgValue(a1, 0); // 0x10004b0b
                 if (0x10000 * v6 >= 0) {
                     result = v6 & -0x10000 | 65;
                 } else {
@@ -3441,7 +3441,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
             return v3 & -0x10000 | 65;
         }
         case PAUSE_SWP /*2*/: {
-            int32_t v7 = function_10002d12(a1, a1->swp_in_prog/* *(int16_t *)(a1 + 4)*/ & -129); // 0x10004b43
+            int32_t v7 = updateSweepInProgValue(a1, a1->swp_in_prog/* *(int16_t *)(a1 + 4)*/ & -129); // 0x10004b43
             if (0x10000 * v7 >= 0) {
                 result = v7 & -0x10000 | 65;
             } else {
@@ -3453,7 +3453,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
             return result;
         }
         case RESUME_SWP /*3*/: {
-            int32_t v8 = function_10002d12(a1, a1->swp_in_prog/* *(int16_t *)(a1 + 4)*/ | 128); // 0x10004aac
+            int32_t v8 = updateSweepInProgValue(a1, a1->swp_in_prog/* *(int16_t *)(a1 + 4)*/ | 128); // 0x10004aac
             int16_t v9 = v8; // 0x10004aac
             int32_t v10 = 0x10000 * v8 / 0x10000; // 0x10004ab8
             g3 = v10;
@@ -3473,7 +3473,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
     return result;
 }
 
-int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
+int32_t updateSweepInProgValue(SET9052 *a1, uint16_t value) {
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d19
     g3 = v1;
@@ -3482,8 +3482,8 @@ int32_t function_10002d12(SET9052 *a1, uint16_t a2) {
     int32_t result; // 0x10002d50
     if ((v2 || 0xffff) < 0x1ffff) {
         g3 = a1;
-        g6 = a2;
-        a1->swp_in_prog = a2;
+        g6 = value;
+        a1->swp_in_prog = value;
         g8 = a1;
         result = SetFuncStatusCode(a1, 0);
     } else {
@@ -3530,159 +3530,120 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes, uint16_t *wo
     return result;
 }
 
-int32_t FuncStatusFromEngineReply(int16_t a1) {
-	//dlog( LOG_DEBUG, "FuncStatusFromEngineReply\n");
-    int32_t v1 = a1; // 0x10001006
+/**
+ * Engine reply codes remapped to software error domain, REPLY code + 0x40, see sa_defin.h .
+ */
+int32_t FuncStatusFromEngineReply(int16_t engReply) {
+	dlog( LOG_DEBUG, "FuncStatusFromEngineReply(0x%x)\n", engReply);
+    int32_t v1 = engReply; // 0x10001006
     g8 = v1;
+    // The following code returned in orig the engine code if
+    // the engine reply ? was in v1
+    // unsigned char v2 = g12[v1]
+    // To prevent extremly large array, i assume that engReply is in range 0..256.
+    // But when I run the code, I see the value FuncStatusFromEngineReply(0xffffffeb), much too large.
     unsigned char v2 = *(char *)(v1 + (int32_t)&g12); // 0x1000101c
     g6 = v2;
     int32_t v3;
     switch (v2) {
-        default: {
-            // 0x100010f6
-            v3 = 254;
-            // branch -> 0x100010fc
-            break;
-        }
-        case 0: {
-            // 0x100010fc
-            return 64 | v1 & -0x10000;
-        }
-        case 1: {
-            // 0x10001034
-            v3 = 65;
-            // branch -> 0x100010fc
+		case ENG_REPLY_BUSY /* 0 */: {
+			return IE_ENG_BUSY /* 64 */ /*| v1 & -0x10000*/;
+		}
+
+        case ENG_REPLY_ACK /* 1 */: {
+            v3 = IE_ENG_ACK /* 65 */;
             break;
         }
         case 2: {
-            // 0x1000103f
-            v3 = 66;
-            // branch -> 0x100010fc
+            v3 = IE_ENG_NOMAIN /*66*/;
             break;
         }
         case 3: {
-            // 0x1000104a
-            v3 = 67;
-            // branch -> 0x100010fc
+            v3 = IE_ENG_NODSP /*67*/;
             break;
         }
         case 4: {
-            // 0x10001055
-            v3 = 68;
-            // branch -> 0x100010fc
+            v3 =IE_ENG_NOCAL /*68*/;
             break;
         }
         case 5: {
-            // 0x10001060
             v3 = 69;
-            // branch -> 0x100010fc
             break;
         }
         case 6: {
-            // 0x1000106b
             v3 = 70;
-            // branch -> 0x100010fc
             break;
         }
         case 7: {
-            // 0x10001076
             v3 = 71;
-            // branch -> 0x100010fc
             break;
         }
         case 8: {
-            // 0x1000107e
             v3 = 72;
-            // branch -> 0x100010fc
             break;
         }
         case 9: {
-            // 0x10001086
             v3 = 73;
-            // branch -> 0x100010fc
             break;
         }
         case 10: {
-            // 0x1000108e
-            v3 = 81;
-            // branch -> 0x100010fc
+            v3 = IE_ENG_BAD_CMD /*81*/;
             break;
         }
         case 11: {
-            // 0x10001096
-            v3 = 82;
-            // branch -> 0x100010fc
+            v3 = IE_ENG_ERROR_GEN /*82*/;
             break;
         }
         case 12: {
-            // 0x1000109e
-            v3 = 83;
-            // branch -> 0x100010fc
+            v3 = IE_ENG_BAD_PARM1 /*83*/;
             break;
         }
         case 13: {
-            // 0x100010a6
             v3 = 84;
-            // branch -> 0x100010fc
             break;
         }
         case 14: {
-            // 0x100010ae
             v3 = 85;
-            // branch -> 0x100010fc
             break;
         }
         case 15: {
-            // 0x100010b6
             v3 = 86;
-            // branch -> 0x100010fc
             break;
         }
         case 16: {
-            // 0x100010be
             v3 = 87;
-            // branch -> 0x100010fc
             break;
         }
         case 17: {
-            // 0x100010c6
             v3 = 88;
-            // branch -> 0x100010fc
             break;
         }
         case 18: {
-            // 0x100010ce
             v3 = 89;
-            // branch -> 0x100010fc
             break;
         }
         case 19: {
-            // 0x100010d6
             v3 = 90;
-            // branch -> 0x100010fc
             break;
         }
         case 20: {
-            // 0x100010de
-            v3 = 91;
-            // branch -> 0x100010fc
+            v3 = IE_ENG_BAD_PARM9 /*91*/;
             break;
         }
-        case 21: {
-            // 0x100010e6
-            v3 = 144;
-            // branch -> 0x100010fc
+        case ENG_REPLY_BAD_PARM3 /*21*/: {
+            v3 = IE_ENG_ERR_DTEC /*144*/;
             break;
         }
         case 22: {
-            // 0x100010ee
-            v3 = 145;
-            // branch -> 0x100010fc
+            v3 = IE_ENG_ERR_TRIG /*145*/;
             break;
         }
+        default: {
+             v3 = 254;
+             break;
+        }
     }
-    // 0x100010fc
-    return v3 | v1 & -0x10000;
+    return v3 /*| v1 & -0x10000*/;
 }
 
 int32_t CommTrigDetect(SET9052 *a1) {
@@ -3850,20 +3811,20 @@ int32_t function_10002df9(SET9052 *a1, float64_t triggerFreq) {
     return result;
 }
 
-int32_t SetSwpIdx(SET9052 *a1, int32_t a2) {
+int32_t SetSwpIdx(SET9052 *a1, int32_t index) {
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100053d6
     g3 = v1;
     int32_t result; // 0x10005422
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-        if (a2 != 0) {
+        if (index != 0) {
             int32_t v2 = RdNumDataPts(a1); // 0x100053fd
             g3 = v2;
-            if (v2 < a2) {
+            if (v2 < index) {
                 return v2 & -0x10000 | 0xfffd;
             }
         }
-        a1->sweepIndex = a2;
+        a1->sweepIndex = index;
         result = g3 & -0x10000;
     } else {
         result = GetFuncStatusCode(a1);
