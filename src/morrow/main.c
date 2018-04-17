@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
 
 	mr90xxStatus = mr90xx_SetEngineModel(sessionId, SA9054);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel");
+		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel\n");
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK");
+		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK\n");
 	}
 
 	ViInt16 number_points = 40;
@@ -50,21 +50,21 @@ int main(int argc, char **argv) {
 	mr90xxStatus = mr90xx_InitGuiSweep(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel");
+		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel\n");
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK");
+		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK\n");
 	}
 
 	ViReal64 amp_array[40], freq_array[40];
 	/*mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
 		MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
 		MR90XX_SWP_MIN,
-		MR90XX_DBM_FORMAT, amp_array, freq_array);*/
+		MR90XX_DBM_FORMAT, amp_array, freq_array);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel");
+		dlog(LOG_DEBUG, "Error mr90xx_MeasureAmplWithFreq\n");
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK");
-	}
+		dlog(LOG_DEBUG, "mr90xx_MeasureAmplWithFreq OK\n");
+	}*/
 
 	int i;
 	for (i = 0; i < number_points; i++) {

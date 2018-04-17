@@ -99,5 +99,36 @@ Shared Lib Function Table
         *(int32_t *)(a1 + 728) = func17;
 
 
+LOC
+   56    131    922 helper.c
+   451   1524  12774 main1.c
+    74    173   1875 main.c
+  1608   5382  38765 pnp.c                      guisweep 1185..1604 = 419
+  5430  20485 182352 sa.c                       guisweep 3987..5420 = 1433
+   119    423   2980 sendcommand.c
+    43    108    738 timetest.c
+  1188   4810  37292 visa.c
+   492   2080  15070 vximorrow.c
+   148    417   3130 vximorrow_mock.c
+    30     51    405 compatibility.h
+    79    213   2210 dvisa.h
+    34     78    582 helper.h
+    19     42    352 pnp.h
+    37    104    968 sa.h
+    51    147   1343 vximorrow.h
+  9859  36168 301758 insgesamt
+
+mr90XX_init + setengine
+pnp.c	1184
+sa.c	3986
+visa.c	1188
+
+mr90_iniguisweep
+pnp += 419
+sa += 1433
+visa += 0
+
+
+
 Status
 
