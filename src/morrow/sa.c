@@ -3987,7 +3987,7 @@ int32_t __amsg_exit(int32_t a1) {
 /*------------------------------------------------------------------------------------*/
 /* InitGuiSweep related code */
 /*------------------------------------------------------------------------------------*/
-
+#define InitGuiSweep_is_on
 #ifdef InitGuiSweep_is_on
 
 int32_t SetRefLevel(SET9052 *a1, int16_t a2);
@@ -3996,6 +3996,9 @@ int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t a3);
 int32_t SwpTimeMode(SET9052 *a1, int16_t a2, int32_t a3);
 int32_t SetRBWmode(SET9052 *a1, int16_t a2);
 int32_t SetRBW(SET9052 *a1, int16_t a2);
+int32_t SetVBWmode(SET9052 *a1, int16_t a2);
+
+
 
 float80_t g159 = 0.0L; // st0
 int32_t g13 = 0x1000505d;
@@ -5349,7 +5352,7 @@ int32_t ConfigStartFreq(SET9052 *a1, int32_t a2, int32_t a3) {
     *(int32_t *)(a1 + 12) = a3;
     g8 = a1;
     g3 = a1;
-    if ((a1 & 0x4100) == 0) {
+    if (((int32_t)a1 & 0x4100) == 0) { // what does this mean?
         // 0x1000b794
         result = SetFuncStatusCode(a1, 3);
         // branch -> 0x1000b7d5
@@ -5391,7 +5394,7 @@ int32_t ConfigStopFreq(SET9052 *a1, int32_t a2, int32_t a3) {
     *(int32_t *)(a1 + 20) = a3;
     g8 = a1;
     g3 = a1;
-    if ((a1 & 0x4100) == 0) {
+    if (((int32_t)a1 & 0x4100) == 0) { // what does this mean?
         // 0x1000b8d6
         result = SetFuncStatusCode(a1, 3);
         // branch -> 0x1000b917

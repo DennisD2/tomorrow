@@ -1182,3 +1182,427 @@ static int32_t function_1000912e(char * a1, int32_t a2, int32_t a3, int32_t a4,
 	// UNREACHABLE
 }
 
+/*------------------------------------------------------------------------------------*/
+/* InitGuiSweep related code */
+/*------------------------------------------------------------------------------------*/
+#define InitGuiSweep_is_on
+#ifdef InitGuiSweep_is_on
+
+int32_t g60 = 0;
+
+int32_t g62 = 0;
+int32_t g63 = 0;
+
+int32_t function_10004411(int16_t a1);
+
+// Address range: 0x10003331 - 0x100033a1
+int32_t mr90xx_InitGuiSweep(int32_t a1, int16_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8, int32_t a9) {
+    int32_t v1 = 0; // bp-16
+    int32_t v2 = function_10004310(a1, &v1); // 0x1000333f
+    int32_t result; // 0x100033a1
+    if (v2 == 0) {
+        // 0x10003355
+        result = function_10004411((int16_t)InitGuiSweep(function_10004402(v1)));
+        // branch -> 0x1000339e
+    } else {
+        // 0x10003350
+        result = v2;
+        // branch -> 0x1000339e
+    }
+    // 0x1000339e
+    return result;
+}
+
+int32_t function_10004310(int32_t a1, int32_t * a2) {
+    int32_t v1 = (int32_t)a2;
+    if (a2 == NULL) {
+        // 0x10004323
+        // branch -> 0x100043fe
+        // 0x100043fe
+        return -0x4003f7fe;
+    }
+    // 0x1000432d
+    if (a1 == 0) {
+        // 0x10004333
+        // branch -> 0x100043fe
+        // 0x100043fe
+        return -0x4003f7f1;
+    }
+    // 0x1000433d
+    int32_t v2; // 0x100043e3
+    int32_t v3; // 0x100043c4
+    if (g63 != a1) {
+        int32_t v4 = 0;
+        // branch -> 0x10004370
+        while (true) {
+            // 0x10004370
+            g5 = v4;
+            int32_t * v5 = (int32_t *)(4 * v4 + (int32_t)&g60); // 0x10004374
+            int32_t v6;
+            if (*v5 != 0) {
+                // 0x10004380
+                g7 = v4;
+                if (*v5 != a1) {
+                    // 0x10004390
+                    g5 = v4;
+                    int32_t v7 = *v5; // 0x10004394
+                    g7 = v7;
+                    if (RdSessionHandle(v7) != a1) {
+                        // 0x1000435b
+                        v6 = v4 + 1;
+                        g7 = (g7 | v4) & -0x10000 | v6;
+                        if (v6 >= 100) {
+                            // break -> 0x100043b4
+                            break;
+                        }
+                        v4 = v6;
+                        // continue -> 0x10004370
+                        continue;
+                    }
+                }
+                // 0x100043a9
+                v2 = v4;
+                // branch -> 0x100043b4
+            } else {
+                // 0x1000435b
+                v6 = v4 + 1;
+                g7 = (g7 | v4) & -0x10000 | v6;
+                if (v6 >= 100) {
+                    // break -> 0x100043b4
+                    break;
+                }
+                v4 = v6;
+                // continue -> 0x10004370
+                continue;
+            }
+            // 0x100043b4
+            if (v2 == -1) {
+                // 0x100043ba
+                // branch -> 0x100043fe
+                // 0x100043fe
+                return -0x4003f7ff;
+            }
+            // 0x100043c1
+            v3 = *(int32_t *)(4 * v2 + (int32_t)&g60);
+            g7 = v3;
+            g5 = a1;
+            if (*(int32_t *)(v3 + 468) != a1) {
+                // 0x100043dc
+                // branch -> 0x100043fe
+                // 0x100043fe
+                return -0x4003f7f2;
+            }
+            // 0x100043e3
+            g62 = v2;
+            g63 = a1;
+            g5 = v1;
+            g7 = v2;
+            *a2 = v2;
+            // branch -> 0x100043fe
+            // 0x100043fe
+            return 0;
+        }
+        // 0x100043b4
+        v2 = -1;
+        // branch -> 0x100043b4
+    } else {
+        int32_t v8 = g62; // 0x10004348
+        g5 = v8;
+        v2 = v8;
+        // branch -> 0x100043b4
+    }
+    // 0x100043b4
+    if (v2 == -1) {
+        // 0x100043ba
+        // branch -> 0x100043fe
+        // 0x100043fe
+        return -0x4003f7ff;
+    }
+    // 0x100043c1
+    v3 = *(int32_t *)(4 * v2 + (int32_t)&g60);
+    g7 = v3;
+    g5 = a1;
+    int32_t result; // 0x10004401
+    if (*(int32_t *)(v3 + 468) == a1) {
+        // 0x100043e3
+        g62 = v2;
+        g63 = a1;
+        g5 = v1;
+        g7 = v2;
+        *a2 = v2;
+        result = 0;
+        // branch -> 0x100043fe
+    } else {
+        // 0x100043dc
+        result = -0x4003f7f2;
+        // branch -> 0x100043fe
+    }
+    // 0x100043fe
+    return result;
+}
+
+int32_t function_10004411(int16_t a1) {
+    unsigned char v1 = *(char *)((0x10000 * (int32_t)a1 + 0x150000) / 0x10000 + 0x10004648); // 0x10004437
+    g7 = v1;
+    int32_t result; // 0x100045a3
+    switch (v1) {
+        default: {
+            // 0x1000459b
+            result = -0x4003f7f5;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 0: {
+            // 0x10004594
+            result = -0x4003f7d1;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 1: {
+            // 0x1000449b
+            result = -0x4003f7e1;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 2: {
+            // 0x100044b9
+            result = -0x4003f7f6;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 3: {
+            // 0x100044af
+            result = -0x4003f7f7;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 4: {
+            // 0x10004491
+            result = -0x4003f7f8;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 5: {
+            // 0x10004487
+            result = -0x4003f7f9;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 6: {
+            // 0x1000447d
+            result = -0x4003f7fa;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 7: {
+            // 0x10004473
+            result = -0x4003f7fb;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 8: {
+            // 0x10004469
+            result = -0x4003f7fc;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 9: {
+            // 0x1000445f
+            result = -0x4003f7fd;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 10: {
+            // 0x10004455
+            result = -0x4003f7fe;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 11: {
+            // 0x10004444
+            result = -0x4003f7ff;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 12: {
+            // 0x1000444e
+            result = 0;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 13: {
+            // 0x100044a5
+            result = 0x3ffc0801;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 14: {
+            // 0x100044c3
+            result = 0x3ffc0802;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 15: {
+            // 0x100044cd
+            result = 0x3ffc0803;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 16: {
+            // 0x100044d7
+            result = 0x3ffc0810;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 17: {
+            // 0x100044e1
+            result = 0x3ffc0811;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 18: {
+            // 0x100044eb
+            result = 0x3ffc0812;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 19: {
+            // 0x100044f5
+            result = 0x3ffc0813;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 20: {
+            // 0x100044ff
+            result = 0x3ffc0815;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 21: {
+            // 0x10004509
+            result = 0x3ffc0816;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 22: {
+            // 0x10004513
+            result = 0x3ffc0817;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 23: {
+            // 0x1000451d
+            result = 0x3ffc0818;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 24: {
+            // 0x10004524
+            result = 0x3ffc0819;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 25: {
+            // 0x1000452b
+            result = 0x3ffc081a;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 26: {
+            // 0x10004532
+            result = 0x3ffc081c;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 27: {
+            // 0x10004539
+            result = 0x3ffc081d;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 28: {
+            // 0x10004540
+            result = 0x3ffc081e;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 29: {
+            // 0x10004547
+            result = 0x3ffc081f;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 30: {
+            // 0x1000454e
+            result = 0x3ffc0820;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 31: {
+            // 0x10004555
+            result = 0x3ffc0821;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 32: {
+            // 0x1000455c
+            result = 0x3ffc0822;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 33: {
+            // 0x10004563
+            result = 0x3ffc0823;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 34: {
+            // 0x1000456a
+            result = 0x3ffc0824;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 35: {
+            // 0x10004586
+            result = 0x3ffc0828;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 36: {
+            // 0x1000458d
+            result = 0x3ffc0829;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 37: {
+            // 0x1000457f
+            result = 0x3ffc0827;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 38: {
+            // 0x10004578
+            result = 0x3ffc0826;
+            // branch -> 0x100045a0
+            break;
+        }
+        case 39: {
+            // 0x10004571
+            result = 0x3ffc0825;
+            // branch -> 0x100045a0
+            break;
+        }
+    }
+    // 0x100045a0
+    return result;
+}
+
+// Address range: 0x10004402 - 0x10004410
+int32_t function_10004402(int32_t a1) {
+    // 0x10004402
+    return *(int32_t *)(4 * a1 + (int32_t)&g60);
+}
+
+
+
+#endif /* InitGuiSweep_is_on */
