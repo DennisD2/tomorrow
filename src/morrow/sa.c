@@ -26,7 +26,12 @@ static int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4,
 static int32_t FreqInRange(SET9052 * a1, float64_t freq);
 
 static int32_t g3 = 0; // eax
-static int32_t g4 = 0; // ebp
+
+static int32_t *g4 = 0; // ebp
+// these are values related to rbw. I have no clue what values need to be set instead of 0....
+// g4 is used at other places as int value. !?!
+//static int32_t g4[] = { 0,0,0,0 };
+
 static int32_t g5 = 0; // ebx
 static int32_t g6 = 0; // ecx
 static char* g7 = 0; // edi
@@ -36,11 +41,24 @@ static int32_t g9 = 0; // esi
 static int32_t g11 = 0; // fpu_stat_TOP
 static char * g12;
 
-// g14..g17 is or are arrays.
-static int32_t g14_rbwTimeFactor = 0x1000c8b7;
-static int32_t g15_vbwTimeFactor = 0x1000c923;
 
-static float64_t * g40 = NULL;
+// Seems to be some array; g13..g17
+//int32_t g13 = 0x1000505d; // 20573
+//int32_t g14 = 0x1000c8b7; // 51385
+//int32_t g15 = 0x1000c923;
+//int32_t g16 = 0x1000cbc9;
+//int32_t g17 = 0x1000ccaf;
+//int32_t *g13 = { 0x1000505d, 0x1000c8b7, 0x1000c923, 0x1000cbc9, 0x1000ccaf };
+
+
+// g14..g17 is or are arrays.
+//static int32_t g14_rbwTimeFactor = 0x1000c8b7;
+static int32_t g14_rbwTimeFactor[] = { 0x1000c8b7, 0x1000c923, 0x1000cbc9, 0x1000ccaf };
+
+//static int32_t g15_vbwTimeFactor = 0x1000c923;
+static int32_t g15_vbwTimeFactor[] = { 0x1000c923, 0x1000cbc9, 0x1000ccaf };
+
+static float64_t g40[] = {0.0, 0.0, 0.0, 0.0};
 
 static int32_t g49; // 0x100183d4
 static int32_t g50 = 1;
@@ -551,9 +569,8 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 	return result;
 }
 
-// Address range: 0x100067d5 - 0x10006851
 int32_t SetZSamplRate(/*int32_t a1*/SET9052 *a1, int64_t rate) {
-	dlog( LOG_DEBUG, "SetZSamplRate\n");
+	dlog( LOG_DEBUG, "SetZSamplRate(0x%x)\n", rate);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100067e3
 	g3 = v1;
@@ -562,40 +579,25 @@ int32_t SetZSamplRate(/*int32_t a1*/SET9052 *a1, int64_t rate) {
 		uint32_t v2 = (int32_t) rate; // 0x10006800
 		uint64_t v3; // 0x1000683d
 		if (v2 >= 306) {
-			// 0x10006818
 			int16_t v4; // bp-8
-			if (v2 < 0xf4241) {
-				// 0x10006830
+			if (v2 < 1000001 /*0xf4241*/) {
 				v4 = 0;
-				// branch -> 0x10006836
 			} else {
-				// 0x10006821
 				v4 = -3;
-				rate = 0xf4240;
-				// branch -> 0x10006836
+				rate = 1000000 /*0xf4240*/;
 			}
-			// 0x10006836
-			v3 = 0x989680 / rate;
+			v3 = 10000000 /*0x989680*/ / rate;
 			//*(int16_t *)(a1 + 156) = (int16_t)v3;
 			a1->zsampl_dvdr = (int16_t) v3;
-			// branch -> 0x1000684e
-			// 0x1000684e
 			return (int32_t) v3 & -0x10000 | (int32_t) v4;
 		}
-		// 0x10006809
-		// branch -> 0x10006836
-		// 0x10006836
-		v3 = 0x7fa7;
+		v3 =32679 /* 0x7fa7*/;
 		//*(int16_t *)(a1 + 156) = (int16_t)v3;
 		a1->zsampl_dvdr = (int16_t) v3;
 		result = (int32_t) v3 & -0x10000 | (int32_t) -3;
-		// branch -> 0x1000684e
 	} else {
-		// 0x100067f2
 		result = GetFuncStatusCode(a1);
-		// branch -> 0x1000684e
 	}
-	// 0x1000684e
 	return result;
 }
 
@@ -672,7 +674,7 @@ int32_t function_10001718(SET9052 *a1) {
 		} else {
 			int16_t * v14 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x100017f5
 			if (*v14 == IE_FALSE) {
-				int32_t v15 = GetRBWwide(4);
+				int32_t v15 = GetRBWwide(RBW_3MHZ /*4*/);
 				if (((0x100000000 * (int64_t) (v15 >> 31) | (int64_t) v15) / 3
 						& 256) != 0) {
 					SetCellMode(a1, 1);
@@ -803,7 +805,8 @@ int32_t function_10001b13(SET9052 *a1) {
 		} else {
 			v7 = v6;
 		}
-		int32_t v8 = *v5 + a1->synth_time /* *(int32_t *)(result2 + 60)*/+ v7; // 0x10001bed
+		// DD: From next line we can derive that v6,v7,v8 are time values in [us] units
+		int32_t v8 = *v5 + a1->synth_time /* *(int32_t *)(result2 + 60)*/ + v7; // 0x10001bed
 		g8 = v8;
 		float80_t v9 = v8; // 0x10001bf3
 		g160_currentStepWidth = v9;
@@ -1011,8 +1014,8 @@ int32_t setup_vbw(SET9052 *a1) {
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
 		int16_t v3 = a1->auto_vbw; // *(int16_t *)(a1 + 78); // 0x10001ec7
-		if (v3 != 0) {
-			RBWFreqFromCode((int16_t) RdRBW(a1));
+		if (v3 != VI_FALSE /*0*/) {
+			RBWFreqFromCode((int16_t) RdRBW(a1)); // result not used?
 			float64_t v4 = a1->filter_ratio; // *(float64_t *)(a1 + 88); // 0x10001ee9
 			g11++;
 			int32_t v5 = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
@@ -1673,12 +1676,15 @@ int32_t GetRBWwide(int16_t value) {
 	}
 	int32_t result;
 	// TODO here; the function seems to have decompiled with semantical errors.
-	// first workaround: we return -3...
+	// first workaround: we return 1...
 	return 1;
 
 	// DD: the if condition seems to make no sense
 	if (value == 4 || value < 4 != (3 - v3 & v3) < 0) {
-		// DD: this gives a SEGV. v2 aka g4 is substracted an offset and the result is dereferenced -> Bang!
+		// DD1: this gives a SEGV. v2 aka g4 is substracted an offset and the result is dereferenced -> Bang!
+		// DD2: After leaning a little bit more the line is like:
+		// result = g4[v3-6]
+		// So g40 is an array of uint32_t; v3=value and in range 0..5 (rbw code) maybe  0..4 without AUTO value
 		result = *(int32_t *) (4 * v3 - 24 + (int32_t) &v2);
 	} else {
 		result = -3;
@@ -1688,6 +1694,9 @@ int32_t GetRBWwide(int16_t value) {
 	return result;
 }
 
+// Should return 3E6 for e.g. VBW_3MHZ (?), i.e. a frequency from a code.
+// Function seems to be decompiled wrong. The value derived (v2) is not returned?!?
+// But the value is set to global 'frequencyLimit_rbwFrequency'. Is this enough?
 int32_t RBWFreqFromCode(int16_t code) {
 	dlog(LOG_ERROR, "RBWFreqFromCode(%d) - TBI reconstruct array at g40\n", code);
 	int32_t result = code; // 0x1000b557
@@ -1700,7 +1709,9 @@ int32_t RBWFreqFromCode(int16_t code) {
 	float80_t v1;
 	if (code <= RBW_3MHZ /*4*/) {
 		g8 = result;
-		float64_t v2 = *(float64_t *) (8 * result + (int32_t) &g40); // 0x1000b574
+		// TODO:
+		//float64_t v2 = *(float64_t *) (8 * result + (int32_t) &g40); // 0x1000b574
+		float64_t v2 = g40[code];
 		v1 = v2;
 	} else {
 		v1 = -3.0L;
@@ -1710,7 +1721,8 @@ int32_t RBWFreqFromCode(int16_t code) {
 	return result;
 }
 
-// Should return 3E6 for e.g. VBW_3MHZ, i.e. a frequency from a code.
+// Should return 3E6 for e.g. VBW_3MHZ (?), i.e. a frequency from a code.
+// See comments for RBWFreqFromCode(), but here it is even worse.
 int32_t VBWFreqFromCode(int16_t code) {
 	dlog(LOG_ERROR, "VBWFreqFromCode(%d) - TBI\n", code);
 	int32_t result = code; // 0x1000b580
@@ -1720,28 +1732,42 @@ int32_t VBWFreqFromCode(int16_t code) {
 	}
 	g6 = result;
 	if (code <= VBW_3MHZ /*7*/) {
+		// Here code like in RBWFreqFromCode() must be located, but is missing.
 	}
 	g11--;
 	return result;
 }
 
-int32_t DefltSetTimeRBW(int16_t timeValue) {
-	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) - TBI reinvent array g15..g17\n", timeValue);
-	int32_t v1 = timeValue; // 0x1000c8a0
+// Returns time in [us] for given rbw code
+// 300Hz - 3333us
+// 3Khz - 333us
+// 30Khz - 33us
+// 300Khz - 3us
+// 3Mhz - 1us or what?
+// maybe my guess here is wrong see value for 3Mhz
+int32_t DefltSetTimeRBW(int16_t code) {
+	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) - TBI reinvent array g15..g17\n", code);
+	int32_t v1 = code; // 0x1000c8a0
 	g6 = v1;
 #ifdef ORIG
 	__pseudo_branch(*(int32_t *)(4 * v1 + (int32_t)&g14_rbwTimeFactor));
+#else
+	// TODO what is replacement for pseudo branch?
+	return g14_rbwTimeFactor[code];
 #endif
 	return -1;
 }
 
-// Address range: 0x1000c906 - 0x1000c978
-int32_t DefltSetTimeVBW(int16_t timeValue) {
-	dlog(LOG_ERROR, "DefltSetTimeVBW(%d) - TBI reinvent array g15..g17\n", timeValue);
+// Returns time in [us] for given vbw code
+int32_t DefltSetTimeVBW(int16_t code) {
+	dlog(LOG_ERROR, "DefltSetTimeVBW(%d) - TBI reinvent array g15..g17\n", code);
 	// DD:  g15 is initialized with 0x1000c923... a
 #ifdef ORIG
 	int32_t v1 = *(int32_t *)(4 * (int32_t)timeValue + (int32_t)&g15_vbwTimeFactor); // 0x1000c91c
 	__pseudo_branch(v1);
+#else
+	// TODO what is replacement for pseudo branch?
+	return g15_vbwTimeFactor[code];
 #endif
 	return -1;
 }
@@ -2174,30 +2200,26 @@ int32_t function_1000d6eb(char* a1) {
 	return function_1000d660(a1);
 }
 
+// This is some strange string function. I hope I don't need it.
 int32_t function_1000d660(char * a1) {
 	int32_t v1 = g4; // 0x1000d661
 	int32_t v2 = g9; // 0x1000d662
 	char * v3 = a1;
-	// branch -> 0x1000d668
 	while (true) {
 		int32_t v4 = v3; // edi
 		unsigned char v5 = *v3; // 0x1000d671
 		int32_t v6; // 0x1000d696
 		int32_t v7; // 0x1000d677
 		if (g50 > 1) {
-			// 0x1000d671
 			v7 = function_1000e8d2(v5, 8);
 			g6 = 8;
 			v6 = v4;
-			// branch -> 0x1000d68f
 		} else {
 			int32_t v8 = *(int32_t *) 0x100183d4; // 0x1000d683
 			g6 = v8;
 			v6 = v3;
 			v7 = (int32_t) *(char *) (v8 + 2 * (int32_t) v5) & 8;
-			// branch -> 0x1000d68f
 		}
-		// 0x1000d68f
 		if (v7 == 0) {
 			unsigned char v9 = *(char *) v6; // 0x1000d696
 			int32_t v10 = v9; // 0x1000d696
@@ -2208,70 +2230,50 @@ int32_t function_1000d660(char * a1) {
 			int32_t v12; // 0x1000d6c64
 			int32_t v13; // 0x1000d6a6
 			if (v9 == '-' /*45*/) {
-				// 0x1000d6a6
 				v13 = (int32_t) *(char *) v11;
 				g9 = v13;
 				v4 = v6 + 2;
 				v12 = v13;
-				// branch -> 0x1000d6aa
 			} else {
-				// 0x1000d6a1
 				if (v9 == '+'/*43*/) {
-					// 0x1000d6a6
 					v13 = (int32_t) *(char *) v11;
 					g9 = v13;
 					v4 = v6 + 2;
 					v12 = v13;
-					// branch -> 0x1000d6aa
 				} else {
 					v12 = v10;
 				}
 			}
 			int32_t v14 = 0; // ebx
 			int32_t v15 = v12; // 0x1000d6b7
-			// branch -> 0x1000d6ac
 			while (true) {
-				// 0x1000d6ac
 				int32_t v16; // 0x1000d6b8
 				if (g50 > 1) {
-					// 0x1000d6b5
 					v16 = function_1000e8d2((char) v15, 4);
 					g6 = 4;
-					// branch -> 0x1000d6cc
 				} else {
-					// 0x1000d6c1
 					v16 = (int32_t) *(char *) (g49 + 2 * v15) & 4;
-					// branch -> 0x1000d6cc
 				}
-				// 0x1000d6cc
 				if (v16 == 0) {
-					// 0x1000d6dd
 					int32_t result; // 0x1000d6ea
 					if (g4 == 45) {
-						// 0x1000d6e4
 						result = -v14;
-						// branch -> 0x1000d6e6
 					} else {
 						result = v14;
 					}
-					// 0x1000d6e6
 					g9 = v2;
 					g4 = v1;
 					return result;
 				}
-				// 0x1000d6d0
 				v14 = 10 * v14 - 48 + g9;
 				int32_t v17 = v4; // 0x1000d6d7
 				int32_t v18 = (int32_t) *(char *) v17; // 0x1000d6d7
 				g9 = v18;
 				v4 = v17 + 1;
 				v15 = v18;
-				// branch -> 0x1000d6ac
 			}
 		} else {
-			// 0x1000d693
 			v3 = v6 + 1;
-			// branch -> 0x1000d668
 			continue;
 		}
 	}
@@ -4027,8 +4029,8 @@ int32_t SetVBWmode(SET9052 *a1, int16_t a2);
 float80_t frequencyLimit = 0.0L; // st0
 
 // Seems to be some array; g13..g17
-//int32_t g13 = 0x1000505d;
-//int32_t g14 = 0x1000c8b7;
+//int32_t g13 = 0x1000505d; // 20573
+//int32_t g14 = 0x1000c8b7; // 51385
 //int32_t g15 = 0x1000c923;
 //int32_t g16 = 0x1000cbc9;
 //int32_t g17 = 0x1000ccaf;
@@ -4682,7 +4684,7 @@ int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t unused) {
 		// But what is __pseudo_branch ?
 		__pseudo_branch(v3);
 #else
-		dlog(LOG_WARN, "StepSizeMode __speudo_branch(0x%x)\n - TBI\n", v3);
+		dlog(LOG_WARN, "StepSizeMode __pseudo_branch(0x%x) - TBI\n", v3);
 #endif
 		//*(int16_t *)(a1 + 32) = 1;
 		a1->step_mode = AUTO_ON /*1*/;
