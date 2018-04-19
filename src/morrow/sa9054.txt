@@ -128,6 +128,11 @@ pnp += 419
 sa += 1433
 visa += 0
 
+Tofdo
+- Reconstruct arrays
+- Fix Error mapping ENG->SW domain
+- Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
+- Check all "DD XXX" and "TODO" notes and solve the issues
 
 
 Status

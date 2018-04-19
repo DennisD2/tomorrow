@@ -33,14 +33,15 @@ int main(int argc, char **argv) {
 		printf("Error mr90xx_init\n");
 		exit(-1);
 	} else {
-		printf("mr90xx_init OK\n");
+		printf("mr90xx_init OK\n\n");
 	}
 
 	mr90xxStatus = mr90xx_SetEngineModel(sessionId, SA9054);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
 		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel\n");
+		exit(-1);
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK\n");
+		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK\n\n");
 	}
 
 	ViInt16 number_points = 40;
@@ -50,9 +51,10 @@ int main(int argc, char **argv) {
 	mr90xxStatus = mr90xx_InitGuiSweep(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel\n");
+		dlog(LOG_DEBUG, "Error mr90xx_InitGuiSweep\n");
+		exit(-1);
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK\n");
+		dlog(LOG_DEBUG, "mr90xx_InitGuiSweep OK\n\n");
 	}
 
 	ViReal64 amp_array[40], freq_array[40];

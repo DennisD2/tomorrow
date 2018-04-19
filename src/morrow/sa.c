@@ -157,7 +157,7 @@ int32_t RdSessionString(SET9052 *a1, char *sessionString) {
 		result = function_1000d570(sessionString) & -0x10000;
 	} else {
 		g3 = a1;
-		result = SetFuncStatusCode(a1, -3);
+		result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
 	}
 	return result;
 }
@@ -262,7 +262,7 @@ int32_t RdEngOption(SET9052 *a1, int32_t option) {
 		result = (a1->eng_options & 4) != 0;
 	} else {
 		g8 = a1;
-		result = SetFuncStatusCode(a1, -1);
+		result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
 	}
 	return result;
 }
@@ -374,7 +374,6 @@ int32_t function_1000d5e1(char * a1) {
 }
 
 // DD: because (a1 + 2) == engine_model, a1 must be (struct SAStruct *) = SET9052 !!! yippie 2
-// Address range: 0x10004b94 - 0x10004ee4
 int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 	dlog( LOG_DEBUG, "InitInstrData\n");
 	int32_t v1 = g4; // bp-4
@@ -559,13 +558,9 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 		a1->PreampGain = 10;
 		function_10001718(a1);
 		result = function_10001b13(a1) & -0x10000;
-		// branch -> 0x10004ee3
 	} else {
-		// 0x10004b9d
 		result = g3 & -0x10000 | 0xfff6;
-		// branch -> 0x10004ee3
 	}
-	// 0x10004ee3
 	return result;
 }
 
@@ -578,20 +573,20 @@ int32_t SetZSamplRate(/*int32_t a1*/SET9052 *a1, int64_t rate) {
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		uint32_t v2 = (int32_t) rate; // 0x10006800
 		uint64_t v3; // 0x1000683d
-		if (v2 >= 306) {
+		if (v2 >= MIN_RATEVAL /*306*/) {
 			int16_t v4; // bp-8
-			if (v2 < 1000001 /*0xf4241*/) {
-				v4 = 0;
+			if (v2 <= MAX_RATEVAL /* < 1000001 = 0xf4241*/) {
+				v4 = IE_SUCCESS /*0*/;
 			} else {
-				v4 = -3;
-				rate = 1000000 /*0xf4240*/;
+				v4 = IE_ERR_VALS /*-3*/;
+				rate = MAX_RATEVAL /*1000000 = 0xf4240*/;
 			}
 			v3 = 10000000 /*0x989680*/ / rate;
 			//*(int16_t *)(a1 + 156) = (int16_t)v3;
 			a1->zsampl_dvdr = (int16_t) v3;
 			return (int32_t) v3 & -0x10000 | (int32_t) v4;
 		}
-		v3 =32679 /* 0x7fa7*/;
+		v3 = 10e7/MIN_RATEVAL /*32679 = 0x7fa7*/;
 		//*(int16_t *)(a1 + 156) = (int16_t)v3;
 		a1->zsampl_dvdr = (int16_t) v3;
 		result = (int32_t) v3 & -0x10000 | (int32_t) -3;
@@ -3181,7 +3176,7 @@ int32_t RdSessionHandle(SET9052 *a1) {
 	int32_t result;
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result = a1->session_handle; // *(int32_t *)(a1 + 468);
 	} else {
 		result = 0;
@@ -3199,7 +3194,7 @@ int32_t RdInterfaceType(SET9052 *a1) {
 	int32_t result;
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result = (int32_t) *(int16_t *) (&a1->interfaceType /* a1 + 196 */)
 				| (int32_t) a1 & -0x10000;
 	} else {
@@ -3260,7 +3255,7 @@ int32_t RdRBW(SET9052 *a1) {
 	int32_t result;
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result = (int32_t) *(int16_t *) (&a1->rbw_code /*a1 + 72*/)
 				| (int32_t) a1 & -0x10000;
 	} else {
@@ -3436,7 +3431,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
 	g8 = v4;
 	switch (v4) {
 	default: {
-		result = SetFuncStatusCode(a1, -3);
+		result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
 		g4 = v1;
 		return result;
 	}
@@ -3491,7 +3486,7 @@ int32_t BreakSweep(SET9052 *a1, uint16_t breakMode) {
 	}
 	}
 	g8 = a1;
-	result = SetFuncStatusCode(a1, -1);
+	result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
 	g4 = v1;
 	return result;
 }
@@ -3508,7 +3503,7 @@ int32_t updateSweepInProgValue(SET9052 *a1, uint16_t value) {
 		g6 = value;
 		a1->swp_in_prog = value;
 		g8 = a1;
-		result = SetFuncStatusCode(a1, 0);
+		result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 	} else {
 		g8 = a1;
 		result = GetFuncStatusCode(a1);
@@ -3867,7 +3862,7 @@ int32_t RdSweepCode(SET9052 *a1) {
 	int32_t result;
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result = (int32_t) /* *(int16_t *)(a1 + 130)*/a1->sweep_code
 				| (int32_t) (int32_t) a1 & -0x10000;
 	} else {
@@ -3894,7 +3889,7 @@ int32_t RdNumDataPts(SET9052 *a1) {
 					g8 = v2;
 					if (v2 != 2) {
 						g3 = a1;
-						SetFuncStatusCode(a1, 0);
+						SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 						g4 = v1;
 						return a1->num_cells; // *(int32_t *)(a1 + 132);
 					}
@@ -3903,7 +3898,7 @@ int32_t RdNumDataPts(SET9052 *a1) {
 			g8 = v2;
 			if (v2 == 1) {
 				g3 = a1;
-				SetFuncStatusCode(a1, 0);
+				SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 				g4 = v1;
 				return a1->num_swp_pts; // *(int32_t *)(a1 + 164);
 			}
@@ -3911,22 +3906,22 @@ int32_t RdNumDataPts(SET9052 *a1) {
 				g8 = a1;
 				int32_t result = a1->num_samples; // *(int32_t *)(a1 + 152); // 0x10005354
 				g3 = result;
-				SetFuncStatusCode(a1, 0);
+				SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 				g4 = v1;
 				return result;
 			}
 			if (v3 == 3) {
 				result2 = a1->num_hop_pts; // *(int32_t *)(a1 + 172);
 				g8 = result2;
-				SetFuncStatusCode(a1, 0);
+				SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 			} else {
 				g3 = a1;
-				result2 = 0x10000 * SetFuncStatusCode(a1, -14) / 0x10000;
+				result2 = 0x10000 * SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/) / 0x10000;
 			}
 			g4 = v1;
 			return result2;
 		}
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result2 = 0;
 	} else {
 		result2 = -1;
@@ -3943,7 +3938,7 @@ int32_t RdTimeoutWait(SET9052 *a1) {
 	int32_t result;
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result = a1->ie_duration; // *(int32_t *)(a1 + 180);
 	} else {
 		result = -1;
@@ -4247,7 +4242,7 @@ int32_t FreqInRange(SET9052 * a1, float64_t freq_unused) {
 	int32_t result;
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		RdMinFreqLimit(a1);
 		g11++;
 		int32_t v3 = RdMaxFreqLimit(a1); // 0x10008a3d
@@ -4278,7 +4273,7 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 		return result;
 	}
 	g8 = a1;
-	SetFuncStatusCode(a1, 0);
+	SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 	int32_t result4 = RdEngineModel(a1); // 0x10008799
 	g3 = result4;
 	int32_t v1 = 0x10000 * result4; // 0x100087a1
@@ -4306,7 +4301,7 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 		if (v1 != SA9052<<16 /*0x1000000*/) {
 			if (v1 != SA9054<<16 /*x2000000*/) {
 				g8 = a1;
-				result3 = SetFuncStatusCode(a1, -13);
+				result3 = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
 				frequencyLimit = -1.0L;
 				g11--;
 				return result3;
@@ -4334,7 +4329,7 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 		int32_t result; // 0x10008897
 		if (v4 != SA9085<<16 /*0x3000000*/ && v4 < SA9085<<16 /*0x3000000*/ == (767 - v5 & v5) < 0) {
 			if (v4 !=  SA9034<<16 /*0x4000000*/) {
-				result = SetFuncStatusCode(a1, -13);
+				result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
 				frequencyLimit = -1.0L;
 				g11--;
 				g4 = v1;
@@ -4344,7 +4339,7 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 			if (v4 != SA9085<<16 /*0x3000000*/) {
 				if (v4 != SA9052<<16 /*0x1000000*/) {
 					if (v4 != SA9054<<16 /*x0x2000000*/) {
-						result = SetFuncStatusCode(a1, -13);
+						result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
 						frequencyLimit = -1.0L;
 						g11--;
 						g4 = v1;
@@ -4356,7 +4351,7 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 		g3 = a1;
 		frequencyLimit = 1.0e+5L;
 		g11--;
-		result2 = SetFuncStatusCode(a1, 0);
+		result2 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 	} else {
 		g8 = a1;
 		int32_t v6 = 0x10000 * GetFuncStatusCode(a1) / 0x10000; // 0x1000882d
@@ -4377,7 +4372,7 @@ int32_t RdEngineModel(SET9052 *a1) {
 	int32_t result;
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		//result = (int32_t)*(int16_t *)(a1 + 2) | a1 & -0x10000;
 		a1->engine_model; // | (int32_t) a1 & -0x10000;
 	} else {
@@ -4567,7 +4562,7 @@ int32_t RdMaxAttLimit(SET9052 *a1) {
 		return v1 | 0xffff;
 	}
 	g8 = a1;
-	SetFuncStatusCode(a1, 0);
+	SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 	g3 = a1;
 	int16_t v2 = a1->engine_model; // *(int16_t *) (a1 + 2); // 0x1000638c
 	int32_t v3 = v2; // 0x1000638c
@@ -4630,7 +4625,7 @@ int32_t RdLinearAttn(SET9052 *a1) {
 	int32_t result; // 0x10002d11
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		g3 = a1;
-		SetFuncStatusCode(a1, 0);
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result = ((int32_t) /**(int16_t *) (a1 + 128)*/ a1->detect_code & DTEC_ATTOFF /*64*/) / 64 + 1;
 	} else {
 		result = GetFuncStatusCode(a1);
@@ -4902,7 +4897,7 @@ int32_t SetVBWmode(SET9052 *a1, int16_t mode) {
 	return result;
 }
 
-// a2+<a3 = float value
+// a2+a3 = float value
 int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 	// entry
 	g8 = a1;
@@ -4910,7 +4905,7 @@ int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 	g3 = v1 / 0x10000;
 	int32_t result; // 0x1000b7d6
 	if ((v1 || 0xffff) < 0x1ffff) {
-		result = SetFuncStatusCode(a1, -3);
+		result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
 		return result;
 	}
 	//*(int32_t *)(a1 + 8) = a2;
@@ -4919,7 +4914,7 @@ int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 	g8 = a1;
 	g3 = a1;
 	if (((int32_t) a1 & 0x4100) == 0) { // what does this mean?
-		result = SetFuncStatusCode(a1, 3);
+		result = SetFuncStatusCode(a1, IE_WARN_SPAN /*3*/);
 		return result;
 	}
 	g8 = a1;
@@ -4927,9 +4922,9 @@ int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 	g3 = v2 / 0x10000;
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		result = SetFuncStatusCode(a1, 0);
+		result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 	} else {
-		result = SetFuncStatusCode(a1, -6);
+		result = SetFuncStatusCode(a1, IE_ERR_STEP /*-6*/);
 	}
 	return result;
 }
@@ -4940,7 +4935,7 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 	g3 = v1 / 0x10000;
 	int32_t result; // 0x1000b918
 	if ((v1 || 0xffff) < 0x1ffff) {
-		result = SetFuncStatusCode(a1, -3);
+		result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
 		return result;
 	}
 	//*(int32_t *)(a1 + 16) = a2;
@@ -4949,7 +4944,7 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 	g8 = a1;
 	g3 = a1;
 	if (((int32_t) a1 & 0x4100) == 0) { // what does this mean?
-		result = SetFuncStatusCode(a1, 3);
+		result = SetFuncStatusCode(a1, IE_WARN_SPAN /*3*/);
 		return result;
 	}
 	g8 = a1;
@@ -4957,9 +4952,9 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 	g3 = v2 / 0x10000;
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		result = SetFuncStatusCode(a1, 0);
+		result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 	} else {
-		result = SetFuncStatusCode(a1, -6);
+		result = SetFuncStatusCode(a1, IE_ERR_STEP /*-6*/);
 	}
 	return result;
 }
