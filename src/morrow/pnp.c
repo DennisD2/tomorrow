@@ -1188,20 +1188,44 @@ static int32_t function_1000912e(char * a1, int32_t a2, int32_t a3, int32_t a4,
 /*------------------------------------------------------------------------------------*/
 /* InitGuiSweep related code */
 /*------------------------------------------------------------------------------------*/
-#define InitGuiSweep_is_on
-#ifdef InitGuiSweep_is_on
 
 int32_t mr90xx_InitGuiSweep(int32_t session_id, int16_t rbw, int32_t vbw, FREQ8500 start, FREQ8500 stop,
 		int16_t ref_level, int32_t cell_num) {
     SET9052 *sess = sessionForId(session_id);
     int32_t result; // 0x100033a1
     if (sess) {
-        result = mapVisaErrorToAPIError((int16_t)InitGuiSweep(sess, rbw, vbw, start, stop
-        ));
+        result = mapVisaErrorToAPIError((int16_t)InitGuiSweep(sess, rbw, vbw, start, stop,
+        		ref_level, cell_num));
     } else {
         result = sess;
     }
     return result;
 }
 
-#endif /* InitGuiSweep_is_on */
+/*------------------------------------------------------------------------------------*/
+/* mr90xx_MeasureAmplWithFreq related code */
+/*------------------------------------------------------------------------------------*/
+//MR90XX_DLLEXPORT ViStatus IE_FUNC IE_FUNCEXP mr90xx_MeasureAmplWithFreq ( ViSession session_id,
+//                                                                          ViInt16 rbw,ViInt16 vbw,ViReal64 start,ViReal64 stop,
+//                                                                          ViInt16 ref_level,ViInt32 num_points,
+//                                                                          ViInt16 min_or_max, ViInt16 data_format,
+//                                                                          ViReal64 ra_data[],ViReal64 ra_freq[]);
+int32_t mr90xx_MeasureAmplWithFreq(int32_t session_id, int16_t rbw, int32_t vbw,  FREQ8500 start, FREQ8500 stop,
+		int16_t ref_level, int32_t num_points, int16_t min_or_max, int16_t data_format, ViReal64 ra_data[], ViReal64 ra_freq[]) {
+    int32_t v1 = 0; // bp-16
+    SET9052 *sess = sessionForId(session_id);
+   int32_t result; // 0x1000350c
+    if (sess) {
+        result = mapVisaErrorToAPIError((int16_t)MeasureAmplWithFreq(sess, rbw, vbw, start, stop,
+        		ref_level, num_points, min_or_max, data_format, ra_data, ra_freq));
+    } else {
+        result = sess;
+    }
+    return result;
+}
+
+/*------------------------------------------------------------------------------------*/
+/* End of file */
+/*------------------------------------------------------------------------------------*/
+
+

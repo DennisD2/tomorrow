@@ -3354,6 +3354,7 @@ int32_t function_100039d0(int16_t a1, int32_t a2) {
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         // 0x100039f5
         if (*(int32_t *)(v1 + 660) != 0) {
+        	// FetchDataWord()
             int32_t * v3 = (int32_t *)(v1 + 680); // 0x10003a04
             if (*v3 != 0) {
                 // 0x10003a13
@@ -4155,6 +4156,7 @@ int32_t function_100040c9(int16_t a1, int32_t a2, int32_t a3, int32_t a4, int32_
         if (*(int32_t *)(v1 + 660) != 0) {
             // 0x100040fa
             g6 = v1;
+            // 676 = GetDataBlock()
             int32_t * v4 = (int32_t *)(v1 + 676); // 0x100040fd
             if (*v4 != 0) {
                 // 0x1000410c

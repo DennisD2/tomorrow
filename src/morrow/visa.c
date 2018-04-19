@@ -482,7 +482,7 @@ int32_t _sendCommand(SET9052 *deviceId, int16_t command) {
     g3 = &v1;
     int32_t response; // bp-12
     int32_t v3; // 0x1000133c
-    if ((int16_t)_doSendWord(deviceId, command, 1, (int32_t)&response) > -1) {
+    if ((int16_t)_doSendWord(deviceId, command, 1, &response) > -1) {
         v3 = 0;
     } else {
         response = 0;
@@ -543,7 +543,7 @@ int32_t function_100016c8(SET9052 *deviceId) {
 }
 
 /**
- * Calls dd_viWrite(), dd_viFlush() and checks for errors
+ * Calls dd_viWrite(), dd_viIn16() and checks for errors
  * (protocol erros, using dd_viWrite() again)
  */
 int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
@@ -587,10 +587,10 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
             // call gets a response in v4 which is *v3; if v12=ret==0, response:=v13 which is v3
             // 14 = 0xe = 1110
             // 10 = 0xa = 1010 (also used as arg3)
-            int32_t v12 = dd_viFlush(session_handle, 1, 14, v4); // 0x1000158a
+            int32_t v12 = dd_viIn16(session_handle, 1, 14, v4); // 0x1000158a
             if (v12 == 0) {
                 int16_t v13 = v3; // 0x100015a1
-                *(int16_t *)response = v13;
+                *response = v13;
                 v10 = (int32_t)v13 | v12 & -0x10000;
                 v11 = 1;
             } else {
@@ -649,7 +649,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v18 & -0x10000 | 0x8000;
     }
     g5 = session_handle;
-    int32_t v20 = dd_viFlush(session_handle, 1, 14, v4); // 0x100014e8
+    int32_t v20 = dd_viIn16(session_handle, 1, 14, v4); // 0x100014e8
     //dlog( LOG_DEBUG, "_doSendWord: v20 %x\n", v20 );
     if (v20 != 0) {
         g3 = v1;
@@ -708,7 +708,7 @@ int32_t function_100011fc(SET9052 *deviceId, int32_t *a2) {
 	dlog( LOG_DEBUG, "function_100011fc\n");
     int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
     g7 = session_handle;
-    int32_t v2 = dd_viFlush(session_handle, 1, 4, a2);
+    int32_t v2 = dd_viIn16(session_handle, 1, 4, a2);
 	//dlog( LOG_DEBUG, "function_100011fc v2: 0x%x, response: 0x%x\n", v2, *a2);
 
     int32_t ret = SetErrorStatus(deviceId, v2) & -0x10000 | v2;
@@ -774,7 +774,7 @@ int32_t function_100015d0(SET9052 * deviceId, int32_t a2, int16_t a3, int32_t* a
 int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
 	dlog( LOG_DEBUG, "function_10001654\n");
     g5 = deviceId;
-    if (dd_viFlush(deviceId->session_handle, 1, 10, a3) != 0) {
+    if (dd_viIn16(deviceId->session_handle, 1, 10, a3) != 0) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0x8020; // 0x10001686
         return result;
     }
@@ -1109,40 +1109,19 @@ int32_t dd_viOpenDefaultRM(int32_t a1) {
 	return VI_SUCCESS;
 }
 
-int32_t dd_viFlush(int32_t session_handle, int32_t a2, int32_t mask, int32_t* response) {
-	// a2: is always 1 (true?)
-    // mask: 4 = 0x4 = VI_READ_BUF_DISCARD
-	// mask: 10 = 0xa = 1010 VI_WRITE_BUF|VI_WRITE_BUF_DISCARD
-    // mask: 14 = 0xe = 1110 includes VI_READ_BUF_DISCARD
- 	//dlog( LOG_TRACE, "\tviFlush(%d, 0x%x, 0x%x)\n", session_handle, a2, mask);
-	int siclMask=0x0;
-	if (mask & VI_READ_BUF) {
-		siclMask |= I_BUF_READ;
-	}
-	if (mask & VI_WRITE_BUF) {
-		siclMask |= I_BUF_WRITE;
-	}
-	if (mask & VI_READ_BUF_DISCARD) {
-		siclMask |= I_BUF_DISCARD_READ;
-	}
-	/*if (mask & VI_WRITE_BUF_DISCARD) {
-		siclMask |= I_BUF_DISCARD_WRITE;
-	}*/
-	int ret;
-#if defined(__hp9000s700)
-	ret = iflush(session_handle, siclMask);
-	if (ret != 0) {
-		dlog( LOG_DEBUG, "iflush returned %d\n", ret);
-	}
-#else
-#endif
+int32_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t* val16) {
+	// space: is always 1 (true?)
+ 	dlog( LOG_TRACE, "\dd_viIn16(%d, 0x%x, 0x%x)\n", session_handle, space, offset);
+ 	int32_t ret = dd_iwPeek(session_handle, space, offset, val16);
+
+ 	dlog( LOG_TRACE, "\dd_viIn16(%d, 0x%x, 0x%x) --> 0x%x\n", session_handle, space, offset, *val16);
+
 	// bits 9,10 are required and checked in _doSendWord().
 	// bit 8 required by function_100017e1().
 	// DD XXX analyze what they might mean
-	*response = (1<<9)|(1<<10)/*|(1<<8)*/;
+	//*response = (1<<9)|(1<<10)/*|(1<<8)*/;
 	//dlog( LOG_DEBUG, "iflush response 0x%x\n", *response);
 
-	ret = VI_SUCCESS;
 	return ret;
 }
 

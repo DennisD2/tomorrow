@@ -41,7 +41,6 @@ static int32_t g9 = 0; // esi
 static int32_t g11 = 0; // fpu_stat_TOP
 static char * g12;
 
-
 // Seems to be some array; g13..g17
 //int32_t g13 = 0x1000505d; // 20573
 //int32_t g14 = 0x1000c8b7; // 51385
@@ -50,15 +49,15 @@ static char * g12;
 //int32_t g17 = 0x1000ccaf;
 //int32_t *g13 = { 0x1000505d, 0x1000c8b7, 0x1000c923, 0x1000cbc9, 0x1000ccaf };
 
-
 // g14..g17 is or are arrays.
 //static int32_t g14_rbwTimeFactor = 0x1000c8b7;
-static int32_t g14_rbwTimeFactor[] = { 0x1000c8b7, 0x1000c923, 0x1000cbc9, 0x1000ccaf };
+static int32_t g14_rbwTimeFactor[] = { 0x1000c8b7, 0x1000c923, 0x1000cbc9,
+		0x1000ccaf };
 
 //static int32_t g15_vbwTimeFactor = 0x1000c923;
 static int32_t g15_vbwTimeFactor[] = { 0x1000c923, 0x1000cbc9, 0x1000ccaf };
 
-static float64_t g40[] = {0.0, 0.0, 0.0, 0.0};
+static float64_t g40[] = { 0.0, 0.0, 0.0, 0.0 };
 
 static int32_t g49; // 0x100183d4
 static int32_t g50 = 1;
@@ -581,12 +580,12 @@ int32_t SetZSamplRate(/*int32_t a1*/SET9052 *a1, int64_t rate) {
 				v4 = IE_ERR_VALS /*-3*/;
 				rate = MAX_RATEVAL /*1000000 = 0xf4240*/;
 			}
-			v3 = 10000000 /*0x989680*/ / rate;
+			v3 = 10000000 /*0x989680*// rate;
 			//*(int16_t *)(a1 + 156) = (int16_t)v3;
 			a1->zsampl_dvdr = (int16_t) v3;
 			return (int32_t) v3 & -0x10000 | (int32_t) v4;
 		}
-		v3 = 10e7/MIN_RATEVAL /*32679 = 0x7fa7*/;
+		v3 = 10e7 / MIN_RATEVAL /*32679 = 0x7fa7*/;
 		//*(int16_t *)(a1 + 156) = (int16_t)v3;
 		a1->zsampl_dvdr = (int16_t) v3;
 		result = (int32_t) v3 & -0x10000 | (int32_t) -3;
@@ -801,7 +800,7 @@ int32_t function_10001b13(SET9052 *a1) {
 			v7 = v6;
 		}
 		// DD: From next line we can derive that v6,v7,v8 are time values in [us] units
-		int32_t v8 = *v5 + a1->synth_time /* *(int32_t *)(result2 + 60)*/ + v7; // 0x10001bed
+		int32_t v8 = *v5 + a1->synth_time /* *(int32_t *)(result2 + 60)*/+ v7; // 0x10001bed
 		g8 = v8;
 		float80_t v9 = v8; // 0x10001bf3
 		g160_currentStepWidth = v9;
@@ -1023,8 +1022,8 @@ int32_t setup_vbw(SET9052 *a1) {
 				if ((v8 & 256) != 0) {
 					g3 = 0;
 					int32_t v9 = VBWCodeFromFreq(
-							(float64_t) ((float80_t) v4 * frequencyLimit_rbwFrequency),
-							0); // 0x10001f2f
+							(float64_t) ((float80_t) v4
+									* frequencyLimit_rbwFrequency), 0); // 0x10001f2f
 					v6 = v9;
 					v7 = v9;
 				} else {
@@ -1693,7 +1692,8 @@ int32_t GetRBWwide(int16_t value) {
 // Function seems to be decompiled wrong. The value derived (v2) is not returned?!?
 // But the value is set to global 'frequencyLimit_rbwFrequency'. Is this enough?
 int32_t RBWFreqFromCode(int16_t code) {
-	dlog(LOG_ERROR, "RBWFreqFromCode(%d) - TBI reconstruct array at g40\n", code);
+	dlog(LOG_ERROR, "RBWFreqFromCode(%d) - TBI reconstruct array at g40\n",
+			code);
 	int32_t result = code; // 0x1000b557
 	if (code < RBW_300HZ /*0*/) {
 		frequencyLimit_rbwFrequency = -3.0L;
@@ -1741,7 +1741,8 @@ int32_t VBWFreqFromCode(int16_t code) {
 // 3Mhz - 1us or what?
 // maybe my guess here is wrong see value for 3Mhz
 int32_t DefltSetTimeRBW(int16_t code) {
-	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) - TBI reinvent array g15..g17\n", code);
+	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) - TBI reinvent array g15..g17\n",
+			code);
 	int32_t v1 = code; // 0x1000c8a0
 	g6 = v1;
 #ifdef ORIG
@@ -1755,7 +1756,8 @@ int32_t DefltSetTimeRBW(int16_t code) {
 
 // Returns time in [us] for given vbw code
 int32_t DefltSetTimeVBW(int16_t code) {
-	dlog(LOG_ERROR, "DefltSetTimeVBW(%d) - TBI reinvent array g15..g17\n", code);
+	dlog(LOG_ERROR, "DefltSetTimeVBW(%d) - TBI reinvent array g15..g17\n",
+			code);
 	// DD:  g15 is initialized with 0x1000c923... a
 #ifdef ORIG
 	int32_t v1 = *(int32_t *)(4 * (int32_t)timeValue + (int32_t)&g15_vbwTimeFactor); // 0x1000c91c
@@ -3916,7 +3918,8 @@ int32_t RdNumDataPts(SET9052 *a1) {
 				SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 			} else {
 				g3 = a1;
-				result2 = 0x10000 * SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/) / 0x10000;
+				result2 = 0x10000 * SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/)
+						/ 0x10000;
 			}
 			g4 = v1;
 			return result2;
@@ -4010,8 +4013,6 @@ int32_t __amsg_exit(int32_t a1) {
 /*------------------------------------------------------------------------------------*/
 /* InitGuiSweep related code */
 /*------------------------------------------------------------------------------------*/
-#define InitGuiSweep_is_on
-#ifdef InitGuiSweep_is_on
 
 int32_t SetRefLevel(SET9052 *a1, int16_t a2);
 int32_t SetAutoCell(SET9052 *a1, int16_t a2);
@@ -4020,6 +4021,9 @@ int32_t SwpTimeMode(SET9052 *a1, int16_t a2, int32_t a3);
 int32_t SetRBWmode(SET9052 *a1, int16_t a2);
 int32_t SetRBW(SET9052 *a1, int16_t a2);
 int32_t SetVBWmode(SET9052 *a1, int16_t a2);
+
+int32_t SetSweepCode(SET9052 *a1, int16_t code);
+
 
 float80_t frequencyLimit = 0.0L; // st0
 
@@ -4279,9 +4283,10 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 	int32_t v1 = 0x10000 * result4; // 0x100087a1
 	int32_t v2 = v1 / 0x10000; // 0x100087a1
 	int32_t result3; // 0x100087f6
-	if (v1 != SA9085<<16 /*0x3000000*/ && v1 < SA9085<<16 /*0x3000000*/ == (767 - v2 & v2) < 0) {
+	if (v1 != SA9085 << 16 /*0x3000000*/
+			&& v1 < SA9085 << 16 /*0x3000000*/== (767 - v2 & v2) < 0) {
 		int32_t result2; // 0x10008807
-		if (v1 ==  SA9034<<16 /*0x4000000*/) {
+		if (v1 == SA9034 << 16 /*0x4000000*/) {
 			frequencyLimit = 3.4e+9L;
 			g11--;
 			result2 = result4;
@@ -4294,12 +4299,12 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 		}
 		return result2;
 	}
-	if (v1 == SA9085<<16 /* 0x3000000*/) {
+	if (v1 == SA9085 << 16 /* 0x3000000*/) {
 		frequencyLimit = 8.5e+9L;
 		g11--;
 	} else {
-		if (v1 != SA9052<<16 /*0x1000000*/) {
-			if (v1 != SA9054<<16 /*x2000000*/) {
+		if (v1 != SA9052 << 16 /*0x1000000*/) {
+			if (v1 != SA9054 << 16 /*x2000000*/) {
 				g8 = a1;
 				result3 = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
 				frequencyLimit = -1.0L;
@@ -4327,8 +4332,9 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 		int32_t v5 = v4 / 0x10000; // 0x10008844
 		g8 = v5;
 		int32_t result; // 0x10008897
-		if (v4 != SA9085<<16 /*0x3000000*/ && v4 < SA9085<<16 /*0x3000000*/ == (767 - v5 & v5) < 0) {
-			if (v4 !=  SA9034<<16 /*0x4000000*/) {
+		if (v4 != SA9085 << 16 /*0x3000000*/
+				&& v4 < SA9085 << 16 /*0x3000000*/== (767 - v5 & v5) < 0) {
+			if (v4 != SA9034 << 16 /*0x4000000*/) {
 				result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
 				frequencyLimit = -1.0L;
 				g11--;
@@ -4336,9 +4342,9 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 				return result;
 			}
 		} else {
-			if (v4 != SA9085<<16 /*0x3000000*/) {
-				if (v4 != SA9052<<16 /*0x1000000*/) {
-					if (v4 != SA9054<<16 /*x0x2000000*/) {
+			if (v4 != SA9085 << 16 /*0x3000000*/) {
+				if (v4 != SA9052 << 16 /*0x1000000*/) {
+					if (v4 != SA9054 << 16 /*x0x2000000*/) {
 						result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
 						frequencyLimit = -1.0L;
 						g11--;
@@ -4442,7 +4448,7 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 			int32_t v12 = (int32_t) v10 - MIN_REFL /*+ 40*/; // 0x100065d8
 			int16_t * v13; // 0x10006606
 			if (v10 < MIN_REFL /*-40*/) {
-				if (a1->PreampAvailable /**(int16_t *) (a1 + 100)*/ != IE_FALSE /*0*/) {
+				if (a1->PreampAvailable /**(int16_t *) (a1 + 100)*/!= IE_FALSE /*0*/) {
 					//*(int16_t *) (a1 + 102) = 1;
 					a1->PreampEnabled = IE_TRUE;
 					v13 = &a1->detect_code; // (int16_t *) (a1 + 128);
@@ -4464,7 +4470,7 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 			*v13 = *v13 | 64;
 			v7 = v12;
 			//*(int16_t *) (a1 + 96) = (int16_t) v12;
-			a1->attenuation =  (int16_t) v12;
+			a1->attenuation = (int16_t) v12;
 			v8 = v10;
 			v9 = v11;
 		} else {
@@ -4493,7 +4499,7 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 			int16_t v22; // 0x100064fa
 			int32_t v23; // 0x100064fa
 			if (v14 < -70) {
-				if (a1->PreampAvailable /**(int16_t *) (a1 + 100)*/ !=  IE_FALSE /*0*/) {
+				if (a1->PreampAvailable /**(int16_t *) (a1 + 100)*/!= IE_FALSE /*0*/) {
 					//*(int16_t *) (a1 + 102) = 1;
 					a1->PreampEnabled = IE_TRUE;
 					v19 = RdMaxAttLimit(a1);
@@ -4567,7 +4573,7 @@ int32_t RdMaxAttLimit(SET9052 *a1) {
 	int16_t v2 = a1->engine_model; // *(int16_t *) (a1 + 2); // 0x1000638c
 	int32_t v3 = v2; // 0x1000638c
 	int32_t result; // 0x100063e5
-	if (v2 != SA9085 /*768*/ && v2 < SA9085 /*768*/ == (767 - v3 & v3) < 0) {
+	if (v2 != SA9085 /*768*/&& v2 < SA9085 /*768*/== (767 - v3 & v3) < 0) {
 		if (v2 == SA9034 /*1024*/) {
 			result = (int32_t) a1 & -0x10000 | 60;
 		} else {
@@ -4582,7 +4588,8 @@ int32_t RdMaxAttLimit(SET9052 *a1) {
 		if (v2 != SA9052 /*256*/) {
 			if (v2 != SA9054 /*512*/) {
 				g8 = a1;
-				int32_t result2 = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/) | 0xffff; // 0x100063de
+				int32_t result2 = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/)
+						| 0xffff; // 0x100063de
 				return result2;
 			}
 		}
@@ -4611,7 +4618,8 @@ int32_t RdDetect(SET9052 *a1) {
 			v1 = DTEC_3IF /*8*/;
 		}
 		g3 = a1;
-		result = (int32_t) v1 | SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
+		result = (int32_t) v1
+				| SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
 	} else {
 		result = GetFuncStatusCode(a1);
 	}
@@ -4626,7 +4634,8 @@ int32_t RdLinearAttn(SET9052 *a1) {
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		g3 = a1;
 		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
-		result = ((int32_t) /**(int16_t *) (a1 + 128)*/ a1->detect_code & DTEC_ATTOFF /*64*/) / 64 + 1;
+		result = ((int32_t) /**(int16_t *) (a1 + 128)*/a1->detect_code
+				& DTEC_ATTOFF /*64*/) / 64 + 1;
 	} else {
 		result = GetFuncStatusCode(a1);
 	}
@@ -4775,7 +4784,6 @@ int32_t SetRBWmode(SET9052 *a1, int16_t mode) {
 	return result;
 }
 
-
 int32_t function_10001e98(SET9052 *a1) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
@@ -4832,7 +4840,7 @@ int32_t SetRBW(SET9052 *a1, int16_t code) {
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		int32_t v2; // 0x100057df
 		int32_t v3; // 0x100057df
-		if (a1->auto_rbw /**(int16_t *) (a1 + 74)*/ != VI_TRUE /*1*/) {
+		if (a1->auto_rbw /**(int16_t *) (a1 + 74)*/!= VI_TRUE /*1*/) {
 			int32_t v4 = code; // 0x1000579d
 			g8 = v4;
 			int32_t v5 = a1; // 0x100057df4
@@ -4959,7 +4967,431 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 	return result;
 }
 
+int32_t SetSweepCode(SET9052 *a1, int16_t code) {
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e2d
+    g3 = v1;
+    int32_t result; // 0x10005e96
+    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+        int32_t v2; // 0x10005e8f
+        int32_t v3; // 0x10005e8f
+        if (code < 16) {
+            //*(int16_t *)(a1 + 130) = code;
+        	a1->sweep_code = code;
+            function_10001718(a1);
+            v3 = function_10001b13(a1);
+            v2 = code < 16 ? 0 : -3;
+        } else {
+            v3 = code;
+            v2 = -3;
+        }
+        result = v3 & -0x10000 | v2;
+    } else {
+        result = GetFuncStatusCode(a1);
+    }
+    return result;
+}
+
+/*------------------------------------------------------------------------------------*/
+/* InitGuiSweep related code */
+/*------------------------------------------------------------------------------------*/
+#define MeasureAmplWithFreq_is_on
+#ifdef MeasureAmplWithFreq_is_on
+
+float80_t g159 = 0.0L; // st0
+float80_t g160 = 0.0L; // st1
+
+int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start, FREQ8500 stop, int16_t ref_level,
+		int32_t num_points, int16_t min_or_max, int16_t data_format, ViReal64 ra_data[], ViReal64 ra_freq[]) {
+	int16_t v1 = data_format;
+	int16_t v2 = vbw;
+	if (ra_freq != 0) {
+		if (ra_data != 0) {
+			if ((g3 & 0x4100) != 0) {
+				if ((0x10000 * FreqInRange(a1, start)
+						|| 0xffff) >= 0x1ffff) {
+					if ((0x10000 * FreqInRange(a1, stop)
+							|| 0xffff) >= 0x1ffff) {
+						int32_t v3 = 0x10000 * min_or_max;
+						int32_t v4 = v3 / 0x10000; // 0x1000a3a5
+						if (v3 != 0x20000) {
+							if (v3 != 0x40000) {
+								return v4 & -0x10000 | 0xfffd;
+							}
+						}
+						int32_t v5 = 0x10000 * data_format;
+						if (v1 != 0) {
+							if (v5 != 0x10000) {
+								if (v5 != 0x20000) {
+									return v5 / 0x10000 & -0x10000 | 0xfffd;
+								}
+							}
+						}
+						if ((int16_t) SetSweepCode(a1, (int16_t) (v4 || 9))
+								== 0) {
+							int32_t v6;
+							int32_t v7; // 0x1000a5bc
+							int32_t v8; // 0x1000a5cf
+							int32_t v9; // 0x1000a589
+							int32_t v10; // 0x1000a4ef
+							int32_t result2; // 0x1000a73f
+							if (vbw != 5) {
+								int32_t v11 = SetRBWmode(a1, 0); // 0x1000a440
+								if ((int16_t) v11 != 0) {
+									return 0x10000 * v11 / 0x10000 | 0xffff;
+								}
+								int32_t v12 = SetRBW(a1, rbw); // 0x1000a466
+								int32_t v13 = 0x10000 * v12;
+								int32_t v14 = v13 / 0x10000; // 0x1000a472
+								int32_t result; // 0x1000a746
+								if ((int16_t) v12 != 0) {
+									if (v13 != -0x30000) {
+										result = v14 | 0xffff;
+									} else {
+										result = v14 & -0x10000 | v12 & 0xffff;
+									}
+									return result;
+								}
+								int32_t v15; // 0x1000a53e
+								int32_t v16; // 0x1000a564
+								int32_t v17; // 0x1000a595
+								if (0x10000 * vbw == 0x80000) {
+									int32_t v18 = SetVBWmode(a1, 1); // 0x1000a4a4
+									if ((int16_t) v18 != 0) {
+										return 0x10000 * v18 / 0x10000 | 0xffff;
+									}
+									ConfigStartFreq(a1, start);
+									v15 = ConfigStopFreq(a1, stop);
+									if ((int16_t) v15 != 0) {
+										return 0x10000 * v15 / 0x10000 | 0xffff;
+									}
+									v16 = SetRefLevel(a1, (int16_t) ref_level);
+									if ((int16_t) v16 < 0) {
+										return 0x10000 * v16 / 0x10000 | 0xffff;
+									}
+									v9 = SetNumCells(a1, num_points);
+									v6 = 0x10000 * v9;
+									v17 = v6 / 0x10000;
+									g6 = v17;
+									if ((int16_t) v9 != 0) {
+										if (v6 != -0x30000) {
+											result = v17 | 0xffff;
+										} else {
+											result = v17 & -0x10000
+													| v9 & 0xffff;
+										}
+										return result;
+									}
+									v7 = RdNumSwpPts(a1);
+									v8 = function_1000da64(2 * v7 + 2);
+									if (v8 != 0) {
+										g3 = a1;
+										if (0x10000 * BreakSweep(a1, 0)
+												== 0x410000) {
+											if (0x10000 * StartSweep(a1)
+													== 0x410000) {
+												while (true) {
+													if ((int16_t) GetAmplWithFreqExt(a1, v8, ra_freq) == 0) {
+														goto lab_0x1000a65b_3;
+													}
+													result2 = function_1000d97b(
+															v8) & -0x10000
+															| 0xffff;
+													return result2;
+												}
+											}
+										}
+										result = function_1000d97b(v8)
+												& -0x10000 | 0xffff;
+									} else {
+										result = v8 | 0xffff;
+									}
+									return result;
+								}
+								int32_t v19 = SetVBWmode(a1, 0); // 0x1000a4c9
+								if ((int16_t) v19 != 0) {
+									return 0x10000 * v19 / 0x10000 | 0xffff;
+								}
+								g6 = a1;
+								v10 = SetVBW(a1, v2);
+								int32_t v20 = 0x10000 * v10;
+								int32_t v21 = v20 / 0x10000; // 0x1000a4fb
+								if ((int16_t) v10 != 0) {
+									if (v20 != -0x30000) {
+										result = v21 | 0xffff;
+									} else {
+										result = v21 & -0x10000 | v10 & 0xffff;
+									}
+									return result;
+								}
+								ConfigStartFreq(a1, start);
+								v15 = ConfigStopFreq(a1, stop);
+								if ((int16_t) v15 != 0) {
+									return 0x10000 * v15 / 0x10000 | 0xffff;
+								}
+								v16 = SetRefLevel(a1, ref_level);
+								if ((int16_t) v16 < 0) {
+									return 0x10000 * v16 / 0x10000 | 0xffff;
+								}
+								v9 = SetNumCells(a1, num_points);
+								v6 = 0x10000 * v9;
+								v17 = v6 / 0x10000;
+								g6 = v17;
+								if ((int16_t) v9 != 0) {
+									if (v6 != -0x30000) {
+										result = v17 | 0xffff;
+									} else {
+										result = v17 & -0x10000 | v9 & 0xffff;
+									}
+									return result;
+								}
+								v7 = RdNumSwpPts(a1);
+								v8 = function_1000da64(2 * v7 + 2);
+								if (v8 != 0) {
+									g3 = a1;
+									int32_t v22 = 0xffff;
+									if (0x10000 * BreakSweep(a1, 0)
+											== 0x410000) {
+										if (0x10000 * StartSweep(a1)
+												== 0x410000) {
+											while (true) {
+												if ((int16_t) GetAmplWithFreqExt(
+														a1, v8, ra_freq) != 0) {
+													result2 = function_1000d97b(
+															v8) & -0x10000
+															| 0xffff;
+													return result2;
+												}
+												lab_0x1000a65b_3:
+												if (RdSwpIdx(a1) >= v7) {
+													break;
+												}
+											}
+											if (v7 > 0) {
+												int32_t v23 = 0;
+												while (true) {
+													// v1 = data_format
+													int32_t v24; // 0x1000a68b
+													if (v1 == 0) {
+														GetDbmForAmpl(a1,
+																*(int16_t *) (2
+																		* v23
+																		+ v8));
+														*(float64_t *) (8 * v23
+																+ ra_data) =
+																(float64_t) g159;
+														g11++;
+													} else {
+														if (v1 == 1) {
+															GetnVForAmpl(a1,
+																	*(int16_t *) (2
+																			* v23
+																			+ v8));
+															*(float64_t *) (8
+																	* v23 + ra_data) =
+																	(float64_t) (1000.0L
+																			/ g159);
+															g11++;
+														} else {
+															if (v1 == 2) {
+																GetnVForAmpl(a1,
+																		*(int16_t *) (2
+																				* v23
+																				+ v8));
+																*(float64_t *) (8
+																		* v23
+																		+ ra_data) =
+																		(float64_t) g159;
+																g11++;
+															}
+														}
+														v24 = v23 + 1;
+														if (v24 == v7) {
+															break;
+														}
+														v23 = v24;
+														continue;
+													}
+													v24 = v23 + 1;
+													if (v24 == v7) {
+														break;
+													}
+													v23 = v24;
+												}
+												result2 = function_1000d97b(v8)
+														& -0x10000;
+												return result2;
+											}
+											v22 = 0;
+										} else {
+											v22 = 0xffff;
+										}
+									}
+									result = function_1000d97b(v8) & -0x10000
+											| v22;
+								} else {
+									result = v8 | 0xffff;
+								}
+								return result;
+							}
+							int32_t v25 = SetRBWmode(a1, 1); // 0x1000a41b
+							if ((int16_t) v25 != 0) {
+								return 0x10000 * v25 / 0x10000 | 0xffff;
+							}
+							if (0x10000 * vbw != 0x80000) {
+								if ((int16_t) SetVBWmode(a1, 0) == 0) {
+									g6 = a1;
+									v10 = SetVBW(a1, v2);
+									if ((int16_t) v10 == 0) {
+										ConfigStartFreq(a1, start);
+										if ((int16_t) ConfigStopFreq(a1, stop)
+												== 0) {
+											if ((int16_t) SetRefLevel(a1,
+													ref_level) >= 0) {
+												v9 = SetNumCells(a1, num_points);
+												v6 = 0x10000 * v9;
+												g6 = v6 / 0x10000;
+												if ((int16_t) v9 == 0) {
+													v7 = RdNumSwpPts(a1);
+													v8 = function_1000da64(
+															2 * v7 + 2);
+													if (v8 != 0) {
+														g3 = a1;
+														if (0x10000
+																* BreakSweep(a1,
+																		0)
+																== 0x410000) {
+															if (0x10000
+																	* StartSweep(
+																			a1)
+																	== 0x410000) {
+																while (true) {
+																	if ((int16_t) GetAmplWithFreqExt(
+																			a1,
+																			v8,
+																			ra_freq)
+																			== 0) {
+																		goto lab_0x1000a65b_3;
+																	}
+																	result2 =
+																			function_1000d97b(
+																					v8)
+																					& -0x10000
+																					| 0xffff;
+																	return result2;
+																}
+															}
+														}
+														function_1000d97b(v8);
+													}
+													// Detected a possible infinite recursion (goto support failed); quitting...
+												} else {
+													// 0x1000a59d
+													if (v6 != -0x30000) {
+														// 0x1000a5af
+														// branch -> 0x1000a743
+													}
+													// Detected a possible infinite recursion (goto support failed); quitting...
+												}
+												// Detected a possible infinite recursion (goto support failed); quitting...
+											}
+											// Detected a possible infinite recursion (goto support failed); quitting...
+										}
+										// Detected a possible infinite recursion (goto support failed); quitting...
+									} else {
+										// 0x1000a503
+										if (0x10000 * v10 != -0x30000) {
+											// 0x1000a515
+											// branch -> 0x1000a743
+										}
+										// Detected a possible infinite recursion (goto support failed); quitting...
+									}
+									// Detected a possible infinite recursion (goto support failed); quitting...
+								}
+								// Detected a possible infinite recursion (goto support failed); quitting...
+							} else {
+								// 0x1000a49e
+								if ((int16_t) SetVBWmode(a1, 1) != 0) {
+									// 0x1000a4b8
+									// branch -> 0x1000a743
+									// Detected a possible infinite recursion (goto support failed); quitting...
+								}
+							}
+							// 0x1000a51e
+							ConfigStartFreq(a1, start);
+							if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
+								// 0x1000a55b
+								if ((int16_t) SetRefLevel(a1, ref_level)
+										>= 0) {
+									// 0x1000a581
+									v9 = SetNumCells(a1, num_points);
+									v6 = 0x10000 * v9;
+									g6 = v6 / 0x10000;
+									if ((int16_t) v9 == 0) {
+										// 0x1000a5b8
+										v7 = RdNumSwpPts(a1);
+										v8 = function_1000da64(2 * v7 + 2);
+										if (v8 != 0) {
+											// 0x1000a5e9
+											g3 = a1;
+											if (0x10000 * BreakSweep(a1, 0)
+													== 0x410000) {
+												// 0x1000a60f
+												if (0x10000 * StartSweep(a1)
+														== 0x410000) {
+													while (true) {
+														// 0x1000a633
+														if ((int16_t) GetAmplWithFreqExt(
+																a1, v8, ra_freq)
+																== 0) {
+															goto lab_0x1000a65b_3;
+														}
+														// 0x1000a672
+														// branch -> 0x1000a733
+														// 0x1000a733
+														function_1000d97b(v8);
+														// branch -> 0x1000a743
+														// Detected a possible infinite recursion (goto support failed); quitting...
+													}
+												}
+											}
+											// 0x1000a733
+											function_1000d97b(v8);
+											// branch -> 0x1000a743
+										}
+										// Detected a possible infinite recursion (goto support failed); quitting...
+									} else {
+										// 0x1000a59d
+										if (v6 != -0x30000) {
+											// 0x1000a5af
+											// branch -> 0x1000a743
+										}
+										// Detected a possible infinite recursion (goto support failed); quitting...
+									}
+									// Detected a possible infinite recursion (goto support failed); quitting...
+								}
+								// Detected a possible infinite recursion (goto support failed); quitting...
+							}
+							// Detected a possible infinite recursion (goto support failed); quitting...
+						}
+						// Detected a possible infinite recursion (goto support failed); quitting...
+					}
+					// Detected a possible infinite recursion (goto support failed); quitting...
+				}
+				// Detected a possible infinite recursion (goto support failed); quitting...
+			}
+			// Detected a possible infinite recursion (goto support failed); quitting...
+		}
+	}
+	// 0x1000a33e
+	// branch -> 0x1000a743
+	// Detected a possible infinite recursion (goto support failed); quitting...
+}
+
+
+
 #endif
+
 
 /*------------------------------------------------------------------------------------*/
 /* End of file */

@@ -490,3 +490,9 @@ int checkResponse(uint32_t response) {
 	}
 	return 0;
 }
+
+// Replace this later in code with Makro iwpeek to save time!
+uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, , int16_t* val16) {
+	uint16_t *q = (uint16_t *) mapped;
+	return q[offset];
+}

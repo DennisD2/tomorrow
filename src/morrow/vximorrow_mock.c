@@ -30,8 +30,13 @@ uint16_t registers[] = {
 /* 7 */0xaa00,
 /* 8 */0x0db0,
 /* 9 */0x5570,
-/* 10*/0x5e7d,
-/* 11*/0xfa06 };
+/* a */0x5e7d,
+/* b */0xfa06,
+/* c */0xffff,
+/* d */0xffff,
+/* e */0xffff,
+/* f */0xffff
+};
 
 INST iopen(char _far *addr) {
 	return 1;
@@ -145,4 +150,11 @@ int checkResponse(uint32_t response) {
 	}
 	return 0;
 }
+
+uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, int16_t* val16) {
+	uint16_t *q = (uint16_t *) registers;
+	*val16 = q[offset];
+	return 0;
+}
+
 
