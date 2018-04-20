@@ -401,44 +401,6 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 	return response;
 }
 
-uint32_t waitForAck(INST id, long millis) {
-	uint16_t response, rpe;
-	struct timespec now, stop;
-	double accum;
-	sleep(1);
-
-	if (clock_gettime( CLOCK_REALTIME, &now) == -1) {
-		dlog(LOG_ERROR, "clock gettime");
-		exit(-1);
-	}
-	stop.tv_sec = now.tv_sec;
-	stop.tv_nsec = now.tv_nsec + (millis * 1000L);
-	while (true) {
-		dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
-		if ((response & 0xff) == 0x01 /* ACK */) {
-			dlog(LOG_INFO, "ACK\n");
-			return 0;
-		} else {
-			checkResponse(response);
-		}
-		if (clock_gettime( CLOCK_REALTIME, &now) == -1) {
-			dlog(LOG_ERROR, "clock gettime");
-			exit(-1);
-		}
-		// TODO comparison is not 100% correct;!!!
-		if (now.tv_sec > stop.tv_sec) {
-			dlog(LOG_WARN, "Timeout!\n");
-			return -1;
-		} else {
-			if (now.tv_nsec > stop.tv_nsec) {
-				dlog(LOG_WARN, "Timeout!\n");
-				return -1;
-			}
-		}
-		usleep(100L); // us
-	}
-}
-
 uint32_t dd_SendCommand(INST id, uint16_t command, uint16_t numWords,
 		uint16_t *words) {
 	dlog( LOG_DEBUG, "\ndd_SendCommand(%x=%s, %d, %lx)\n", command,
@@ -464,7 +426,6 @@ uint32_t dd_SendCommand(INST id, uint16_t command, uint16_t numWords,
 		checkResponse(response);
 	}
 	return 0;
-	//return waitForAck(id, 100);
 }
 
 int checkResponse(uint32_t response) {
@@ -492,7 +453,14 @@ int checkResponse(uint32_t response) {
 }
 
 // Replace this later in code with Makro iwpeek to save time!
-uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, , int16_t* val16) {
+uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16) {
 	uint16_t *q = (uint16_t *) mapped;
-	return q[offset];
+	*val16 = q[offset/2];
+	return 0;
+}
+
+uint16_t dd_iwPoke(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) {
+	uint16_t *q = (uint16_t *) mapped;
+	q[offset/2] = val16;
+	return 0;
 }

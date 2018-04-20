@@ -108,8 +108,8 @@ int32_t _imported_function_ord_132(int32_t a1);
 int32_t _imported_function_ord_133(int32_t a1, int32_t a2, int32_t a3);
 int32_t _imported_function_ord_134(int32_t a1, int32_t a2, int32_t a3);
 int32_t _imported_function_ord_141(int32_t a1);
-int32_t _imported_function_ord_261(int32_t a1, int32_t a2, int32_t a3, int32_t a4);
-int32_t _imported_function_ord_262(int32_t a1, int32_t a2, int32_t a3, int32_t a4);
+int32_t r_ViIn16(int32_t a1, int32_t a2, int32_t a3, int32_t a4);
+int32_t r_ViOut16(int32_t a1, int32_t a2, int32_t a3, int32_t a4);
 int32_t _imported_function_ord_267(int32_t a1, int32_t a2, int32_t a3);
 int32_t _InitTimeoutLoop(int32_t a1);
 int32_t _RdErrorStatus(int32_t a1);
@@ -557,14 +557,14 @@ int32_t function_100010e1(int32_t deviceId, int32_t a2) {
 int32_t function_100011fc(int32_t deviceId, int32_t a2) {
     int32_t v1 = *(int32_t *)(deviceId + 468); // 0x1000120d
     g7 = v1;
-    int32_t v2 = _imported_function_ord_261(v1, 1, 4, a2) != 0;
+    int32_t v2 = r_ViIn16(v1, 1, 4, a2) != 0;
     return _SetErrorStatus(deviceId, v2) & -0x10000 | v2;
 }
 
 // Address range: 0x10001249 - 0x10001296
 int32_t function_10001249(int32_t deviceId, uint16_t a2, int32_t a3, int32_t a4) {
     int32_t v1 = *(int32_t *)(deviceId + 468); // 0x1000125b
-    int32_t v2 = _imported_function_ord_262(v1, 1, 4, g2 & -0x10000 | (int32_t)a2) != 0;
+    int32_t v2 = r_ViOut16(v1, 1, 4, g2 & -0x10000 | (int32_t)a2) != 0;
     g5 = deviceId;
     return _SetErrorStatus(deviceId, v2) & -0x10000 | v2;
 }
@@ -643,8 +643,8 @@ int32_t function_10001354(int32_t deviceId, uint16_t command, int32_t a3, int32_
     }
     // 0x100013a7
     g5 = v2;
-    // DD: _imported_function_ord_262 1st parameter is not deviceId but <struct>+468
-    int32_t v7 = _imported_function_ord_262(v2, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
+    // DD: r_ViOut16 1st parameter is not deviceId but <struct>+468
+    int32_t v7 = r_ViOut16(v2, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
     if (v7 != 0) {
         // 0x100013c2
         // branch -> 0x100015b4
@@ -670,7 +670,7 @@ int32_t function_10001354(int32_t deviceId, uint16_t command, int32_t a3, int32_
         if ((a3 & 0xffff) != 0) {
             // 0x1000157e
             g5 = v2;
-            int32_t v12 = _imported_function_ord_261(v2, 1, 14, v4); // 0x1000158a
+            int32_t v12 = r_ViIn16(v2, 1, 14, v4); // 0x1000158a
             if (v12 == 0) {
                 int16_t v13 = v3; // 0x100015a1
                 *(int16_t *)response = v13;
@@ -690,7 +690,7 @@ int32_t function_10001354(int32_t deviceId, uint16_t command, int32_t a3, int32_
     }
     // 0x10001414
     g5 = v2;
-    int32_t v14 = _imported_function_ord_262(v2, 1, 14, 0xcdff); // 0x10001421
+    int32_t v14 = r_ViOut16(v2, 1, 14, 0xcdff); // 0x10001421
     if (v14 != 0) {
         // 0x1000142f
         // branch -> 0x100015b4
@@ -740,7 +740,7 @@ int32_t function_10001354(int32_t deviceId, uint16_t command, int32_t a3, int32_
     }
     // 0x100014d6
     g5 = v2;
-    int32_t v20 = _imported_function_ord_261(v2, 1, 14, v4); // 0x100014e8
+    int32_t v20 = r_ViIn16(v2, 1, 14, v4); // 0x100014e8
     if (v20 != 0) {
         // 0x100015b0
         // branch -> 0x100015b4
@@ -817,8 +817,8 @@ int32_t function_100015d0(int32_t deviceId, int32_t a2, int16_t a3, int32_t a4) 
 int32_t function_10001654(int32_t deviceId, int16_t a2, int32_t a3) {
     // 0x10001654
     g5 = deviceId;
-    // DD: instead of deviceId, the _imported_function_ord_261 gets <unknown struct>+468 !
-    if (_imported_function_ord_261(*(int32_t *)(deviceId + 468), 1, 10, a3) != 0) {
+    // DD: instead of deviceId, the r_ViIn16 gets <unknown struct>+468 !
+    if (r_ViIn16(*(int32_t *)(deviceId + 468), 1, 10, a3) != 0) {
         int32_t result = _SetErrorStatus(deviceId, 1) & -0x10000 | 0x8020; // 0x10001686
         // branch -> 0x100016c4
         // 0x100016c4
@@ -1208,7 +1208,7 @@ int32_t function_10001b08(int32_t deviceId) {
     int32_t v8 = *(int32_t *)(deviceId + 468); // 0x10001b78
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
-    if (_imported_function_ord_261(v8, 1, 14, (int32_t)&v9) == 0) {
+    if (r_ViIn16(v8, 1, 14, (int32_t)&v9) == 0) {
         // 0x10001b9c
         v10 = 0;
         // branch -> 0x10001bb4
@@ -2193,13 +2193,13 @@ int32_t _RdSessionHandle(int32_t a1, int32_t a2, int32_t a3) {
 }
 
 // Address range: 0x10002940 - 0x10002945
-int32_t _imported_function_ord_261(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
+int32_t r_ViIn16(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
     // 0x10002940
     return imported_function_ord_261();
 }
 
 // Address range: 0x10002946 - 0x1000294b
-int32_t _imported_function_ord_262(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
+int32_t r_ViOut16(int32_t a1, int32_t a2, int32_t a3, int32_t a4) {
     // 0x10002946
     return imported_function_ord_262();
 }

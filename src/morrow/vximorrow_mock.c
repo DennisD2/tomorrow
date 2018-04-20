@@ -151,10 +151,15 @@ int checkResponse(uint32_t response) {
 	return 0;
 }
 
-uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, int16_t* val16) {
+uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16) {
 	uint16_t *q = (uint16_t *) registers;
-	*val16 = q[offset];
+	*val16 = q[offset/2];
 	return 0;
 }
 
+uint16_t dd_iwPoke(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) {
+	uint16_t *q = (uint16_t *) registers;
+	q[offset/2] = val16;
+	return 0;
+}
 

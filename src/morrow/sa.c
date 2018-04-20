@@ -73,6 +73,7 @@ static int32_t g129 = 0;
 //static int32_t g130 = 0;
 //static int32_t g131 = 0;
 
+float80_t frequencyLimit = 0.0L; // st0 vbw????
 static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
 static float80_t g160_currentStepWidth = 0.0L; // st1
 
@@ -1692,8 +1693,7 @@ int32_t GetRBWwide(int16_t value) {
 // Function seems to be decompiled wrong. The value derived (v2) is not returned?!?
 // But the value is set to global 'frequencyLimit_rbwFrequency'. Is this enough?
 int32_t RBWFreqFromCode(int16_t code) {
-	dlog(LOG_ERROR, "RBWFreqFromCode(%d) - TBI reconstruct array at g40\n",
-			code);
+#ifdef ORIG
 	int32_t result = code; // 0x1000b557
 	if (code < RBW_300HZ /*0*/) {
 		frequencyLimit_rbwFrequency = -3.0L;
@@ -1713,13 +1713,36 @@ int32_t RBWFreqFromCode(int16_t code) {
 	}
 	frequencyLimit_rbwFrequency = v1;
 	g11--;
-	return result;
+#endif
+	frequencyLimit_rbwFrequency = 3000000.0; // assumption.
+	switch (code) {
+	case RBW_300HZ:
+		frequencyLimit_rbwFrequency = 300.0;
+		break;
+	case RBW_3KHZ:
+		frequencyLimit_rbwFrequency = 3000.0;
+		break;
+	case RBW_30KHZ:
+		frequencyLimit_rbwFrequency = 30000.0;
+		break;
+	case RBW_300KHZ:
+		frequencyLimit_rbwFrequency = 300000.0;
+		break;
+	case RBW_3MHZ:
+		frequencyLimit_rbwFrequency = 3000000.0;
+		break;
+	case RBW_AUTO:
+		frequencyLimit_rbwFrequency = 3000000.0;
+		break;
+	}
+	dlog(LOG_ERROR, "RBWFreqFromCode(%d); frequencyLimit_rbwFrequency was set to: %f \n", code, frequencyLimit_rbwFrequency);
+	return code;
 }
 
 // Should return 3E6 for e.g. VBW_3MHZ (?), i.e. a frequency from a code.
 // See comments for RBWFreqFromCode(), but here it is even worse.
 int32_t VBWFreqFromCode(int16_t code) {
-	dlog(LOG_ERROR, "VBWFreqFromCode(%d) - TBI\n", code);
+#ifdef ORIG
 	int32_t result = code; // 0x1000b580
 	if (code < VBW_NONE /*0*/) {
 		g11--;
@@ -1731,28 +1754,91 @@ int32_t VBWFreqFromCode(int16_t code) {
 	}
 	g11--;
 	return result;
+#else
+	frequencyLimit =  3000000.0; // assumption.
+	switch (code) {
+	case VBW_NONE:
+		frequencyLimit = 0.0;
+		break;
+	case VBW_3HZ:
+		frequencyLimit = 3.0;
+		break;
+	case VBW_30HZ:
+		frequencyLimit = 30.0;
+		break;
+	case VBW_300HZ:
+		frequencyLimit = 300.0;
+		break;
+	case VBW_3KHZ:
+		frequencyLimit = 3000.0;
+		break;
+	case VBW_30KHZ:
+		frequencyLimit = 30000.0;
+		break;
+	case VBW_300KHZ:
+		frequencyLimit = 300000.0;
+		break;
+	case VBW_3MHZ:
+		frequencyLimit = 3000000.0;
+		break;
+	case VBW_AUTO:
+		frequencyLimit = 3000000.0;
+		break;
+	}
+	dlog(LOG_ERROR, "VBWFreqFromCode(%d); frequencyLimit was set to: %f \n", code, frequencyLimit);
+	return code;
+#endif
 }
 
-// Returns time in [us] for given rbw code
-// 300Hz - 3333us
-// 3Khz - 333us
-// 30Khz - 33us
-// 300Khz - 3us
-// 3Mhz - 1us or what?
-// maybe my guess here is wrong see value for 3Mhz
+// Returns time in [us] for given rbw code; values from ida
+// RBW_300HZ  - 0x1770 = 6000
+// RBW_3KHZ - 0x258 = 600
+// RBW_30KHZ  - 0x3c = 60
+// RBW_300KHZ  - 0x6
+// RBW_3MHZ - 1
+// default 0xffffffff = -1
 int32_t DefltSetTimeRBW(int16_t code) {
-	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) - TBI reinvent array g15..g17\n",
-			code);
 	int32_t v1 = code; // 0x1000c8a0
 	g6 = v1;
 #ifdef ORIG
 	__pseudo_branch(*(int32_t *)(4 * v1 + (int32_t)&g14_rbwTimeFactor));
 #else
-	// TODO what is replacement for pseudo branch?
-	return g14_rbwTimeFactor[code];
+	//return g14_rbwTimeFactor[code];
+	int time;
+	switch (code) {
+	case RBW_300HZ:
+		time = 6000;
+		break;
+	case RBW_3KHZ:
+		time = 600;
+		break;
+	case RBW_30KHZ:
+		time = 60;
+		break;
+	case RBW_300KHZ:
+		time = 6;
+		break;
+	case RBW_3MHZ:
+		time = 1;
+		break;
+	default:
+		time = -1;
+		break;
+	}
+	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) -> %d\n", code, time);
+	return time;
 #endif
-	return -1;
 }
+
+// VBW_NONE 0 - 0
+// VBW_3HZ 1 - 0x3d090 = 250000
+// VBW_30HZ 2 - 0x61a8 =  25000
+// VBW_300HZ 3 - 0x9c4 = 2500
+// VBW_3KHZ 4 - 0xfa = 250
+// VBW_30KHZ 5 - 0x19 = 25
+// VBW_300KHZ 6 - 0x3 = 3
+// VBW_3MHZ 7 - 1 = 1
+// VBW_AUTO=8 default 0xffffffff = -1
 
 // Returns time in [us] for given vbw code
 int32_t DefltSetTimeVBW(int16_t code) {
@@ -1763,10 +1849,40 @@ int32_t DefltSetTimeVBW(int16_t code) {
 	int32_t v1 = *(int32_t *)(4 * (int32_t)timeValue + (int32_t)&g15_vbwTimeFactor); // 0x1000c91c
 	__pseudo_branch(v1);
 #else
-	// TODO what is replacement for pseudo branch?
-	return g15_vbwTimeFactor[code];
+	//return g15_vbwTimeFactor[code];
+	int time;
+	switch (code) {
+	case VBW_NONE:
+		time = 0;
+		break;
+	case VBW_3HZ:
+		time = 250000;
+		break;
+	case VBW_30HZ:
+		time = 25000;
+		break;
+	case VBW_300HZ:
+		time = 2500;
+		break;
+	case VBW_3KHZ:
+		time = 250;
+		break;
+	case VBW_30KHZ:
+		time = 25;
+		break;
+	case VBW_300KHZ:
+		time = 3;
+		break;
+	case VBW_3MHZ:
+		time = 1;
+		break;
+	default:
+		time = -1;
+		break;
+	}
+	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) -> %d\n", code, time);
+	return time;
 #endif
-	return -1;
 }
 
 int32_t function_1000382c(int32_t a1, int32_t a2, int32_t a3) {
@@ -4021,11 +4137,9 @@ int32_t SwpTimeMode(SET9052 *a1, int16_t a2, int32_t a3);
 int32_t SetRBWmode(SET9052 *a1, int16_t a2);
 int32_t SetRBW(SET9052 *a1, int16_t a2);
 int32_t SetVBWmode(SET9052 *a1, int16_t a2);
-
+int32_t SetVBW(SET9052 *a1, uint16_t code);
+int32_t SetTrigMode(SET9052 *a1, int16_t mode, int32_t a3, int32_t a4);
 int32_t SetSweepCode(SET9052 *a1, int16_t code);
-
-
-float80_t frequencyLimit = 0.0L; // st0
 
 // Seems to be some array; g13..g17
 //int32_t g13 = 0x1000505d; // 20573
@@ -4038,16 +4152,17 @@ int32_t *g13 = { 0x1000505d, 0x1000c8b7, 0x1000c923, 0x1000cbc9, 0x1000ccaf };
 //int32_t InitGuiSweep(int32_t a1, int16_t rbw, int32_t vbw, a4+a5=start, a6+a7=stop, int32_t ref_level, uint32_t cell_num)
 int32_t InitGuiSweep(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start,
 		FREQ8500 stop, int32_t ref_level, uint32_t cell_num) {
+	dlog(LOG_DEBUG, "InitGuiSweep()\n");
 	int16_t v1 = ref_level;
 	int16_t v2 = vbw;
 
 	if (a1 == 0) {
 		return MR90XX_IE_ERROR;
 	}
-	if ((0x10000 * FreqInRange(a1, start) || 0xffff) < 0x1ffff) {
+	if (FreqInRange(a1, start) < 1) {
 		return MR90XX_IE_ERROR;
 	}
-	if ((0x10000 * FreqInRange(a1, stop) || 0xffff) < 0x1ffff) {
+	if (FreqInRange(a1, stop) < 1) {
 		return MR90XX_IE_ERROR;
 	}
 
@@ -4237,11 +4352,12 @@ int32_t InitGuiSweep(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start,
 }
 
 // Checks if freq inside limits; function is decompiled wrong and does not use freq parameter. Can easily coded correctly.
-int32_t FreqInRange(SET9052 * a1, float64_t freq_unused) {
+int32_t FreqInRange(SET9052 * a1, float64_t freq) {
+#ifdef ORIG
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
-	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10008a07
+	int32_t v2 = TestFuncStatusAndPtr(a1);// 0x10008a07
 	g3 = v2;
 	int32_t result;
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
@@ -4250,7 +4366,7 @@ int32_t FreqInRange(SET9052 * a1, float64_t freq_unused) {
 		RdMinFreqLimit(a1);
 		g11++;
 		int32_t v3 = RdMaxFreqLimit(a1); // 0x10008a3d
-		int32_t v4 = g11 + 1; // 0x10008a45
+		int32_t v4 = g11 + 1;// 0x10008a45
 		g11 = v4;
 		if ((v3 & 256) == 0) {
 			g11 = v4;
@@ -4265,8 +4381,30 @@ int32_t FreqInRange(SET9052 * a1, float64_t freq_unused) {
 	}
 	g4 = v1;
 	return result;
+#else
+	int32_t v1 = g4; // bp-4
+	g4 = &v1;
+	int32_t v2 = TestFuncStatusAndPtr(a1);
+	if (v2 < 1) {
+		g8 = a1;
+		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
+		RdMinFreqLimit(a1);
+		float80_t fmin = frequencyLimit;
+		g11++;
+		RdMaxFreqLimit(a1); // 0x10008a3d
+		float80_t fmax = frequencyLimit;
+		if (freq >= fmin && freq <= fmax) {
+			dlog(LOG_DEBUG, "FreqInRange(%f) -> %d\n", freq, VI_TRUE);
+			return VI_TRUE;
+		} else {
+			dlog(LOG_DEBUG, "FreqInRange(%f) -> %d\n", freq, VI_FALSE);
+			return VI_FALSE;
+		}
+	}
+#endif
 }
 
+// Stores maximum frequency in global 'frequencyLimit'
 int32_t RdMaxFreqLimit(SET9052 *a1) {
 	g3 = a1;
 	int32_t result = TestFuncStatusAndPtr(a1); // 0x10008770
@@ -4284,7 +4422,7 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 	int32_t v2 = v1 / 0x10000; // 0x100087a1
 	int32_t result3; // 0x100087f6
 	if (v1 != SA9085 << 16 /*0x3000000*/
-			&& v1 < SA9085 << 16 /*0x3000000*/== (767 - v2 & v2) < 0) {
+	&& v1 < SA9085 << 16 /*0x3000000*/== (767 - v2 & v2) < 0) {
 		int32_t result2; // 0x10008807
 		if (v1 == SA9034 << 16 /*0x4000000*/) {
 			frequencyLimit = 3.4e+9L;
@@ -4318,7 +4456,9 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 	return result4;
 }
 
+// Stores minimum frequency in global 'frequencyLimit'
 int32_t RdMinFreqLimit(SET9052 *a1) {
+	dlog(LOG_DEBUG, "RdMinFreqLimit\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -4333,12 +4473,13 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 		g8 = v5;
 		int32_t result; // 0x10008897
 		if (v4 != SA9085 << 16 /*0x3000000*/
-				&& v4 < SA9085 << 16 /*0x3000000*/== (767 - v5 & v5) < 0) {
+		&& v4 < SA9085 << 16 /*0x3000000*/== (767 - v5 & v5) < 0) {
 			if (v4 != SA9034 << 16 /*0x4000000*/) {
 				result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
 				frequencyLimit = -1.0L;
 				g11--;
 				g4 = v1;
+				dlog(LOG_DEBUG, "RdMinFreqLimit 1 --> 0x%x\n", result);
 				return result;
 			}
 		} else {
@@ -4349,6 +4490,7 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 						frequencyLimit = -1.0L;
 						g11--;
 						g4 = v1;
+						dlog(LOG_DEBUG, "RdMinFreqLimit 2 --> 0x%x\n", result);
 						return result;
 					}
 				}
@@ -4366,6 +4508,7 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 		result2 = v6;
 	}
 	g4 = v1;
+	dlog(LOG_DEBUG, "RdMinFreqLimit 3 --> 0x%x\n", result2);
 	return result2;
 }
 
@@ -4380,7 +4523,7 @@ int32_t RdEngineModel(SET9052 *a1) {
 		g8 = a1;
 		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		//result = (int32_t)*(int16_t *)(a1 + 2) | a1 & -0x10000;
-		a1->engine_model; // | (int32_t) a1 & -0x10000;
+		result = a1->engine_model; // | (int32_t) a1 & -0x10000;
 	} else {
 		result = v1 & -0x10000;
 	}
@@ -4388,6 +4531,7 @@ int32_t RdEngineModel(SET9052 *a1) {
 }
 
 int32_t SetDetectLog(SET9052 *a1, int32_t mode_unused) {
+	dlog(LOG_DEBUG, "SetDetectLog(%d)\n", mode_unused);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005bd1
 	g3 = v1;
@@ -4411,6 +4555,7 @@ int32_t SetDetectLog(SET9052 *a1, int32_t mode_unused) {
 }
 
 int32_t SetRefLevel(SET9052 *a1, int16_t level) {
+	dlog(LOG_DEBUG, "SetRefLevel(%d)\n", level);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	int32_t v2 = g9; // 0x100063ec
@@ -4643,6 +4788,7 @@ int32_t RdLinearAttn(SET9052 *a1) {
 }
 
 int32_t SetAutoCell(SET9052 *a1, int16_t auto_cell) {
+	dlog(LOG_DEBUG, "SetAutoCell(0x%x)\n", auto_cell);
 	int16_t v1 = 0; // bp-8
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006090
@@ -4671,7 +4817,125 @@ int32_t SetAutoCell(SET9052 *a1, int16_t auto_cell) {
 	return result;
 }
 
+int32_t SetNumCells(SET9052 *a1, uint32_t num_cells) {
+	dlog(LOG_DEBUG, "SetNumCells(%d)\n", num_cells);
+	g3 = a1;
+	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000612c
+	g3 = v1;
+	int32_t result; // 0x10006185
+	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+		int32_t v2 = v1; // 0x1000617e
+		int32_t v3 = -3;
+		if (num_cells >= 1) {
+			int32_t v4 = num_cells - 0xffff; // 0x1000614f
+			if (v4 == 0 || v4 < 0 != (0xfffe - num_cells & num_cells) < 0) {
+				// 0x10006158
+				//*(int32_t *)(a1 + 132) = a2;
+				a1->num_cells = a1;
+				v2 = function_10001718(a1);
+				v3 = 0;
+				// branch -> 0x1000617e
+			} else {
+				v2 = v1;
+				v3 = -3;
+			}
+		}
+		// 0x1000617e
+		result = v3 | v2 & -0x10000;
+		// branch -> 0x10006182
+	} else {
+		// 0x1000613b
+		result = GetFuncStatusCode(a1);
+		// branch -> 0x10006182
+	}
+	// 0x10006182
+	return result;
+}
+
+int32_t SetDefltPts(SET9052 *a1, uint32_t num_points, int32_t a3_unused) {
+	dlog(LOG_DEBUG, "SetDefltPts(%d,%d)\n", num_points, a3_unused);
+	int16_t v1 = 0; // bp-8
+	g3 = a1;
+	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x100050e4
+	g3 = v2;
+	int32_t v3 = v2; // 0x100051234
+	if ((0x10000 * v2 || 0xffff) >= 0x1ffff) {
+		int32_t v4 = GetFuncStatusCode(a1); // 0x100050f7
+		v1 = v4;
+		v3 = v4;
+		// branch -> 0x10005103
+	}
+	// 0x10005103
+	if (num_points < 1 || num_points > 0x3b9aca00) {
+		// 0x10005112
+		// branch -> 0x10005123
+		// 0x10005123
+		return v3 & -0x10000 | -3;
+	}
+	// 0x1000511a
+	*(int32_t *) (a1 + 68) = num_points;
+	a1->deflt_pt_cnt = num_points;
+	// branch -> 0x10005123
+	// 0x10005123
+	return (int32_t) a1 & -0x10000 | (int32_t) v1;
+}
+
+int32_t SetTrigMode(SET9052 *a1, int16_t mode, int32_t a3, int32_t a4) {
+	dlog(LOG_DEBUG, "StepSizeMode(%d,%d,%d)\n", mode, a3, a4);
+	g3 = a1;
+	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100069e7
+	g3 = v1;
+	int32_t result; // 0x10006a59
+	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+		int32_t v2 = mode; // 0x10006a04
+		if (mode >= 0) {
+			// 0x10006a0c
+			if (mode == 6 || mode < 6 != (5 - v2 & v2) < 0) {
+				// 0x10006a15
+				//*(int16_t *)(a1 + 108) = a2;
+				a1->trig_code = mode;
+				int16_t v3 = 0; // bp-8
+				if ((int16_t) a3 != 0) {
+					// 0x10006a2e
+					if (mode != 0) {
+						// 0x10006a41
+						//*(int16_t *)(a1 + 110) = 1;
+						a1->trig_norm_flag = 1;
+						// branch -> 0x10006a52
+						// 0x10006a52
+						// branch -> 0x10006a56
+						// 0x10006a56
+						return (v2 & -0x10000 | (int32_t) mode) & -0x10000
+								| (int32_t) v3;
+					}
+				}
+				// 0x10006a36
+				//*(int16_t *)(a1 + 110) = 0;
+				a1->trig_norm_flag = 0;
+				// branch -> 0x10006a52
+				// 0x10006a52
+				// branch -> 0x10006a56
+				// 0x10006a56
+				return (int32_t) a1 & -0x10000 | (int32_t) v3;
+			}
+		}
+		// 0x10006a4c
+		// branch -> 0x10006a52
+		// 0x10006a52
+		result = v2 & -0x10000 | (int32_t) -3;
+		// branch -> 0x10006a56
+	} else {
+		// 0x100069f6
+		result = GetFuncStatusCode(a1);
+		// branch -> 0x10006a56
+	}
+	// 0x10006a56
+	return result;
+}
+
 int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t unused) {
+	dlog(LOG_DEBUG, "StepSizeMode(a2=g11_index=0x%x, unused=0x%x)\n", a2,
+			unused);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -4701,6 +4965,7 @@ int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t unused) {
 }
 
 int32_t SwpTimeMode(SET9052 *a1, int16_t mode, int32_t unused) {
+	dlog(LOG_DEBUG, "StepSizeMode(mode=0x%x, unused=0x%x)\n", mode, unused);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -4756,6 +5021,7 @@ int32_t SwpTimeMode(SET9052 *a1, int16_t mode, int32_t unused) {
 }
 
 int32_t SetRBWmode(SET9052 *a1, int16_t mode) {
+	dlog(LOG_DEBUG, "SetRBWmode(mode=0x%x)\n", mode);
 	int16_t v1 = 0; // bp-8
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005828
@@ -4833,6 +5099,7 @@ int32_t function_10001e98(SET9052 *a1) {
 }
 
 int32_t SetRBW(SET9052 *a1, int16_t code) {
+	dlog(LOG_DEBUG, "SetRBWmode(0x%x)\n", code);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000576c
 	g3 = v1;
@@ -4870,6 +5137,7 @@ int32_t SetRBW(SET9052 *a1, int16_t code) {
 }
 
 int32_t SetVBWmode(SET9052 *a1, int16_t mode) {
+	dlog(LOG_DEBUG, "SetVBWmode(0x%x)\n", mode);
 	int16_t v1 = 0; // bp-8
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10005993
@@ -4905,8 +5173,47 @@ int32_t SetVBWmode(SET9052 *a1, int16_t mode) {
 	return result;
 }
 
+int32_t SetVBW(SET9052 *a1, uint16_t code) {
+	g3 = a1;
+	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100058d7
+	g3 = v1;
+	int32_t v2 = 0x10000 * v1; // 0x100058df
+	g6 = v2 / 0x10000;
+	if ((v2 || 0xffff) >= 0x1ffff) {
+		g8 = a1;
+		int32_t v3 = GetFuncStatusCode(a1); // 0x100058ea
+		return 0x10000 * v3 >> 16 | v3 & -0x10000;
+	}
+	int16_t v4 = a1->auto_vbw; // *(int16_t *)(a1 + 78); // 0x100058fb
+	g6 = v4;
+	int32_t v5; // 0x10005942
+	int32_t v6; // 0x10005942
+	if (v4 != 1) {
+		int32_t v7 = code; // 0x1000590c
+		g8 = v7;
+		int32_t v8 = a1; // 0x100059424
+		if (code >= 0) {
+			if (code <= 7) {
+				g8 = v7 & -0x10000 | (int32_t) code;
+				//*(int16_t *)(a1 + 76) = code;
+				a1->vbw_code = code;
+				v6 = function_10001b13(a1);
+				return v6 & -0x10000;
+			}
+			v8 = v7;
+		}
+		v6 = v8;
+		v5 = -3;
+	} else {
+		v6 = a1;
+		v5 = -4;
+	}
+	return v5 | v6 & -0x10000;
+}
+
 // a2+a3 = float value
 int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
+	dlog(LOG_DEBUG, "ConfigStartFreq(%f)\n", start);
 	// entry
 	g8 = a1;
 	int32_t v1 = 0x10000 * FreqInRange(a1, start); // 0x1000b75b
@@ -4938,6 +5245,7 @@ int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 }
 
 int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
+	dlog(LOG_DEBUG, "ConfigStartFreq(%f)\n", stop);
 	g8 = a1;
 	int32_t v1 = 0x10000 * FreqInRange(a1, stop); // 0x1000b89d
 	g3 = v1 / 0x10000;
@@ -4968,32 +5276,33 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 }
 
 int32_t SetSweepCode(SET9052 *a1, int16_t code) {
-    g3 = a1;
-    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e2d
-    g3 = v1;
-    int32_t result; // 0x10005e96
-    if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-        int32_t v2; // 0x10005e8f
-        int32_t v3; // 0x10005e8f
-        if (code < 16) {
-            //*(int16_t *)(a1 + 130) = code;
-        	a1->sweep_code = code;
-            function_10001718(a1);
-            v3 = function_10001b13(a1);
-            v2 = code < 16 ? 0 : -3;
-        } else {
-            v3 = code;
-            v2 = -3;
-        }
-        result = v3 & -0x10000 | v2;
-    } else {
-        result = GetFuncStatusCode(a1);
-    }
-    return result;
+	dlog(LOG_DEBUG, "SetSweepCode(%f)\n", code);
+	g3 = a1;
+	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e2d
+	g3 = v1;
+	int32_t result; // 0x10005e96
+	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+		int32_t v2; // 0x10005e8f
+		int32_t v3; // 0x10005e8f
+		if (code < 16) {
+			//*(int16_t *)(a1 + 130) = code;
+			a1->sweep_code = code;
+			function_10001718(a1);
+			v3 = function_10001b13(a1);
+			v2 = code < 16 ? 0 : -3;
+		} else {
+			v3 = code;
+			v2 = -3;
+		}
+		result = v3 & -0x10000 | v2;
+	} else {
+		result = GetFuncStatusCode(a1);
+	}
+	return result;
 }
 
 /*------------------------------------------------------------------------------------*/
-/* InitGuiSweep related code */
+/* MeasureAmplWithFreq related code */
 /*------------------------------------------------------------------------------------*/
 #define MeasureAmplWithFreq_is_on
 #ifdef MeasureAmplWithFreq_is_on
@@ -5001,17 +5310,18 @@ int32_t SetSweepCode(SET9052 *a1, int16_t code) {
 float80_t g159 = 0.0L; // st0
 float80_t g160 = 0.0L; // st1
 
-int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start, FREQ8500 stop, int16_t ref_level,
-		int32_t num_points, int16_t min_or_max, int16_t data_format, ViReal64 ra_data[], ViReal64 ra_freq[]) {
+int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
+		FREQ8500 start, FREQ8500 stop, int16_t ref_level, int32_t num_points,
+		int16_t min_or_max, int16_t data_format, ViReal64 ra_data[],
+		ViReal64 ra_freq[]) {
 	int16_t v1 = data_format;
 	int16_t v2 = vbw;
 	if (ra_freq != 0) {
 		if (ra_data != 0) {
 			if ((g3 & 0x4100) != 0) {
-				if ((0x10000 * FreqInRange(a1, start)
-						|| 0xffff) >= 0x1ffff) {
-					if ((0x10000 * FreqInRange(a1, stop)
-							|| 0xffff) >= 0x1ffff) {
+				if ((0x10000 * FreqInRange(a1, start) || 0xffff) >= 0x1ffff) {
+					if ((0x10000 * FreqInRange(a1, stop) || 0xffff)
+							>= 0x1ffff) {
 						int32_t v3 = 0x10000 * min_or_max;
 						int32_t v4 = v3 / 0x10000; // 0x1000a3a5
 						if (v3 != 0x20000) {
@@ -5091,7 +5401,9 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 star
 											if (0x10000 * StartSweep(a1)
 													== 0x410000) {
 												while (true) {
-													if ((int16_t) GetAmplWithFreqExt(a1, v8, ra_freq) == 0) {
+													if ((int16_t) GetAmplWithFreqExt(
+															a1, v8, ra_freq)
+															== 0) {
 														goto lab_0x1000a65b_3;
 													}
 													result2 = function_1000d97b(
@@ -5162,8 +5474,8 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 star
 															| 0xffff;
 													return result2;
 												}
-												lab_0x1000a65b_3:
-												if (RdSwpIdx(a1) >= v7) {
+												lab_0x1000a65b_3: if (RdSwpIdx(
+														a1) >= v7) {
 													break;
 												}
 											}
@@ -5188,7 +5500,8 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 star
 																			* v23
 																			+ v8));
 															*(float64_t *) (8
-																	* v23 + ra_data) =
+																	* v23
+																	+ ra_data) =
 																	(float64_t) (1000.0L
 																			/ g159);
 															g11++;
@@ -5248,7 +5561,8 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 star
 												== 0) {
 											if ((int16_t) SetRefLevel(a1,
 													ref_level) >= 0) {
-												v9 = SetNumCells(a1, num_points);
+												v9 = SetNumCells(a1,
+														num_points);
 												v6 = 0x10000 * v9;
 												g6 = v6 / 0x10000;
 												if ((int16_t) v9 == 0) {
@@ -5321,8 +5635,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 star
 							ConfigStartFreq(a1, start);
 							if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
 								// 0x1000a55b
-								if ((int16_t) SetRefLevel(a1, ref_level)
-										>= 0) {
+								if ((int16_t) SetRefLevel(a1, ref_level) >= 0) {
 									// 0x1000a581
 									v9 = SetNumCells(a1, num_points);
 									v6 = 0x10000 * v9;
@@ -5388,10 +5701,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 star
 	// Detected a possible infinite recursion (goto support failed); quitting...
 }
 
-
-
 #endif
-
 
 /*------------------------------------------------------------------------------------*/
 /* End of file */

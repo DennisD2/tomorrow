@@ -129,10 +129,11 @@ sa += 1433
 visa += 0
 
 Tofdo
-- Reconstruct arrays
+- Reconstruct arrays (VBWFreFromCode, RBWFreFromCode and ~4 more)
 - Fix Error mapping ENG->SW domain
 - Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
 - Check all "DD XXX" and "TODO" notes and solve the issues
+
 
 
 Status

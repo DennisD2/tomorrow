@@ -26,6 +26,8 @@ static int32_t function_100015d0(SET9052 *deviceId, int32_t a2, int16_t a3, int3
 static int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t *a3);
 static int32_t sendWord(SET9052 *deviceId, int16_t command) ;
 
+int32_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) ;
+
 static int32_t g2 = 0; // eax
 static int32_t g3 = 0; // ebp
 //static int32_t g4 = 0; // ebx
@@ -128,7 +130,7 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
     if (dd_viOpen(g52_currentViSession, deviceId->sessionString/*deviceId + 210*/, 0, 0, vi_session_ptr) != VI_SUCCESS) {
         int32_t v5 = g52_currentViSession; // 0x10002247
         g52_currentViSession = 0;
-        // DD: _imported_function_ord_132 seems to close the session
+        // DD: _imported_function_ord_132 equals viClose()
         int32_t result = dd_viClose(v5) | 0xffff; // 0x1000225d
         return result;
     }
@@ -406,6 +408,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
         goto lab_0x10001d34_3;
     }
 #else
+    function_100010e1(deviceId, 0);
     if (command < 0 || command >16) {
     	return -1;
     }
@@ -718,14 +721,14 @@ int32_t function_100011fc(SET9052 *deviceId, int32_t *a2) {
 
 int32_t function_10001249(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) {
 	// What is this call doing ???
-	dlog( LOG_DEBUG, "\tfunction_10001249, command %x=%s, what is this call intending?\n", command, getCmdNameP2(command));
-#ifdef ORIG
+	dlog( LOG_DEBUG, "\tfunction_10001249(command %x=%s,0x%x, 0x%x) - what is this call intending TODO CHECK?\n", command, getCmdNameP2(command), a3, a4);
 	int32_t v1 = deviceId->session_handle;
+#ifdef ORIG
     int32_t v2 = dd_viWsCmdAlike(v1, 1, 4, g2 & -0x10000 | command) != 0;
 #else
     int32_t v2;
-	dlog( LOG_DEBUG, "Command %x left out.\n", command);
-	v2 = VI_SUCCESS;
+	//dlog( LOG_DEBUG, "Command %x left out.\n", command);
+	v2 = dd_viOut16(v1, 1, 4, command);
 #endif
     g5 = deviceId;
     return SetErrorStatus(deviceId, v2) & -0x10000 | v2;
@@ -772,7 +775,7 @@ int32_t function_100015d0(SET9052 * deviceId, int32_t a2, int16_t a3, int32_t* a
 }
 
 int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
-	dlog( LOG_DEBUG, "function_10001654\n");
+	dlog( LOG_DEBUG, "function_10001654(a2=0x%x)\n", a2);
     g5 = deviceId;
     if (dd_viIn16(deviceId->session_handle, 1, 10, a3) != 0) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0x8020; // 0x10001686
@@ -780,16 +783,16 @@ int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
     }
     g5 = a3;
     int32_t result2; // 0x100016c7
-#ifdef ORIG
+//#ifdef ORIG
     // totally unclear whats going on here
     if (((int32_t)*(int16_t *)a3 & (int32_t)a2) != 0) {
-#else
-    if (1) {
-#endif
-        result2 = SetErrorStatus(deviceId, 0) & -0x10000 | 1;
+//#else
+//    if (1) {
+//#endif
+        result2 = SetErrorStatus(deviceId, IE_SUCCESS /*0*/) & -0x10000 | 1;
     } else {
         g5 = deviceId;
-        result2 = SetErrorStatus(deviceId, 1) & -0x10000 | 0x8004;
+        result2 = SetErrorStatus(deviceId, IE_WARN_VALS /*1*/) & -0x10000 | 0x8004;
     }
     return result2;
 }
@@ -851,7 +854,7 @@ int32_t dd_readEngineStatus(SET9052 *deviceId) {
 }
 
 int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
-	dlog( LOG_DEBUG, "function_100010e1\n") ;
+	dlog( LOG_DEBUG, "function_100010e1(a2=0x%x)\n", a2) ;
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x100010eb
@@ -1090,6 +1093,8 @@ int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int3
 #endif
 	return VI_SUCCESS;
 }
+
+// Was _imported_function_ord_132()
 int32_t dd_viClose(int32_t session_handle) {
 	dlog( LOG_DEBUG, "viClose(%d)\n", session_handle);
 	return 0;
@@ -1109,12 +1114,13 @@ int32_t dd_viOpenDefaultRM(int32_t a1) {
 	return VI_SUCCESS;
 }
 
-int32_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t* val16) {
+// Was _imported_function_ord_261()
+int32_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16) {
 	// space: is always 1 (true?)
- 	dlog( LOG_TRACE, "\dd_viIn16(%d, 0x%x, 0x%x)\n", session_handle, space, offset);
+ 	//dlog( LOG_TRACE, "\dd_viIn16(%d, 0x%x, 0x%x)\n", session_handle, space, offset);
  	int32_t ret = dd_iwPeek(session_handle, space, offset, val16);
 
- 	dlog( LOG_TRACE, "\dd_viIn16(%d, 0x%x, 0x%x) --> 0x%x\n", session_handle, space, offset, *val16);
+ 	dlog( LOG_TRACE, "\tdd_viIn16(%d, 0x%x, 0x%x) --> 0x%x\n", session_handle, space, offset, (*val16 & 0xffff));
 
 	// bits 9,10 are required and checked in _doSendWord().
 	// bit 8 required by function_100017e1().
@@ -1125,10 +1131,17 @@ int32_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t
 	return ret;
 }
 
+int32_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) {
+ 	dlog( LOG_TRACE, "\tdd_viOut16(%d, 0x%x, 0x%x, 0x%x)\n", session_handle, space, offset, val16);
+	int32_t ret = dd_iwPoke(session_handle, space, offset, val16);
+	return ret;
+}
+
 /**
  * Return value is 0 on success. This can be seen e.g. in _doSendWord() where processing stops
  * if we return sth. different from 0.
  */
+// Was _imported_function_ord_262 which equals ViOut16
 int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
 	dlog( LOG_DEBUG, "\tWScmdAlike(%d, %d, %d, 0x%x=%s)\n", session_handle, a2, a3, command, getCmdNameP2(command));
 	uint16_t ret;
@@ -1142,12 +1155,6 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 	ret = dd_wsCommand(session_handle, cmd, &response, &rpe);
 #endif
 	dlog( LOG_DEBUG, "\tWScmdAlike() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
-
-	// Sanity check
-	if (command == VXI_GETVERSION && response != 0x14) {
-		dlog( LOG_ERROR, "KAPUTT\n");
-		exit(-1);
-	}
 	return ret;
 }
 
