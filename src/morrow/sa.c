@@ -1842,8 +1842,6 @@ int32_t DefltSetTimeRBW(int16_t code) {
 
 // Returns time in [us] for given vbw code
 int32_t DefltSetTimeVBW(int16_t code) {
-	dlog(LOG_ERROR, "DefltSetTimeVBW(%d) - TBI reinvent array g15..g17\n",
-			code);
 	// DD:  g15 is initialized with 0x1000c923... a
 #ifdef ORIG
 	int32_t v1 = *(int32_t *)(4 * (int32_t)timeValue + (int32_t)&g15_vbwTimeFactor); // 0x1000c91c
@@ -1880,7 +1878,7 @@ int32_t DefltSetTimeVBW(int16_t code) {
 		time = -1;
 		break;
 	}
-	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) -> %d\n", code, time);
+	dlog(LOG_ERROR, "DefltSetTimeVBW(%d) -> %d\n", code, time);
 	return time;
 #endif
 }
@@ -3351,7 +3349,7 @@ int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
 				*cell_modePtr = IE_TRUE /*1*/;
 				v1 = -1;
 			} else {
-				*cell_modePtr = 1;
+				*cell_modePtr = 1; // this looks false!!!
 			}
 			int32_t result = (int32_t) v1 | function_10001718(a1) & -0x10000; // 0x10006041
 			return result;
@@ -4174,9 +4172,16 @@ int32_t InitGuiSweep(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start,
 		return MR90XX_IE_ERROR;
 	}
 
+// DD XXX
+#ifdef ORIG
+	// the call returns sth. != 0
 	if (SetCellMode(a1, VI_TRUE /*1*/) != 0) {
 		return MR90XX_IE_ERROR;
 	}
+#else
+	SetCellMode(a1, VI_TRUE /*1*/);
+#endif
+	// DD XXX
 
 	if ((int16_t) StepSizeMode(a1, MR90XX_AUTO_ON /*1*/, 0) != 0) {
 		return MR90XX_IE_ERROR;
@@ -4933,8 +4938,8 @@ int32_t SetTrigMode(SET9052 *a1, int16_t mode, int32_t a3, int32_t a4) {
 	return result;
 }
 
-int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t unused) {
-	dlog(LOG_DEBUG, "StepSizeMode(a2=g11_index=0x%x, unused=0x%x)\n", a2,
+int32_t StepSizeMode(SET9052 *a1, int16_t mode, int32_t unused) {
+	dlog(LOG_DEBUG, "StepSizeMode(a2=g11_index=0x%x, unused=0x%x)\n", mode,
 			unused);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
@@ -4944,8 +4949,8 @@ int32_t StepSizeMode(SET9052 *a1, int16_t a2, int32_t unused) {
 	int32_t result; // 0x100050c5
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 		// Next line : v3 = g13[a2]; g13
-		//int32_t v3 = *(int32_t *)(4 * (int32_t)a2 + (int32_t)&g13); // 0x10005045
-		int32_t v3 = g13[a2];
+		//int32_t v3 = *(int32_t *)(4 * (int32_t)mode + (int32_t)&g13); // 0x10005045
+		int32_t v3 = g13[mode];
 #ifdef ORIG
 		// We cannot ignore this.
 		// What was the value v3 used for; and what if I ignore it?
