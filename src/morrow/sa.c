@@ -1735,7 +1735,9 @@ int32_t RBWFreqFromCode(int16_t code) {
 		frequencyLimit_rbwFrequency = 3000000.0;
 		break;
 	}
-	dlog(LOG_ERROR, "RBWFreqFromCode(%d); frequencyLimit_rbwFrequency was set to: %f \n", code, frequencyLimit_rbwFrequency);
+	dlog(LOG_ERROR,
+			"RBWFreqFromCode(%d); frequencyLimit_rbwFrequency was set to: %f \n",
+			code, frequencyLimit_rbwFrequency);
 	return code;
 }
 
@@ -1755,7 +1757,7 @@ int32_t VBWFreqFromCode(int16_t code) {
 	g11--;
 	return result;
 #else
-	frequencyLimit =  3000000.0; // assumption.
+	frequencyLimit = 3000000.0; // assumption.
 	switch (code) {
 	case VBW_NONE:
 		frequencyLimit = 0.0;
@@ -1785,7 +1787,8 @@ int32_t VBWFreqFromCode(int16_t code) {
 		frequencyLimit = 3000000.0;
 		break;
 	}
-	dlog(LOG_ERROR, "VBWFreqFromCode(%d); frequencyLimit was set to: %f \n", code, frequencyLimit);
+	dlog(LOG_ERROR, "VBWFreqFromCode(%d); frequencyLimit was set to: %f \n",
+			code, frequencyLimit);
 	return code;
 #endif
 }
@@ -4183,9 +4186,14 @@ int32_t InitGuiSweep(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start,
 #endif
 	// DD XXX
 
+// DD XXX
+#ifdef ORIG
 	if ((int16_t) StepSizeMode(a1, MR90XX_AUTO_ON /*1*/, 0) != 0) {
 		return MR90XX_IE_ERROR;
 	}
+#else
+	 StepSizeMode(a1, MR90XX_AUTO_ON /*1*/, 0);
+#endif
 
 	if ((int16_t) SwpTimeMode(a1, MR90XX_AUTO_ON /*1*/, 0) != 0) {
 		return MR90XX_IE_ERROR;
@@ -4939,8 +4947,7 @@ int32_t SetTrigMode(SET9052 *a1, int16_t mode, int32_t a3, int32_t a4) {
 }
 
 int32_t StepSizeMode(SET9052 *a1, int16_t mode, int32_t unused) {
-	dlog(LOG_DEBUG, "StepSizeMode(a2=g11_index=0x%x, unused=0x%x)\n", mode,
-			unused);
+	dlog(LOG_DEBUG, "StepSizeMode(mode=%d, unused=0x%x)\n", mode, unused);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -4950,17 +4957,34 @@ int32_t StepSizeMode(SET9052 *a1, int16_t mode, int32_t unused) {
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 		// Next line : v3 = g13[a2]; g13
 		//int32_t v3 = *(int32_t *)(4 * (int32_t)mode + (int32_t)&g13); // 0x10005045
-		int32_t v3 = g13[mode];
 #ifdef ORIG
 		// We cannot ignore this.
 		// What was the value v3 used for; and what if I ignore it?
 		// But what is __pseudo_branch ?
 		__pseudo_branch(v3);
-#else
-		dlog(LOG_WARN, "StepSizeMode __pseudo_branch(0x%x) - TBI\n", v3);
-#endif
+
 		//*(int16_t *)(a1 + 32) = 1;
 		a1->step_mode = AUTO_ON /*1*/;
+#else
+		// derived manually From idafree
+		switch (mode) {
+		case AUTO_OFF /*0*/:
+			break;
+		case AUTO_ON /*1*/:
+			a1->num_swp_pts = a1->deflt_pt_cnt;
+			break;
+		case STEPCNT /*2*/:
+		case STEPSIZ /*3*/:
+			SetAutoCell(a1, VI_FALSE);
+			SetCellMode(a1, VI_FALSE);
+			break;
+		default:
+			v1 = 1;
+			mode = AUTO_ON /*1*/;
+		}
+
+		a1->step_mode = mode;
+#endif
 		result = function_10001718(a1) & -0x10000 | 1;
 	} else {
 		result = GetFuncStatusCode(a1);
@@ -4970,7 +4994,7 @@ int32_t StepSizeMode(SET9052 *a1, int16_t mode, int32_t unused) {
 }
 
 int32_t SwpTimeMode(SET9052 *a1, int16_t mode, int32_t unused) {
-	dlog(LOG_DEBUG, "StepSizeMode(mode=0x%x, unused=0x%x)\n", mode, unused);
+	dlog(LOG_DEBUG, "SwpTimeMode(mode=0x%x, unused=0x%x)\n", mode, unused);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -5252,10 +5276,10 @@ int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 	dlog(LOG_DEBUG, "ConfigStartFreq(%f)\n", stop);
 	g8 = a1;
-	int32_t v1 = 0x10000 * FreqInRange(a1, stop); // 0x1000b89d
-	g3 = v1 / 0x10000;
+	int32_t v1 = FreqInRange(a1, stop); // 0x1000b89d
+	g3 = v1;
 	int32_t result; // 0x1000b918
-	if ((v1 || 0xffff) < 0x1ffff) {
+	if (v1<1) {
 		result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
 		return result;
 	}
@@ -5264,7 +5288,7 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 	a1->stop = stop;
 	g8 = a1;
 	g3 = a1;
-	if (((int32_t) a1 & 0x4100) == 0) { // what does this mean?
+	if (0 /*((int32_t) a1 & 0x4100) == 0*/) { // what does this mean?
 		result = SetFuncStatusCode(a1, IE_WARN_SPAN /*3*/);
 		return result;
 	}

@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
 	ViInt16 number_points = 40;
 	ViReal64 start_freq = 149000000;
-	ViReal64 stop_freq = 149000000;
+	ViReal64 stop_freq = 150000000;
 	ViInt16 ref_level = 2;
 	mr90xxStatus = mr90xx_InitGuiSweep(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points);
