@@ -21128,7 +21128,7 @@ int32_t function_1000def9(int32_t a1, int32_t a2, char a3, uint32_t a4) {
     return result;
 }
 
-/*
+
 // Address range: 0x1000e0d5 - 0x1000e113
 float80_t function_1000e0d5(void) {
     int3_t v1 = g11; // 0x1000e0d5
@@ -21146,7 +21146,7 @@ float80_t function_1000e0d5(void) {
     g6 = v2 | 2;
     return result2;
 }
-*/
+
 // Address range: 0x1000e114 - 0x1000e1e3
 int32_t function_1000e114(int32_t a1, int32_t a2) {
     int32_t v1 = __fload_withFB(); // 0x1000e118
