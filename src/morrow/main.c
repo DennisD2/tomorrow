@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 	}
 
 	ViReal64 amp_array[40], freq_array[40];
-	/*mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
+	mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
 		MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
 		MR90XX_SWP_MIN,
 		MR90XX_DBM_FORMAT, amp_array, freq_array);
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 		dlog(LOG_DEBUG, "Error mr90xx_MeasureAmplWithFreq\n");
 	} else {
 		dlog(LOG_DEBUG, "mr90xx_MeasureAmplWithFreq OK\n");
-	}*/
+	}
 
 	int i;
 	for (i = 0; i < number_points; i++) {

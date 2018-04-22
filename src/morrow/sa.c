@@ -24,6 +24,7 @@ static int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7, int32_t a8);
 
 static int32_t FreqInRange(SET9052 * a1, float64_t freq);
+static char *function_1000da64(int32_t size);
 
 static int32_t g3 = 0; // eax
 
@@ -77,8 +78,8 @@ float80_t frequencyLimit = 0.0L; // st0 vbw????
 static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
 static float80_t g160_currentStepWidth = 0.0L; // st1
 
-int32_t __nh_malloc(int32_t a1, int32_t a2) {
-	return 0;
+char *__nh_malloc(int32_t numBytes, int32_t a2) {
+	return (char *) malloc(numBytes);
 }
 
 int32_t InitEngine(SET9052 *a1) {
@@ -3223,9 +3224,8 @@ int32_t function_1000e8d2(char a1, int32_t a2) {
 	return v5 & v9;
 }
 
-int32_t function_1000da64(int32_t a1) {
-	// 0x1000da64
-	return __nh_malloc(a1, g107);
+char *function_1000da64(int32_t size) {
+	return __nh_malloc(size, g107);
 }
 
 int32_t function_1000d97b(int32_t a1) {
@@ -5128,7 +5128,7 @@ int32_t function_10001e98(SET9052 *a1) {
 }
 
 int32_t SetRBW(SET9052 *a1, int16_t code) {
-	dlog(LOG_DEBUG, "SetRBWmode(0x%x)\n", code);
+	dlog(LOG_DEBUG, "SetRBW(0x%x)\n", code);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000576c
 	g3 = v1;
@@ -5141,7 +5141,8 @@ int32_t SetRBW(SET9052 *a1, int16_t code) {
 			g8 = v4;
 			int32_t v5 = a1; // 0x100057df4
 			if (code >= 0) {
-				if (code == 4 || code < 4 != (3 - v4 & v4) < 0) { // what?
+				//if (code == 4 || code < 4 != (3 - v4 & v4) < 0) { // what?
+				if (code <= 5 ) {
 					g8 = v4 & -0x10000 | (int32_t) code;
 					//*(int16_t *) (a1 + 72) = a2;
 					a1->rbw_code = code;
@@ -5203,6 +5204,7 @@ int32_t SetVBWmode(SET9052 *a1, int16_t mode) {
 }
 
 int32_t SetVBW(SET9052 *a1, uint16_t code) {
+	dlog(LOG_DEBUG, "SetVBW(0x%x)\n", code);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100058d7
 	g3 = v1;
@@ -5333,14 +5335,18 @@ int32_t SetSweepCode(SET9052 *a1, int16_t code) {
 /*------------------------------------------------------------------------------------*/
 /* MeasureAmplWithFreq related code */
 /*------------------------------------------------------------------------------------*/
-//#define MeasureAmplWithFreq_is_on
+#define MeasureAmplWithFreq_is_on
 #ifdef MeasureAmplWithFreq_is_on
 
-int32_t function_10002d12(SET9052 *a1, uint16_t sweep_in_progress);
+static int32_t function_10002d12(SET9052 *a1, uint16_t sweep_in_progress);
 int32_t GetDbmForAmpl(SET9052 *a1, int16_t a2);
 int32_t GetnVForAmpl(SET9052 *a1, int16_t a2);
 int32_t function_1000cf43(SET9052 *a1) ;
 int32_t function_1000def9(int32_t a1, int32_t a2, char a3, uint32_t a4) ;
+float80_t function_1000e0d5(void);
+float80_t function_100136eb(float64_t a1, int32_t a2);
+
+float64_t g42 = 0.5;
 
 float80_t g67 = INFINITY;
 
@@ -5390,7 +5396,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 							int32_t v10; // 0x1000a4ef
 							int32_t result2; // 0x1000a73f
 							if (vbw != 5) {
-								int32_t v11 = SetRBWmode(a1, 0); // 0x1000a440
+								int32_t v11 = SetRBWmode(a1, VI_FALSE /*0*/); // 0x1000a440
 								if ((int16_t) v11 != 0) {
 									return 0x10000 * v11 / 0x10000 | 0xffff;
 								}
@@ -5410,7 +5416,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 								int32_t v16; // 0x1000a564
 								int32_t v17; // 0x1000a595
 								if (0x10000 * vbw == 0x80000) {
-									int32_t v18 = SetVBWmode(a1, 1); // 0x1000a4a4
+									int32_t v18 = SetVBWmode(a1, VI_TRUE /*1*/); // 0x1000a4a4
 									if ((int16_t) v18 != 0) {
 										return 0x10000 * v18 / 0x10000 | 0xffff;
 									}
@@ -5440,7 +5446,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 									v8 = function_1000da64(2 * v7 + 2);
 									if (v8 != 0) {
 										g3 = a1;
-										if (0x10000 * BreakSweep(a1, 0)
+										if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/)
 												== 0x410000) {
 											if (0x10000 * StartSweep(a1)
 													== 0x410000) {
@@ -5464,7 +5470,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 									}
 									return result;
 								}
-								int32_t v19 = SetVBWmode(a1, 0); // 0x1000a4c9
+								int32_t v19 = SetVBWmode(a1, VI_FALSE /*0*/); // 0x1000a4c9
 								if ((int16_t) v19 != 0) {
 									return 0x10000 * v19 / 0x10000 | 0xffff;
 								}
@@ -5506,7 +5512,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 								if (v8 != 0) {
 									g3 = a1;
 									int32_t v22 = 0xffff;
-									if (0x10000 * BreakSweep(a1, 0)
+									if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/)
 											== 0x410000) {
 										if (0x10000 * StartSweep(a1)
 												== 0x410000) {
@@ -5591,12 +5597,12 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 								}
 								return result;
 							}
-							int32_t v25 = SetRBWmode(a1, 1); // 0x1000a41b
+							int32_t v25 = SetRBWmode(a1, AUTO_ON /*1*/); // 0x1000a41b
 							if ((int16_t) v25 != 0) {
 								return 0x10000 * v25 / 0x10000 | 0xffff;
 							}
 							if (0x10000 * vbw != 0x80000) {
-								if ((int16_t) SetVBWmode(a1, 0) == 0) {
+								if ((int16_t) SetVBWmode(a1, AUTO_OFF /*0*/) == 0) {
 									g6 = a1;
 									v10 = SetVBW(a1, v2);
 									if ((int16_t) v10 == 0) {
@@ -5617,7 +5623,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 														g3 = a1;
 														if (0x10000
 																* BreakSweep(a1,
-																		0)
+																		STOP_NOW /*0*/)
 																== 0x410000) {
 															if (0x10000
 																	* StartSweep(
@@ -5669,7 +5675,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 								// Detected a possible infinite recursion (goto support failed); quitting...
 							} else {
 								// 0x1000a49e
-								if ((int16_t) SetVBWmode(a1, 1) != 0) {
+								if ((int16_t) SetVBWmode(a1, AUTO_ON /*1*/) != 0) {
 									// 0x1000a4b8
 									// branch -> 0x1000a743
 									// Detected a possible infinite recursion (goto support failed); quitting...
@@ -5691,7 +5697,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 										if (v8 != 0) {
 											// 0x1000a5e9
 											g3 = a1;
-											if (0x10000 * BreakSweep(a1, 0)
+											if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/)
 													== 0x410000) {
 												// 0x1000a60f
 												if (0x10000 * StartSweep(a1)
@@ -5746,7 +5752,6 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 }
 
 int32_t RdNumSwpPts(SET9052 *a1) {
-	dlog(LOG_DEBUG, "RdNumSwpPts\n");
     g3 = a1;
     int32_t result;
     if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
@@ -5765,6 +5770,7 @@ int32_t RdNumSwpPts(SET9052 *a1) {
     } else {
         result = -1;
     }
+	dlog(LOG_DEBUG, "RdNumSwpPts --> %d\n", result);
     return result;
 }
 
@@ -7025,6 +7031,508 @@ int32_t function_1000e1e4(int32_t a1) {
     result = __startOneArgErrorHandling();
     g8 = v2;
     return result;
+}
+
+
+float80_t function_1000e0d5(void) {
+    int32_t v1 = g11; // 0x1000e0d5
+    float80_t result = llvm_round_f80(g159); // 0x1000e0d7
+    int32_t v2 = g6 & -256; // 0x1000e0db
+    g6 = v2;
+    if ((g3 / 256 & 64) == 0) {
+        // 0x1000e0fa
+        g11 = v1 + 1;
+        return result;
+    }
+    float80_t result2 = result * (float80_t)g42; // 0x1000e0e3
+    g160 = llvm_round_f80(result2);
+    g11 = v1 + 1;
+    g6 = v2 | 2;
+    return result2;
+}
+
+int32_t function_10010a6c(void) {
+    // 0x10010a6c
+    if ((g3 & 0x80000) != 0) {
+        // 0x10010a73
+        return 7;
+    }
+    // 0x10010a79
+    g159 += 1.0L;
+    return 1;
+}
+
+int32_t function_10010bcc(float64_t a1, int32_t a2, int32_t a3) {
+    int32_t v1 = g4; // 0x10010bcc
+    int32_t v2 = v1; // bp-4
+    g4 = &v2;
+    int32_t v3 = g11; // 0x10010bd1
+    int32_t v4 = v3 - 1; // 0x10010bd1
+    int32_t v5 = g9; // 0x10010bdd
+    int32_t result = 0; // esi
+    if ((g3 / 256 & 1) != 0) {
+        // 0x10010be7
+        // branch -> 0x10010be9
+    }
+    // 0x10010be9
+    g11 = v3;
+    g6 = -0x100000;
+    int32_t v6;
+    int32_t result2; // 0x10010cf7
+    uint32_t v7; // 0x10010cb3
+    int32_t v8; // 0x10010cfa
+    uint32_t v9; // 0x10010c9f
+    int32_t v10; // 0x10010ca4
+    if (v6 == 0x7ff00000) {
+        // 0x10010bfb
+        if (a3 == 0) {
+            // 0x10010c73
+            // branch -> 0x10010cf2
+            // 0x10010cf2
+            g11 = v4 + 1;
+            // branch -> 0x10010cf7
+            // 0x10010cf7
+            g9 = v5;
+            g4 = v2;
+            return result;
+        }
+        // 0x10010c57
+        if (a2 != 0x7ff00000) {
+            // 0x10010c8d
+            if (a2 == -0x100000) {
+                // 0x10010c92
+                if ((int32_t)(float32_t)a1 == 0) {
+                    // 0x10010c97
+                    g11 = v3;
+                    v9 = function_10010cfc((float64_t)(int64_t)a3, -0x100000);
+                    v10 = g11;
+                    v7 = v9 / 256;
+                    if ((v7 & 65) != 0) {
+                        // 0x10010ccb
+                        if ((v7 & 1) == 0) {
+                            // 0x10010cf0
+                            // branch -> 0x10010cf2
+                        }
+                        // 0x10010cf2
+                        g11 = v10;
+                        // branch -> 0x10010cf7
+                        // 0x10010cf7
+                        g9 = v5;
+                        g4 = v2;
+                        return result;
+                    }
+                    // 0x10010cb6
+                    if (v9 == 1) {
+                        // 0x10010cc1
+                        // branch -> 0x10010cc3
+                    }
+                    // 0x10010cc3
+                    // branch -> 0x10010cf2
+                    // 0x10010cf2
+                    g11 = v10;
+                    v8 = v2;
+                    result2 = result;
+                    // branch -> 0x10010cf7
+                } else {
+                    v8 = v1;
+                    result2 = 0;
+                }
+            } else {
+                v8 = v1;
+                result2 = 0;
+            }
+        } else {
+            // 0x10010c5c
+            if ((int32_t)(float32_t)a1 == 0) {
+                // 0x10010c73
+                // branch -> 0x10010cf2
+                // 0x10010cf2
+                g11 = v4 + 1;
+                v8 = v2;
+                result2 = result;
+                // branch -> 0x10010cf7
+            } else {
+                v8 = v1;
+                result2 = 0;
+            }
+        }
+        // 0x10010cf7
+        g9 = v5;
+        g4 = v8;
+        return result2;
+    }
+    // 0x10010c2f
+    if (v6 != -0x100000) {
+        // 0x10010c57
+        if (a2 != 0x7ff00000) {
+            // 0x10010c8d
+            if (a2 == -0x100000) {
+                // 0x10010c92
+                if ((int32_t)(float32_t)a1 == 0) {
+                    // 0x10010c97
+                    g11 = v3;
+                    v9 = function_10010cfc((float64_t)(int64_t)a3, -0x100000);
+                    v10 = g11;
+                    v7 = v9 / 256;
+                    if ((v7 & 65) != 0) {
+                        // 0x10010ccb
+                        if ((v7 & 1) == 0) {
+                            // 0x10010cf0
+                            // branch -> 0x10010cf2
+                        }
+                        // 0x10010cf2
+                        g11 = v10;
+                        // branch -> 0x10010cf7
+                        // 0x10010cf7
+                        g9 = v5;
+                        g4 = v2;
+                        return result;
+                    }
+                    // 0x10010cb6
+                    if (v9 == 1) {
+                        // 0x10010cc1
+                        // branch -> 0x10010cc3
+                    }
+                    // 0x10010cc3
+                    // branch -> 0x10010cf2
+                    // 0x10010cf2
+                    g11 = v10;
+                    v8 = v2;
+                    result2 = result;
+                    // branch -> 0x10010cf7
+                } else {
+                    v8 = v1;
+                    result2 = 0;
+                }
+            } else {
+                v8 = v1;
+                result2 = 0;
+            }
+        } else {
+            // 0x10010c5c
+            if ((int32_t)(float32_t)a1 == 0) {
+                // 0x10010c73
+                // branch -> 0x10010cf2
+                // 0x10010cf2
+                g11 = v4 + 1;
+                v8 = v2;
+                result2 = result;
+                // branch -> 0x10010cf7
+            } else {
+                v8 = v1;
+                result2 = 0;
+            }
+        }
+        // 0x10010cf7
+        g9 = v5;
+        g4 = v8;
+        return result2;
+    }
+    // 0x10010c34
+    if (a3 == 0) {
+        // 0x10010c89
+        // branch -> 0x10010cf2
+        // 0x10010cf2
+        g11 = v4 + 1;
+        // branch -> 0x10010cf7
+        // 0x10010cf7
+        g9 = v5;
+        g4 = v2;
+        return result;
+    }
+    // 0x10010c57
+    if (a2 != 0x7ff00000) {
+        // 0x10010c8d
+        if (a2 == -0x100000) {
+            // 0x10010c92
+            if ((int32_t)(float32_t)a1 == 0) {
+                // 0x10010c97
+                g11 = v3;
+                v9 = function_10010cfc((float64_t)(int64_t)a3, -0x100000);
+                v10 = g11;
+                v7 = v9 / 256;
+                if ((v7 & 65) != 0) {
+                    // 0x10010ccb
+                    if ((v7 & 1) == 0) {
+                        // 0x10010cf0
+                        // branch -> 0x10010cf2
+                    }
+                    // 0x10010cf2
+                    g11 = v10;
+                    // branch -> 0x10010cf7
+                    // 0x10010cf7
+                    g9 = v5;
+                    g4 = v2;
+                    return result;
+                }
+                // 0x10010cb6
+                if (v9 == 1) {
+                    // 0x10010cc1
+                    // branch -> 0x10010cc3
+                }
+                // 0x10010cc3
+                // branch -> 0x10010cf2
+                // 0x10010cf2
+                g11 = v10;
+                v8 = v2;
+                result2 = result;
+                // branch -> 0x10010cf7
+            } else {
+                v8 = v1;
+                result2 = 0;
+            }
+        } else {
+            v8 = v1;
+            result2 = 0;
+        }
+    } else {
+        // 0x10010c5c
+        if ((int32_t)(float32_t)a1 == 0) {
+            // 0x10010c73
+            // branch -> 0x10010cf2
+            // 0x10010cf2
+            g11 = v4 + 1;
+            v8 = v2;
+            result2 = result;
+            // branch -> 0x10010cf7
+        } else {
+            v8 = v1;
+            result2 = 0;
+        }
+    }
+    // 0x10010cf7
+    g9 = v5;
+    g4 = v8;
+    return result2;
+}
+
+int32_t function_10010a40(void) {
+    // 0x10010a40
+    llvm_round_f80(g159);
+    float80_t v1 = 1.0L; // 0x10010a4e
+    g159 = v1;
+    g160 = v1;
+    return g3;
+}
+
+int32_t function_10010cfc(float64_t a1, int32_t a2) {
+    // 0x10010cfc
+    if ((function_100136fd(a1, g6, g6, g6) & 144) != 0) {
+        // 0x10010d5d
+        return 0;
+    }
+    float80_t v1 = function_100136eb(a1, g6); // 0x10010d1c
+    int32_t v2 = g11 + 1; // 0x10010d21
+    g11 = v2;
+    if (((int32_t)(float32_t)v1 / 256 & 64) == 0) {
+        // 0x10010d5d
+        return 0;
+    }
+    // 0x10010d31
+    g11 = v2;
+    float80_t v3 = function_100136eb((float64_t)(2.0L / (float80_t)a1), g6); // 0x10010d45
+    g11++;
+    return ((int32_t)(float32_t)v3 / 256 & 64) == 0 ? 1 : 2;
+}
+
+int32_t function_100136fd(float64_t a1, int32_t a2, int32_t a3, int32_t a4) {
+    int16_t v1 = (int16_t)a3 & 0x7ff0; // 0x1001370c
+    if (v1 != 0x7ff0) {
+        // 0x1001373d
+        if (v1 != 0) {
+            // 0x10013782
+            return 256;
+        }
+        // 0x10013749
+        if ((a2 & 0xfffff) != 0) {
+            // 0x10013758
+            return 128;
+        }
+        // 0x10013752
+        if ((int32_t)(float32_t)a1 == 0) {
+            // 0x10013782
+            return 256;
+        }
+        // 0x10013758
+        return 128;
+    }
+    int32_t v2 = function_1000f065((int32_t)(float32_t)(float80_t)a1, 0x7ff0); // 0x10013719
+    if (v2 == 1) {
+        // 0x10013736
+        return 512;
+    }
+    // 0x10013723
+    if (v2 == 2) {
+        // 0x10013732
+        // branch -> 0x1001372b
+        // 0x1001372b
+        return 4;
+    }
+    // 0x10013726
+    int32_t result; // 0x1001372b
+    if (v2 == 3) {
+        // 0x1001372e
+        result = 2;
+        // branch -> 0x1001372b
+    } else {
+        // 0x10013729
+        result = 1;
+        // branch -> 0x1001372b
+    }
+    // 0x1001372b
+    return result;
+}
+
+float80_t function_100136eb(float64_t a1, int32_t a2) {
+    // 0x100136eb
+    g11--;
+    return llvm_round_f80((float80_t)a1);
+}
+
+int32_t function_1000f065(int32_t a1, int32_t a2) {
+    // 0x1000f065
+    g8 = 0;
+    int32_t v1;
+    int16_t v2; // 0x1000f098
+    int32_t result; // 0x1000f0b8
+    if (a2 == 0x7ff00000) {
+        // 0x1000f073
+        if (a1 == 0) {
+            // 0x1000f078
+            // branch -> 0x1000f0b8
+            // 0x1000f0b8
+            return 1;
+        }
+        // 0x1000f08e
+        v2 = (int16_t)v1 & 0x7ff8;
+        if (v2 != 0x7ff8) {
+            // 0x1000f0a1
+            if (v2 != 0x7ff0) {
+                // 0x1000f0bb
+                return 0;
+            }
+            // 0x1000f0a8
+            if ((a2 & 0x7ffff) == 0) {
+                // 0x1000f0b1
+                if (a1 == 0) {
+                    // 0x1000f0bb
+                    return 0;
+                }
+            }
+            // 0x1000f0b6
+            result = 4;
+            // branch -> 0x1000f0b8
+        } else {
+            // 0x1000f09d
+            result = 3;
+            // branch -> 0x1000f0b8
+        }
+        // 0x1000f0b8
+        return result;
+    }
+    // 0x1000f07c
+    if (a2 != -0x100000) {
+        // 0x1000f08e
+        v2 = (int16_t)v1 & 0x7ff8;
+        if (v2 != 0x7ff8) {
+            // 0x1000f0a1
+            if (v2 != 0x7ff0) {
+                // 0x1000f0bb
+                return 0;
+            }
+            // 0x1000f0a8
+            if ((a2 & 0x7ffff) == 0) {
+                // 0x1000f0b1
+                if (a1 == 0) {
+                    // 0x1000f0bb
+                    return 0;
+                }
+            }
+            // 0x1000f0b6
+            result = 4;
+            // branch -> 0x1000f0b8
+        } else {
+            // 0x1000f09d
+            result = 3;
+            // branch -> 0x1000f0b8
+        }
+        // 0x1000f0b8
+        return result;
+    }
+    // 0x1000f085
+    if (a1 == 0) {
+        // 0x1000f08a
+        // branch -> 0x1000f0b8
+        // 0x1000f0b8
+        return 2;
+    }
+    // 0x1000f08e
+    v2 = (int16_t)v1 & 0x7ff8;
+    if (v2 != 0x7ff8) {
+        // 0x1000f0a1
+        if (v2 != 0x7ff0) {
+            // 0x1000f0bb
+            return 0;
+        }
+        // 0x1000f0a8
+        if ((a2 & 0x7ffff) == 0) {
+            // 0x1000f0b1
+            if (a1 == 0) {
+                // 0x1000f0bb
+                return 0;
+            }
+        }
+        // 0x1000f0b6
+        result = 4;
+        // branch -> 0x1000f0b8
+    } else {
+        // 0x1000f09d
+        result = 3;
+        // branch -> 0x1000f0b8
+    }
+    // 0x1000f0b8
+    return result;
+}
+
+int32_t __fload_withFB(void) {
+	dlog(LOG_DEBUG, "__fload_withFB()\n");
+}
+
+int32_t __math_exit(void) {
+	dlog(LOG_DEBUG, "__math_exit()\n");
+}
+
+int32_t __check_range_exit(void) {
+	dlog(LOG_DEBUG, "__check_range_exit()\n");
+}
+
+llvm_round_f80(float80_t v) {
+	dlog(LOG_DEBUG, "llvm_round_f80(%f)\n", v);
+
+}
+
+int32_t function_100109e0(void) {
+    int32_t v1 = g4; // bp-4
+    g4 = &v1;
+    return unknown_10010a00(g3);
+}
+
+int32_t unknown_10010a00(int32_t v) {
+	dlog(LOG_ERROR, "unknown_10010a00(0x%x) - TBI no decompilation!\n", v);
+}
+
+int32_t function_10010ade(void) {
+	dlog(LOG_DEBUG, "function_10010ade()\n");
+    return g3;
+}
+
+int32_t function_10010a55(int32_t a1) {
+    // 0x10010a55
+    return g3;
+}
+
+__startOneArgErrorHandling(void) {
+	dlog(LOG_ERROR, "__startOneArgErrorHandling()- TBI no decompilation, WINDOWS function!\n");
 }
 
 #endif

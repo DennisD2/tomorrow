@@ -201,7 +201,7 @@ visa += 	0
 - Fix Error mapping ENG->SW domain
 - Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
 - Check all "DD XXX" and "TODO" notes and solve the issues
-
+- SetVBWmode uses AUTO_ON/OFF and not VI_TRUE/FALSE. Replace this everywhere.
 
 ## Status
 
