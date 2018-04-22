@@ -4120,6 +4120,7 @@ int32_t function_10004402(int32_t a1) {
 
 // Address range: 0x10004411 - 0x100045a3
 int32_t function_10004411(int16_t a1) {
+	// unsigned char v1 = (a1 + 0x15)
     unsigned char v1 = *(char *)((0x10000 * (int32_t)a1 + 0x150000) / 0x10000 + 0x10004648); // 0x10004437
     g7 = v1;
     int32_t result; // 0x100045a3

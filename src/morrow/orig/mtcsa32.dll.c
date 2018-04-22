@@ -20763,6 +20763,7 @@ int32_t function_1000dba0(char * a1, uint32_t a2, uint32_t a3) {
     }
 }
 
+*/
 // Address range: 0x1000def9 - 0x1000e0d4
 int32_t function_1000def9(int32_t a1, int32_t a2, char a3, uint32_t a4) {
     int32_t v1 = __fload_withFB(); // 0x1000defd
@@ -21127,6 +21128,7 @@ int32_t function_1000def9(int32_t a1, int32_t a2, char a3, uint32_t a4) {
     return result;
 }
 
+/*
 // Address range: 0x1000e0d5 - 0x1000e113
 float80_t function_1000e0d5(void) {
     int3_t v1 = g11; // 0x1000e0d5
@@ -21144,7 +21146,7 @@ float80_t function_1000e0d5(void) {
     g6 = v2 | 2;
     return result2;
 }
-
+*/
 // Address range: 0x1000e114 - 0x1000e1e3
 int32_t function_1000e114(int32_t a1, int32_t a2) {
     int32_t v1 = __fload_withFB(); // 0x1000e118
@@ -21237,6 +21239,7 @@ int32_t function_1000e114(int32_t a1, int32_t a2) {
     goto lab_0x1000e167;
 }
 
+/*
 // Address range: 0x1000e1e4 - 0x1000e289
 int32_t function_1000e1e4(int32_t a1) {
     int32_t v1 = &a1; // 0x1000e1e4

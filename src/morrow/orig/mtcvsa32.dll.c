@@ -1154,7 +1154,7 @@ int32_t VISA_VerDataBlock(int32_t a1, int32_t a2) {
 }
 
 // Address range: 0x10001ac8 - 0x10001b07
-int32_t VISA_FetchDataWord(int32_t deviceId, int16_t * dword) {
+int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
     int16_t v1 = function_10001b08(deviceId); // bp-8
     int32_t v2 = _RdErrorStatus(deviceId); // 0x10001ae0
     int32_t v3; // 0x10001b00
