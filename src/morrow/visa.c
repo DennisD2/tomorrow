@@ -1170,5 +1170,86 @@ int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 #else
 	return VI_SUCCESS;
 #endif
+
 }
 
+/*------------------------------------------------------------------------------------*/
+/* MeasureAmplWithFreq related code */
+/*------------------------------------------------------------------------------------*/
+
+
+int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
+    int16_t v1 = 0; // bp-8
+    // branch -> 0x10001e55
+    int32_t result2; // 0x10001e41
+    while (true) {
+        // 0x10001e55
+        function_10001b08(deviceId);
+        int32_t v2 = RdErrorStatus(deviceId); // 0x10001e65
+        int32_t result = v2; // 0x10001e78
+        if (v2 == 0) {
+            int16_t v3 = v1; // 0x10001e3d
+            int16_t v4 = v3 + 1; // 0x10001e41
+            result2 = (int32_t)v3 & -0x10000 | (int32_t)v4;
+            v1 = v4;
+            int32_t v5 = v4; // 0x10001e49
+            if (v4 != 512 && v4 < 512 == (511 - v5 & v5) < 0) {
+                // break -> 0x10001e75
+                break;
+            }
+            // continue -> 0x10001e55
+            continue;
+        }
+        // 0x10001e75
+        return result;
+    }
+    // 0x10001e75
+    return result2;
+}
+
+int32_t function_10001b08(SET9052 *deviceId) {
+    int32_t v1 = g3; // bp-4
+    g3 = &v1;
+    int32_t v2 = RdTimeoutWait(deviceId); // 0x10001b1f
+    int32_t v3; // bp-24
+    int32_t v4 = &v3; // 0x10001b2a
+    g5 = v4;
+    int32_t v5 = function_100015d0(deviceId, v2, 1024, v4); // 0x10001b3b
+    int16_t v6 = v5; // 0x10001b3b
+    int32_t v7; // 0x10001bbc
+    if ((int16_t)v5 <= -1) {
+        // 0x10001b08
+        // branch -> 0x10001bb4
+        // 0x10001bb4
+        v7 = SetErrorStatus(deviceId, 1);
+        g3 = v1;
+        return v7 & -0x10000 | (int32_t)v6;
+    }
+    // 0x10001b5a
+    if ((v3 & 1024) == 0) {
+        // 0x10001bad
+        // branch -> 0x10001bb4
+        // 0x10001bb4
+        v7 = SetErrorStatus(deviceId, 2);
+        g3 = v1;
+        return v7 & -0x10000 | (int32_t)v6;
+    }
+    int32_t v8 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x10001b78
+    int16_t v9; // bp-8
+    int32_t v10; // 0x10001bb4
+    //if (r_ViIn16(v8, 1, 14, (int32_t)&v9) == 0) {
+    if (dd_viIn16(v8, 1, 14, (int32_t)&v9) == 0) {
+        // 0x10001b9c
+        v10 = 0;
+        // branch -> 0x10001bb4
+    } else {
+        // 0x10001b8d
+        v10 = 1;
+        v9 = 0;
+        // branch -> 0x10001bb4
+    }
+    // 0x10001bb4
+    v7 = SetErrorStatus(deviceId, v10);
+    g3 = v1;
+    return v7 & -0x10000 | (int32_t)v9;
+}

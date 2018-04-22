@@ -1215,12 +1215,14 @@ int32_t mr90xx_MeasureAmplWithFreq(int32_t session_id, int16_t rbw, int32_t vbw,
     int32_t v1 = 0; // bp-16
     SET9052 *sess = sessionForId(session_id);
    int32_t result; // 0x1000350c
+#ifdef do_mr90xx_MeasureAmplWithFreq
     if (sess) {
         result = mapVisaErrorToAPIError((int16_t)MeasureAmplWithFreq(sess, rbw, vbw, start, stop,
         		ref_level, num_points, min_or_max, data_format, ra_data, ra_freq));
     } else {
         result = sess;
     }
+#endif
     return result;
 }
 
