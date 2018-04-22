@@ -13,12 +13,11 @@ CPU named P1 is the aquisition CPU which controls filters, attenuators etc. of t
 P1 can be accessed by special commands (Engine Commands) that are routed through P2. 
 
 ## Starting point
-With the Morrow Spectrum Analyzer, I got a floppy disk containing Windowws 95 driver library binaries, Header files and and a CD containing a GUI to access the device. The setup requires an ISA or maybe PCI-based VXI controller acrd inside the PC. I also have 
-some manuals from Morrow, but have not the programming guide.
+With the Morrow Spectrum Analyzer, I got a floppy disk containing Windows 95 driver library binaries, Header files and and a CD containing a GUI to access the device. The setup requires an ISA or maybe PCI-based VXI controller card inside the PC. I also have 
+some manuals from Morrow, but have not the programming guide. All data from late 1990ies.
 
 My setting in 2018 is: Linux PC, no Windows anywhere. The Morrow analyzer is contained in a HP VXI Mainframe E8401A. The 
-Mainframe contains a controller single slot UNIX workstation HP E1498A running HP/UX 10.2. The Mainframe and the Linux PC are connected
-via 10 MBit LAN connection.
+Mainframe contains a single slot UNIX workstation HP E1498A running HP/UX 10.2 as VXI Controller. The mainframe and the Linux PC are connected via 10 MBit LAN connection.
 
 ## Tools used
 To analyze the 20 year old code, I tried the `RetDec` decompiler which gives good results as long as the functions are not too complicated.
@@ -27,33 +26,37 @@ The result gives good clues what the code is doing. Using `IDA Free`, which cann
 The issue for reverse engineering here is the enormous mass of code. Decompilation of the three DLLs gives ~133.000 lines of source
 code...
 
+```
 dennis@dennis-pc:~/git/tomorrow/src/morrow/orig> wc -l *.c
   33988 mtcpnp32.dll.c
   45342 mtcsa32.dll.c
   24858 mtcvsa32.dll.c
  133228 insgesamt
+```
 
 ## Approach
 I started with three empty `clean room` files for the three libs (pnp.c, sa.c and visa.c). From an example C source code I found in the documentation, some most important function can be seen:
 
+```
 mr90xx_init() to initialize the VISA communication, the hardware and the libs.
 mr90xx_setEngine() to tell the libs what model is used.
 mr90xx_initGuiSweep() to define all parameters required for a sweep run.
 mr90xx_MeasureAmplWithFreq() to execute a measurement and to provide output data.
+```
 
 I copied the decompiled code from the DLL library file to the clean file pnp.c
 I wrote down main.c that calls mr90xx_init(). The compile+linking step then throwed out all undefined symbols.
-These are functions and global variables. 
+These were functions and global variables. 
 
-In the next step, I copy all undefined symbols from the decompilation files to the clean room files and restart compile+linking step.
-This gives another list of undefined symbols.
+In the next step, I copied all undefined symbols from the decompilation files to the clean room files and restart compile+linking step.
+This gave another list of undefined symbols.
 
-The last step is repeated until there are no missing symbols anymore. 
+The last step was repeated until there are no missing symbols anymore. 
 
-This result is then compiled on the target platform and the working code is examined and corrected until it looks like the code
+The code result is then compiled on the target platform and the working code is examined and corrected until it is assumed that the code
 is doing the correct thing.
 
-The sometimes funny looking decomppiled C source can often be replaced with a much shorter 'human' implementation then.
+The sometimes funny looking decompiled C source can often be replaced with a much shorter 'human' implementation then.
 
 After all these steps, the next function is added to pnp.c and all steps are repeated with the newly added function.
 
@@ -67,6 +70,7 @@ The code allows Engine command values in range 0..16.
 
 Most codes are listed in file include/sa_defin.h:
 
+```
 /* ------------------------------------------------------------------------ */
 /*  Constant definitions of command numbers to the engine.                  */
 /* ------------------------------------------------------------------------ */
@@ -81,8 +85,10 @@ Most codes are listed in file include/sa_defin.h:
 #define ENG_TERMINATE   7			1 WORD: breakMode, value seen: 0
 #define ENG_CALIBRATE   10			(6 WORDS???)
 #define ENG_UNKNOWN1    11          8 WORDS, 6 WORDS, 2 WORDS
+```
 Own findings:
 
+```
 Command 	Function				Comment
 -------------------------------------------------------------------------
 0 			unknown					Not exposed by libs and not called by lib code.
@@ -102,12 +108,14 @@ Command 	Function				Comment
 14									(not used by libs)
 15									(not used by libs)
 16									(not used by libs)
-
+```
 
 ## Shared Lib Function Table
 
 Function Pointers from mtcsa.c to mtcvsa.c
  /* from mtcsa32.c */
+ 
+ ```
    int32_t (*func)() = GetProcAddress((int32_t *)hModule, (char *)function_10003280(v1, (int32_t)"OpenSessionStep")); // 0x10003377
     *(int32_t *)(a1 + 720) = (int32_t)func;
     g8 = v1;
@@ -159,11 +167,12 @@ Function Pointers from mtcsa.c to mtcvsa.c
     int32_t lpProcName = function_10003280(v1, (int32_t)"IdQuery"); // 0x100035ba
     int32_t func17 = (int32_t)GetProcAddress((int32_t *)hModule, (char *)lpProcName); // 0x100035c7
     *(int32_t *)(a1 + 728) = func17;
-
+```
 
 ## Lines Of Code 
 
 ###Step 1: All code required for mr90xx_init() :
+```
    56    131    922 helper.c
    451   1524  12774 main1.c
     74    173   1875 main.c
@@ -181,18 +190,23 @@ Function Pointers from mtcsa.c to mtcvsa.c
     37    104    968 sa.h
     51    147   1343 vximorrow.h
   9859  36168 301758 insgesamt
+  ```
 --> 9859 Lines total.
 
 ###Step 2: Addition of mr90xx_setEngine() :
+```
 mr90XX_init + setengine
 pnp.c +=	1184
 sa.c +=		3986
 visa.c += 	1188
+```
 
 ###Step 3: Addition of mr90xx_initGuiSweep() :
+```
 pnp += 		419
 sa += 		1433
 visa += 	0
+```
 
 ###Step 4: Addition of mr90xx_MeasureAmplWithFreq()
 
@@ -205,11 +219,10 @@ visa += 	0
 
 ## Status
 
-mr90xx_init() OK with tweaks
-mr90xx_setEngine() OK 
-mr90xx_initGuiSweep() OK with tweaks
-
-mr90xx_MeasureAmplWithFreq: Currently analyzed
+- mr90xx_init() OK with tweaks
+- mr90xx_setEngine() OK 
+- mr90xx_initGuiSweep() OK with tweaks
+- mr90xx_MeasureAmplWithFreq: Currently analyzed
 
 As soon as mr90xx_MeasureAmplWithFreq(), aquisition data can be retrieved from the Spectrum Analyzer.
 
