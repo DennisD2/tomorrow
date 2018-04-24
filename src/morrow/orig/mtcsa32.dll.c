@@ -2401,7 +2401,7 @@ int32_t RdLinearAttn(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10002cf0
         g3 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = ((int32_t)*(int16_t *)(a1 + 128) & 64) / 64 + 1;
         // branch -> 0x10002d10
     } else {
@@ -2428,7 +2428,7 @@ int32_t function_10002d12(int32_t a1, uint16_t a2) {
         g6 = a2;
         *(int16_t *)(a1 + 4) = a2;
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x10002d4f
     } else {
         // 0x10002d28
@@ -2472,7 +2472,7 @@ int32_t RdTimeoutWait(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10002da1
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 180);
         // branch -> 0x10002db8
     } else {
@@ -2764,7 +2764,7 @@ int32_t RdEngOption(/*int32_t a1*/ SET9052 *a1, int32_t a2) {
     } else {
         // 0x1000310f
         g8 = a1;
-        result = SetFuncStatusCode(a1, -1);
+        result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
         // branch -> 0x1000311d
     }
     // 0x1000311d
@@ -2797,7 +2797,7 @@ int32_t SetIFStepAttn(int32_t a1, int16_t a2) {
                 g3 = a1;
                 *(int16_t *)(a1 + 186) = a2;
                 g8 = a1;
-                result = SetFuncStatusCode(a1, 0);
+                result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
                 // branch -> 0x100031a9
                 // 0x100031a9
                 return result;
@@ -2805,12 +2805,12 @@ int32_t SetIFStepAttn(int32_t a1, int16_t a2) {
         }
         // 0x1000317d
         g8 = a1;
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x100031a9
     } else {
         // 0x1000315c
         g8 = a1;
-        result = SetFuncStatusCode(a1, -1);
+        result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
         // branch -> 0x100031a9
     }
     // 0x100031a9
@@ -2838,13 +2838,13 @@ int32_t function_100031ab(int32_t a1) {
     if (v3 == 0x3000000) {
         // 0x100031f1
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 186) | a1 & -0x10000;
         // branch -> 0x10003209
     } else {
         // 0x100031dd
         g6 = a1;
-        result = SetFuncStatusCode(a1, -1) | 0xffff;
+        result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/) | 0xffff;
         // branch -> 0x10003209
     }
     // 0x10003209
@@ -2863,7 +2863,7 @@ int32_t SetTrigDelay(int32_t a1, int32_t a2) {
         g3 = a1;
         *(int32_t *)(a1 + 112) = a2;
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x10003246
     } else {
         // 0x10003221
@@ -2884,7 +2884,7 @@ int32_t RdTrigDelay(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10003263
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 112);
         // branch -> 0x10003277
     } else {
@@ -4317,7 +4317,7 @@ int32_t StartSweep(int32_t a1) {
     if ((int16_t)v10 == 0) {
         // 0x1000448b
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0) & -0x10000 | 65;
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | 65;
         // branch -> 0x100044ae
     } else {
         // 0x10004485
@@ -4388,7 +4388,7 @@ int32_t StartZspan(int32_t a1) {
     if ((int16_t)v10 == 0) {
         // 0x100046c1
         g3 = a1;
-        result = SetFuncStatusCode(a1, 0) & -0x10000 | 65;
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | 65;
         // branch -> 0x100046e4
     } else {
         // 0x100046bb
@@ -4446,7 +4446,7 @@ int32_t StartFreqHop(int32_t a1) {
     int32_t result; // 0x1000486e
     if ((int16_t)v10 == 0) {
         // 0x10004848
-        result = SetFuncStatusCode(a1, 0) & -0x10000 | 65;
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | 65;
         // branch -> 0x1000486b
     } else {
         // 0x10004842
@@ -4637,7 +4637,7 @@ int32_t BreakSweep(int32_t a1, uint16_t a2) {
     switch (v4) {
         default: {
             // 0x10004b6c
-            result = SetFuncStatusCode(a1, -3);
+            result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
             // branch -> 0x10004b80
             // 0x10004b80
             g4 = v1;
@@ -4711,7 +4711,7 @@ int32_t BreakSweep(int32_t a1, uint16_t a2) {
     }
     // 0x10004af5
     g8 = a1;
-    result = SetFuncStatusCode(a1, -1);
+    result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
     // branch -> 0x10004b80
     // 0x10004b80
     g4 = v1;
@@ -4910,7 +4910,7 @@ int32_t RdInterfaceType(int32_t a1) {
     if ((v2 || 0xffff) < 0x1ffff) {
         // 0x10004f01
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 196) | a1 & -0x10000;
         // branch -> 0x10004f19
     } else {
@@ -4997,7 +4997,7 @@ int32_t function_10004fcf(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10004fea
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         g11--;
         result = __ftol(a1);
         // branch -> 0x10005003
@@ -5089,7 +5089,7 @@ int32_t RdDefltPts(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10005146
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 68);
         // branch -> 0x1000515a
     } else {
@@ -5163,7 +5163,7 @@ int32_t RdSessionHandle(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10005214
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 468);
         // branch -> 0x1000522b
     } else {
@@ -5217,7 +5217,7 @@ int32_t RdNumSwpPts(int32_t a1) {
         }
         // 0x100052a4
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)v2;
         // branch -> 0x100052b5
     } else {
@@ -5254,7 +5254,7 @@ int32_t RdNumDataPts(int32_t a1) {
                         g3 = a1;
                         // branch -> 0x10005380
                         // 0x10005380
-                        SetFuncStatusCode(a1, 0);
+                        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
                         // branch -> 0x10005391
                         // 0x10005391
                         g4 = v1;
@@ -5269,7 +5269,7 @@ int32_t RdNumDataPts(int32_t a1) {
                 g3 = a1;
                 // branch -> 0x10005380
                 // 0x10005380
-                SetFuncStatusCode(a1, 0);
+                SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
                 // branch -> 0x10005391
                 // 0x10005391
                 g4 = v1;
@@ -5283,7 +5283,7 @@ int32_t RdNumDataPts(int32_t a1) {
                 g3 = result;
                 // branch -> 0x10005380
                 // 0x10005380
-                SetFuncStatusCode(a1, 0);
+                SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
                 // branch -> 0x10005391
                 // 0x10005391
                 g4 = v1;
@@ -5296,12 +5296,12 @@ int32_t RdNumDataPts(int32_t a1) {
                 g8 = result2;
                 // branch -> 0x10005380
                 // 0x10005380
-                SetFuncStatusCode(a1, 0);
+                SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
                 // branch -> 0x10005391
             } else {
                 // 0x1000536d
                 g3 = a1;
-                result2 = 0x10000 * SetFuncStatusCode(a1, -14) / 0x10000;
+                result2 = 0x10000 * SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/) / 0x10000;
                 // branch -> 0x10005391
             }
             // 0x10005391
@@ -5309,7 +5309,7 @@ int32_t RdNumDataPts(int32_t a1) {
             return result2;
         }
         // 0x10005380
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result2 = 0;
         // branch -> 0x10005391
     } else {
@@ -5332,7 +5332,7 @@ int32_t RdSwpIdx(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x100053af
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 160);
         // branch -> 0x100053c6
     } else {
@@ -5503,7 +5503,7 @@ int32_t RdSwpTime(int32_t a1, int32_t * a2) {
     if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
         // 0x100055c7
         g3 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 48);
         *a2 = result;
         *(int32_t *)(v1 + 4) = *(int32_t *)(a1 + 52);
@@ -5519,7 +5519,7 @@ int32_t RdSwpTime(int32_t a1, int32_t * a2) {
     }
     // 0x100055c7
     g3 = a1;
-    SetFuncStatusCode(a1, 0);
+    SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
     result = *(int32_t *)(a1 + 48);
     *a2 = result;
     *(int32_t *)(v1 + 4) = *(int32_t *)(a1 + 52);
@@ -5581,7 +5581,7 @@ int32_t RdDwellTime(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10005688
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 36);
         // branch -> 0x1000569c
     } else {
@@ -5648,7 +5648,7 @@ int32_t RdSettleTime(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000573f
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = function_1000d563(*(int32_t *)(a1 + 40));
         // branch -> 0x1000575c
     } else {
@@ -5726,7 +5726,7 @@ int32_t RdRBW(int32_t a1) {
     if ((v2 || 0xffff) < 0x1ffff) {
         // 0x10005803
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 72) | a1 & -0x10000;
         // branch -> 0x10005818
     } else {
@@ -5789,7 +5789,7 @@ int32_t RdRBWmode(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x100058b8
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 74) | a1 & -0x10000;
         // branch -> 0x100058cd
     } else {
@@ -5862,7 +5862,7 @@ int32_t RdVBW(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000596e
         g3 = a1;
-        result = (int32_t)*(int16_t *)(a1 + 76) | SetFuncStatusCode(a1, 0) & -0x10000;
+        result = (int32_t)*(int16_t *)(a1 + 76) | SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
         // branch -> 0x10005983
     } else {
         // 0x10005960
@@ -5932,7 +5932,7 @@ int32_t RdVBWmode(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10005a0a
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 78) | a1 & -0x10000;
         // branch -> 0x10005a1f
     } else {
@@ -6007,12 +6007,12 @@ int32_t RdFiltRatio(int32_t a1, int32_t * a2) {
         } else {
             // 0x10005b63
             g8 = a1;
-            SetFuncStatusCode(a1, -3);
+            SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
             // branch -> 0x10005b71
         }
         // 0x10005b71
         g3 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         int32_t v2 = *(int32_t *)(a1 + 88); // 0x10005b85
         *a2 = v2;
         *(int32_t *)((int32_t)a2 + 4) = *(int32_t *)(a1 + 92);
@@ -6172,7 +6172,7 @@ int32_t RdDetect(int32_t a1) {
         }
         // 0x10005dd4
         g3 = a1;
-        result = (int32_t)v1 | SetFuncStatusCode(a1, 0) & -0x10000;
+        result = (int32_t)v1 | SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
         // branch -> 0x10005de6
     } else {
         // 0x10005d81
@@ -6193,7 +6193,7 @@ int32_t RdDetectCode(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10005e05
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 128) | a1 & -0x10000;
         // branch -> 0x10005e1d
     } else {
@@ -6249,7 +6249,7 @@ int32_t RdSweepCode(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10005eb3
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 130) | a1 & -0x10000;
         // branch -> 0x10005ecb
     } else {
@@ -6408,7 +6408,7 @@ int32_t RdCellMode(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10006065
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int16_t *)(a1 + 64) != 0;
         // branch -> 0x10006080
     } else {
@@ -6472,7 +6472,7 @@ int32_t RdAutoCell(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10006107
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 66) | a1 & -0x10000;
         // branch -> 0x1000611c
     } else {
@@ -6529,7 +6529,7 @@ int32_t RdNumCells(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x100061a1
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 132);
         // branch -> 0x100061b8
     } else {
@@ -6609,7 +6609,7 @@ int32_t RdAttenuatr(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x100062be
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 96) | a1 & -0x10000;
         // branch -> 0x100062d3
     } else {
@@ -6639,7 +6639,7 @@ int32_t RdMinAttLimit(int32_t a1) {
             if (v2 != 1024) {
                 // 0x10006348
                 g3 = a1;
-                result = SetFuncStatusCode(a1, -13) | 0xffff;
+                result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/) | 0xffff;
                 // branch -> 0x1000635a
                 // 0x1000635a
                 return result;
@@ -6653,7 +6653,7 @@ int32_t RdMinAttLimit(int32_t a1) {
                     if (v2 != 512) {
                         // 0x10006348
                         g3 = a1;
-                        result = SetFuncStatusCode(a1, -13) | 0xffff;
+                        result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/) | 0xffff;
                         // branch -> 0x1000635a
                         // 0x1000635a
                         return result;
@@ -6663,7 +6663,7 @@ int32_t RdMinAttLimit(int32_t a1) {
         }
         // 0x10006335
         g8 = a1;
-        result2 = SetFuncStatusCode(a1, 0) & -0x10000;
+        result2 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
         // branch -> 0x1000635a
     } else {
         // 0x100062ec
@@ -6688,7 +6688,7 @@ int32_t RdMaxAttLimit(int32_t a1) {
     }
     // 0x1000637b
     g8 = a1;
-    SetFuncStatusCode(a1, 0);
+    SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
     g3 = a1;
     int16_t v2 = *(int16_t *)(a1 + 2); // 0x1000638c
     int32_t v3 = v2; // 0x1000638c
@@ -6702,7 +6702,7 @@ int32_t RdMaxAttLimit(int32_t a1) {
         } else {
             // 0x100063d0
             g8 = a1;
-            result = SetFuncStatusCode(a1, -13) | 0xffff;
+            result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/) | 0xffff;
             // branch -> 0x100063e2
         }
         // 0x100063e2
@@ -6720,7 +6720,7 @@ int32_t RdMaxAttLimit(int32_t a1) {
             if (v2 != 512) {
                 // 0x100063d0
                 g8 = a1;
-                int32_t result2 = SetFuncStatusCode(a1, -13) | 0xffff; // 0x100063de
+                int32_t result2 = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/) | 0xffff; // 0x100063de
                 // branch -> 0x100063e2
                 // 0x100063e2
                 return result2;
@@ -6928,7 +6928,7 @@ int32_t RdRefLevel(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10006667
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 98) | a1 & -0x10000;
         // branch -> 0x1000667c
     } else {
@@ -6980,7 +6980,7 @@ int32_t RdLinRefLevel(int32_t a1) {
         g3 = GetnVForDbm(a1, (float64_t)*(int16_t *)(a1 + 98));
         g11++;
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x10006741
     }
     // 0x10006741
@@ -7032,7 +7032,7 @@ int32_t RdZSamplCnt(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x100067bc
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 152);
         // branch -> 0x100067d3
     } else {
@@ -7139,7 +7139,7 @@ int32_t RdZSamplRate(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x100068ef
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = 0x989680 / (int32_t)*(int16_t *)(a1 + 156);
         // branch -> 0x10006911
     } else {
@@ -7161,7 +7161,7 @@ int32_t RdZSamplDvdr(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000692f
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 156) | a1 & -0x10000;
         // branch -> 0x10006947
     } else {
@@ -7218,7 +7218,7 @@ int32_t RdHopTabCnt(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x100069c0
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 172);
         // branch -> 0x100069d7
     } else {
@@ -7290,7 +7290,7 @@ int32_t RdTrigMode(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10006a76
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 108) | a1 & -0x10000;
         // branch -> 0x10006a8b
     } else {
@@ -7348,7 +7348,7 @@ int32_t RdTrigThrsh(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10006b07
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 116) | a1 & -0x10000;
         // branch -> 0x10006b1c
     } else {
@@ -7402,7 +7402,7 @@ int32_t RdExternRef(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10006bc6
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 184) | a1 & -0x10000;
         // branch -> 0x10006bde
     } else {
@@ -7537,7 +7537,7 @@ int32_t RdIntrCode(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10006ce9
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 136) | a1 & -0x10000;
         // branch -> 0x10006d01
     } else {
@@ -7575,7 +7575,7 @@ int32_t IsCalibrated(int32_t a1) {
                         v6 = RdRBW(a1);
                         v7 = RBWFreqFromCode((int16_t)v6);
                         g3 = a1;
-                        int32_t result = SetFuncStatusCode(a1, 0) & -0x10000 | ((v7 & 256) == 0 ? 1 : 0); // 0x10006dc5
+                        int32_t result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | ((v7 & 256) == 0 ? 1 : 0); // 0x10006dc5
                         // branch -> 0x10006dc9
                         // 0x10006dc9
                         return result;
@@ -7593,7 +7593,7 @@ int32_t IsCalibrated(int32_t a1) {
         v6 = RdRBW(a1);
         v7 = RBWFreqFromCode((int16_t)v6);
         g3 = a1;
-        result2 = SetFuncStatusCode(a1, 0) & -0x10000 | ((v7 & 256) == 0 ? v5 : 0);
+        result2 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | ((v7 & 256) == 0 ? v5 : 0);
         // branch -> 0x10006dc9
     } else {
         // 0x10006d35
@@ -7789,7 +7789,7 @@ int32_t RdPortNum(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10007018
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 472) | a1 & -0x10000;
         // branch -> 0x10007030
     } else {
@@ -7811,7 +7811,7 @@ int32_t RdLogAddr(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000704e
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 476) | a1 & -0x10000;
         // branch -> 0x10007066
     } else {
@@ -7857,7 +7857,7 @@ int32_t SetIrqNum(int32_t a1, int16_t a2) {
         g3 = a1;
         // branch -> 0x100070f3
         // 0x100070f3
-        result = SetFuncStatusCode(a1, 2) & -0x10000;
+        result = SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x100070f7
     } else {
         // 0x10007085
@@ -7878,7 +7878,7 @@ int32_t RdIrqNum(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10007116
         g8 = a1;
-        SetFuncStatusCode(a1, 2);
+        SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/);
         result = (int32_t)*(int16_t *)(a1 + 474) | a1 & -0x10000;
         // branch -> 0x1000712e
     } else {
@@ -7901,7 +7901,7 @@ int32_t function_10007130(int32_t a1, int64_t a2) {
     if ((v2 || 0xffff) < 0x1ffff) {
         // 0x10007157
         g8 = a1;
-        g3 = SetFuncStatusCode(a1, 0);
+        g3 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         int32_t v3 = a2; // 0x10007165
         if (v3 >= 0) {
             int32_t v4 = RdNumSwpPts(a1); // 0x1000716f
@@ -7915,7 +7915,7 @@ int32_t function_10007130(int32_t a1, int64_t a2) {
                 if ((v7 || 0xffff) < 0x1ffff) {
                     // 0x100071d2
                     g3 = a1;
-                    SetFuncStatusCode(a1, -1);
+                    SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
                     result = -1;
                     // branch -> 0x100071ea
                 } else {
@@ -7926,7 +7926,7 @@ int32_t function_10007130(int32_t a1, int64_t a2) {
             }
         }
         // 0x1000717c
-        SetFuncStatusCode(a1, -3);
+        SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x100071ea
     }
     // 0x100071ea
@@ -7937,7 +7937,7 @@ int32_t function_10007130(int32_t a1, int64_t a2) {
 int32_t function_100071ef(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32_t a5) {
     int32_t result = -1; // bp-8
     g3 = a1;
-    g3 = SetFuncStatusCode(a1, 0);
+    g3 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
     g6 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000720c
     g3 = v1;
@@ -7963,7 +7963,7 @@ int32_t function_100071ef(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32
                         if ((v4 || 0xffff) < 0x1ffff) {
                             // 0x100072a5
                             g3 = a1;
-                            SetFuncStatusCode(a1, -1);
+                            SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
                             result = -1;
                             // branch -> 0x100072ba
                         }
@@ -7988,7 +7988,7 @@ int32_t function_100071ef(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32
                 if ((v4 || 0xffff) < 0x1ffff) {
                     // 0x100072a5
                     g3 = a1;
-                    SetFuncStatusCode(a1, -1);
+                    SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
                     result = -1;
                     // branch -> 0x100072ba
                 }
@@ -7999,7 +7999,7 @@ int32_t function_100071ef(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32
             }
         }
         // 0x1000723a
-        SetFuncStatusCode(a1, -1);
+        SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
         // branch -> 0x100072ba
         // 0x100072ba
         // branch -> 0x100072bd
@@ -8189,7 +8189,7 @@ int32_t GetTraceData(int32_t a1, int32_t a2, int32_t * a3, int32_t a4) {
         g3 = v3;
         *a3 = v3;
         g8 = a1;
-        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x1000752c
     } else {
         // 0x100074d5
@@ -8224,7 +8224,7 @@ int32_t GetAmplData(int32_t a1, int32_t a2) {
     if ((0x10000 * v5 || 0xffff) < 0x1ffff) {
         // 0x1000758c
         g8 = a1;
-        result = SetFuncStatusCode(a1, -14);
+        result = SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/);
         // branch -> 0x10007770
         // 0x10007770
         g4 = v1;
@@ -8266,7 +8266,7 @@ int32_t GetAmplData(int32_t a1, int32_t a2) {
     if (v9 == v7) {
         // 0x10007628
         g3 = a1;
-        result = SetFuncStatusCode(a1, 4);
+        result = SetFuncStatusCode(a1, IE_WARN_SWPDONE /*4*/);
         // branch -> 0x10007770
         // 0x10007770
         g4 = v1;
@@ -8276,7 +8276,7 @@ int32_t GetAmplData(int32_t a1, int32_t a2) {
     if (v9 < v7) {
         // 0x10007643
         g8 = a1;
-        result = SetFuncStatusCode(a1, -2);
+        result = SetFuncStatusCode(a1, IE_ERROR /*-2*/);
         // branch -> 0x10007770
         // 0x10007770
         g4 = v1;
@@ -8444,7 +8444,7 @@ int32_t function_10007774(int32_t a1, int32_t a2, int32_t a3, int32_t * a4, int3
         g3 = v3;
         *a4 = v3;
         g8 = a1;
-        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x100077ed
     } else {
         // 0x10007792
@@ -8479,7 +8479,7 @@ int32_t GetMinMaxAmpl(int32_t a1, int32_t a2, int32_t a3) {
     if ((0x10000 * v5 || 0xffff) < 0x1ffff) {
         // 0x1000784d
         g8 = a1;
-        result = SetFuncStatusCode(a1, -14);
+        result = SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/);
         // branch -> 0x10007ae4
         // 0x10007ae4
         g4 = v1;
@@ -8521,7 +8521,7 @@ int32_t GetMinMaxAmpl(int32_t a1, int32_t a2, int32_t a3) {
     if (v9 == v7) {
         // 0x100078e9
         g3 = a1;
-        result = SetFuncStatusCode(a1, 4);
+        result = SetFuncStatusCode(a1, IE_WARN_SWPDONE /*4*/);
         // branch -> 0x10007ae4
         // 0x10007ae4
         g4 = v1;
@@ -8531,7 +8531,7 @@ int32_t GetMinMaxAmpl(int32_t a1, int32_t a2, int32_t a3) {
     if (v9 < v7) {
         // 0x10007904
         g8 = a1;
-        result = SetFuncStatusCode(a1, -2);
+        result = SetFuncStatusCode(a1, IE_ERROR /*-2*/);
         // branch -> 0x10007ae4
         // 0x10007ae4
         g4 = v1;
@@ -8710,7 +8710,7 @@ int32_t function_10007ae8(int32_t a1, int32_t a2, int32_t a3, int32_t * a4, int3
         g3 = v3;
         *a4 = v3;
         g8 = a1;
-        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x10007b61
     } else {
         // 0x10007b06
@@ -8743,7 +8743,7 @@ int32_t function_10007b65(int32_t a1, int32_t a2, int32_t a3) {
     if ((0x10000 * v5 || 0xffff) < 0x1ffff) {
         // 0x10007bc1
         g8 = a1;
-        int32_t result = SetFuncStatusCode(a1, -14); // 0x10007bc7
+        int32_t result = SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/); // 0x10007bc7
         // branch -> 0x10007f03
         // 0x10007f03
         g4 = v1;
@@ -8793,7 +8793,7 @@ int32_t function_10007b65(int32_t a1, int32_t a2, int32_t a3) {
     // 0x10007c77
     g3 = v8;
     if (v10 == v8) {
-        int32_t result2 = SetFuncStatusCode(a1, 4); // 0x10007c85
+        int32_t result2 = SetFuncStatusCode(a1, IE_WARN_SWPDONE /*4*/); // 0x10007c85
         // branch -> 0x10007f03
         // 0x10007f03
         g4 = v1;
@@ -8804,7 +8804,7 @@ int32_t function_10007b65(int32_t a1, int32_t a2, int32_t a3) {
     if (v10 < v8) {
         // 0x10007c9a
         g3 = a1;
-        int32_t result3 = SetFuncStatusCode(a1, -2); // 0x10007ca0
+        int32_t result3 = SetFuncStatusCode(a1, IE_ERROR /*-2*/); // 0x10007ca0
         // branch -> 0x10007f03
         // 0x10007f03
         g4 = v1;
@@ -8942,7 +8942,7 @@ int32_t function_10007b65(int32_t a1, int32_t a2, int32_t a3) {
                                 }
                                 // 0x10007ef1
                                 g8 = a1;
-                                int32_t result4 = SetFuncStatusCode(a1, 2) & -0x10000 | v21 & 0xffff; // 0x10007eff
+                                int32_t result4 = SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000 | v21 & 0xffff; // 0x10007eff
                                 // branch -> 0x10007f03
                                 // 0x10007f03
                                 g4 = v1;
@@ -8969,7 +8969,7 @@ int32_t function_10007b65(int32_t a1, int32_t a2, int32_t a3) {
         }
         // 0x10007ef1
         g8 = a1;
-        result5 = SetFuncStatusCode(a1, 2) & -0x10000 | v21 & 0xffff;
+        result5 = SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000 | v21 & 0xffff;
         // branch -> 0x10007f03
     } else {
         // 0x10007d0b
@@ -8996,7 +8996,7 @@ int32_t function_10007f07(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_
         g3 = v3;
         *a6 = v3;
         g8 = a1;
-        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result = 0x10000 * v2 >> 16 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x10007f88
     } else {
         // 0x10007f25
@@ -9031,7 +9031,7 @@ int32_t function_10007f8c(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_
     if ((0x10000 * v7 || 0xffff) < 0x1ffff) {
         // 0x10007fe8
         g8 = a1;
-        int32_t result = SetFuncStatusCode(a1, -14); // 0x10007fee
+        int32_t result = SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/); // 0x10007fee
         // branch -> 0x10008474
         // 0x10008474
         g4 = v1;
@@ -9081,7 +9081,7 @@ int32_t function_10007f8c(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_
     // 0x1000809e
     g3 = v10;
     if (v12 == v10) {
-        int32_t result2 = SetFuncStatusCode(a1, 4); // 0x100080ac
+        int32_t result2 = SetFuncStatusCode(a1, IE_WARN_SWPDONE /*4*/); // 0x100080ac
         // branch -> 0x10008474
         // 0x10008474
         g4 = v1;
@@ -9092,7 +9092,7 @@ int32_t function_10007f8c(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_
     if (v12 < v10) {
         // 0x100080c1
         g3 = a1;
-        int32_t result3 = SetFuncStatusCode(a1, -2); // 0x100080c7
+        int32_t result3 = SetFuncStatusCode(a1, IE_ERROR /*-2*/); // 0x100080c7
         // branch -> 0x10008474
         // 0x10008474
         g4 = v1;
@@ -9403,7 +9403,7 @@ int32_t function_10008478(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_
             }
             // 0x10008566
             g3 = a1;
-            int32_t result = (int32_t)v2 | SetFuncStatusCode(a1, 2) & -0x10000; // 0x10008574
+            int32_t result = (int32_t)v2 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000; // 0x10008574
             // branch -> 0x10008578
             // 0x10008578
             return result;
@@ -9425,7 +9425,7 @@ int32_t function_10008478(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_
         // branch -> 0x10008566
         // 0x10008566
         g3 = a1;
-        result2 = (int32_t)(int16_t)v3 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result2 = (int32_t)(int16_t)v3 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x10008578
     } else {
         // 0x1000848f
@@ -9490,7 +9490,7 @@ int32_t function_100085f3(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000860e
         g8 = a1;
-        SetFuncStatusCode(a1, 2);
+        SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/);
         g11--;
         result = __ftol(a1);
         // branch -> 0x10008627
@@ -9513,7 +9513,7 @@ int32_t function_10008629(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10008644
         g8 = a1;
-        SetFuncStatusCode(a1, 2);
+        SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/);
         result = __ftol(a1);
         // branch -> 0x1000865d
     } else {
@@ -9537,7 +9537,7 @@ int32_t RdEngineModel(int32_t a1) {
     if ((v2 || 0xffff) < 0x1ffff) {
         // 0x1000867a
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = (int32_t)*(int16_t *)(a1 + 2) | a1 & -0x10000;
         // branch -> 0x1000868f
     } else {
@@ -9597,7 +9597,7 @@ int32_t function_100086f9(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10008714
         g8 = a1;
-        SetFuncStatusCode(a1, 2);
+        SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/);
         result = __ftol(a1);
         // branch -> 0x1000872d
     } else {
@@ -9619,7 +9619,7 @@ int32_t RdZspanFreq(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000874a
         g8 = a1;
-        SetFuncStatusCode(a1, 2);
+        SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/);
         result = __ftol(a1);
         // branch -> 0x10008766
     } else {
@@ -9647,7 +9647,7 @@ int32_t RdMaxFreqLimit(int32_t a1) {
     }
     // 0x10008787
     g8 = a1;
-    SetFuncStatusCode(a1, 0);
+    SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
     int32_t result4 = RdEngineModel(a1); // 0x10008799
     g3 = result4;
     int32_t v1 = 0x10000 * result4; // 0x100087a1
@@ -9665,7 +9665,7 @@ int32_t RdMaxFreqLimit(int32_t a1) {
         } else {
             // 0x100087f0
             g8 = a1;
-            result3 = SetFuncStatusCode(a1, -13);
+            result3 = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
             g159 = -1.0L;
             g11--;
             result2 = result3;
@@ -9687,7 +9687,7 @@ int32_t RdMaxFreqLimit(int32_t a1) {
             if (v1 != 0x2000000) {
                 // 0x100087f0
                 g8 = a1;
-                result3 = SetFuncStatusCode(a1, -13);
+                result3 = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
                 g159 = -1.0L;
                 g11--;
                 // branch -> 0x10008804
@@ -9723,7 +9723,7 @@ int32_t RdMinFreqLimit(int32_t a1) {
             // 0x10008870
             if (v4 != 0x4000000) {
                 // 0x10008891
-                result = SetFuncStatusCode(a1, -13);
+                result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
                 g159 = -1.0L;
                 g11--;
                 // branch -> 0x100088a5
@@ -9739,7 +9739,7 @@ int32_t RdMinFreqLimit(int32_t a1) {
                     // 0x10008865
                     if (v4 != 0x2000000) {
                         // 0x10008891
-                        result = SetFuncStatusCode(a1, -13);
+                        result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/);
                         g159 = -1.0L;
                         g11--;
                         // branch -> 0x100088a5
@@ -9754,7 +9754,7 @@ int32_t RdMinFreqLimit(int32_t a1) {
         g3 = a1;
         g159 = 1.0e+5L;
         g11--;
-        result2 = SetFuncStatusCode(a1, 0);
+        result2 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x100088a5
     } else {
         // 0x10008821
@@ -9790,7 +9790,7 @@ int32_t function_100088a9(int32_t a1, int32_t a2) {
                 // 0x1000890c
                 // branch -> 0x1000893d
                 // 0x1000893d
-                result = (int32_t)3 | SetFuncStatusCode(a1, 2) & -0x10000;
+                result = (int32_t)3 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
                 // branch -> 0x1000894f
                 // 0x1000894f
                 return result;
@@ -9810,7 +9810,7 @@ int32_t function_100088a9(int32_t a1, int32_t a2) {
                 // branch -> 0x1000893d
             }
             // 0x1000893d
-            result = (int32_t)v4 | SetFuncStatusCode(a1, 2) & -0x10000;
+            result = (int32_t)v4 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
             // branch -> 0x1000894f
             // 0x1000894f
             return result;
@@ -9818,7 +9818,7 @@ int32_t function_100088a9(int32_t a1, int32_t a2) {
         // 0x10008937
         // branch -> 0x1000893d
         // 0x1000893d
-        result2 = (int32_t)-3 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result2 = (int32_t)-3 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x1000894f
     } else {
         // 0x100088c6
@@ -9849,7 +9849,7 @@ int32_t function_10008953(int32_t a1, int32_t a2) {
                 // 0x100089b6
                 // branch -> 0x100089e7
                 // 0x100089e7
-                result = (int32_t)3 | SetFuncStatusCode(a1, 2) & -0x10000;
+                result = (int32_t)3 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
                 // branch -> 0x100089f9
                 // 0x100089f9
                 return result;
@@ -9869,7 +9869,7 @@ int32_t function_10008953(int32_t a1, int32_t a2) {
                 // branch -> 0x100089e7
             }
             // 0x100089e7
-            result = (int32_t)v4 | SetFuncStatusCode(a1, 2) & -0x10000;
+            result = (int32_t)v4 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
             // branch -> 0x100089f9
             // 0x100089f9
             return result;
@@ -9877,7 +9877,7 @@ int32_t function_10008953(int32_t a1, int32_t a2) {
         // 0x100089e1
         // branch -> 0x100089e7
         // 0x100089e7
-        result2 = (int32_t)-3 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result2 = (int32_t)-3 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x100089f9
     } else {
         // 0x10008970
@@ -9899,7 +9899,7 @@ int32_t FreqInRange(int32_t a1, float64_t a2) {
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
         // 0x10008a1c
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         RdMinFreqLimit(a1);
         g11++;
         int32_t v3 = RdMaxFreqLimit(a1); // 0x10008a3d
@@ -9952,7 +9952,7 @@ int32_t function_10008a7a(int32_t a1, int32_t a2) {
         }
         // 0x10008adb
         g3 = a1;
-        result = v2 | SetFuncStatusCode(a1, 2) & -0x10000;
+        result = v2 | SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/) & -0x10000;
         // branch -> 0x10008aed
     } else {
         // 0x10008a97
@@ -10042,13 +10042,13 @@ int32_t function_10008b45(int32_t a1, int32_t a2, int32_t a3) {
                 // continue -> 0x10008c1a
             }
             // 0x10008c5b
-            SetFuncStatusCode(a1, 2);
+            SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/);
             // branch -> 0x10008c6c
             // 0x10008c6c
             return result;
         }
         // 0x10008c5b
-        SetFuncStatusCode(a1, 2);
+        SetFuncStatusCode(a1, IE_WARN_OBSOL /*2*/);
         result2 = 0;
         // branch -> 0x10008c6c
     } else {
@@ -10194,7 +10194,7 @@ int32_t RdSessionString(int32_t a1, int32_t a2) {
     } else {
         // 0x10008d92
         g3 = a1;
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x10008dbb
     }
     // 0x10008dbb
@@ -10298,7 +10298,7 @@ int32_t function_10008e7f(int32_t a1, int16_t a2) {
         g3 = a1;
         *(int16_t *)(a1 + 644) = a2;
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x10008ebf
     } else {
         // 0x10008e95
@@ -10894,7 +10894,7 @@ int32_t RdZCellSize(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x10009437
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = *(int32_t *)(a1 + 188);
         // branch -> 0x1000944e
     } else {
@@ -15201,7 +15201,7 @@ int32_t ConfigStartFreq(int32_t a1, int32_t a2, int32_t a3) {
     int32_t result; // 0x1000b7d6
     if ((v1 || 0xffff) < 0x1ffff) {
         // 0x1000b762
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x1000b7d5
         // 0x1000b7d5
         return result;
@@ -15213,7 +15213,7 @@ int32_t ConfigStartFreq(int32_t a1, int32_t a2, int32_t a3) {
     g3 = a1;
     if ((a1 & 0x4100) == 0) {
         // 0x1000b794
-        result = SetFuncStatusCode(a1, 3);
+        result = SetFuncStatusCode(a1, IE_WARN_SPAN /*3*/);
         // branch -> 0x1000b7d5
         // 0x1000b7d5
         return result;
@@ -15225,11 +15225,11 @@ int32_t ConfigStartFreq(int32_t a1, int32_t a2, int32_t a3) {
     if ((v2 || 0xffff) < 0x1ffff) {
         // 0x1000b7c7
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x1000b7d5
     } else {
         // 0x1000b7b7
-        result = SetFuncStatusCode(a1, -6);
+        result = SetFuncStatusCode(a1, IE_ERR_STEP /*-6*/);
         // branch -> 0x1000b7d5
     }
     // 0x1000b7d5
@@ -15268,17 +15268,17 @@ int32_t ConfigStepSize(int32_t a1, float64_t a2, int32_t a3) {
                 g3 = a1;
                 // branch -> 0x1000b882
                 // 0x1000b882
-                return SetFuncStatusCode(a1, 0);
+                return SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
             }
         }
         // 0x1000b855
         g8 = a1;
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x1000b882
     } else {
         // 0x1000b80d
         g8 = a1;
-        result = SetFuncStatusCode(a1, -4);
+        result = SetFuncStatusCode(a1, IE_ERR_AUTO /*-4*/);
         // branch -> 0x1000b882
     }
     // 0x1000b882
@@ -15294,7 +15294,7 @@ int32_t ConfigStopFreq(int32_t a1, int32_t a2, int32_t a3) {
     int32_t result; // 0x1000b918
     if ((v1 || 0xffff) < 0x1ffff) {
         // 0x1000b8a4
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x1000b917
         // 0x1000b917
         return result;
@@ -15306,7 +15306,7 @@ int32_t ConfigStopFreq(int32_t a1, int32_t a2, int32_t a3) {
     g3 = a1;
     if ((a1 & 0x4100) == 0) {
         // 0x1000b8d6
-        result = SetFuncStatusCode(a1, 3);
+        result = SetFuncStatusCode(a1, IE_WARN_SPAN /*3*/);
         // branch -> 0x1000b917
         // 0x1000b917
         return result;
@@ -15318,11 +15318,11 @@ int32_t ConfigStopFreq(int32_t a1, int32_t a2, int32_t a3) {
     if ((v2 || 0xffff) < 0x1ffff) {
         // 0x1000b909
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x1000b917
     } else {
         // 0x1000b8f9
-        result = SetFuncStatusCode(a1, -6);
+        result = SetFuncStatusCode(a1, IE_ERR_STEP /*-6*/);
         // branch -> 0x1000b917
     }
     // 0x1000b917
@@ -15353,11 +15353,11 @@ int32_t ConfigTrigFreq(int32_t a1, int32_t a2, int32_t a3) {
         *(int32_t *)(a1 + 120) = a2;
         *(int32_t *)(a1 + 124) = a3;
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x1000b985
     } else {
         // 0x1000b958
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x1000b985
     }
     // 0x1000b985
@@ -15391,12 +15391,12 @@ int32_t ConfigZspanFreq(int32_t a1, int32_t a2, int32_t a3) {
         g6 = a3;
         *(int32_t *)(a1 + 148) = a3;
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x1000b9f9
     } else {
         // 0x1000b9c6
         g6 = a1;
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x1000b9f9
     }
     // 0x1000b9f9
@@ -15496,7 +15496,7 @@ int32_t GetAmplWithFreqExt(int32_t a1, int32_t a2, int32_t a3) {
     if ((0x10000 * v5 || 0xffff) < 0x1ffff) {
         // 0x1000bb78
         g8 = a1;
-        result = SetFuncStatusCode(a1, -14);
+        result = SetFuncStatusCode(a1, IE_ERR_NOSWP /*-14*/);
         // branch -> 0x1000be96
         // 0x1000be96
         g4 = v1;
@@ -15538,7 +15538,7 @@ int32_t GetAmplWithFreqExt(int32_t a1, int32_t a2, int32_t a3) {
     if (v9 == v7) {
         // 0x1000bc14
         g3 = a1;
-        result = SetFuncStatusCode(a1, 4);
+        result = SetFuncStatusCode(a1, IE_WARN_SWPDONE /*4*/);
         // branch -> 0x1000be96
         // 0x1000be96
         g4 = v1;
@@ -15548,7 +15548,7 @@ int32_t GetAmplWithFreqExt(int32_t a1, int32_t a2, int32_t a3) {
     if (v9 < v7) {
         // 0x1000bc2f
         g8 = a1;
-        result = SetFuncStatusCode(a1, -2);
+        result = SetFuncStatusCode(a1, IE_ERROR /*-2*/);
         // branch -> 0x1000be96
         // 0x1000be96
         g4 = v1;
@@ -16151,7 +16151,7 @@ int32_t ReadCellPtFreq(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32_t 
     if ((v4 || 0xffff) < 0x1ffff) {
         // 0x1000c3f3
         g8 = a1;
-        g3 = SetFuncStatusCode(a1, 0);
+        g3 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         if (a2 >= 0) {
             int32_t v5 = RdNumSwpPts(a1); // 0x1000c40b
             g3 = v5;
@@ -16172,7 +16172,7 @@ int32_t ReadCellPtFreq(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32_t 
                         g3 = v7;
                         if ((v6 || 0xffff) < 0x1ffff) {
                             // 0x1000c492
-                            result = SetFuncStatusCode(a1, -1);
+                            result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
                             // branch -> 0x1000c4ae
                         } else {
                             result = v7;
@@ -16199,7 +16199,7 @@ int32_t ReadCellPtFreq(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32_t 
                 g3 = v7;
                 if ((v6 || 0xffff) < 0x1ffff) {
                     // 0x1000c492
-                    result = SetFuncStatusCode(a1, -1);
+                    result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
                     // branch -> 0x1000c4ae
                 } else {
                     result = v7;
@@ -16211,7 +16211,7 @@ int32_t ReadCellPtFreq(int32_t a1, uint32_t a2, int16_t a3, int32_t a4, int32_t 
             }
         }
         // 0x1000c418
-        result2 = SetFuncStatusCode(a1, -3);
+        result2 = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x1000c4b1
     } else {
         // 0x1000c3e8
@@ -16233,7 +16233,7 @@ int32_t ReadStartFreq(int32_t a1, int32_t a2) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000c4d3
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = a1;
         v2 = (float80_t)*(float64_t *)(a1 + 8);
         // branch -> 0x1000c4e7
@@ -16255,7 +16255,7 @@ int32_t ReadStepSize(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000c507
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = a1;
         v2 = (float80_t)*(float64_t *)(a1 + 24);
         // branch -> 0x1000c51b
@@ -16276,7 +16276,7 @@ int32_t ReadStopFreq(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000c53b
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = a1;
         // branch -> 0x1000c54f
     }
@@ -16297,7 +16297,7 @@ int32_t ReadSwpPtFreq(int32_t a1, int32_t a2) {
     if ((v3 || 0xffff) < 0x1ffff) {
         // 0x1000c583
         g8 = a1;
-        g3 = SetFuncStatusCode(a1, 0);
+        g3 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         if (a2 >= 0) {
             int32_t v4 = RdNumSwpPts(a1); // 0x1000c59b
             g3 = v4;
@@ -16315,7 +16315,7 @@ int32_t ReadSwpPtFreq(int32_t a1, int32_t a2) {
                 } else {
                     // 0x1000c603
                     g8 = a1;
-                    result = SetFuncStatusCode(a1, -1);
+                    result = SetFuncStatusCode(a1, IE_FAILURE /*-1*/);
                     // branch -> 0x1000c61c
                 }
                 // 0x1000c61c
@@ -16323,7 +16323,7 @@ int32_t ReadSwpPtFreq(int32_t a1, int32_t a2) {
             }
         }
         // 0x1000c5a8
-        result = SetFuncStatusCode(a1, -3);
+        result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
         // branch -> 0x1000c61c
     } else {
         // 0x1000c578
@@ -16344,7 +16344,7 @@ int32_t ReadTrigFreq(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000c63e
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = a1;
         // branch -> 0x1000c652
     }
@@ -16362,7 +16362,7 @@ int32_t ReadZspanFreq(int32_t a1) {
     if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
         // 0x1000c672
         g8 = a1;
-        SetFuncStatusCode(a1, 0);
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         result = a1;
         // branch -> 0x1000c689
     }
@@ -16704,7 +16704,7 @@ int32_t GetDbmForAmpl(int32_t a1, int16_t a2) {
         }
         // 0x1000cf2e
         g11 = v4 + 1;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         v3 = v5;
         // branch -> 0x1000cf3f
     }
@@ -16740,7 +16740,7 @@ int32_t function_1000cf43(int32_t a1) {
             }
         }
         // 0x1000cf90
-        result = (int32_t)v3 | SetFuncStatusCode(a1, 0) & -0x10000;
+        result = (int32_t)v3 | SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
         // branch -> 0x1000cfa2
     } else {
         // 0x1000cf5a
@@ -16782,7 +16782,7 @@ int32_t GetnVForAmpl(int32_t a1, int16_t a2) {
         }
         // 0x1000d046
         g11++;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         v3 = v4;
         // branch -> 0x1000d057
     }
@@ -16826,7 +16826,7 @@ int32_t function_1000d05b(int32_t a1) {
             }
         }
         // 0x1000d0c5
-        result = (int32_t)v3 | SetFuncStatusCode(a1, 0) & -0x10000;
+        result = (int32_t)v3 | SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
         // branch -> 0x1000d0d7
     } else {
         // 0x1000d072
@@ -16864,7 +16864,7 @@ int32_t GetAmplForDbm(int32_t a1, float64_t a2) {
         }
         // 0x1000d15b
         g3 = v4;
-        result = SetFuncStatusCode(a1, 0) & -0x10000 | v4 & 0xffff;
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | v4 & 0xffff;
         // branch -> 0x1000d16d
     } else {
         // 0x1000d0f4
@@ -16905,7 +16905,7 @@ int32_t GetAmplFornV(int32_t a1, float64_t a2) {
         }
         // 0x1000d20f
         g3 = v3;
-        result = SetFuncStatusCode(a1, 0) & -0x10000 | v3 & 0xffff;
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | v3 & 0xffff;
         // branch -> 0x1000d221
     } else {
         // 0x1000d18a
@@ -16944,7 +16944,7 @@ int32_t GetDbmForVoltage(int32_t a1, float64_t a2) {
         g161 = false;
         g3 = function_1000e114((int32_t)(float32_t)v5, (int32_t)v3);
         g159 *= 10.0L;
-        result2 = SetFuncStatusCode(a1, 0);
+        result2 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         // branch -> 0x1000d2ad
     } else {
         // 0x1000d256
@@ -16976,7 +16976,7 @@ int32_t GetnVForDbm(int32_t a1, float64_t a2) {
         g161 = false;
         g3 = function_1000e1e4((int32_t)(float32_t)v6);
         g11 += 2;
-        result = SetFuncStatusCode(a1, 0);
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
         v3 = 1.0e+9L * g159;
         // branch -> 0x1000d337
     }
@@ -17010,7 +17010,7 @@ int32_t FindEquivDbmRef(int32_t a1, int32_t a2, int32_t a3) {
         // 0x1000d39e
         g3 = v3;
         g8 = a1;
-        result = SetFuncStatusCode(a1, 0) & -0x10000 | v3 & 0xffff;
+        result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | v3 & 0xffff;
         // branch -> 0x1000d3b0
     } else {
         // 0x1000d354
