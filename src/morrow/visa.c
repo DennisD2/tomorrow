@@ -767,7 +767,7 @@ int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
     return ret;
 }
 
-int32_t function_100015d0(SET9052 * deviceId, int32_t a2, int16_t a3, int32_t* a4) {
+int32_t function_100015d0(SET9052 * deviceId, int32_t timeout, int16_t a3, int32_t* a4) {
     int32_t v1 = g3; // 0x100015d0
     InitTimeoutLoop(v1);
     g3 = v1;
@@ -1208,11 +1208,12 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
 }
 
 int32_t function_10001b08(SET9052 *deviceId) {
+	dlog(LOG_DEBUG, "function_10001b08()\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x10001b1f
     int32_t v3; // bp-24
-    int32_t v4 = &v3; // 0x10001b2a
+    int32_t *v4 = &v3; // 0x10001b2a
     g5 = v4;
     int32_t v5 = function_100015d0(deviceId, v2, 1024, v4); // 0x10001b3b
     int16_t v6 = v5; // 0x10001b3b
@@ -1238,7 +1239,7 @@ int32_t function_10001b08(SET9052 *deviceId) {
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
     //if (r_ViIn16(v8, 1, 14, (int32_t)&v9) == 0) {
-    if (dd_viIn16(v8, 1, 14, (int32_t)&v9) == 0) {
+    if (dd_viIn16(v8, 1, 14, &v9) == 0) {
         // 0x10001b9c
         v10 = 0;
         // branch -> 0x10001bb4
@@ -1253,3 +1254,159 @@ int32_t function_10001b08(SET9052 *deviceId) {
     g3 = v1;
     return v7 & -0x10000 | (int32_t)v9;
 }
+
+int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
+	dlog(LOG_DEBUG, "VISA_FetchDataWord()\n");
+    int16_t v1 = function_10001b08(deviceId); // bp-8
+    int32_t v2 = RdErrorStatus(deviceId); // 0x10001ae0
+    int32_t v3; // 0x10001b00
+    if (v2 == 0) {
+        // entry.dec_label_pc_10001b00_crit_edge
+        v3 = v1;
+        // branch -> 0x10001b00
+    } else {
+        // 0x10001aec
+        if (dword != NULL) {
+            // 0x10001af2
+            *dword = 1;
+            // branch -> 0x10001afa
+        }
+        // 0x10001afa
+        v3 = 0;
+        // branch -> 0x10001b00
+    }
+    // 0x10001b00
+    return v3 | v2 & -0x10000;
+}
+
+int32_t VISA_VerDataBlock(SET9052 *a1, int32_t a2) {
+    int32_t result; // 0x10001ac7
+    if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
+        // 0x10001aba
+        result = (a2 & 0xffff) != 0;
+        // branch -> 0x10001ac6
+    } else {
+        // 0x10001aac
+        result = GetFuncStatusCode(a1);
+        // branch -> 0x10001ac6
+    }
+    // 0x10001ac6
+	dlog( LOG_DEBUG, "VISA_VerDataBlock(%0x%x) -> %d\n", a2, result);
+    return result;
+}
+
+int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t a2, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5) {
+	dlog(LOG_DEBUG, "VISA_GetDataBlock()\n");
+    int64_t v1 = a3;
+    int32_t v2 = g3; // bp-4
+    g3 = &v2;
+    int32_t result; // 0x1000253c
+    if ((0x10000 * TestFuncStatusAndPtr(deviceId) || 0xffff) < 0x1ffff) {
+        // 0x1000242c
+        if (a4 != 0) {
+            // 0x10002432
+            if (a5 != 0) {
+                int32_t v3 = v1 * 0x100000000 * a2 / 0x100000000; // 0x1000245c
+                uint32_t v4 = VISA_CheckHWStatus(deviceId) & 3840; // 0x10002472
+                int64_t v5;
+                if (v4 >= 3329) {
+                    // 0x100024a1
+                    if (v4 != 3840) {
+                        // 0x100024d0
+                        v5 = 0;
+                        // branch -> 0x100024d7
+                    } else {
+                        v5 = 384;
+                    }
+                } else {
+                    // 0x10002484
+                    if (v4 != 3328) {
+                        // 0x1000248d
+                        if (v4 != 2304) {
+                            // 0x10002496
+                            if (v4 != 2816) {
+                                // 0x100024d0
+                                v5 = 0;
+                                // branch -> 0x100024d7
+                            } else {
+                                v5 = 1;
+                            }
+                        } else {
+                            v5 = 128;
+                        }
+                    } else {
+                        v5 = 256;
+                    }
+                }
+                int32_t v6 = v5; // 0x100024da
+                int32_t v7 = v3;
+                if (v3 > v6) {
+                    // 0x100024df
+                    v7 = v6 - (int32_t)(v5 % v1);
+                    // branch -> 0x100024ee
+                }
+                int64_t v8 = v7;
+                int64_t v9 = v8;
+                if (v7 == 0) {
+                    // 0x100024f4
+                    if (v6 == 1) {
+                        // 0x100024fa
+                        if (a3 < 128) {
+                            // 0x10002503
+                            v9 = v1;
+                            // branch -> 0x10002509
+                        } else {
+                            v9 = v8;
+                        }
+                    } else {
+                        v9 = v8;
+                    }
+                }
+                // 0x10002509
+                *(int16_t *)a5 = 0;
+                *(int32_t *)a4 = (int32_t)((0x100000000 * (int64_t)((int32_t)v9 >> 31) | v9 & 0xffffffff) / v1);
+                SetErrorStatus(deviceId, 0);
+                result = SetFuncStatusCode(deviceId, 0);
+                // branch -> 0x10002539
+                // 0x10002539
+                return result;
+            }
+        }
+        // 0x10002438
+        SetErrorStatus(deviceId, 4);
+        result = SetFuncStatusCode(deviceId, -3);
+        // branch -> 0x10002539
+    } else {
+        // 0x1000241b
+        result = GetFuncStatusCode(deviceId);
+        // branch -> 0x10002539
+    }
+    // 0x10002539
+    return result;
+}
+
+int32_t VISA_CheckHWStatus(SET9052 *a1) {
+    int32_t v1 = g3; // bp-4
+    g3 = &v1;
+    int16_t v2; // bp-8
+    int32_t v3 = function_100011fc(a1, &v2); // 0x10001a62
+    int32_t v4 = -256;
+    int32_t v5 = v3; // 0x10001a8e
+    if ((0x10000 * v3 || 0xffff) < 0x1ffff) {
+        int32_t v6 = 16 * ((int32_t)v2 & 240); // 0x10001a87
+        v4 = v6;
+        v5 = v6;
+        // branch -> 0x10001a8e
+    }
+    // 0x10001a8e
+    g3 = v1;
+    int32_t result = v5 & -0x10000 | v4;
+	dlog(LOG_DEBUG, "VISA_CheckHWStatus() --> 0x%x\n", result);
+    return v5 & -0x10000 | v4;
+}
+
+/*------------------------------------------------------------------------------------*/
+/* End of file */
+/*------------------------------------------------------------------------------------*/
+
+
