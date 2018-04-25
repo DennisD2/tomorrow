@@ -1276,6 +1276,7 @@ int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
         // branch -> 0x10001b00
     }
     // 0x10001b00
+	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> \n", v3);
     return v3 | v2 & -0x10000;
 }
 
@@ -1295,55 +1296,44 @@ int32_t VISA_VerDataBlock(SET9052 *a1, int32_t a2) {
     return result;
 }
 
-int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t a2, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5) {
-	dlog(LOG_DEBUG, "VISA_GetDataBlock()\n");
+// a4,a5 is float???
+int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5) {
+	dlog(LOG_DEBUG, "VISA_GetDataBlock(reversePointIdx=%d,a3=%d)\n", reversePointIdx, a3);
     int64_t v1 = a3;
     int32_t v2 = g3; // bp-4
     g3 = &v2;
     int32_t result; // 0x1000253c
     if ((0x10000 * TestFuncStatusAndPtr(deviceId) || 0xffff) < 0x1ffff) {
-        // 0x1000242c
         if (a4 != 0) {
-            // 0x10002432
             if (a5 != 0) {
-                int32_t v3 = v1 * 0x100000000 * a2 / 0x100000000; // 0x1000245c
+                int32_t v3 = v1 * 0x100000000 * reversePointIdx / 0x100000000; // 0x1000245c
                 uint32_t v4 = VISA_CheckHWStatus(deviceId) & 3840; // 0x10002472
                 int64_t v5;
-                if (v4 >= 3329) {
-                    // 0x100024a1
-                    if (v4 != 3840) {
-                        // 0x100024d0
+                if (v4 >= 0xd01 /*3329*/) {
+                    if (v4 != 0xf00 /*3840*/) {
                         v5 = 0;
-                        // branch -> 0x100024d7
                     } else {
-                        v5 = 384;
+                        v5 = 384; // = 0x180
                     }
                 } else {
-                    // 0x10002484
-                    if (v4 != 3328) {
-                        // 0x1000248d
-                        if (v4 != 2304) {
-                            // 0x10002496
-                            if (v4 != 2816) {
-                                // 0x100024d0
+                    if (v4 != 0xd00 /*3328*/) {
+                        if (v4 != 0x900 /*2304*/) {
+                            if (v4 != 0xb00 /*2816*/) {
                                 v5 = 0;
-                                // branch -> 0x100024d7
                             } else {
                                 v5 = 1;
                             }
                         } else {
-                            v5 = 128;
+                            v5 = 128; // * 0x80
                         }
                     } else {
-                        v5 = 256;
+                        v5 = 256; // 0x100
                     }
                 }
                 int32_t v6 = v5; // 0x100024da
                 int32_t v7 = v3;
                 if (v3 > v6) {
-                    // 0x100024df
                     v7 = v6 - (int32_t)(v5 % v1);
-                    // branch -> 0x100024ee
                 }
                 int64_t v8 = v7;
                 int64_t v9 = v8;
