@@ -6041,6 +6041,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
             int32_t v21 = 0; // 0x1000bcb367
             int16_t v22 = 0;
             // branch -> 0x1000bcd4
+
           lab_0x1000bcd4:
             while (true) {
                 int32_t v23 = 0;
@@ -6161,32 +6162,22 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
             }
         }
       lab_0x1000be55:
-        // 0x1000be55
         v20 = g8 & -0x10000 | (int32_t)v3;
         g8 = v20;
         v18 = function_10003bb8(v12, v20);
         v19 = v18;
         if ((0x10000 * v18 || 0xffff) < 0x1ffff) {
-            // 0x1000be72
             v17 = SetSwpIdx(a1, v13 + swpIndex);
             if ((0x10000 * v17 || 0xffff) >= 0x1ffff) {
-                // 0x1000be8c
-                // branch -> 0x1000be96
-                // 0x1000be96
                 g4 = v1;
                 return v17 | 0xffff;
             }
             v19 = v17;
         }
-        // 0x1000be92
         result = v19 & -0x10000 | v18 & 0xffff;
-        // branch -> 0x1000be96
     } else {
-        // 0x1000bc8f
         result = v14 & -0x10000;
-        // branch -> 0x1000be96
     }
-    // 0x1000be96
     g4 = v1;
     return result;
 }
@@ -7338,48 +7329,30 @@ int32_t function_10010cfc(float64_t a1, int32_t a2) {
 int32_t function_100136fd(float64_t a1, int32_t a2, int32_t a3, int32_t a4) {
     int16_t v1 = (int16_t)a3 & 0x7ff0; // 0x1001370c
     if (v1 != 0x7ff0) {
-        // 0x1001373d
         if (v1 != 0) {
-            // 0x10013782
             return 256;
         }
-        // 0x10013749
         if ((a2 & 0xfffff) != 0) {
-            // 0x10013758
             return 128;
         }
-        // 0x10013752
         if ((int32_t)(float32_t)a1 == 0) {
-            // 0x10013782
             return 256;
         }
-        // 0x10013758
         return 128;
     }
     int32_t v2 = function_1000f065((int32_t)(float32_t)(float80_t)a1, 0x7ff0); // 0x10013719
     if (v2 == 1) {
-        // 0x10013736
         return 512;
     }
-    // 0x10013723
     if (v2 == 2) {
-        // 0x10013732
-        // branch -> 0x1001372b
-        // 0x1001372b
         return 4;
     }
-    // 0x10013726
     int32_t result; // 0x1001372b
     if (v2 == 3) {
-        // 0x1001372e
         result = 2;
-        // branch -> 0x1001372b
     } else {
-        // 0x10013729
         result = 1;
-        // branch -> 0x1001372b
     }
-    // 0x1001372b
     return result;
 }
 
@@ -7389,108 +7362,66 @@ float80_t function_100136eb(float64_t a1, int32_t a2) {
     return llvm_round_f80((float80_t)a1);
 }
 
+// Returns a value in range 0..4 depending on a2 which looks like an error code or mask.
 int32_t function_1000f065(int32_t a1, int32_t a2) {
-    // 0x1000f065
     g8 = 0;
     int32_t v1;
     int16_t v2; // 0x1000f098
     int32_t result; // 0x1000f0b8
     if (a2 == 0x7ff00000) {
-        // 0x1000f073
         if (a1 == 0) {
-            // 0x1000f078
-            // branch -> 0x1000f0b8
-            // 0x1000f0b8
             return 1;
         }
-        // 0x1000f08e
         v2 = (int16_t)v1 & 0x7ff8;
         if (v2 != 0x7ff8) {
-            // 0x1000f0a1
             if (v2 != 0x7ff0) {
-                // 0x1000f0bb
                 return 0;
             }
-            // 0x1000f0a8
             if ((a2 & 0x7ffff) == 0) {
-                // 0x1000f0b1
                 if (a1 == 0) {
-                    // 0x1000f0bb
                     return 0;
                 }
             }
-            // 0x1000f0b6
             result = 4;
-            // branch -> 0x1000f0b8
         } else {
-            // 0x1000f09d
             result = 3;
-            // branch -> 0x1000f0b8
         }
-        // 0x1000f0b8
         return result;
     }
-    // 0x1000f07c
     if (a2 != -0x100000) {
-        // 0x1000f08e
         v2 = (int16_t)v1 & 0x7ff8;
         if (v2 != 0x7ff8) {
-            // 0x1000f0a1
             if (v2 != 0x7ff0) {
-                // 0x1000f0bb
                 return 0;
             }
-            // 0x1000f0a8
             if ((a2 & 0x7ffff) == 0) {
-                // 0x1000f0b1
                 if (a1 == 0) {
-                    // 0x1000f0bb
                     return 0;
                 }
             }
-            // 0x1000f0b6
             result = 4;
-            // branch -> 0x1000f0b8
         } else {
-            // 0x1000f09d
             result = 3;
-            // branch -> 0x1000f0b8
         }
-        // 0x1000f0b8
         return result;
     }
-    // 0x1000f085
     if (a1 == 0) {
-        // 0x1000f08a
-        // branch -> 0x1000f0b8
-        // 0x1000f0b8
         return 2;
     }
-    // 0x1000f08e
     v2 = (int16_t)v1 & 0x7ff8;
     if (v2 != 0x7ff8) {
-        // 0x1000f0a1
         if (v2 != 0x7ff0) {
-            // 0x1000f0bb
             return 0;
         }
-        // 0x1000f0a8
         if ((a2 & 0x7ffff) == 0) {
-            // 0x1000f0b1
             if (a1 == 0) {
-                // 0x1000f0bb
                 return 0;
             }
         }
-        // 0x1000f0b6
         result = 4;
-        // branch -> 0x1000f0b8
     } else {
-        // 0x1000f09d
         result = 3;
-        // branch -> 0x1000f0b8
     }
-    // 0x1000f0b8
     return result;
 }
 
@@ -7503,36 +7434,30 @@ int32_t function_100039d0(SET9052 *a1, int32_t *a2) {
     int32_t result; // 0x10003a2f
     if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 #ifdef ORIG
-        // 0x100039f5
         if (*(int32_t *)(v1 + 660) != 0) {
         	// FetchDataWord()
             int32_t * v3 = (int32_t *)(v1 + 680); // 0x10003a04
             if (*v3 != 0) {
-                // 0x10003a13
                 g8 = a2;
                 __pseudo_call(*v3);
-                // branch -> 0x10003a2c
-                // 0x10003a2c
                 return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
             }
         }
-        // 0x10003a0d
         result = (int32_t)v1 & -0x10000 | 0xffeb;
-        // branch -> 0x10003a2c
 #else
          result = VISA_FetchDataWord(a1, a2);
 #endif
     } else {
-        // 0x100039e7
         g8 = v1;
         result = GetFuncStatusCode(v1);
-        // branch -> 0x10003a2c
     }
-    // 0x10003a2c
     return result;
 }
 
-int32_t function_10002ea6(SET9052 *a1, int64_t a2) {
+// This sets gobal var 'g159' depending on engine model, 'g159 is then used by caller.
+// It looks like that it is set in most cases to input value inValue.
+// Also, g6 and g11 are set...
+int32_t function_10002ea6(SET9052 *a1, int64_t inValue) {
     int32_t v1 = g4; // bp-4
     g4 = &v1;
     g3 = a1;
@@ -7543,8 +7468,6 @@ int32_t function_10002ea6(SET9052 *a1, int64_t a2) {
         // 0x10002ebf
         g159 = -1.0L;
         g11--;
-        // branch -> 0x10002f65
-        // 0x10002f65
         g4 = v1;
         return result;
     }
@@ -7553,56 +7476,39 @@ int32_t function_10002ea6(SET9052 *a1, int64_t a2) {
     g3 = result2;
     int32_t v4; // 0x10002f05
     if (v3 != SA9085 /*768*/ && v3 < SA9085 /*768*/ == (767 - result2 & result2) < 0) {
-        // 0x10002efa
         if (v3 == SA9034 /*1024*/) {
-            // 0x10002f05
-            v4 = a2;
+            v4 = inValue;
             g6 = v4;
             g159 = v4;
             g11--;
-            // branch -> 0x10002f65
         } else {
-            // 0x10002f5f
             g159 = -1.0L;
             g11--;
-            // branch -> 0x10002f65
         }
-        // 0x10002f65
         g4 = v1;
         return result2;
     }
-    // 0x10002edd
     int32_t result3; // 0x10002f25
     if (v3 == SA9085 /*768*/) {
-        // 0x10002f17
         result3 = 0x10000 * RdEngOption(a1, ENG_OPT_0 /*0*/) / 0x10000;
-        g6 = a2;
+        g6 = inValue;
         g11--;
         g159 = 0.0L;
-        // branch -> 0x10002f65
     } else {
-        // 0x10002ee6
         if (v3 != SA9052 /*256*/) {
-            // 0x10002eef
             if (v3 != SA9054 /*512*/) {
-                // 0x10002f5f
                 g159 = -1.0L;
                 g11--;
-                // branch -> 0x10002f65
-                // 0x10002f65
                 g4 = v1;
                 return result2;
             }
         }
-        // 0x10002f05
-        v4 = a2;
+        v4 = inValue;
         g6 = v4;
         g159 = v4;
         g11--;
         result3 = result2;
-        // branch -> 0x10002f65
     }
-    // 0x10002f65
     g4 = v1;
     return result3;
 }

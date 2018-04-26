@@ -707,7 +707,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 // XXX DD
 }
 
-int32_t function_100011fc(SET9052 *deviceId, int32_t *a2) {
+int32_t function_100011fc(SET9052 *deviceId, int16_t *a2) {
 	dlog( LOG_DEBUG, "function_100011fc\n");
     int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
     g7 = session_handle;
@@ -1307,7 +1307,7 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
         if (a4 != 0) {
             if (a5 != 0) {
                 int32_t v3 = v1 * 0x100000000 * reversePointIdx / 0x100000000; // 0x1000245c
-                uint32_t v4 = VISA_CheckHWStatus(deviceId) & 3840; // 0x10002472
+                uint32_t v4 = VISA_CheckHWStatus(deviceId) & 0xf00 /*3840*/; // 0x10002472
                 int64_t v5;
                 if (v4 >= 0xd01 /*3329*/) {
                     if (v4 != 0xf00 /*3840*/) {
@@ -1356,7 +1356,7 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                 *(int16_t *)a5 = 0;
                 *(int32_t *)a4 = (int32_t)((0x100000000 * (int64_t)((int32_t)v9 >> 31) | v9 & 0xffffffff) / v1);
                 SetErrorStatus(deviceId, 0);
-                result = SetFuncStatusCode(deviceId, 0);
+                result = SetFuncStatusCode(deviceId, IE_SUCCESS /*0*/);
                 // branch -> 0x10002539
                 // 0x10002539
                 return result;
@@ -1364,7 +1364,7 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
         }
         // 0x10002438
         SetErrorStatus(deviceId, 4);
-        result = SetFuncStatusCode(deviceId, -3);
+        result = SetFuncStatusCode(deviceId,  IE_ERR_VALS /*-3*/);
         // branch -> 0x10002539
     } else {
         // 0x1000241b
@@ -1380,17 +1380,17 @@ int32_t VISA_CheckHWStatus(SET9052 *a1) {
     g3 = &v1;
     int16_t v2; // bp-8
     int32_t v3 = function_100011fc(a1, &v2); // 0x10001a62
-    int32_t v4 = -256;
+    int32_t v4 = 0xffffff00 /*-256*/;
     int32_t v5 = v3; // 0x10001a8e
     if ((0x10000 * v3 || 0xffff) < 0x1ffff) {
-        int32_t v6 = 16 * ((int32_t)v2 & 240); // 0x10001a87
+        int32_t v6 = 16 * ((int32_t)v2 & 0xf0 /*240*/); // 0x10001a87
         v4 = v6;
         v5 = v6;
         // branch -> 0x10001a8e
     }
     // 0x10001a8e
     g3 = v1;
-    int32_t result = v5 & -0x10000 | v4;
+    int32_t result = v5 & 0xffff0000 /*-0x10000*/ | v4;
 	dlog(LOG_DEBUG, "VISA_CheckHWStatus() --> 0x%x\n", result);
     return v5 & -0x10000 | v4;
 }
