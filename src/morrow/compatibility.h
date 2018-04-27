@@ -20,6 +20,10 @@ typedef double float80_t;
 #define true 1
 #define false 0
 
+#define bool int
+
+#define INFINITY HUGE_VAL
+
 #else
 
 #include <stdbool.h>

@@ -21,9 +21,9 @@ int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
 
 static int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t *response) ;
-static int32_t function_10001249(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) ;
-static int32_t function_100015d0(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t *a4);
-static int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t *a3);
+static int32_t write2StatusReg(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) ;
+static int32_t readResponseRegT(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t *a4);
+static int32_t readResponseReg(SET9052 *deviceId, int16_t a2, int32_t *a3);
 static int32_t sendWord(SET9052 *deviceId, int16_t command) ;
 
 int32_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) ;
@@ -253,7 +253,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
             if ((v6 & 0xf00 /*3840*/) != 0xf00 /*3840*/) {
                 return 0xffff;
             }
-            int32_t v8 = function_100016c8(deviceId); // 0x10002037
+            int32_t v8 = DLFMModeOn(deviceId); // 0x10002037
             if ((0x10000 * v8 || 0xffff) >= 0x1ffff) {
                 return v8 | 0xffff;
             }
@@ -312,7 +312,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2 = 0; // bp-20
-    function_100010e1(deviceId, 0);
+    DLFMModeOff(deviceId, 0);
     int32_t v3;
     int16_t v4;
     int16_t v5;
@@ -340,7 +340,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
                     if (v5 != 3) {
                         if (v5 != 4) {
                         	dlog( LOG_DEBUG, "VISA_SendCommand before return 1\n");
-                            return (int32_t)v2 | function_100016c8(deviceId) & -0x10000;
+                            return (int32_t)v2 | DLFMModeOn(deviceId) & -0x10000;
                         }
                     }
 
@@ -408,7 +408,7 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, u
         goto lab_0x10001d34_3;
     }
 #else
-    function_100010e1(deviceId, 0);
+    DLFMModeOff(deviceId, 0);
     if (command < 0 || command >16) {
     	return -1;
     }
@@ -496,43 +496,48 @@ int32_t _sendCommand(SET9052 *deviceId, int16_t command) {
     return (int32_t)response | SetErrorStatus(deviceId, v3) & -0x10000;
 }
 
-int32_t function_100016c8(SET9052 *deviceId) {
-	dlog( LOG_DEBUG, "\tfunction_100016c8\n");
+// Switch on DLFM (DataLow Fill) Mode.
+// Sets bit 9 and waits until bit 8 is set or timeout.
+// function_100016c8
+int32_t DLFMModeOn(SET9052 *deviceId) {
+	dlog( LOG_DEBUG, "\tDLFMModeOn\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x100016d2
     int32_t v3; // bp-20
-    if ((0x10000 * function_100011fc(deviceId, &v3) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         g5 = deviceId;
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001707
         g3 = v1;
-    	dlog( LOG_DEBUG, "\tfunction_100016c8 leave 1 --> 0x%x\n", result);
+    	dlog( LOG_DEBUG, "\tDLFMModeOn leave 1 --> 0x%x\n", result);
         return result;
     }
     int32_t v4 = v3; // 0x10001710
-    int32_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | 512; // 0x10001714
+    // DD : next line set bit position 9 (counted from zero)
+    // This sets DLFM mode,
+   int32_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | 512; // 0x10001714
     v3 = v5;
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x1000171b
     g2 = v6;
     int32_t result2; // 0x100017e0
-    if ((0x10000 * function_10001249(deviceId, (int16_t)v6, v6, 0) || 0xffff) < 0x1ffff) {
+    if ((0x10000 * write2StatusReg(deviceId, (int16_t)v6, v6, 0) || 0xffff) < 0x1ffff) {
         InitTimeoutLoop(0);
         int32_t v7;
         while (true) {
-            int32_t v8 = 0x10000 * function_100017e1(deviceId, &v3); // 0x10001764
+            int32_t v8 = 0x10000 * checkDLFMBitSet(deviceId, &v3); // 0x10001764
             if ((v8 || 0xffff) < 0x1ffff) {
                 v7 = v8 / 0x10000;
                 g5 = v7;
                 SetErrorStatus(deviceId, v7);
                 g3 = v1;
-            	dlog( LOG_DEBUG, "\tfunction_100016c8 leave 1 --> 0x%x\n", -2);
+            	dlog( LOG_DEBUG, "\tDLFMModeOn leave 1 --> 0x%x\n", -2);
                 return -2;
             }
             if ((0x10000 * _TestTimeoutDone(v2) || 0xffff) >= 0x1ffff) {
                 break;
             }
         }
-        int32_t v9 = 0x10000 * function_100017e1(deviceId, &v3); // 0x100017ac
+        int32_t v9 = 0x10000 * checkDLFMBitSet(deviceId, &v3); // 0x100017ac
         v7 = v9 / 0x10000;
         g5 = v7;
         SetErrorStatus(deviceId, v7);
@@ -541,7 +546,7 @@ int32_t function_100016c8(SET9052 *deviceId) {
         result2 = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
     }
     g3 = v1;
-	dlog( LOG_DEBUG, "\tfunction_100016c8 leave 2 --> 0x%x\n", result2);
+	dlog( LOG_DEBUG, "\tDLFMModeOn leave 2 --> 0x%x\n", result2);
     return result2;
 }
 
@@ -557,7 +562,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
     int32_t v3; // bp-24
     int32_t *v4 = &v3; // 0x10001373
     g5 = deviceId;
-    int32_t v5 = function_100015d0(deviceId, 100, 512, v4); // 0x10001384
+    int32_t v5 = readResponseRegT(deviceId, 100, 512, v4); // 0x10001384
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x10001390
     //dlog( LOG_DEBUG, "_doSendWord: v6 %x\n", v6 );
     if ((int16_t)v6 <= -1) {
@@ -565,6 +570,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v6 & -0x10000 | v5 & 0xffff;
     }
     g5 = session_handle;
+    // Register 14 = 0xe = data Low
     int32_t v7 = dd_viWsCmdAlike(session_handle, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
     //dlog( LOG_DEBUG, "_doSendWord: v7 %x\n", v7 );
     if (v7 != 0) {
@@ -572,7 +578,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v7 & -0x10000 | 0x8000;
     }
     g5 = deviceId;
-    int32_t v8 = function_100015d0(deviceId, 100, 512, v4); // 0x100013dc
+    int32_t v8 = readResponseRegT(deviceId, 100, 512, v4); // 0x100013dc
     int32_t v9 = 0x10000 * v8 / 0x10000; // 0x100013e8
     //dlog( LOG_DEBUG, "_doSendWord: v9 %x\n", v9 );
     if ((int16_t)v9 <= -1) {
@@ -606,6 +612,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
     }
     g5 = session_handle;
     // DD: 0xcdff Read Protocol Error
+    // Register 14 = 0xe = DataLow
     int32_t v14 = dd_viWsCmdAlike(session_handle, 1, 14, WS_CMD_RPE /*0xcdff*/); // 0x10001421
     //dlog( LOG_DEBUG, "_doSendWord: v14 %x\n", v14 );
     if (v14 != 0) {
@@ -613,7 +620,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v14 & -0x10000 | 0x8400;
     }
     g5 = deviceId;
-    int32_t v15 = function_100015d0(deviceId, 100, 512, v4); // 0x10001449
+    int32_t v15 = readResponseRegT(deviceId, 100, 512, v4); // 0x10001449
 	//dlog( LOG_DEBUG, "\t_doSendWord *v4 %x\n", *v4);
 	//dlog( LOG_DEBUG, "\t_doSendWord v3 %x\n", v3);
 
@@ -633,7 +640,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return 0x8000;
     }
     g5 = v4;
-    int32_t v17 = function_100015d0(deviceId, 100, 1024, v4); // 0x10001497
+    int32_t v17 = readResponseRegT(deviceId, 100, 1024, v4); // 0x10001497
     int32_t v18 = 0x10000 * v17 / 0x10000; // 0x100014a3
     int32_t v19 = v18 & 0x8000; // 0x100014a7
     g5 = v19;
@@ -707,54 +714,57 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 // XXX DD
 }
 
-int32_t function_100011fc(SET9052 *deviceId, int16_t *a2) {
-	dlog( LOG_DEBUG, "function_100011fc\n");
+// function_100011fc
+int32_t readStatusReg(SET9052 *deviceId, int16_t *val16) {
     int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
     g7 = session_handle;
-    int32_t v2 = dd_viIn16(session_handle, 1, 4, a2);
-	//dlog( LOG_DEBUG, "function_100011fc v2: 0x%x, response: 0x%x\n", v2, *a2);
+    int32_t v2 = dd_viIn16(session_handle, 1, 4, val16);
+	dlog( LOG_DEBUG, "\treadStatusReg() -> v2: 0x%x, response: 0x%x\n", v2, *val16);
 
     int32_t ret = SetErrorStatus(deviceId, v2) & -0x10000 | v2;
-	//dlog( LOG_DEBUG, "function_100011fc --> 0x%x\n", ret);
+	//dlog( LOG_DEBUG, "readStatusReg --> 0x%x\n", ret);
     return ret;
 }
 
-int32_t function_10001249(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) {
+// function_10001249
+int32_t write2StatusReg(SET9052 *deviceId, uint16_t word, int32_t unused, int32_t unused1) {
 	// What is this call doing ???
-	dlog( LOG_DEBUG, "\tfunction_10001249(command %x=%s,0x%x, 0x%x) - what is this call intending TODO CHECK?\n", command, getCmdNameP2(command), a3, a4);
+	dlog( LOG_DEBUG, "\twrite2StatusReg(word %x=%s,0x%x, 0x%x)\n", word, getCmdNameP2(word), unused, unused1);
 	int32_t v1 = deviceId->session_handle;
 #ifdef ORIG
     int32_t v2 = dd_viWsCmdAlike(v1, 1, 4, g2 & -0x10000 | command) != 0;
 #else
     int32_t v2;
 	//dlog( LOG_DEBUG, "Command %x left out.\n", command);
-	v2 = dd_viOut16(v1, 1, 4, command);
+	v2 = dd_viOut16(v1, 1, 4, word);
 #endif
     g5 = deviceId;
     return SetErrorStatus(deviceId, v2) & -0x10000 | v2;
 }
 
-int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
-	dlog( LOG_DEBUG, "function_100017e1\n");
+// Check DLFM bit 8 in status register for being set.
+// returns 0 if set, 3 if cleared.
+// function_100017e1
+int32_t checkDLFMBitSet(SET9052 *deviceId, int16_t * a2) {
+	//dlog( LOG_DEBUG, "\tcheckDLFMBitSet\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2;
     int32_t a2tmp;
-    if ((0x10000 * function_100011fc(deviceId, &a2tmp) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * readStatusReg(deviceId, &a2tmp) || 0xffff) >= 0x1ffff) {
     	*a2 = a2tmp;
         v2 = SetErrorStatus(deviceId, 1);
         g3 = v1;
         int ret = (int32_t)1 | v2 & -0x10000;
-    	//dlog( LOG_DEBUG, "function_100017e1 1 --> 0x%x\n", ret);
+    	dlog( LOG_DEBUG, "\tcheckDLFMBitSet 1 --> 0x%x\n", ret);
         return ret;
     }
 	*a2 = a2tmp;
     int16_t v3; // bp-12
     int32_t v4; // 0x1000182b
-    // *a2 needs 256 set, othewise we get error status 3!
-	//dlog( LOG_DEBUG, "function_100017e1 a2: 0x%x\n", *a2);
-    if ((*a2 & 256) != 0) {
-        v3 = 0;
+    // Check if Bit 8 is set
+    if ((*a2 & (1<<8) /*256*/) != 0) {
+        v3 = IE_SUCCESS /*0*/;
         v4 = 0;
     } else {
         v3 = 3;
@@ -763,37 +773,34 @@ int32_t function_100017e1(SET9052 *deviceId, int16_t * a2) {
     v2 = SetErrorStatus(deviceId, v4);
     g3 = v1;
     int ret = (int32_t)v3 | v2 & -0x10000;
-	//dlog( LOG_DEBUG, "function_100017e1 2 --> 0x%x\n", ret);
+	dlog( LOG_DEBUG, "\tcheckDLFMBitSet 2 --> %d\n", ret);
     return ret;
 }
 
-int32_t function_100015d0(SET9052 * deviceId, int32_t timeout, int16_t a3, int32_t* a4) {
+// function_100015d0
+int32_t readResponseRegT(SET9052 * deviceId, int32_t timeout, int16_t mask, int32_t* val) {
     int32_t v1 = g3; // 0x100015d0
     InitTimeoutLoop(v1);
     g3 = v1;
-    return 0x10000 * function_10001654(deviceId, a3, a4) / 0x10000;
+    return 0x10000 * readResponseReg(deviceId, mask, val) / 0x10000;
 }
 
-int32_t function_10001654(SET9052 *deviceId, int16_t a2, int32_t* a3) {
-	dlog( LOG_DEBUG, "function_10001654(a2=0x%x)\n", a2);
+// function_10001654
+int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int32_t* val) {
     g5 = deviceId;
-    if (dd_viIn16(deviceId->session_handle, 1, 10, a3) != 0) {
+    if (dd_viIn16(deviceId->session_handle, 1, 10, val) != 0) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0x8020; // 0x10001686
         return result;
     }
-    g5 = a3;
+    g5 = val;
     int32_t result2; // 0x100016c7
-//#ifdef ORIG
-    // totally unclear whats going on here
-    if (((int32_t)*(int16_t *)a3 & (int32_t)a2) != 0) {
-//#else
-//    if (1) {
-//#endif
+    if (((int32_t)*(int16_t *)val & (int32_t)mask) != 0) {
         result2 = SetErrorStatus(deviceId, IE_SUCCESS /*0*/) & -0x10000 | 1;
     } else {
         g5 = deviceId;
         result2 = SetErrorStatus(deviceId, IE_WARN_VALS /*1*/) & -0x10000 | 0x8004;
     }
+	dlog( LOG_DEBUG, "\treadResponseReg(a2=0x%x) --> %d\n", mask, result2);
     return result2;
 }
 
@@ -843,49 +850,56 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
 
 int32_t dd_readEngineStatus(SET9052 *deviceId) {
 	dlog( LOG_DEBUG, "dd_readEngineStatus\n") ;
-    function_100010e1(deviceId, 0x10000 * (int32_t)g5 / 0x10000);
+    DLFMModeOff(deviceId, 0x10000 * (int32_t)g5 / 0x10000);
     g5 = deviceId;
     // DD: 0x7e00 = VXI_GETSTATUS
     int32_t v1 = _sendCommand(deviceId, 0x7e00); // 0x100010a7
-    function_100016c8(deviceId);
+    DLFMModeOn(deviceId);
     g7 = deviceId;
 	dlog( LOG_DEBUG, "dd_readEngineStatus result=%x\n", ((uint32_t)g5 & -0x10000 | v1 & 255)) ;
     return SetEngineReplyCode(deviceId, (uint32_t)g5 & -0x10000 | v1 & 255);
 }
 
-int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
-	dlog( LOG_DEBUG, "function_100010e1(a2=0x%x)\n", a2) ;
+// Switch off DLFM (DataLow Fill) Mode.
+// Clears bit 9 and waits until bit 8 is clear or timeout.
+// function_100010e1
+int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
+	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x)\n", unused) ;
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x100010eb
     int32_t v3; // bp-20
-    if ((0x10000 * function_100011fc(deviceId, &v3) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001120
         g3 = v1;
+    	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x) 1 --> %d\n", unused, result) ;
         return result;
     }
-    int16_t v4 = v3 & -513; // 0x1000112d
+    // DD : next line clears bit position 9 (counted from zero)
+    // This clears DLFM mode,
+    int16_t v4 = v3 & 0xfdff /*-513*/; // 0x1000112d
     v3 = v4;
     int32_t v5 = v4; // 0x10001136
     g2 = v5;
-    int32_t v6 = 0x10000 * function_10001249(deviceId, v4, v5, 0); // 0x10001147
+    int32_t v6 = 0x10000 * write2StatusReg(deviceId, v4, v5, 0); // 0x10001147
     g7 = v6 / 0x10000;
     int32_t result2; // 0x100011fb
     if ((v6 || 0xffff) < 0x1ffff) {
         InitTimeoutLoop(0);
         while (true) {
-            int32_t v7 = 0x10000 * function_10001297(deviceId, &v3); // 0x1000117f
+            int32_t v7 = 0x10000 * checkDLFMBitClear(deviceId, &v3); // 0x1000117f
             if ((v7 || 0xffff) < 0x1ffff) {
                 g7 = deviceId;
                 SetErrorStatus(deviceId, v7 / 0x10000);
                 g3 = v1;
+            	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x) 1 --> -2\n", unused) ;
                 return -2;
             }
             if ((0x10000 * TestTimeoutDone(v2) || 0xffff) >= 0x1ffff) {
                 break;
             }
         }
-        int32_t v8 = 0x10000 * function_10001297(deviceId, &v3); // 0x100011c7
+        int32_t v8 = 0x10000 * checkDLFMBitClear(deviceId, &v3); // 0x100011c7
         g7 = deviceId;
         SetErrorStatus(deviceId, v8 / 0x10000);
         result2 = -2;
@@ -893,6 +907,7 @@ int32_t function_100010e1(SET9052 *deviceId, int32_t a2) {
         result2 = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
     }
     g3 = v1;
+	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x) 1 --> %d\n", unused, result2) ;
     return result2;
 }
 
@@ -913,20 +928,24 @@ int32_t sendWord(SET9052 *deviceId, int16_t command) {
     return result;
 }
 
-int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
-	dlog( LOG_DEBUG, "function_10001297\n");
+// Check DLFM bit 8 in status register for being cleared.
+// returns 0 if cleared, 3 if set.
+// function_10001297
+int32_t checkDLFMBitClear(SET9052 *deviceId, int16_t *a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2; // 0x100012ea
-    if ((0x10000 * function_100011fc(deviceId, a2) || 0xffff) >= 0x1ffff) {
+    if ((0x10000 * readStatusReg(deviceId, a2) || 0xffff) >= 0x1ffff) {
         v2 = SetErrorStatus(deviceId, 1);
         g3 = v1;
+    	dlog( LOG_DEBUG, "\tcheckDLFMBitClear() 1 --> %d\n", v2);
         return (int32_t)1 | v2 & -0x10000;
     }
     int16_t v3; // bp-12
     int32_t v4; // 0x100012e1
-    if ((*a2 & 256) == 0) {
-        v3 = 0;
+    // Check bit 8
+    if ((*a2 & (1<<8) /*256*/) == 0) {
+        v3 = IE_SUCCESS /*0*/;
         v4 = 0;
     } else {
         v3 = 3;
@@ -934,6 +953,7 @@ int32_t function_10001297(SET9052 *deviceId, int16_t * a2) {
     }
     v2 = SetErrorStatus(deviceId, v4);
     g3 = v1;
+	dlog( LOG_DEBUG, "\tcheckDLFMBitClear() --> %d\n", v3);
     return (int32_t)v3 | v2 & -0x10000;
 }
 
@@ -1123,7 +1143,7 @@ int32_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t
  	dlog( LOG_TRACE, "\tdd_viIn16(%d, 0x%x, 0x%x) --> 0x%x\n", session_handle, space, offset, (*val16 & 0xffff));
 
 	// bits 9,10 are required and checked in _doSendWord().
-	// bit 8 required by function_100017e1().
+	// bit 8 required by checkDLFMBitSet().
 	// DD XXX analyze what they might mean
 	//*response = (1<<9)|(1<<10)/*|(1<<8)*/;
 	//dlog( LOG_DEBUG, "iflush response 0x%x\n", *response);
@@ -1177,7 +1197,7 @@ int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 /* MeasureAmplWithFreq related code */
 /*------------------------------------------------------------------------------------*/
 
-
+// Seems to read in until FIFO is empty
 int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
     int16_t v1 = 0; // bp-8
     // branch -> 0x10001e55
@@ -1207,6 +1227,11 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
     return result2;
 }
 
+// Checks bit 10 in response register. If clear, return an error. If set,
+// read in register 14 = 0xe = DataLow and return the value.
+// This seems to be the basic read function when fetching data from the engine !?!
+// called by VISA_FetchDataWord and VISA_ClearDataFIFO.
+// function_10001b08
 int32_t function_10001b08(SET9052 *deviceId) {
 	dlog(LOG_DEBUG, "function_10001b08()\n");
     int32_t v1 = g3; // bp-4
@@ -1215,41 +1240,33 @@ int32_t function_10001b08(SET9052 *deviceId) {
     int32_t v3; // bp-24
     int32_t *v4 = &v3; // 0x10001b2a
     g5 = v4;
-    int32_t v5 = function_100015d0(deviceId, v2, 1024, v4); // 0x10001b3b
+    // 1024 = (1<<10), bit position 10 in response register.
+    int32_t v5 = readResponseRegT(deviceId, v2, 1024, v4); // 0x10001b3b
     int16_t v6 = v5; // 0x10001b3b
     int32_t v7; // 0x10001bbc
     if ((int16_t)v5 <= -1) {
-        // 0x10001b08
-        // branch -> 0x10001bb4
-        // 0x10001bb4
         v7 = SetErrorStatus(deviceId, 1);
         g3 = v1;
         return v7 & -0x10000 | (int32_t)v6;
     }
-    // 0x10001b5a
+    // If bit 10 is clear, this is an error and we return. ?!?
     if ((v3 & 1024) == 0) {
-        // 0x10001bad
-        // branch -> 0x10001bb4
-        // 0x10001bb4
         v7 = SetErrorStatus(deviceId, 2);
         g3 = v1;
         return v7 & -0x10000 | (int32_t)v6;
     }
+    // If bit 10 is set, we read DataLow register
+    // If that read gives no error (dd_viIn16 returns 0) we set error status 0.
+    // if we get an error,  (dd_viIn16 returns !=0) we set error status 1.
     int32_t v8 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x10001b78
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
-    //if (r_ViIn16(v8, 1, 14, (int32_t)&v9) == 0) {
     if (dd_viIn16(v8, 1, 14, &v9) == 0) {
-        // 0x10001b9c
         v10 = 0;
-        // branch -> 0x10001bb4
     } else {
-        // 0x10001b8d
         v10 = 1;
         v9 = 0;
-        // branch -> 0x10001bb4
     }
-    // 0x10001bb4
     v7 = SetErrorStatus(deviceId, v10);
     g3 = v1;
     return v7 & -0x10000 | (int32_t)v9;
@@ -1379,7 +1396,7 @@ int32_t VISA_CheckHWStatus(SET9052 *a1) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int16_t v2; // bp-8
-    int32_t v3 = function_100011fc(a1, &v2); // 0x10001a62
+    int32_t v3 = readStatusReg(a1, &v2); // 0x10001a62
     int32_t v4 = 0xffffff00 /*-256*/;
     int32_t v5 = v3; // 0x10001a8e
     if ((0x10000 * v3 || 0xffff) < 0x1ffff) {

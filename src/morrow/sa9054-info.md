@@ -216,6 +216,8 @@ visa += 	0
 - Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
 - Check all "DD XXX" and "TODO" notes and solve the issues
 - SetVBWmode uses AUTO_ON/OFF and not VI_TRUE/FALSE. Replace this everywhere.
+- replace all (a1 & 256) and such with a1->opcode & 256. 
+- SetErrorStatus() in visa.c replace 1,2,3,... with #defines
 
 ## Status
 
@@ -226,4 +228,85 @@ visa += 	0
 
 As soon as mr90xx_MeasureAmplWithFreq(), aquisition data can be retrieved from the Spectrum Analyzer.
 
+
+bash-4.3$ ./morrow 
+----------------------------------------
+main start
+ACK
+mr90xx_OpenSession, session added to position 1.
+mr90xx_init OK
+
+mr90xx_SetEngineModel OK
+
+mr90xx_InitGuiSweep OK
+
+MeasureAmplWithFreq
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(149000000.000000) -> 1
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(150000000.000000) -> 1
+SetSweepCode(318030931004290090000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.000000)
+RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+SetRBWmode(mode=0x0)
+SetRBW(0x5)
+RBWFreqFromCode(5); frequencyLimit_rbwFrequency was set to: 3000000.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(5) -> -1
+DefltSetTimeVBW(1) -> 250000
+DefltSetTimeRBW(5) -> -1
+DefltSetTimeVBW(1) -> 250000
+SetVBWmode(0x1)
+ConfigStartFreq(149000000.000000)
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(149000000.000000) -> 1
+SetFuncStatusCode(fffd)
+ConfigStartFreq(150000000.000000)
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(150000000.000000) -> 1
+RBWFreqFromCode(5); frequencyLimit_rbwFrequency was set to: 3000000.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(5) -> -1
+DefltSetTimeVBW(1) -> 250000
+SetRefLevel(2)
+SetNumCells(40)
+RBWFreqFromCode(5); frequencyLimit_rbwFrequency was set to: 3000000.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(5) -> -1
+DefltSetTimeVBW(1) -> 250000
+RdNumSwpPts --> 40
+
+
+sa.c:BreakSweep, mode=0
+
+sa.c:SendCommand 7
+VISA_SendCommand(7=ENG_TERMINATE, 1, 7b03a990)
+wordPtr[0]=0x0
+function_100010e1(a2=0x0)
+function_100011fc
+        function_10001249(command d10f=P2?,0xffffd10f, 0x0) - what is this call intending TODO CHECK?
+function_10001297
+function_100011fc
+
+dd_SendCommand(7=ENG_TERMINATE, 1, 7b03a990)
+words[0]=0x0
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+Bus error (core dumped)
 

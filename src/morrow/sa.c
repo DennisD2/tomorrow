@@ -191,7 +191,9 @@ int32_t TestFuncStatusAndPtr(SET9052 *a1) {
 }
 
 int32_t SetFuncStatusCode(SET9052 *a1, uint16_t code) {
-	dlog( LOG_DEBUG, "SetFuncStatusCode(%x)\n", code);
+	if (code!=0) {
+		dlog( LOG_DEBUG, "SetFuncStatusCode(%x)\n", code);
+	}
 	int32_t v1 = g4; // 0x10001365
 	int32_t v2 = v1; // bp-4
 	g4 = &v2;
@@ -1739,7 +1741,7 @@ int32_t RBWFreqFromCode(int16_t code) {
 		frequencyLimit_rbwFrequency = 3000000.0;
 		break;
 	}
-	dlog(LOG_ERROR,
+	dlog(LOG_DEBUG,
 			"RBWFreqFromCode(%d); frequencyLimit_rbwFrequency was set to: %f \n",
 			code, frequencyLimit_rbwFrequency);
 	return code;
@@ -1791,7 +1793,7 @@ int32_t VBWFreqFromCode(int16_t code) {
 		frequencyLimit = 3000000.0;
 		break;
 	}
-	dlog(LOG_ERROR, "VBWFreqFromCode(%d); frequencyLimit was set to: %f \n",
+	dlog(LOG_DEBUG, "VBWFreqFromCode(%d); frequencyLimit was set to: %f \n",
 			code, frequencyLimit);
 	return code;
 #endif
@@ -1832,7 +1834,7 @@ int32_t DefltSetTimeRBW(int16_t code) {
 		time = -1;
 		break;
 	}
-	dlog(LOG_ERROR, "DefltSetTimeRBW(%d) -> %d\n", code, time);
+	dlog(LOG_DEBUG, "DefltSetTimeRBW(%d) -> %d\n", code, time);
 	return time;
 #endif
 }
@@ -1885,7 +1887,7 @@ int32_t DefltSetTimeVBW(int16_t code) {
 		time = -1;
 		break;
 	}
-	dlog(LOG_ERROR, "DefltSetTimeVBW(%d) -> %d\n", code, time);
+	dlog(LOG_DEBUG, "DefltSetTimeVBW(%d) -> %d\n", code, time);
 	return time;
 #endif
 }
@@ -4481,7 +4483,7 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 
 // Stores minimum frequency in global 'frequencyLimit'
 int32_t RdMinFreqLimit(SET9052 *a1) {
-	dlog(LOG_DEBUG, "RdMinFreqLimit\n");
+	//dlog(LOG_DEBUG, "RdMinFreqLimit\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -5317,7 +5319,7 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 }
 
 int32_t SetSweepCode(SET9052 *a1, int16_t code) {
-	dlog(LOG_DEBUG, "SetSweepCode(%f)\n", code);
+	dlog(LOG_DEBUG, "SetSweepCode(%d)\n", code);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e2d
 	g3 = v1;
@@ -5345,8 +5347,6 @@ int32_t SetSweepCode(SET9052 *a1, int16_t code) {
 /*------------------------------------------------------------------------------------*/
 /* MeasureAmplWithFreq related code */
 /*------------------------------------------------------------------------------------*/
-#define MeasureAmplWithFreq_is_on
-#ifdef MeasureAmplWithFreq_is_on
 
 static int32_t function_10002d12(SET9052 *a1, uint16_t sweep_in_progress);
 int32_t GetDbmForAmpl(SET9052 *a1, int16_t a2);
@@ -7590,9 +7590,6 @@ int32_t function_10010a55(int32_t a1) {
 __startOneArgErrorHandling(void) {
 	dlog(LOG_ERROR, "__startOneArgErrorHandling()- TBI no decompilation, WINDOWS function!\n");
 }
-
-
-#endif
 
 /*------------------------------------------------------------------------------------*/
 /* End of file */

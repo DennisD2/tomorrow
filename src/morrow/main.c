@@ -16,14 +16,13 @@
 int main(int argc, char **argv) {
 
 	setLogLevel(LOG_DEBUG);
-	dlog(LOG_DEBUG, "----------------------------------------\n");
+	dlog(LOG_INFO, "----------------------------------------\n");
 
 	char sessionString[50];
 	ViChar message[128];
 	ViStatus mr90xxStatus;
 	ViSession sessionId;
 
-	setLogLevel(LOG_SILLY);
 	printf("main start\n");
 
 	sprintf(sessionString, "vxi,126");
@@ -38,10 +37,10 @@ int main(int argc, char **argv) {
 
 	mr90xxStatus = mr90xx_SetEngineModel(sessionId, SA9054);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_DEBUG, "Error mr90xx_SetEngineModel\n");
+		dlog(LOG_ERROR, "Error mr90xx_SetEngineModel\n");
 		exit(-1);
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_SetEngineModel OK\n\n");
+		dlog(LOG_INFO, "mr90xx_SetEngineModel OK\n\n");
 	}
 
 	ViInt16 number_points = 40;
@@ -51,11 +50,13 @@ int main(int argc, char **argv) {
 	mr90xxStatus = mr90xx_InitGuiSweep(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_DEBUG, "Error mr90xx_InitGuiSweep\n");
+		dlog(LOG_ERROR, "Error mr90xx_InitGuiSweep\n");
 		exit(-1);
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_InitGuiSweep OK\n\n");
+		dlog(LOG_INFO, "mr90xx_InitGuiSweep OK\n\n");
 	}
+
+	setLogLevel(LOG_DEBUG);
 
 	ViReal64 amp_array[40], freq_array[40];
 	mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
@@ -63,9 +64,9 @@ int main(int argc, char **argv) {
 		MR90XX_SWP_MIN,
 		MR90XX_DBM_FORMAT, amp_array, freq_array);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_DEBUG, "Error mr90xx_MeasureAmplWithFreq\n");
+		dlog(LOG_ERROR, "Error mr90xx_MeasureAmplWithFreq\n");
 	} else {
-		dlog(LOG_DEBUG, "mr90xx_MeasureAmplWithFreq OK\n");
+		dlog(LOG_INFO, "mr90xx_MeasureAmplWithFreq OK\n");
 	}
 
 	int i;
