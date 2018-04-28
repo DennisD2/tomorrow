@@ -146,7 +146,6 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
 		regdata = q[REG_RESPONSE];
 		//regdata = iwpeek(&(q[REG_RESPONSE]));
-		dlog(LOG_TRACE, "4\n");
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
 			char *rr = (regdata & READREADY) ? "RR" : "";
@@ -161,17 +160,14 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		// Increment timeout
 		timeoutCnt++;
 	}
-	dlog(LOG_TRACE, "5\n");
 	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_TRACE, "6\n");
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_TRACE, "7\n");
 	dlog(LOG_TRACE, "\tWRITEREADY after %ldus (%d tries).\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 

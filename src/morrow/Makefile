@@ -31,7 +31,7 @@ pnp.o : pnp.c
 	gcc $(CFLAGS) -c pnp.c
 
 visa.o : visa.c
-	gcc $(CFLAGS) -c visa.c
+	gcc $(WCFLAGS) -c visa.c
 
 main.o : main.c
 	gcc $(CFLAGS) -c main.c

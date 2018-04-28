@@ -113,15 +113,15 @@ char *getCmdNameP1(int id) {
 int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
 	dlog( LOG_DEBUG, "VISA_OpenSessionStep\n");
     if (deviceId == NULL) {
-        return g2 & -0x10000 | 0xfff6;
+        return /*XXX g2 & -0x10000 | */ 0xfff6;
     }
     int32_t *v1 = &deviceId->session_handle; // (int32_t *)(deviceId + 468); // 0x100021ea
     if (*v1 != 0) {
-        return (int32_t)deviceId & -0x10000 | 0xffed;
+        return /*XXX *(int32_t)deviceId & -0x10000 | */ 0xffed;
     }
     if (g53 == 0) {
     	// DD: Assumed call:This seems to be: ViStatus viOpenDefaultRM(ViPSession sesn)
-        int32_t v2 = dd_viOpenDefaultRM((int32_t)&g52_currentViSession); // 0x1000220a
+        int32_t v2 = dd_viOpenDefaultRM(&g52_currentViSession); // 0x1000220a
         if (v2 != VI_SUCCESS) {
             return v2 | 0xffff;
         }
@@ -207,9 +207,9 @@ int32_t VISA_CloseSession(SET9052 *deviceId) {
         deviceId->openStep = 0;
         //*(char *)(deviceId + 210) = 0;
         deviceId->sessionString[0] = '\0';
-        result = (int32_t)deviceId & -0x10000;
+        result = 0 /*XXX (int32_t)deviceId & -0x10000*/;
     } else {
-        result = (int32_t)deviceId & -0x10000 | 0xffed;
+        result = /*XXX (int32_t)deviceId & -0x10000 | */ 0xffed;
     }
     return result;
 }
@@ -518,7 +518,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
     uint16_t v4 = v3; // 0x10001710
     // DD : next line set bit position 9 (counted from zero)
     // This sets DLFM mode,
-    uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | 512; // 0x10001714
+   uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | 512; // 0x10001714
     v3 = v5;
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x1000171b
     g2 = v6;
@@ -753,16 +753,13 @@ int32_t checkDLFMBitSet(SET9052 *deviceId, int16_t * a2) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2;
-    int32_t a2tmp;
-    if ((0x10000 * readStatusReg(deviceId, &a2tmp) || 0xffff) >= 0x1ffff) {
-    	*a2 = a2tmp;
+    if ((0x10000 * readStatusReg(deviceId, a2) || 0xffff) >= 0x1ffff) {
         v2 = SetErrorStatus(deviceId, 1);
         g3 = v1;
         int ret = (int32_t)1 | v2 & -0x10000;
     	dlog( LOG_DEBUG, "\tcheckDLFMBitSet 1 --> 0x%x\n", ret);
         return ret;
     }
-	*a2 = a2tmp;
     int16_t v3; // bp-12
     int32_t v4; // 0x1000182b
     // Check if Bit 8 is set
@@ -960,7 +957,7 @@ int32_t checkDLFMBitClear(SET9052 *deviceId, int16_t *a2) {
     return (int32_t)v3 | v2 & -0x10000;
 }
 
-int32_t VISA_ResetEngine(int32_t deviceId) {
+int32_t VISA_ResetEngine(SET9052 *deviceId) {
 	dlog( LOG_DEBUG, "VISA_ResetEngine\n");
     // DD: 0x3701 = 0xcaff = Read Interrupters
     int16_t v1 = _sendCommand(deviceId, WS_CMD_RI /*0xcaff*/ /*-0x3701*/); // bp-8
@@ -1132,7 +1129,7 @@ int32_t dd_viSetAttribute(int32_t a1, int32_t a2, int32_t a3) {
 	dlog( LOG_DEBUG, "viSetAttribute(%d, %d, %d)\n", a1, a2, a3);
 	return VI_SUCCESS;
 }
-int32_t dd_viOpenDefaultRM(int32_t a1) {
+int32_t dd_viOpenDefaultRM(int32_t *a1) {
 	dlog( LOG_DEBUG, "viOpenDefaultRM()\n");
 	return VI_SUCCESS;
 }
@@ -1326,7 +1323,7 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
     if ((0x10000 * TestFuncStatusAndPtr(deviceId) || 0xffff) < 0x1ffff) {
         if (a4 != 0) {
             if (a5 != 0) {
-                int32_t v3 = v1 * 0x100000000 * reversePointIdx / 0x100000000; // 0x1000245c
+                int64_t v3 = v1 * reversePointIdx; //  v1 * 0x100000000 * reversePointIdx / 0x100000000; // 0x1000245c
                 uint32_t v4 = VISA_CheckHWStatus(deviceId) & 0xf00 /*3840*/; // 0x10002472
                 int64_t v5;
                 if (v4 >= 0xd01 /*3329*/) {
@@ -1374,7 +1371,7 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                 }
                 // 0x10002509
                 *(int16_t *)a5 = 0;
-                *(int32_t *)a4 = (int32_t)((0x100000000 * (int64_t)((int32_t)v9 >> 31) | v9 & 0xffffffff) / v1);
+                *(int32_t *)a4 = v9 / v1; // XXX Check if equal: (int32_t)((0x100000000 * (int64_t)((int32_t)v9 >> 31) | v9 & 0xffffffff) / v1);
                 SetErrorStatus(deviceId, 0);
                 result = SetFuncStatusCode(deviceId, IE_SUCCESS /*0*/);
                 // branch -> 0x10002539
