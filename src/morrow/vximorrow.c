@@ -126,19 +126,21 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		uint16_t *theResponse, uint16_t *rpe, int readAnswer) {
 	dlog(LOG_DEBUG, "\ndd_wsCommand(command=0x%x,readAnswer=%d)\n", command,
 			readAnswer);
+	dlog(LOG_TRACE, "00");
 	uint16_t regdata = 0;
 	int timeoutCnt = 0;
 
+	dlog(LOG_TRACE, "0");
 	// Let point word pointer to memory
 	uint16_t *q = (uint16_t *) mapped;
-
+	dlog(LOG_TRACE, "1");
 	struct timespec start, stop;
-	double accum;
 
 	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
+	dlog(LOG_TRACE, "2");
 
 	// ---------------------- WRITE COMMAND ----------------------
 
@@ -147,10 +149,12 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 	// Wait for WRITEREADY bit value to be set.
 	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
 		//regdata = q[REG_RESPONSE];
+		dlog(LOG_TRACE, "3");
 		regdata = iwpeek(&(q[REG_RESPONSE]));
+		dlog(LOG_TRACE, "4");
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_EXCLUDED, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+			dlog(LOG_TRACE, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
 			REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
 					((regdata & READREADY) ? "RR" : ""),
 					((regdata & WRITEREADY) ? "WR" : ""));
@@ -161,15 +165,18 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		// Increment timeout
 		timeoutCnt++;
 	}
+	dlog(LOG_TRACE, "5");
 	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
+	dlog(LOG_TRACE, "6");
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_EXCLUDED, "\tWRITEREADY after %ldus (%d tries).\n",
+	dlog(LOG_TRACE, "7");
+	dlog(LOG_TRACE, "\tWRITEREADY after %ldus (%d tries).\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 
 	// Write the command to send to the DATALOW register
@@ -195,7 +202,7 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		regdata = q[REG_RESPONSE];
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_EXCLUDED, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+			dlog(LOG_TRACE, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
 			REG_RESPONSE, regdata,
 			READREADY, (READREADY & regdata),
 					((regdata & READREADY) ? "RR" : ""),
@@ -217,7 +224,7 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		dlog(LOG_ERROR, "Timeout occurred during wait for READREADY.\n");
 		return -1;
 	}
-	dlog(LOG_EXCLUDED, "\tREADREADY after %ldus (%d tries).\n",
+	dlog(LOG_TRACE, "\tREADREADY after %ldus (%d tries).\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 
 	// Read result from Datalow
@@ -262,7 +269,6 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 	uint16_t *q = (uint16_t *) mapped;
 
 	struct timespec start, stop;
-	double accum;
 
 	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
 		dlog(LOG_ERROR, "clock gettime");
@@ -279,7 +285,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		regdata = iwpeek(&(q[REG_RESPONSE]));
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_EXCLUDED, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+			dlog(LOG_TRACE, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
 			REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
 					((regdata & READREADY) ? "RR" : ""),
 					((regdata & WRITEREADY) ? "WR" : ""));
@@ -294,13 +300,13 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_EXCLUDED, "\tWR time: %ld us\n",
+	dlog(LOG_TRACE, "\tWR time: %ld us\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L);
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "\tTimeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_EXCLUDED, "\tWRITEREADY after %d tries.\n", timeoutCnt);
+	dlog(LOG_TRACE, "\tWRITEREADY after %d tries.\n", timeoutCnt);
 
 	// Write the command to send to the DATALOW register
 	//q[REG_DATALOW] = cmd;
@@ -321,7 +327,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		regdata = iwpeek(&(q[REG_RESPONSE]));
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_EXCLUDED, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+			dlog(LOG_TRACE, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
 			REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
 					((regdata & READREADY) ? "RR" : ""),
 					((regdata & WRITEREADY) ? "WR" : ""));
@@ -336,13 +342,13 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_EXCLUDED, "\tWR2 time: %ld us\n",
+	dlog(LOG_TRACE, "\tWR2 time: %ld us\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L);
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY2.\n");
 		return -1;
 	}
-	dlog(LOG_EXCLUDED, "\tWRITEREADY2 after %d tries.\n", timeoutCnt);
+	dlog(LOG_TRACE, "\tWRITEREADY2 after %d tries.\n", timeoutCnt);
 
 	// ---------------------- WRITE SECOND WORD ----------------------
 
@@ -370,7 +376,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		regdata = q[REG_RESPONSE];
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_EXCLUDED, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+			dlog(LOG_TRACE, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
 			REG_RESPONSE, regdata, READREADY, (READREADY & regdata),
 					((regdata & READREADY) ? "RR" : ""),
 					((regdata & WRITEREADY) ? "WR" : ""));
@@ -385,7 +391,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_EXCLUDED, "\tRR time: %ld us\n",
+	dlog(LOG_TRACE, "\tRR time: %ld us\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L);
 
 	// If we exited the loop because of a timeout quit the program with an error
@@ -393,7 +399,7 @@ uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer) {
 		dlog(LOG_ERROR, "Timeout occurred during wait for READREADY.\n");
 		return -1;
 	}
-	dlog(LOG_EXCLUDED, "\tREADREADY after %d tries\n", timeoutCnt);
+	dlog(LOG_TRACE, "\tREADREADY after %d tries\n", timeoutCnt);
 
 	// Read result from Datalow
 	uint16_t response = q[REG_DATALOW];

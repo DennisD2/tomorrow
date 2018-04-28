@@ -503,7 +503,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
 	dlog( LOG_DEBUG, "\tDLFMModeOn\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = RdTimeoutWait(deviceId); // 0x100016d2
+    int32_t timeout = RdTimeoutWait(deviceId); // 0x100016d2
     int32_t v3; // bp-20
     if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         g5 = deviceId;
@@ -533,7 +533,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
             	dlog( LOG_DEBUG, "\tDLFMModeOn leave 1 --> 0x%x\n", -2);
                 return -2;
             }
-            if ((0x10000 * _TestTimeoutDone(v2) || 0xffff) >= 0x1ffff) {
+            if ((0x10000 * TestTimeoutDone(timeout) || 0xffff) >= 0x1ffff) {
                 break;
             }
         }
@@ -867,7 +867,7 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
 	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x)\n", unused) ;
     int32_t v1 = g3; // bp-4
     g3 = &v1;
-    int32_t v2 = RdTimeoutWait(deviceId); // 0x100010eb
+    int32_t timeout = RdTimeoutWait(deviceId); // 0x100010eb
     int32_t v3; // bp-20
     if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001120
@@ -895,7 +895,7 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
             	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x) 1 --> -2\n", unused) ;
                 return -2;
             }
-            if ((0x10000 * TestTimeoutDone(v2) || 0xffff) >= 0x1ffff) {
+            if ((0x10000 * TestTimeoutDone(timeout) || 0xffff) >= 0x1ffff) {
                 break;
             }
         }
@@ -1199,11 +1199,10 @@ int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 
 // Seems to read in until FIFO is empty
 int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
-    int16_t v1 = 0; // bp-8
-    // branch -> 0x10001e55
+	dlog(LOG_DEBUG, "VISA_ClearDataFIFO\n");
+	int16_t v1 = 0; // bp-8
     int32_t result2; // 0x10001e41
     while (true) {
-        // 0x10001e55
         function_10001b08(deviceId);
         int32_t v2 = RdErrorStatus(deviceId); // 0x10001e65
         int32_t result = v2; // 0x10001e78
@@ -1214,16 +1213,14 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
             v1 = v4;
             int32_t v5 = v4; // 0x10001e49
             if (v4 != 512 && v4 < 512 == (511 - v5 & v5) < 0) {
-                // break -> 0x10001e75
                 break;
             }
-            // continue -> 0x10001e55
             continue;
         }
-        // 0x10001e75
+    	dlog(LOG_DEBUG, "VISA_ClearDataFIFO - finished 1\n");
         return result;
     }
-    // 0x10001e75
+	dlog(LOG_DEBUG, "VISA_ClearDataFIFO - finished 2\n");
     return result2;
 }
 
@@ -1233,7 +1230,7 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
 // called by VISA_FetchDataWord and VISA_ClearDataFIFO.
 // function_10001b08
 int32_t function_10001b08(SET9052 *deviceId) {
-	dlog(LOG_DEBUG, "function_10001b08()\n");
+	dlog(LOG_DEBUG, "function_10001b08() basic read function when fetching data from the engine  \n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x10001b1f
@@ -1247,12 +1244,14 @@ int32_t function_10001b08(SET9052 *deviceId) {
     if ((int16_t)v5 <= -1) {
         v7 = SetErrorStatus(deviceId, 1);
         g3 = v1;
+    	dlog(LOG_DEBUG, "function_10001b08() readResponseRegT gave error --> 0x%x\n", v7);
         return v7 & -0x10000 | (int32_t)v6;
     }
     // If bit 10 is clear, this is an error and we return. ?!?
     if ((v3 & 1024) == 0) {
         v7 = SetErrorStatus(deviceId, 2);
         g3 = v1;
+    	dlog(LOG_DEBUG, "function_10001b08() 2, bit 10 not set --> 0x%x\n", v7);
         return v7 & -0x10000 | (int32_t)v6;
     }
     // If bit 10 is set, we read DataLow register
@@ -1269,6 +1268,7 @@ int32_t function_10001b08(SET9052 *deviceId) {
     }
     v7 = SetErrorStatus(deviceId, v10);
     g3 = v1;
+	dlog(LOG_DEBUG, "function_10001b08() 3, ok --> 0x%x\n", v7 & -0x10000 | (int32_t)v9);
     return v7 & -0x10000 | (int32_t)v9;
 }
 
@@ -1293,7 +1293,7 @@ int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
         // branch -> 0x10001b00
     }
     // 0x10001b00
-	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> \n", v3);
+	dlog(LOG_DEBUG, "VISA_FetchDataWord() - check if decompiled ok, see dword arg --> \n", v3);
     return v3 | v2 & -0x10000;
 }
 

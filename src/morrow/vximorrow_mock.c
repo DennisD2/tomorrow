@@ -160,6 +160,24 @@ uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, int16_
 uint16_t dd_iwPoke(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) {
 	uint16_t *q = (uint16_t *) registers;
 	q[offset/2] = val16;
+
+	// special handlings
+
+	if (offset/2 == 2) {
+		// Status register addressed
+
+		// DLFM on/off
+		if (val16 & (1<<9)) {
+			dlog(LOG_DEBUG, "\t\tdd_iwPoke, DLFM on\n");
+			// switch to on if bit 9 is set. Then give ACK 1 in bit 8.
+			q[offset/2] = val16 | (1<<8);
+		} else {
+			dlog(LOG_DEBUG, "\t\tdd_iwPoke, DLFM off\n");
+			// switch to off if bit 9 is clear. Then give ACK 0 in bit 8.
+			q[offset/2] = val16 & 0xfeff;
+		}
+	}
+
 	return 0;
 }
 

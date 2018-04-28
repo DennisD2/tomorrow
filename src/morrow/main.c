@@ -15,7 +15,7 @@
 
 int main(int argc, char **argv) {
 
-	setLogLevel(LOG_DEBUG);
+	setLogLevel(LOG_INFO);
 	dlog(LOG_INFO, "----------------------------------------\n");
 
 	char sessionString[50];
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 		dlog(LOG_INFO, "mr90xx_InitGuiSweep OK\n\n");
 	}
 
-	setLogLevel(LOG_DEBUG);
+	setLogLevel(LOG_TRACE);
 
 	ViReal64 amp_array[40], freq_array[40];
 	mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
