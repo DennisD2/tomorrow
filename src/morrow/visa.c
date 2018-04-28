@@ -21,10 +21,13 @@ int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
 
 static int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t *response) ;
-static int32_t write2StatusReg(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t a4) ;
+static int32_t sendWord(SET9052 *deviceId, int16_t command) ;
+
+int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16);
+static int32_t write2StatusReg(SET9052 *deviceId, uint16_t word, int32_t a3, int32_t a4) ;
+
 static int32_t readResponseRegT(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t *a4);
 static int32_t readResponseReg(SET9052 *deviceId, int16_t a2, int32_t *a3);
-static int32_t sendWord(SET9052 *deviceId, int16_t command) ;
 
 int32_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) ;
 
@@ -504,7 +507,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t timeout = RdTimeoutWait(deviceId); // 0x100016d2
-    int32_t v3; // bp-20
+    uint16_t v3; // bp-20
     if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         g5 = deviceId;
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001707
@@ -512,10 +515,10 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
     	dlog( LOG_DEBUG, "\tDLFMModeOn leave 1 --> 0x%x\n", result);
         return result;
     }
-    int32_t v4 = v3; // 0x10001710
+    uint16_t v4 = v3; // 0x10001710
     // DD : next line set bit position 9 (counted from zero)
     // This sets DLFM mode,
-   int32_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | 512; // 0x10001714
+    uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | 512; // 0x10001714
     v3 = v5;
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x1000171b
     g2 = v6;
@@ -715,7 +718,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 }
 
 // function_100011fc
-int32_t readStatusReg(SET9052 *deviceId, int16_t *val16) {
+int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16) {
     int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
     g7 = session_handle;
     int32_t v2 = dd_viIn16(session_handle, 1, 4, val16);
@@ -868,7 +871,7 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t timeout = RdTimeoutWait(deviceId); // 0x100010eb
-    int32_t v3; // bp-20
+    uint16_t v3; // bp-20
     if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001120
         g3 = v1;
@@ -877,7 +880,7 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
     }
     // DD : next line clears bit position 9 (counted from zero)
     // This clears DLFM mode,
-    int16_t v4 = v3 & 0xfdff /*-513*/; // 0x1000112d
+    uint16_t v4 = v3 & 0xfdff /*-513*/; // 0x1000112d
     v3 = v4;
     int32_t v5 = v4; // 0x10001136
     g2 = v5;

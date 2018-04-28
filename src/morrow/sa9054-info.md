@@ -228,7 +228,6 @@ visa += 	0
 
 As soon as mr90xx_MeasureAmplWithFreq(), aquisition data can be retrieved from the Spectrum Analyzer.
 
-
 bash-4.3$ ./morrow 
 ----------------------------------------
 main start
@@ -245,7 +244,7 @@ RdMinFreqLimit 3 --> 0x40000000
 FreqInRange(149000000.000000) -> 1
 RdMinFreqLimit 3 --> 0x40000000
 FreqInRange(150000000.000000) -> 1
-SetSweepCode(318030931004290090000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.000000)
+SetSweepCode(1)
 RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
 VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
 VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
@@ -296,17 +295,24 @@ RdNumSwpPts --> 40
 sa.c:BreakSweep, mode=0
 
 sa.c:SendCommand 7
-VISA_SendCommand(7=ENG_TERMINATE, 1, 7b03a990)
+VISA_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
 wordPtr[0]=0x0
-function_100010e1(a2=0x0)
-function_100011fc
-        function_10001249(command d10f=P2?,0xffffd10f, 0x0) - what is this call intending TODO CHECK?
-function_10001297
-function_100011fc
+DLFMModeOff(unused=0x0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        write2StatusReg(word d43f=P2?,0xffffd43f, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0xffffd43f)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0xd403
+        readStatusReg() -> v2: 0x0, response: 0xffffd403
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
 
-dd_SendCommand(7=ENG_TERMINATE, 1, 7b03a990)
+dd_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
 words[0]=0x0
 
 dd_wsCommand(command=0xcdff,readAnswer=1)
+0001234 reg[0x5]=0x4980 mask=0x200 masked=0, ,
 Bus error (core dumped)
+
 

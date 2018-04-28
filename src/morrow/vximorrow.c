@@ -126,21 +126,17 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		uint16_t *theResponse, uint16_t *rpe, int readAnswer) {
 	dlog(LOG_DEBUG, "\ndd_wsCommand(command=0x%x,readAnswer=%d)\n", command,
 			readAnswer);
-	dlog(LOG_TRACE, "00");
 	uint16_t regdata = 0;
 	int timeoutCnt = 0;
 
-	dlog(LOG_TRACE, "0");
 	// Let point word pointer to memory
 	uint16_t *q = (uint16_t *) mapped;
-	dlog(LOG_TRACE, "1");
 	struct timespec start, stop;
 
 	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_TRACE, "2");
 
 	// ---------------------- WRITE COMMAND ----------------------
 
@@ -148,16 +144,16 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 	// Read RESPONSE register until instrument is ready for write or timeout.
 	// Wait for WRITEREADY bit value to be set.
 	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
-		//regdata = q[REG_RESPONSE];
-		dlog(LOG_TRACE, "3");
-		regdata = iwpeek(&(q[REG_RESPONSE]));
-		dlog(LOG_TRACE, "4");
+		regdata = q[REG_RESPONSE];
+		//regdata = iwpeek(&(q[REG_RESPONSE]));
+		dlog(LOG_TRACE, "4\n");
 		if (regdata != old_regdata) {
 			// trace: dump register data if something changes
-			dlog(LOG_TRACE, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
-			REG_RESPONSE, regdata, WRITEREADY, (WRITEREADY & regdata),
-					((regdata & READREADY) ? "RR" : ""),
-					((regdata & WRITEREADY) ? "WR" : ""));
+			char *rr = (regdata & READREADY) ? "RR" : "";
+			char *wr = (regdata & WRITEREADY) ? "WR" : "";
+			uint16_t masked = WRITEREADY & regdata;
+			dlog(LOG_TRACE, "\tXX reg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					(uint16_t)REG_RESPONSE, regdata, (uint16_t)WRITEREADY, masked, rr, wr);
 			old_regdata = regdata;
 		}
 		// Mask for the WRITEREADY bit
@@ -165,17 +161,17 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		// Increment timeout
 		timeoutCnt++;
 	}
-	dlog(LOG_TRACE, "5");
+	dlog(LOG_TRACE, "5\n");
 	if (clock_gettime( CLOCK_REALTIME, &stop) == -1) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	dlog(LOG_TRACE, "6");
+	dlog(LOG_TRACE, "6\n");
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_TRACE, "7");
+	dlog(LOG_TRACE, "7\n");
 	dlog(LOG_TRACE, "\tWRITEREADY after %ldus (%d tries).\n",
 			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
 
@@ -459,13 +455,13 @@ int checkResponse(uint32_t response) {
 }
 
 // Replace this later in code with Makro iwpeek to save time!
-uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16) {
+uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, uint16_t *val16) {
 	uint16_t *q = (uint16_t *) mapped;
 	*val16 = q[offset/2];
 	return 0;
 }
 
-uint16_t dd_iwPoke(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) {
+uint16_t dd_iwPoke(int32_t session_handle, int32_t space, int32_t offset, uint16_t val16) {
 	uint16_t *q = (uint16_t *) mapped;
 	q[offset/2] = val16;
 	return 0;

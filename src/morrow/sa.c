@@ -5854,10 +5854,7 @@ int32_t StartSweep(SET9052 *a1) {
 	g3 = v2;
 	int32_t result; // 0x100044b1
 	if ((0x10000 * v2 || 0xffff) >= 0x1ffff) {
-		// 0x1000427f
 		result = GetFuncStatusCode(a1);
-		// branch -> 0x100044ae
-		// 0x100044ae
 		g4 = v1;
 		return result;
 	}
@@ -5883,9 +5880,6 @@ int32_t StartSweep(SET9052 *a1) {
 	}
 // DD XXX
 	if (v5 != 0x410000) {
-		// 0x10004311
-		// branch -> 0x100044ae
-		// 0x100044ae
 		g4 = v1;
 		return v5 / 0x10000 & -0x10000 | v4 & 0xffff;
 	}
@@ -5905,34 +5899,23 @@ int32_t StartSweep(SET9052 *a1) {
 	v8 = 1;
 // DD XXX
 	if (0x10000 * v8 != 0x10000) {
-		// 0x1000449b
 		result = FuncStatusFromEngineReply((int16_t) v8);
-		// branch -> 0x100044ae
-		// 0x100044ae
 		g4 = v1;
 		return result;
 	}
 	int32_t v9 = SetSwpIdx(a1, 0); // 0x1000444e
 	if ((int16_t) v9 != 0) {
-		// 0x10004462
-		// branch -> 0x100044ae
-		// 0x100044ae
 		g4 = v1;
 		return 0x10000 * v9 / 0x10000 & -0x10000 | 0xfff0;
 	}
 	int32_t v10 = function_10002d12(a1, 129); // 0x10004471
 	g3 = v10;
 	if ((int16_t) v10 == 0) {
-		// 0x1000448b
 		g8 = a1;
 		result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | 65;
-		// branch -> 0x100044ae
 	} else {
-		// 0x10004485
 		result = 0x10000 * v10 / 0x10000 & -0x10000 | 0xfff0;
-		// branch -> 0x100044ae
 	}
-	// 0x100044ae
 	g4 = v1;
 // DD XXX
 	result = 0x41;
