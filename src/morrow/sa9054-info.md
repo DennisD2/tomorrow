@@ -298,13 +298,13 @@ sa.c:SendCommand 7
 VISA_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
 wordPtr[0]=0x0
 DLFMModeOff(unused=0x0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        write2StatusReg(word d43f=P2?,0xffffd43f, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0xffffd43f)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        write2StatusReg(word 7cac=P2?,0x7cac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7cac)
 InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0xd403
-        readStatusReg() -> v2: 0x0, response: 0xffffd403
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
         checkDLFMBitClear() --> 0
 DLFMModeOff(unused=0x0) 1 --> -2
 
@@ -312,7 +312,237 @@ dd_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
 words[0]=0x0
 
 dd_wsCommand(command=0xcdff,readAnswer=1)
-0001234 reg[0x5]=0x4980 mask=0x200 masked=0, ,
-Bus error (core dumped)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 94us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
 
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 90us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+?
 
+dd_p1Command(0x7)
+        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WR time: 89 us
+        WRITEREADY after 1 tries.
+        reg[0x5]=0x4980 mask=0x200 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WR2 time: 5448 us
+        WRITEREADY2 after 3 tries.
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 86us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 87us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+
+dd_p1Command(0x0)
+        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WR time: 88 us
+        WRITEREADY after 1 tries.
+        reg[0x5]=0x4980 mask=0x200 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WR2 time: 4959 us
+        WRITEREADY2 after 3 tries.
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 87us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 87us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+?
+VISA_CheckSWStatus: 
+dd_readEngineStatus
+DLFMModeOff(unused=0x3ac8)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        write2StatusReg(word 7cac=P2?,0x7cac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7cac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x3ac8) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838308)
+        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
+        readResponseReg(a2=0x200) --> -65535
+        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 108us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
+SetErrorStatus(1)
+        DLFMModeOn
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7eac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> -65536
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=0
+SetEngineReplyCode(0)
+dd_readEngineStatus
+DLFMModeOff(unused=0x0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7dac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838308)
+        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
+        readResponseReg(a2=0x200) --> -65535
+        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 92us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
+SetErrorStatus(1)
+        DLFMModeOn
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7eac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> -65536
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=0
+SetEngineReplyCode(0)
+dd_readEngineStatus
+DLFMModeOff(unused=0x0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7dac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838308)
+        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
+        readResponseReg(a2=0x200) --> -65535
+        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 187us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
+SetErrorStatus(1)
+        DLFMModeOn
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7eac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> -65536
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=0
+SetEngineReplyCode(0)
+dd_readEngineStatus
+DLFMModeOff(unused=0x0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7dac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838308)
+        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
+        readResponseReg(a2=0x200) --> -65535
+        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 93us (1 tries).
+        reg[0x5]=0x4980 mask=0x400 masked=0, ,
+        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
+Timeout occurred during wait for READREADY.
+        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
+SetErrorStatus(1)
+        DLFMModeOn
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7eac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> -65536
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=0
+SetEngineReplyCode(0)
+dd_readEngineStatus
+DLFMModeOff(unused=0x0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
+        dd_viOut16(1, 0x1, 0x4, 0x7dac)
+InitTimeoutLoop(0)
+        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838308)
+        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
+        readResponseReg(a2=0x200) --> -65535
+        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
+        WRITEREADY after 94us (1 tries).
