@@ -5878,7 +5878,7 @@ int32_t StartSweep(SET9052 *a1) {
 	int32_t v5 = 0x10000 * v4;
 // DD XXX
 	if (v5 != 0x410000) {
-		dlog("Patching v5 from 0x%x to 0x41000 - TBC\", v5);
+		dlog("Patching v5 from 0x%x to 0x41000 - TBC\n", v5);
 		v5 = 0x410000;
 	}
 // DD XXX
