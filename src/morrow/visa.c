@@ -836,7 +836,7 @@ int32_t VISA_CheckSWStatus(SET9052 *deviceId) {
         v3 = v10;
         now = IeTimerFrom(v6, 0x10000 * v10 / 0x10000);
 #ifndef __hp9000s700
-        now=110;
+        now=310;
 #endif
         if (now > timeout) {
             break;
