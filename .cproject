@@ -33,10 +33,12 @@
 									<listOptionValue builtIn="false" value="/usr/include"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/src/morrow/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/tomorrow/src/morrow/include}"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/morrow}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/lib64/gcc/x86_64-suse-linux/4.8/include"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.allwarn.523913015" name="All warnings (-Wall)" superClass="gnu.c.compiler.option.warnings.allwarn" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.warnings.nowarn.1052579821" name="Inhibit all warnings (-w)" superClass="gnu.c.compiler.option.warnings.nowarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="gnu.c.compiler.option.include.files.2045026597" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles"/>
+								<option id="gnu.c.compiler.option.include.files.2045026597" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false"/>
 								<option id="gnu.c.compiler.option.dialect.std.1681928524" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2101636753" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>

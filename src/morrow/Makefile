@@ -24,28 +24,28 @@ morrow : main.o sa.o pnp.o visa.o helper.o $(EXTRA_OBJS)
 main1: main1.o helper.o visa.o sa.o $(EXTRA_OBJS)
 	gcc -o main1 main1.o sa.o visa.o helper.o $(EXTRA_OBJS) $(OFLAGS)
 
-sa.o : sa.c
-	gcc $(CFLAGS) -c sa.c
+sa.o : sa.c sa.h
+	gcc $(WCFLAGS) -c sa.c
 
-pnp.o : pnp.c
+pnp.o : pnp.c pnp.h
 	gcc $(CFLAGS) -c pnp.c
 
-visa.o : visa.c
-	gcc $(WCFLAGS) -c visa.c
+visa.o : visa.c dvisa.h
+	gcc $(CFLAGS) -c visa.c
 
-main.o : main.c
+main.o : main.c 
 	gcc $(CFLAGS) -c main.c
 
 helper.o : helper.c
 	gcc $(WCFLAGS) -c helper.c
 
-vximorrow.o : vximorrow.c
+vximorrow.o : vximorrow.c vximorrow.h
 	gcc $(WCFLAGS) $(WSFLAGS) -c vximorrow.c
 
 main1.o : main1.c
 	gcc $(WCFLAGS) -c main1.c
 
-vximorrow_mock.o : vximorrow_mock.c
+vximorrow_mock.o : vximorrow_mock.c vximorrow.h
 	gcc $(WCFLAGS) -c vximorrow_mock.c
 
 clean:

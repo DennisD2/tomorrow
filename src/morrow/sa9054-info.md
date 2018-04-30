@@ -217,7 +217,9 @@ visa += 	0
 - Check all "DD XXX" and "TODO" notes and solve the issues
 - SetVBWmode uses AUTO_ON/OFF and not VI_TRUE/FALSE. Replace this everywhere.
 - replace all (a1 & 256) and such with a1->opcode & 256. 
+   After checking, this cannot be done. There is no setting of opcode value anywhere.
 - SetErrorStatus() in visa.c replace 1,2,3,... with #defines
+- rearrange MeasureAmplWithFreq with if vbwmode/rbwmode 
 
 ## Status
 
@@ -226,7 +228,7 @@ visa += 	0
 - mr90xx_initGuiSweep() OK with tweaks
 - mr90xx_MeasureAmplWithFreq: Currently analyzed
 
-As soon as mr90xx_MeasureAmplWithFreq(), aquisition data can be retrieved from the Spectrum Analyzer.
+As soon as mr90xx_MeasureAmplWithFreq() works, aquisition data can be retrieved from the Spectrum Analyzer.
 
 bash-4.3$ ./morrow 
 ----------------------------------------
