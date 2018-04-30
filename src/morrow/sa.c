@@ -3332,6 +3332,7 @@ int32_t RdInterfaceType(SET9052 *a1) {
 }
 
 int32_t SetTimeoutWait(SET9052 *a1, int32_t time) {
+	dlog( LOG_DEBUG, "SetTimeoutWait(%d)\n", time);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10002d58
 	g3 = v1;
@@ -5759,6 +5760,8 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 			// Detected a possible infinite recursion (goto support failed); quitting...
 		}
 	}
+
+	// XXXXXXXXXX here
 	// 0x1000a51e
 	ConfigStartFreq(a1, start);
 	if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
@@ -5888,7 +5891,9 @@ int32_t StartSweep(SET9052 *a1) {
 	RdEngOption(a1, ENG_OPT_1 /*1*/);
 	int32_t v8 = SendCommand(a1, ENG_START_SWP /*1*/, 12, &v7); // 0x10004433
 // DD XXX
-	v8 = 1;
+	if (v8 != 1) {
+		dlog(LOG_DEBUG, "Patching v8 from 0x%x to 0x41000 - TBC\n", v8);
+		v8 = 1;	}
 // DD XXX
 	if (0x10000 * v8 != 0x10000) {
 		result = FuncStatusFromEngineReply((int16_t) v8);
