@@ -424,7 +424,7 @@ int32_t mr90xx_ResetEngine(int32_t a1, int32_t a2) {
 	return result;
 }
 
-int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
+int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t time, int32_t unused_a3) {
 	dlog( LOG_DEBUG, "mr90xx_SetTimeoutWait\n");
 	g5 = a1;
 	int32_t v1 = 0; // bp-16
@@ -432,7 +432,7 @@ int32_t mr90xx_SetTimeoutWait(int32_t a1, int32_t a2, int32_t a3) {
 	int32_t result; // 0x10004c72
 	if (v2 == 0) {
 		result = mapVisaErrorToAPIError(
-				(int16_t) SetTimeoutWait(sessionForId(v1)));
+				(int16_t) SetTimeoutWait(sessionForId(v1), time));
 	} else {
 		result = v2;
 	}
