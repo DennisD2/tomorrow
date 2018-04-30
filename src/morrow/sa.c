@@ -3522,7 +3522,7 @@ int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		int32_t v2 = status;
 		a1->err_status = v2;
-		result = /*(int32_t)a1 & */-0x10000 | v2;
+		result = /*(int32_t)a1 & -0x10000 | */ v2;
 	} else {
 		result = GetFuncStatusCode(a1);
 	}

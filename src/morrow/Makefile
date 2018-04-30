@@ -25,7 +25,7 @@ main1: main1.o helper.o visa.o sa.o $(EXTRA_OBJS)
 	gcc -o main1 main1.o sa.o visa.o helper.o $(EXTRA_OBJS) $(OFLAGS)
 
 sa.o : sa.c sa.h
-	gcc $(WCFLAGS) -c sa.c
+	gcc $(CFLAGS) -c sa.c
 
 pnp.o : pnp.c pnp.h
 	gcc $(CFLAGS) -c pnp.c
@@ -34,7 +34,7 @@ visa.o : visa.c dvisa.h
 	gcc $(CFLAGS) -c visa.c
 
 main.o : main.c 
-	gcc $(CFLAGS) -c main.c
+	gcc $(WCFLAGS) -c main.c
 
 helper.o : helper.c
 	gcc $(WCFLAGS) -c helper.c

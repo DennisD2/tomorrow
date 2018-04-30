@@ -40,11 +40,16 @@
 #define WRITEREADYDOR (uint16_t)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DOR_BITV)
 
 // Generic
+uint16_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset, uint16_t val16);
+uint16_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset, uint16_t *val16);
+// With timeout in ms
+uint32_t dd_viOut16TO(INST id, int32_t timeout, uint16_t word);
+uint32_t dd_viIn16TO(INST id, int32_t timeout , uint16_t *theResponse, uint16_t *rpe);
+
 uint32_t dd_p1Command(INST id, uint16_t command, int readAnswer);
 uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *response, uint16_t *rpe);
 uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *response, uint16_t *rpe);
-uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, uint16_t* val16);
-uint16_t dd_iwPoke(int32_t session_handle, int32_t space, int32_t offset, uint16_t val16);
+
 
 // Morrow
 uint32_t dd_SendCommand(INST id, uint16_t command, uint16_t numWords, uint16_t *words);

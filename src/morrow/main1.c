@@ -10,6 +10,7 @@
 
 #include <mr_defin.h>
 
+#include "compatibility.h"
 #include "helper.h"
 
 // gcc enginecmd.c -o enginecmd -lsicl
@@ -346,9 +347,20 @@ int main(int argc, char **argv) {
 	INST id = dd_iOpen("vxi,126");
 
 	dlog(LOG_DEBUG, "------------------------------------------------------\n");
+	uint16_t response, rpe;
 
 	// V9054 minimal initialization
-	uint16_t response, rpe;
+
+	int timeout = 100; // ms
+	// in 2 commands
+	int ret = dd_viOut16TO(id, timeout, WS_CMD_ANO);
+	ret = dd_viIn16TO(id, timeout, &response, &rpe);
+	return 0;
+
+	// in 1 command
+	dd_wsCommand(id, WS_CMD_ANO, &response, &rpe);
+
+
 	dd_wsCommand(id, WS_CMD_ANO, &response, &rpe);
 	dd_wsCommand(id, WS_CMD_BNO, &response, &rpe);
 	dd_wsCommandNoAnswer(id, VXI_RESETENG, &response, &rpe);

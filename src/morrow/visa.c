@@ -1,6 +1,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <stdio.h>
 
@@ -16,6 +17,7 @@
 #include <sicl.h>
 
 #include "helper.h"
+#include "vximorrow.h"
 
 int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
@@ -26,10 +28,11 @@ static int32_t sendWord(SET9052 *deviceId, int16_t command) ;
 int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16);
 static int32_t write2StatusReg(SET9052 *deviceId, uint16_t word, int32_t a3, int32_t a4) ;
 
-static int32_t readResponseRegT(SET9052 *deviceId, int32_t a2, int16_t a3, int32_t *a4);
-static int32_t readResponseReg(SET9052 *deviceId, int16_t a2, int32_t *a3);
+static int32_t readResponseRegT(SET9052 *deviceId, int32_t timeout, int16_t mask, int16_t *val16);
+static int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t *val16);
 
-int32_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) ;
+int32_t m_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16);
+int32_t m_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16);
 
 static int32_t g2 = 0; // eax
 static int32_t g3 = 0; // ebp
@@ -305,7 +308,7 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
  * a number of bytes (numBytes) in memory, starting at location 'wordPtr'. All bytes are sent
  * in chunks of a word (2 bytes) by using the function 'VISA_SendWord'.
  */
-int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int32_t numBytes, uint16_t *wordPtr) {
+int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numBytes, uint16_t *wordPtr) {
 	dlog( LOG_DEBUG, "VISA_SendCommand(%x=%s, %d, %lx)\n", command, getCmdNameP1(command), numBytes, wordPtr);
     int i;
     for (i=0; i<numBytes; i++) {
@@ -554,18 +557,19 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
 }
 
 /**
- * Calls dd_viWrite(), dd_viIn16() and checks for errors
- * (protocol erros, using dd_viWrite() again)
+ * Calls dd_viWrite(), m_viIn16() and checks for errors
+ * (protocol errors, using dd_viWrite() again)
  */
 int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
 	dlog( LOG_DEBUG, "_doSendWord %x=%s\n", command, getCmdNameP2((command&0xffff)));
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t session_handle = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x1000136a
-    int32_t v3; // bp-24
-    int32_t *v4 = &v3; // 0x10001373
+    int16_t v3; // bp-24
+    int16_t *v4 = &v3; // 0x10001373
     g5 = deviceId;
-    int32_t v5 = readResponseRegT(deviceId, 100, 512, v4); // 0x10001384
+    // Mask = 512 = (1<<9) => WRITEREADY bit; result in v4
+    int32_t v5 = readResponseRegT(deviceId, 100, WRITEREADY /*512*/, v4); // 0x10001384
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x10001390
     //dlog( LOG_DEBUG, "_doSendWord: v6 %x\n", v6 );
     if ((int16_t)v6 <= -1) {
@@ -573,21 +577,25 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v6 & -0x10000 | v5 & 0xffff;
     }
     g5 = session_handle;
+
+    // Write out command
     // Register 14 = 0xe = data Low
-    int32_t v7 = dd_viWsCmdAlike(session_handle, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
+    int32_t v7 = dd_viWsCmdAlike(session_handle, 1, 14, /*v6 & -0x10000 | (int32_t)*/command); // 0x100013b4
     //dlog( LOG_DEBUG, "_doSendWord: v7 %x\n", v7 );
     if (v7 != 0) {
         g3 = v1;
         return v7 & -0x10000 | 0x8000;
     }
     g5 = deviceId;
-    int32_t v8 = readResponseRegT(deviceId, 100, 512, v4); // 0x100013dc
+    // Mask = 512 = (1<<9) => WRITEREADY bit; result in v4
+    int32_t v8 = readResponseRegT(deviceId, 100, WRITEREADY /*512*/, v4); // 0x100013dc
     int32_t v9 = 0x10000 * v8 / 0x10000; // 0x100013e8
     //dlog( LOG_DEBUG, "_doSendWord: v9 %x\n", v9 );
     if ((int16_t)v9 <= -1) {
         g3 = v1;
         return v9 & -0x10000 | v8 & 0xffff;
     }
+    // 2048 = (1<<11), bit 11 in response is ERR bit(?)
     int32_t v10 = (int32_t)v3 & 2048; // 0x10001407
     int32_t v11;
     //dlog( LOG_DEBUG, "_doSendWord: v10 %x\n", v10 );
@@ -599,7 +607,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
             // call gets a response in v4 which is *v3; if v12=ret==0, response:=v13 which is v3
             // 14 = 0xe = 1110
             // 10 = 0xa = 1010 (also used as arg3)
-            int32_t v12 = dd_viIn16(session_handle, 1, 14, v4); // 0x1000158a
+            int32_t v12 = m_viIn16(session_handle, 1, 14, v4); // 0x1000158a
             if (v12 == 0) {
                 int16_t v13 = v3; // 0x100015a1
                 *response = v13;
@@ -623,7 +631,8 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v14 & -0x10000 | 0x8400;
     }
     g5 = deviceId;
-    int32_t v15 = readResponseRegT(deviceId, 100, 512, v4); // 0x10001449
+    // Mask = 512 = (1<<9) => WRITEREADY bit; result in v4
+    int32_t v15 = readResponseRegT(deviceId, 100, WRITEREADY /*512*/, v4); // 0x10001449
 	//dlog( LOG_DEBUG, "\t_doSendWord *v4 %x\n", *v4);
 	//dlog( LOG_DEBUG, "\t_doSendWord v3 %x\n", v3);
 
@@ -634,16 +643,14 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v16 & -0x10000 | v15 & 0xffff;
     }
 
-#ifndef __hp9000s700
-    v3=512;
-#endif
     if (((int32_t)v3 & 512) == 0) {
         dlog( LOG_DEBUG, "_doSendWord: FAIL return1 %x\n", v3);
         g3 = v1;
         return 0x8000;
     }
     g5 = v4;
-    int32_t v17 = readResponseRegT(deviceId, 100, 1024, v4); // 0x10001497
+    // 2014 => bit 10 = > READREADY
+    int32_t v17 = readResponseRegT(deviceId, 100, READREADY /*1024*/, v4); // 0x10001497
     int32_t v18 = 0x10000 * v17 / 0x10000; // 0x100014a3
     int32_t v19 = v18 & 0x8000; // 0x100014a7
     g5 = v19;
@@ -653,16 +660,13 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v18 & -0x10000 | v17 & 0xffff;
     }
 
-#ifndef __hp9000s700
-    v3=1024;
-#endif
     if ((v3 & 1024) == 0) {
         dlog( LOG_DEBUG, "_doSendWord: FAIL return2 %x\n", v3);
         g3 = v1;
         return v18 & -0x10000 | 0x8000;
     }
     g5 = session_handle;
-    int32_t v20 = dd_viIn16(session_handle, 1, 14, v4); // 0x100014e8
+    int32_t v20 = m_viIn16(session_handle, 1, 14, v4); // 0x100014e8
     //dlog( LOG_DEBUG, "_doSendWord: v20 %x\n", v20 );
     if (v20 != 0) {
         g3 = v1;
@@ -721,7 +725,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16) {
     int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
     g7 = session_handle;
-    int32_t v2 = dd_viIn16(session_handle, 1, 4, val16);
+    int32_t v2 = m_viIn16(session_handle, 1, 4, val16);
 	dlog( LOG_DEBUG, "\treadStatusReg() -> v2: 0x%x, response: 0x%x\n", v2, *val16);
 
     int32_t ret = SetErrorStatus(deviceId, v2) & -0x10000 | v2;
@@ -731,7 +735,6 @@ int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16) {
 
 // function_10001249
 int32_t write2StatusReg(SET9052 *deviceId, uint16_t word, int32_t unused, int32_t unused1) {
-	// What is this call doing ???
 	dlog( LOG_DEBUG, "\twrite2StatusReg(word %x=%s,0x%x, 0x%x)\n", word, getCmdNameP2(word), unused, unused1);
 	int32_t v1 = deviceId->session_handle;
 #ifdef ORIG
@@ -739,7 +742,7 @@ int32_t write2StatusReg(SET9052 *deviceId, uint16_t word, int32_t unused, int32_
 #else
     int32_t v2;
 	//dlog( LOG_DEBUG, "Command %x left out.\n", command);
-	v2 = dd_viOut16(v1, 1, 4, word);
+	v2 = m_viOut16(v1, 1, 4, word);
 #endif
     g5 = deviceId;
     return SetErrorStatus(deviceId, v2) & -0x10000 | v2;
@@ -777,25 +780,69 @@ int32_t checkDLFMBitSet(SET9052 *deviceId, int16_t * a2) {
     return ret;
 }
 
+// returns true if b > a+ms, measured in ms.
+int isLarger(struct timespec *a, struct timespec *b, uint32_t ms ) {
+	uint64_t a1 = a->tv_sec*1000; // s in [ms]
+	uint64_t a2 = a->tv_nsec/1000000L; // ns in [ms]
+	uint64_t aValue = ms + a1 + a2;
+
+	uint64_t b1 = b->tv_sec*1000; // s in [ms]
+	uint64_t b2 = b->tv_nsec/1000000L; // ns in [ms]
+	uint64_t bValue = b1 + b2;
+
+	int ret = bValue > aValue;
+	return ret;
+}
+
+// Wait with timeout
 // function_100015d0
-int32_t readResponseRegT(SET9052 * deviceId, int32_t timeout, int16_t mask, int32_t* val) {
+int32_t readResponseRegT(SET9052 * deviceId, int32_t timeout, int16_t mask, int16_t* val) {
     int32_t v1 = g3; // 0x100015d0
     InitTimeoutLoop(v1);
     g3 = v1;
+#ifdef ORIG
     return 0x10000 * readResponseReg(deviceId, mask, val) / 0x10000;
+#else
+	struct timespec start, now;
+	int ret;
+
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		dlog(LOG_ERROR, "clock gettime");
+		exit(-1);
+	}
+	int toReached=0;
+	while (!toReached) {
+		ret = readResponseReg(deviceId, mask, val);
+
+		if (clock_gettime( CLOCK_REALTIME, &now) == -1) {
+			dlog(LOG_ERROR, "clock gettime");
+			exit(-1);
+		}
+		if ((*val & mask) != 0) {
+			return 0; // OK
+		}
+
+		if (isLarger(&start, &now, timeout)) {
+			// timeout reached
+			toReached=1;
+		}
+	}
+	return -1;
+#endif
 }
 
+// Check if mask is true in response register.
 // function_10001654
-int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int32_t* val) {
+int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t* val) {
     g5 = deviceId;
-    if (dd_viIn16(deviceId->session_handle, 1, 10, val) != 0) {
+    if (m_viIn16(deviceId->session_handle, 1, 10, val) != 0) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0x8020; // 0x10001686
         return result;
     }
     g5 = val;
     int32_t result2; // 0x100016c7
     if (((int32_t)*(int16_t *)val & (int32_t)mask) != 0) {
-        result2 = SetErrorStatus(deviceId, IE_SUCCESS /*0*/) & -0x10000 | 1;
+        result2 = SetErrorStatus(deviceId, IE_SUCCESS /*0*/ ) /* & -0x10000 */ | 1 ;
     } else {
         g5 = deviceId;
         result2 = SetErrorStatus(deviceId, IE_WARN_VALS /*1*/) & -0x10000 | 0x8004;
@@ -1134,26 +1181,20 @@ int32_t dd_viOpenDefaultRM(int32_t *a1) {
 	return VI_SUCCESS;
 }
 
-// Was _imported_function_ord_261()
-int32_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16) {
-	// space: is always 1 (true?)
- 	//dlog( LOG_TRACE, "\dd_viIn16(%d, 0x%x, 0x%x)\n", session_handle, space, offset);
- 	int32_t ret = dd_iwPeek(session_handle, space, offset, val16);
 
- 	dlog( LOG_TRACE, "\tdd_viIn16(%d, 0x%x, 0x%x) --> 0x%x\n", session_handle, space, offset, (*val16 & 0xffff));
-
-	// bits 9,10 are required and checked in _doSendWord().
-	// bit 8 required by checkDLFMBitSet().
-	// DD XXX analyze what they might mean
-	//*response = (1<<9)|(1<<10)/*|(1<<8)*/;
-	//dlog( LOG_DEBUG, "iflush response 0x%x\n", *response);
-
+// Delegates to dd_viIn16
+// _imported_function_ord_261()
+int32_t m_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16) {
+ 	//dlog( LOG_TRACE, "\dm_viIn16(%d, 0x%x, 0x%x)\n", session_handle, space, offset);
+ 	int32_t ret = dd_viIn16(session_handle, space, offset, val16);
+ 	dlog( LOG_TRACE, "\tm_viIn16(%d, 0x%x, 0x%x) --> 0x%x\n", session_handle, space, offset, (*val16 & 0xffff));
 	return ret;
 }
 
-int32_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) {
- 	dlog( LOG_TRACE, "\tdd_viOut16(%d, 0x%x, 0x%x, 0x%x)\n", session_handle, space, offset, val16);
-	int32_t ret = dd_iwPoke(session_handle, space, offset, val16);
+// Delegates to dd_viOut16
+int32_t m_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16) {
+ 	dlog( LOG_TRACE, "\tm_viOut16(%d, 0x%x, 0x%x, 0x%x)\n", session_handle, space, offset, val16);
+	int32_t ret = dd_viOut16(session_handle, space, offset, val16);
 	return ret;
 }
 
@@ -1169,11 +1210,7 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 	uint16_t response;
 	uint16_t rpe;
 
-#ifdef ORIG
-	ret = ivxiws(session_handle, cmd, &response, &rpe);
-#else
 	ret = dd_wsCommand(session_handle, cmd, &response, &rpe);
-#endif
 	dlog( LOG_DEBUG, "\tWScmdAlike() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
 	return ret;
 }
@@ -1234,8 +1271,8 @@ int32_t function_10001b08(SET9052 *deviceId) {
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x10001b1f
-    int32_t v3; // bp-24
-    int32_t *v4 = &v3; // 0x10001b2a
+    int16_t v3; // bp-24
+    int16_t *v4 = &v3; // 0x10001b2a
     g5 = v4;
     // 1024 = (1<<10), bit position 10 in response register.
     int32_t v5 = readResponseRegT(deviceId, v2, 1024, v4); // 0x10001b3b
@@ -1247,20 +1284,17 @@ int32_t function_10001b08(SET9052 *deviceId) {
     	dlog(LOG_DEBUG, "function_10001b08() readResponseRegT gave error --> 0x%x\n", v7);
         return v7 & -0x10000 | (int32_t)v6;
     }
-    // If bit 10 is clear, this is an error and we return. ?!?
+    // If bit 10 is clear, this is an error and we return.
     if ((v3 & 1024) == 0) {
         v7 = SetErrorStatus(deviceId, 2);
         g3 = v1;
     	dlog(LOG_DEBUG, "function_10001b08() 2, bit 10 not set --> 0x%x\n", v7);
         return v7 & -0x10000 | (int32_t)v6;
     }
-    // If bit 10 is set, we read DataLow register
-    // If that read gives no error (dd_viIn16 returns 0) we set error status 0.
-    // if we get an error,  (dd_viIn16 returns !=0) we set error status 1.
     int32_t v8 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x10001b78
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
-    if (dd_viIn16(v8, 1, 14, &v9) == 0) {
+    if (m_viIn16(v8, 1, 14, &v9) == 0) {
         v10 = 0;
     } else {
         v10 = 1;

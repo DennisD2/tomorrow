@@ -89,43 +89,25 @@ INST dd_iOpen(char *sessionString) {
 	return id;
 }
 
-/**
- * Standard implementation of the word serial protocol.
- * Sends a word to a device and reads the answer.
- * This function forwards parameters to dd_wsCommandWithAnswer() and adds
- * readAnswer flag value 'true'.
- */
-uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse,
-		uint16_t *rpe) {
-	return dd_wsCommandWithAnswer(id, command, theResponse, rpe, true);
+uint16_t dd_viIn16(int32_t session_handle, int32_t space, int32_t offset,
+		uint16_t *val16) {
+	uint16_t *q = (uint16_t *) mapped;
+	*val16 = q[offset / 2];
+	return 0;
 }
 
-/**
- * Sends a word to a device and don't read an answer.
- * This function forwards parameters to dd_wsCommandWithAnswer() and adds
- * readAnswer flag value 'false'.
- */
-uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse,
-		uint16_t *rpe) {
-	return dd_wsCommandWithAnswer(id, command, theResponse, rpe, false);
+uint16_t dd_viOut16(int32_t session_handle, int32_t space, int32_t offset,
+		uint16_t val16) {
+	uint16_t *q = (uint16_t *) mapped;
+	q[offset / 2] = val16;
+	return 0;
 }
 
-/**
- * Standard implementation of the word serial protocol.
- *
- * This function sends a word (2 bytes) to a device.
- * It checks the device RESPONSE register until the device is ready to be written to (WriteReady bit).
- * Then it writes the word to the DATALOW register.
- * To read the answer, it then checks the device RESPONSE register until the device is ready to be read from (ReadReady bit).
- * Then it reads the answer word from the DATALOW register.
-
- * If a timeout value is reached, the waits are interrupted and the function returns immediatedly.
- *
- */
-static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
-		uint16_t *theResponse, uint16_t *rpe, int readAnswer) {
-	dlog(LOG_DEBUG, "\ndd_wsCommand(command=0x%x,readAnswer=%d)\n", command,
-			readAnswer);
+// Writes out a word.
+// 0 on success, -1 if timeout.
+// Exits process if clock_gettime fails.
+uint32_t dd_viOut16TO(INST id, int32_t timeout, uint16_t word) {
+	dlog(LOG_DEBUG, "\ndd_viOut16TO(word=0x%x)\n", word);
 	uint16_t regdata = 0;
 	int timeoutCnt = 0;
 
@@ -138,11 +120,9 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		exit(-1);
 	}
 
-	// ---------------------- WRITE COMMAND ----------------------
-
-	uint16_t old_regdata = 0;
 	// Read RESPONSE register until instrument is ready for write or timeout.
 	// Wait for WRITEREADY bit value to be set.
+	uint16_t old_regdata = 0;
 	while ((regdata != WRITEREADY) && (timeoutCnt < TIMEOUT)) {
 		regdata = q[REG_RESPONSE];
 		//regdata = iwpeek(&(q[REG_RESPONSE]));
@@ -151,8 +131,9 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 			char *rr = (regdata & READREADY) ? "RR" : "";
 			char *wr = (regdata & WRITEREADY) ? "WR" : "";
 			uint16_t masked = WRITEREADY & regdata;
-			dlog(LOG_TRACE, "\tXX reg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
-					(uint16_t)REG_RESPONSE, regdata, (uint16_t)WRITEREADY, masked, rr, wr);
+			dlog(LOG_TRACE, "\treg[0x%x]=0x%x mask=0x%x masked=%x, %s,%s\n",
+					(uint16_t) REG_RESPONSE, regdata, (uint16_t) WRITEREADY,
+					masked, rr, wr);
 			old_regdata = regdata;
 		}
 		// Mask for the WRITEREADY bit
@@ -164,6 +145,9 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
+	long deltams = stop.tv_sec -start.tv_sec*1000;
+	long deltans = stop.tv_nsec - start.tv_nsec;
+	long delta = deltams+deltans;
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
@@ -173,19 +157,32 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 
 	// Write the command to send to the DATALOW register
 	//q[REG_DATALOW] = cmd;
-	iwpoke(&(q[REG_DATALOW]), command);
+	iwpoke(&(q[REG_DATALOW]), word);
 
-	if (!readAnswer) {
-		return 0;
+	return 0;
+}
+
+// Reads in a word.
+// 0 on success, -1 if timeout.
+// Exits process if clock_gettime fails.
+uint32_t dd_viIn16TO(INST id, int32_t timeout , uint16_t *theResponse, uint16_t *rpe) {
+	dlog(LOG_DEBUG, "\ndd_viIn16TO()\n");
+	uint16_t regdata = 0;
+	int timeoutCnt = 0;
+
+	// Let point word pointer to memory
+	uint16_t *q = (uint16_t *) mapped;
+	struct timespec start, stop;
+
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		dlog(LOG_ERROR, "clock gettime");
+		exit(-1);
 	}
 
-	// ---------------------- READ ANSWER ----------------------
-
-	timeoutCnt = 0;
-	old_regdata = 0;
-	regdata = 0;
 	// Read RESPONSE register until instrument is ready for read or timeout.
 	// Wait for READREADY bit to be set.
+	uint16_t old_regdata = 0;
+	regdata = 0;
 	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
@@ -226,6 +223,58 @@ static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
 	*rpe = 0; // ???
 	*theResponse = response;
 	return 0;
+}
+
+/**
+ * Standard implementation of the word serial protocol.
+ * Sends a word to a device and reads the answer.
+ * This function forwards parameters to dd_wsCommandWithAnswer() and adds
+ * readAnswer flag value 'true'.
+ */
+uint32_t dd_wsCommand(INST id, uint16_t command, uint16_t *theResponse,
+		uint16_t *rpe) {
+	return dd_wsCommandWithAnswer(id, command, theResponse, rpe, true);
+}
+
+/**
+ * Sends a word to a device and don't read an answer.
+ * This function forwards parameters to dd_wsCommandWithAnswer() and adds
+ * readAnswer flag value 'false'.
+ */
+uint32_t dd_wsCommandNoAnswer(INST id, uint16_t command, uint16_t *theResponse,
+		uint16_t *rpe) {
+	return dd_wsCommandWithAnswer(id, command, theResponse, rpe, false);
+}
+
+/**
+ * Standard implementation of the word serial protocol.
+ *
+ * This function sends a word (2 bytes) to a device.
+ * It checks the device RESPONSE register until the device is ready to be written to (WriteReady bit).
+ * Then it writes the word to the DATALOW register.
+ * To read the answer, it then checks the device RESPONSE register until the device is ready to be read from (ReadReady bit).
+ * Then it reads the answer word from the DATALOW register.
+
+ * If a timeout value is reached, the waits are interrupted and the function returns immediatedly.
+ *
+ */
+static uint32_t dd_wsCommandWithAnswer(INST id, uint16_t command,
+		uint16_t *theResponse, uint16_t *rpe, int readAnswer) {
+	dlog(LOG_DEBUG, "\ndd_wsCommand(command=0x%x,readAnswer=%d)\n", command,
+			readAnswer);
+
+	int timeout = 100;
+	int ret = dd_viOut16TO(id, timeout, command);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (!readAnswer) {
+		return 0;
+	}
+
+	ret = dd_viIn16TO(id, timeout, theResponse, rpe);
+	return ret;
 }
 
 /**
@@ -450,15 +499,4 @@ int checkResponse(uint32_t response) {
 	return 0;
 }
 
-// Replace this later in code with Makro iwpeek to save time!
-uint16_t dd_iwPeek(int32_t session_handle, int32_t space, int32_t offset, uint16_t *val16) {
-	uint16_t *q = (uint16_t *) mapped;
-	*val16 = q[offset/2];
-	return 0;
-}
 
-uint16_t dd_iwPoke(int32_t session_handle, int32_t space, int32_t offset, uint16_t val16) {
-	uint16_t *q = (uint16_t *) mapped;
-	q[offset/2] = val16;
-	return 0;
-}
