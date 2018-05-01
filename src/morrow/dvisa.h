@@ -11,7 +11,21 @@
 #include "compatibility.h"
 
 /* visa.c exposed functions */
+int32_t VISA_InitEngine(SET9052 *deviceId);
+int32_t VISA_ResetEngine(SET9052 *deviceId);
+
 int32_t VISA_OpenSessionStep(SET9052 * deviceId);
+int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
+int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numBytes, uint16_t *wordPtr);
+
+int32_t VISA_ClearDataFIFO(SET9052 *deviceId);
+// We have a problem in 5 or 6 params for the next function: comented out till cleared!
+//int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5);
+int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword);
+int32_t VISA_VerDataBlock(SET9052 *a1, int32_t a2);
+
+int32_t VISA_CloseSession(SET9052 *deviceId);
+
 
 /* Word Serial Commands */
 #define  WS_CMD_ANO     0xc8ff

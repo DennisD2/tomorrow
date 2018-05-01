@@ -211,6 +211,12 @@ visa += 	0
 ###Step 4: Addition of mr90xx_MeasureAmplWithFreq()
 
 ## Todos
+- Make VISA_SendWord() original again
+- Make dd_readEngineStatus() original again(find out original name and make code use vi* only)
+- Check if we can get rid of _initEngine()
+- Check if VISA_SendCommand() is really ok reimplemented or if it must be converted back to ORIG version; it should only
+  use vi* functions.
+- Has VISA_GetDataBlock(() 5 or 6 args ? solve this! int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5);
 - Reconstruct arrays (VBWFreFromCode:done, RBWFreFromCode:done, GetRBWWide, DefltSetTimeRBW, DefltSetTimeVBW)
 - Fix Error mapping ENG->SW domain
 - Check all return values of SetFuncStatusCode() - ok till InitGuiSweep

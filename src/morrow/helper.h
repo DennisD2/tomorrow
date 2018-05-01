@@ -31,4 +31,7 @@ void sysInfo();
 void dlog( int level, const char *format, ... );
 void setLogLevel(int level);
 
+// Morrow and VXI command names
+char *getCmdNameP2(int id);
+char *getCmdNameP1(int id);
 #endif /* HELPER_H_ */

@@ -19,98 +19,25 @@
 #include "helper.h"
 #include "vximorrow.h"
 
-int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
-int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
+static int32_t m_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16);
+static int32_t m_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16);
+
+static int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16);
+static int32_t writeStatusReg(SET9052 *deviceId, uint16_t word, int32_t a3, int32_t a4) ;
+
+static int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t *val16);
+static int32_t readResponseRegT(SET9052 *deviceId, int32_t timeout, int16_t mask, int16_t *val16);
 
 static int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t *response) ;
 static int32_t sendWord(SET9052 *deviceId, int16_t command) ;
-
-int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16);
-static int32_t write2StatusReg(SET9052 *deviceId, uint16_t word, int32_t a3, int32_t a4) ;
-
-static int32_t readResponseRegT(SET9052 *deviceId, int32_t timeout, int16_t mask, int16_t *val16);
-static int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t *val16);
-
-int32_t m_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16);
-int32_t m_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16);
+static int32_t _sendCommand(SET9052 *deviceId, int16_t command) ;
 
 static int32_t g2 = 0; // eax
 static int32_t g3 = 0; // ebp
-//static int32_t g4 = 0; // ebx
 static int32_t g5 = 0; // ecx
 static int32_t g7 = 0; // edx
 static int32_t g52_currentViSession = 0;
 static SET9052* g53 = 0;
-
-typedef struct CmdInfo {
-	int id;
-	char *name;
-} CmdInfo_t;
-
-CmdInfo_t cmds_p2[] = {
-		{ 0xc8ff, "ABORT NORMAL OPERATION" },
-		{ 0xfcff, "BEGIN NORMAL OPERATION" },
-		{ 0xc9ff, "END NORMAL OPERATION" },
-		{ 0xcdff, "READ PROTOCOL ERROR" },
-		{ 0xdeff, "BYTE REQUEST" },
-		{ 0xc7ff, "READ HANDLERS" },
-		{ 0xcaff, "READ INTERRUPTERS" },
-		{ 0xccff, "READ MODID" },
-		{ 0xdfff, "READ PROTOCOL" },
-		{ 0xcfff, "READ STB" },
-		{ 0xceff, "READ SERVANT AREA" },
-		{ 0xeeff, "SET LOCK" },
-		{ 0xedff, "TRIGGER" },
-
-		{ 0x0008, "VXI_SETUPFLASH" },
-		{ 0x0009, "VXI_PROGFLASH" },
-		{ 0x7b00, "VXI_RESETENG" },
-		{ 0x7c00, "VXI_GETVERSION" },
-		{ 0x7d00, "VXI_ENGINEDATA" },
-		{ 0x7e00, "VXI_GETSTATUS" },
-		{ 0x7f00, "VXI_ENGINECMD" },
-};
-int cmdsP2Size = 20;
-
-char *getCmdNameP2(int id) {
-	int i;
-	for (i=0; i<cmdsP2Size; i++) {
-		if (cmds_p2[i].id == id) {
-			return cmds_p2[i].name;
-		}
-	}
-	return "P2?";
-}
-
-CmdInfo_t cmds_p1[] = {
-		{ 0x0, "ENG_INIT" },
-		{ 0x1, "ENG_START_SWP" },
-		{ 0x2, "ENG_START_ZSPAN" },
-		{ 0x3, "ENG_START_FHOP" },
-		{ 0x4, "ENG_SET_TRIGDET" },
-		{ 0x5, "ENG_LOAD_HOPFRQ" },
-		{ 0x6, "ENG_SET_INTMODE" },
-		{ 0x7, "ENG_TERMINATE" },
-		{ 0x8, "ENG_8?_NOT_USED" },
-		{ 0x9, "ENG_9?_NOT_USED" },
-		{ 0xa, "ENG_CALIBRATE" },
-		{ 0xb, "ENG_PULSE_FUNCTION_RELATED" },
-		{ 0xc, "ENG_c?_NOT_USED" },
-		{ 0xd, "ENG_d?_NOT_USED" },
-		{ 0xe, "ENG_e?_NOT_USED" },
-		{ 0xf, "ENG_f?_NOT_USED" },
-};
-int cmdsP1Size = 16;
-
-char *getCmdNameP1(int id) {
-	int i;
-	for (i=0; i<cmdsP1Size; i++) {
-		if (cmds_p1[i].id == id) {
-			return cmds_p1[i].name;
-		}
-	}
-	return "P1?";
-}
 
 
 int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
@@ -172,7 +99,10 @@ int32_t VISA_OpenSessionStep(SET9052 * deviceId) {
     int32_t v10 = VISA_InitEngine(deviceId); // 0x1000233e
     int32_t result6; // 0x10002373
 // DD XXX
-    v10 = 0x41;
+    if (v10 != 0x41) {
+    	dlog( LOG_DEBUG, "VISA_OpenSessionStep - Patching v10 from 0x%x to 0x41\n", v10);
+        v10 = 0x41;
+    }
 // DD XXX
 
     if (0x10000 * v10 == 0x410000) {
@@ -235,7 +165,10 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
     if (v3 == 0) {
         int32_t v5 = 0x10000 * v2;
 // XXX DD
-        v5 = -0x20000;
+		if (v5 != -0x20000) {
+			dlog( LOG_DEBUG, "VISA_OpenSessionStep - Patching v5 from 0x%x to -0x20000\n", v5);
+			v5 = -0x20000;
+		}
 // XXX DD
         // dlog( LOG_DEBUG, "\tVISA_InitEngine v5 %x\n", v5);
 
@@ -248,7 +181,10 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
             v7 = 0;
 #endif
 // XXX DD
-            v6 = 0xf00;
+    		if (v6 != 0xf00) {
+    			dlog( LOG_DEBUG, "VISA_OpenSessionStep - Patching v6 from 0x%x to 0xf00\n", v6);
+                v6 = 0xf00;
+    		}
 // XXX DD
 
             // dlog( LOG_DEBUG, "\tVISA_InitEngine v6 v7 %x %x\n", v6, v7);
@@ -278,7 +214,10 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
             }
             int32_t v11 = 0x10000 * CommTrigDetect(deviceId, 65);
 // DD XXX
-     v11 = 0x410000;
+			if (v11 != 0xf00) {
+				dlog( LOG_DEBUG, "VISA_OpenSessionStep - Patching v11 from 0x%x to 0x410000\n", v11);
+				v11 = 0x410000;
+			}
 // DD XXX
 
             if (v11 != 0x410000) {
@@ -526,7 +465,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x1000171b
     g2 = v6;
     int32_t result2; // 0x100017e0
-    if ((0x10000 * write2StatusReg(deviceId, (int16_t)v6, v6, 0) || 0xffff) < 0x1ffff) {
+    if ((0x10000 * writeStatusReg(deviceId, (int16_t)v6, v6, 0) || 0xffff) < 0x1ffff) {
         InitTimeoutLoop(0);
         int32_t v7;
         while (true) {
@@ -560,6 +499,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
  * Calls dd_viWrite(), m_viIn16() and checks for errors
  * (protocol errors, using dd_viWrite() again)
  */
+// function_10001354
 int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* response) {
 	dlog( LOG_DEBUG, "_doSendWord %x=%s\n", command, getCmdNameP2((command&0xffff)));
     int32_t v1 = g3; // bp-4
@@ -580,7 +520,12 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 
     // Write out command
     // Register 14 = 0xe = data Low
+    //int32_t v7 = r_ViOut16(v2, 1, 14, v6 & -0x10000 | (int32_t)command); // 0x100013b4
+#ifdef _1ST_TRY
     int32_t v7 = dd_viWsCmdAlike(session_handle, 1, 14, /*v6 & -0x10000 | (int32_t)*/command); // 0x100013b4
+#else
+    int32_t v7 = m_viOut16(session_handle, 1, REG_DATALOW_BO /*14*/, command); // 0x100013b4
+#endif
     //dlog( LOG_DEBUG, "_doSendWord: v7 %x\n", v7 );
     if (v7 != 0) {
         g3 = v1;
@@ -595,7 +540,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         g3 = v1;
         return v9 & -0x10000 | v8 & 0xffff;
     }
-    // 2048 = (1<<11), bit 11 in response is ERR bit(?)
+    // 2048 = (1<<11), bit 11 in response is ERR bit
     int32_t v10 = (int32_t)v3 & ERRORBIT /*2048*/; // 0x10001407
     int32_t v11;
     //dlog( LOG_DEBUG, "_doSendWord: v10 %x\n", v10 );
@@ -605,9 +550,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         	// do only if a3&0xffff != 0, i.e. a3 in range 0x0001..0xffff
             g5 = session_handle;
             // call gets a response in v4 which is *v3; if v12=ret==0, response:=v13 which is v3
-            // 14 = 0xe = 1110
-            // 10 = 0xa = 1010 (also used as arg3)
-            int32_t v12 = m_viIn16(session_handle, 1, 14, v4); // 0x1000158a
+            int32_t v12 = m_viIn16(session_handle, 1, REG_DATALOW_BO /*14*/, v4); // 0x1000158a
             if (v12 == 0) {
                 int16_t v13 = v3; // 0x100015a1
                 *response = v13;
@@ -624,7 +567,12 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
     g5 = session_handle;
     // DD: 0xcdff Read Protocol Error
     // Register 14 = 0xe = DataLow
+    //int32_t v14 = r_ViOut16(v2, 1, 14, 0xcdff); // 0x10001421
+#ifdef _1ST_TRY
     int32_t v14 = dd_viWsCmdAlike(session_handle, 1, 14, WS_CMD_RPE /*0xcdff*/); // 0x10001421
+#else
+    int32_t v14 = m_viOut16(session_handle, 1, REG_DATALOW_BO /*14*/, WS_CMD_RPE /*0xcdff*/); // 0x10001421
+#endif
     //dlog( LOG_DEBUG, "_doSendWord: v14 %x\n", v14 );
     if (v14 != 0) {
         g3 = v1;
@@ -666,7 +614,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v18 & -0x10000 | 0x8000;
     }
     g5 = session_handle;
-    int32_t v20 = m_viIn16(session_handle, 1, 14, v4); // 0x100014e8
+    int32_t v20 = m_viIn16(session_handle, 1, REG_DATALOW_BO /*14*/, v4); // 0x100014e8
     //dlog( LOG_DEBUG, "_doSendWord: v20 %x\n", v20 );
     if (v20 != 0) {
         g3 = v1;
@@ -725,7 +673,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16) {
     int32_t session_handle = deviceId->session_handle; //*(int32_t *)(deviceId + 468);
     g7 = session_handle;
-    int32_t v2 = m_viIn16(session_handle, 1, 4, val16);
+    int32_t v2 = m_viIn16(session_handle, 1, REG_STATUSCRTL_BO /*4*/, val16);
 	dlog( LOG_DEBUG, "\treadStatusReg() -> v2: 0x%x, response: 0x%x\n", v2, *val16);
 
     int32_t ret = SetErrorStatus(deviceId, v2) & -0x10000 | v2;
@@ -734,15 +682,15 @@ int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16) {
 }
 
 // function_10001249
-int32_t write2StatusReg(SET9052 *deviceId, uint16_t word, int32_t unused, int32_t unused1) {
-	dlog( LOG_DEBUG, "\twrite2StatusReg(word %x=%s,0x%x, 0x%x)\n", word, getCmdNameP2(word), unused, unused1);
+int32_t writeStatusReg(SET9052 *deviceId, uint16_t word, int32_t unused, int32_t unused1) {
+	dlog( LOG_DEBUG, "\twriteStatusReg(word %x=%s,0x%x, 0x%x)\n", word, getCmdNameP2(word), unused, unused1);
 	int32_t v1 = deviceId->session_handle;
-#ifdef ORIG
-    int32_t v2 = dd_viWsCmdAlike(v1, 1, 4, g2 & -0x10000 | command) != 0;
+
+	//int32_t v2 = r_ViIn16(v1, 1, 4, a2) != 0;
+#ifdef _1ST_TRY
+    int32_t v2 = dd_viWsCmdAlike(v1, 1, 4, g2 & -0x10000 | word) != 0;
 #else
-    int32_t v2;
-	//dlog( LOG_DEBUG, "Command %x left out.\n", command);
-	v2 = m_viOut16(v1, 1, 4, word);
+    int32_t v2 = m_viOut16(v1, 1, REG_STATUSCRTL_BO /*4*/, word);
 #endif
     g5 = deviceId;
     return SetErrorStatus(deviceId, v2) & -0x10000 | v2;
@@ -835,7 +783,7 @@ int32_t readResponseRegT(SET9052 * deviceId, int32_t timeout, int16_t mask, int1
 // function_10001654
 int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t* val) {
     g5 = deviceId;
-    if (m_viIn16(deviceId->session_handle, 1, 10, val) != 0) {
+    if (m_viIn16(deviceId->session_handle, 1, REG_RESPONSE_BO /*10*/, val) != 0) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0x8020; // 0x10001686
         return result;
     }
@@ -928,7 +876,7 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
     v3 = v4;
     int32_t v5 = v4; // 0x10001136
     g2 = v5;
-    int32_t v6 = 0x10000 * write2StatusReg(deviceId, v4, v5, 0); // 0x10001147
+    int32_t v6 = 0x10000 * writeStatusReg(deviceId, v4, v5, 0); // 0x10001147
     g7 = v6 / 0x10000;
     int32_t result2; // 0x100011fb
     if ((v6 || 0xffff) < 0x1ffff) {
@@ -1198,6 +1146,7 @@ int32_t m_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t
 	return ret;
 }
 
+#ifdef _1ST_TRY
 /**
  * Return value is 0 on success. This can be seen e.g. in _doSendWord() where processing stops
  * if we return sth. different from 0.
@@ -1214,6 +1163,7 @@ int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t 
 	dlog( LOG_DEBUG, "\tWScmdAlike() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
 	return ret;
 }
+#endif
 
 int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 	dlog( LOG_DEBUG, "viSetBuf(%d,%d,%d)\n", session_handle, mask, size);
@@ -1240,7 +1190,7 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
 	int16_t v1 = 0; // bp-8
     int32_t result2; // 0x10001e41
     while (true) {
-        function_10001b08(deviceId);
+    	readDataWord(deviceId);
         int32_t v2 = RdErrorStatus(deviceId); // 0x10001e65
         int32_t result = v2; // 0x10001e78
         if (v2 == 0) {
@@ -1261,13 +1211,13 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
     return result2;
 }
 
-// Checks bit 10 in response register. If clear, return an error. If set,
+// Checks READREADY bit 10 in response register. If clear, return an error. If set,
 // read in register 14 = 0xe = DataLow and return the value.
 // This seems to be the basic read function when fetching data from the engine !?!
 // called by VISA_FetchDataWord and VISA_ClearDataFIFO.
 // function_10001b08
-int32_t function_10001b08(SET9052 *deviceId) {
-	dlog(LOG_DEBUG, "function_10001b08() basic read function when fetching data from the engine  \n");
+int32_t readDataWord(SET9052 *deviceId) {
+	dlog(LOG_DEBUG, "readDataWord() basic read function when fetching data from the engine  \n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x10001b1f
@@ -1281,20 +1231,20 @@ int32_t function_10001b08(SET9052 *deviceId) {
     if ((int16_t)v5 <= -1) {
         v7 = SetErrorStatus(deviceId, 1);
         g3 = v1;
-    	dlog(LOG_DEBUG, "function_10001b08() readResponseRegT gave error --> 0x%x\n", v7);
+    	dlog(LOG_DEBUG, "readDataWord() readResponseRegT gave error --> 0x%x\n", v7);
         return v7 & -0x10000 | (int32_t)v6;
     }
     // If bit 10 is clear, this is an error and we return.
     if ((v3 & READREADY /*1024*/) == 0) {
         v7 = SetErrorStatus(deviceId, 2);
         g3 = v1;
-    	dlog(LOG_DEBUG, "function_10001b08() 2, bit 10 not set --> 0x%x\n", v7);
+    	dlog(LOG_DEBUG, "readDataWord() 2, bit 10 not set --> 0x%x\n", v7);
         return v7 & -0x10000 | (int32_t)v6;
     }
     int32_t v8 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x10001b78
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
-    if (m_viIn16(v8, 1, 14, &v9) == 0) {
+    if (m_viIn16(v8, 1, REG_DATALOW_BO /*14*/, &v9) == 0) {
         v10 = 0;
     } else {
         v10 = 1;
@@ -1302,13 +1252,13 @@ int32_t function_10001b08(SET9052 *deviceId) {
     }
     v7 = SetErrorStatus(deviceId, v10);
     g3 = v1;
-	dlog(LOG_DEBUG, "function_10001b08() 3, ok --> 0x%x\n", v7 & -0x10000 | (int32_t)v9);
+	dlog(LOG_DEBUG, "readDataWord() 3, ok --> 0x%x\n", v7 & -0x10000 | (int32_t)v9);
     return v7 & -0x10000 | (int32_t)v9;
 }
 
 int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
 	dlog(LOG_DEBUG, "VISA_FetchDataWord()\n");
-    int16_t v1 = function_10001b08(deviceId); // bp-8
+    int16_t v1 = readDataWord(deviceId); // bp-8
     int32_t v2 = RdErrorStatus(deviceId); // 0x10001ae0
     int32_t v3; // 0x10001b00
     if (v2 == 0) {
