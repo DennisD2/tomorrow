@@ -511,9 +511,9 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
     // Mask = 512 = (1<<9) => WRITEREADY bit; result in v4
     int32_t v5 = readResponseRegT(deviceId, 100, WRITEREADY /*512*/, v4); // 0x10001384
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x10001390
-    //dlog( LOG_DEBUG, "_doSendWord: v6 %x\n", v6 );
     if ((int16_t)v6 <= -1) {
         g3 = v1;
+        dlog( LOG_DEBUG, "_doSendWord: WRITEREADY error 1 - v6 %x\n", v6 );
         return v6 & -0x10000 | v5 & 0xffff;
     }
     g5 = session_handle;
@@ -526,20 +526,24 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
 #else
     int32_t v7 = m_viOut16(session_handle, 1, REG_DATALOW_BO /*14*/, command); // 0x100013b4
 #endif
-    //dlog( LOG_DEBUG, "_doSendWord: v7 %x\n", v7 );
     if (v7 != 0) {
         g3 = v1;
+        dlog( LOG_DEBUG, "_doSendWord: m_viOut16 error v7 %x\n", v7 );
         return v7 & -0x10000 | 0x8000;
     }
     g5 = deviceId;
+
+    // Wait for WRITEREADY - then command execution has finished in device
     // Mask = 512 = (1<<9) => WRITEREADY bit; result in v4
     int32_t v8 = readResponseRegT(deviceId, 100, WRITEREADY /*512*/, v4); // 0x100013dc
     int32_t v9 = 0x10000 * v8 / 0x10000; // 0x100013e8
-    //dlog( LOG_DEBUG, "_doSendWord: v9 %x\n", v9 );
     if ((int16_t)v9 <= -1) {
         g3 = v1;
+        dlog( LOG_DEBUG, "_doSendWord: WRITEREADY error 2 - v9 %x\n", v9 );
         return v9 & -0x10000 | v8 & 0xffff;
     }
+
+    // Check error status
     // 2048 = (1<<11), bit 11 in response is ERR bit
     int32_t v10 = (int32_t)v3 & ERRORBIT /*2048*/; // 0x10001407
     int32_t v11;
@@ -564,6 +568,8 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         g3 = v1;
         return v10 & -0x10000 | v11;
     }
+
+    // Read protocol errors
     g5 = session_handle;
     // DD: 0xcdff Read Protocol Error
     // Register 14 = 0xe = DataLow
@@ -597,6 +603,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return 0x8000;
     }
     g5 = v4;
+    // wait for READREADY
     // 2014 => bit 10 = > READREADY
     int32_t v17 = readResponseRegT(deviceId, 100, READREADY /*1024*/, v4); // 0x10001497
     int32_t v18 = 0x10000 * v17 / 0x10000; // 0x100014a3
@@ -614,45 +621,48 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v18 & -0x10000 | 0x8000;
     }
     g5 = session_handle;
+    // Read in value
     int32_t v20 = m_viIn16(session_handle, 1, REG_DATALOW_BO /*14*/, v4); // 0x100014e8
     //dlog( LOG_DEBUG, "_doSendWord: v20 %x\n", v20 );
     if (v20 != 0) {
         g3 = v1;
         return v20 & -0x10000 | 0x8000;
     }
+
+    // handle protocol errors
     int32_t v21 = (int32_t)v3 - 0xfff8; // 0x10001505
     g5 = v21;
     v10 = v21;
     v11 = 0x8000;
     switch (v3) {
-        case -8: {
+        case 0xfff8 /*-8*/: {
             g5 = 0xc000;
             v10 = 0;
             v11 = 0xc000;
             break;
         }
-        case -7: {
+        case 0xfff9 /*-7*/: {
             v10 = 0xa000;
             v11 = 0xa000;
             break;
         }
-        case -6: {
+        case 0xfffa /*-6*/: {
             v10 = 2;
             v11 = 0x9000;
             break;
         }
-        case -5: {
+        case 0xfffb /*-5*/: {
             g5 = 0x8800;
             v10 = 3;
             v11 = 0x8800;
             break;
         }
-        case -4: {
+        case 0xfffc /*-4*/: {
             v10 = 0x8200;
             v11 = 0x8200;
             break;
         }
-        case -3: {
+        case 0xfffd /*-3*/: {
             v10 = 5;
             v11 = 0x8040;
             break;
@@ -909,8 +919,9 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
 /**
  * Wraps _doSendWord() and adds SetErrorStatus()
  */
+// function_10001a0a
 int32_t sendWord(SET9052 *deviceId, int16_t command) {
-	dlog( LOG_DEBUG, "sendWord(function_10001a0a): %x\n", command);
+	dlog( LOG_DEBUG, "sendWord(%x)\n", command);
     int32_t result;
     if ((int16_t)_doSendWord(deviceId, command, 0, 0) > -1) {
         g5 = deviceId;
