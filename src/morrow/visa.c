@@ -521,7 +521,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
     uint16_t v4 = v3; // 0x10001710
     // DD : next line set bit position 9 (counted from zero)
     // This sets DLFM mode,
-   uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | 512; // 0x10001714
+   uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | WRITEREADY /*512*/; // 0x10001714
     v3 = v5;
     int32_t v6 = 0x10000 * v5 / 0x10000; // 0x1000171b
     g2 = v6;
@@ -596,7 +596,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v9 & -0x10000 | v8 & 0xffff;
     }
     // 2048 = (1<<11), bit 11 in response is ERR bit(?)
-    int32_t v10 = (int32_t)v3 & 2048; // 0x10001407
+    int32_t v10 = (int32_t)v3 & ERRORBIT /*2048*/; // 0x10001407
     int32_t v11;
     //dlog( LOG_DEBUG, "_doSendWord: v10 %x\n", v10 );
     if (v10 != 0) {
@@ -643,7 +643,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v16 & -0x10000 | v15 & 0xffff;
     }
 
-    if (((int32_t)v3 & 512) == 0) {
+    if (((int32_t)v3 & WRITEREADY /*512*/) == 0) {
         dlog( LOG_DEBUG, "_doSendWord: FAIL return1 %x\n", v3);
         g3 = v1;
         return 0x8000;
@@ -660,7 +660,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
         return v18 & -0x10000 | v17 & 0xffff;
     }
 
-    if ((v3 & 1024) == 0) {
+    if ((v3 & READREADY /*1024*/) == 0) {
         dlog( LOG_DEBUG, "_doSendWord: FAIL return2 %x\n", v3);
         g3 = v1;
         return v18 & -0x10000 | 0x8000;
@@ -1234,7 +1234,7 @@ int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 /* MeasureAmplWithFreq related code */
 /*------------------------------------------------------------------------------------*/
 
-// Seems to read in until FIFO is empty
+// Seems to read 512 times in until FIFO is empty
 int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
 	dlog(LOG_DEBUG, "VISA_ClearDataFIFO\n");
 	int16_t v1 = 0; // bp-8
@@ -1275,7 +1275,7 @@ int32_t function_10001b08(SET9052 *deviceId) {
     int16_t *v4 = &v3; // 0x10001b2a
     g5 = v4;
     // 1024 = (1<<10), bit position 10 in response register.
-    int32_t v5 = readResponseRegT(deviceId, v2, 1024, v4); // 0x10001b3b
+    int32_t v5 = readResponseRegT(deviceId, v2, READREADY /*1024*/, v4); // 0x10001b3b
     int16_t v6 = v5; // 0x10001b3b
     int32_t v7; // 0x10001bbc
     if ((int16_t)v5 <= -1) {
@@ -1285,7 +1285,7 @@ int32_t function_10001b08(SET9052 *deviceId) {
         return v7 & -0x10000 | (int32_t)v6;
     }
     // If bit 10 is clear, this is an error and we return.
-    if ((v3 & 1024) == 0) {
+    if ((v3 & READREADY /*1024*/) == 0) {
         v7 = SetErrorStatus(deviceId, 2);
         g3 = v1;
     	dlog(LOG_DEBUG, "function_10001b08() 2, bit 10 not set --> 0x%x\n", v7);

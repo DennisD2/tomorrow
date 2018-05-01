@@ -12,28 +12,35 @@
 
 #include "compatibility.h"
 
+// VXI device register byte offset (as in official doc)
+#define REG_ID_BO 			0
+#define REG_DEVTYPE_BO		2
+#define REG_STATUSCRTL_BO	4
+#define REG_RESPONSE_BO		10
+#define REG_DATALOW_BO 		0xe
 
-// register numbers (not: byte offsets as in official doc)
-#define REG_ID 0
-#define REG_DEVTYPE 1
-#define REG_STATUSCRTL 2
+// VXI register numbers (= byte offset/2)
+#define REG_ID 				(REG_ID_BO/2)
+#define REG_DEVTYPE 		(REG_DEVTYPE_BO/2)
+#define REG_STATUSCRTL 		(REG_STATUSCRTL_BO/2)
 
-#define REG_RESPONSE 5
-#define REG_DATALOW 7
+#define REG_RESPONSE		(REG_RESPONSE_BO/2)
+#define REG_DATALOW			(REG_DATALOW_BO/2)
 
 // RESPONSE register bit values
-#define REG_RESPONSE_WR_BITV (uint16_t)(1<<9)
-#define REG_RESPONSE_RD_BITV (uint16_t)(1<<10)
-#define REG_RESPONSE_DIR_BITV (uint16_t)(1<<12)
-#define REG_RESPONSE_DOR_BITV (uint16_t)(1<<13)
-#define REG_RESPONSE_ERR_BITV (uint16_t)(1<<11)
+//#define REG_RESPONSE_WR_BITV (uint16_t)(1<<9)
+//#define REG_RESPONSE_RD_BITV (uint16_t)(1<<10)
+//#define REG_RESPONSE_DIR_BITV (uint16_t)(1<<12)
+//#define REG_RESPONSE_DOR_BITV (uint16_t)(1<<13)
+//#define REG_RESPONSE_ERR_BITV (uint16_t)(1<<11)
 
 // RESPONSE register special values
-// Device has put sth. in Datalow
-#define READREADY 0x400
-// Device is ok to read  from Datalow
+// Device is ok to read from Datalow. Bit 9, dec512
 #define WRITEREADY 0x200
-
+// Device has put sth. in Datalow. Bit 10. dec1024
+#define READREADY 0x400
+// Error bit. Bit 11, dec2048
+#define ERRORBIT 0x800
 
 // RESPONSE register bit masks
 #define WRITEREADYDIR (uint16_t)(REG_RESPONSE_WR_BITV|REG_RESPONSE_DIR_BITV)
