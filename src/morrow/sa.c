@@ -5495,7 +5495,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 
 	if (rbw != RBW_AUTO /*5*/) {
 		/*
-		 * RBWMode != AUTO
+		 * rbw != AUTO
 		 */
 		int32_t v11 = SetRBWmode(a1, VI_FALSE /*0*/); // 0x1000a440
 		if ((int16_t) v11 != 0) {
@@ -5518,6 +5518,9 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 		int32_t v17; // 0x1000a595
 
 		if (vbw == VBW_AUTO /*0x10000 * vbw == 0x80000*/) {
+			/*
+			 * vbw == AUTO
+			 */
 			int32_t v18 = SetVBWmode(a1, VI_TRUE /*1*/); // 0x1000a4a4
 			if ((int16_t) v18 != 0) {
 				return 0x10000 * v18 / 0x10000 | 0xffff;
@@ -5577,126 +5580,133 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 				result = (int32_t) points | 0xffff;
 			}
 			return result;
-		}
 
-		int32_t v19 = SetVBWmode(a1, VI_FALSE /*0*/); // 0x1000a4c9
-		if ((int16_t) v19 != 0) {
-			return 0x10000 * v19 / 0x10000 | 0xffff;
-		}
-		g6 = a1;
-		v10 = SetVBW(a1, v2);
-		int32_t v20 = 0x10000 * v10;
-		int32_t v21 = v20 / 0x10000; // 0x1000a4fb
-		if ((int16_t) v10 != 0) {
-			if (v20 != -0x30000) {
-				result = v21 | 0xffff;
-			} else {
-				result = v21 & -0x10000 | v10 & 0xffff;
+		} else {
+			/*
+			 * vbw != AUTO
+			 */
+			int32_t v19 = SetVBWmode(a1, VI_FALSE /*0*/); // 0x1000a4c9
+			if ((int16_t) v19 != 0) {
+				return 0x10000 * v19 / 0x10000 | 0xffff;
 			}
-			return result;
-		}
-		ConfigStartFreq(a1, start);
-		v15 = ConfigStopFreq(a1, stop);
-		if ((int16_t) v15 != 0) {
-			return 0x10000 * v15 / 0x10000 | 0xffff;
-		}
-		v16 = SetRefLevel(a1, ref_level);
-		if ((int16_t) v16 < 0) {
-			return 0x10000 * v16 / 0x10000 | 0xffff;
-		}
-		v9 = SetNumCells(a1, num_points);
-		v6 = 0x10000 * v9;
-		v17 = v6 / 0x10000;
-		g6 = v17;
-		if ((int16_t) v9 != 0) {
-			if (v6 != -0x30000) {
-				result = v17 | 0xffff;
-			} else {
-				result = v17 & -0x10000 | v9 & 0xffff;
+			g6 = a1;
+			v10 = SetVBW(a1, v2);
+			int32_t v20 = 0x10000 * v10;
+			int32_t v21 = v20 / 0x10000; // 0x1000a4fb
+			if ((int16_t) v10 != 0) {
+				if (v20 != -0x30000) {
+					result = v21 | 0xffff;
+				} else {
+					result = v21 & -0x10000 | v10 & 0xffff;
+				}
+				return result;
 			}
-			return result;
-		}
-		v7 = RdNumSwpPts(a1);
-		points = alloc_1000da64(2 * v7 + 2);
-		if (points != 0) {
-			g3 = a1;
-			int32_t v22 = 0xffff;
-			if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/) == 0x410000) {
-				if (0x10000 * StartSweep(a1) == 0x410000) {
-					while (true) {
-						if ((int16_t) GetAmplWithFreqExt(a1, points, ra_freq)
-								!= 0) {
-							result2 = function_1000d97b(points) & -0x10000
-									| 0xffff;
-							return result2;
-						}
-						lab_0x1000a65b_3: if (RdSwpIdx(a1) >= v7) {
-							break;
-						}
-					}
-					if (v7 > 0) {
-						int32_t v23 = 0;
+			ConfigStartFreq(a1, start);
+			v15 = ConfigStopFreq(a1, stop);
+			if ((int16_t) v15 != 0) {
+				return 0x10000 * v15 / 0x10000 | 0xffff;
+			}
+			v16 = SetRefLevel(a1, ref_level);
+			if ((int16_t) v16 < 0) {
+				return 0x10000 * v16 / 0x10000 | 0xffff;
+			}
+			v9 = SetNumCells(a1, num_points);
+			v6 = 0x10000 * v9;
+			v17 = v6 / 0x10000;
+			g6 = v17;
+			if ((int16_t) v9 != 0) {
+				if (v6 != -0x30000) {
+					result = v17 | 0xffff;
+				} else {
+					result = v17 & -0x10000 | v9 & 0xffff;
+				}
+				return result;
+			}
+			v7 = RdNumSwpPts(a1);
+			points = alloc_1000da64(2 * v7 + 2);
+			if (points != 0) {
+				g3 = a1;
+				int32_t v22 = 0xffff;
+				if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/) == 0x410000) {
+					if (0x10000 * StartSweep(a1) == 0x410000) {
 						while (true) {
-							// v1 = data_format
-							int32_t v24; // 0x1000a68b
-							if (v1 == 0) {
-								GetDbmForAmpl(a1,
-										*(int16_t *) (2 * v23 + points));
-								*(float64_t *) (8 * v23 + ra_data) =
-										(float64_t) g159;
-								g11++;
-							} else {
-								if (v1 == 1) {
-									GetnVForAmpl(a1,
+							if ((int16_t) GetAmplWithFreqExt(a1, points,
+									ra_freq) != 0) {
+								result2 = function_1000d97b(points) & -0x10000
+										| 0xffff;
+								return result2;
+							}
+							lab_0x1000a65b_3: if (RdSwpIdx(a1) >= v7) {
+								break;
+							}
+						}
+						if (v7 > 0) {
+							int32_t v23 = 0;
+							while (true) {
+								// v1 = data_format
+								int32_t v24; // 0x1000a68b
+								if (v1 == 0) {
+									GetDbmForAmpl(a1,
 											*(int16_t *) (2 * v23 + points));
 									*(float64_t *) (8 * v23 + ra_data) =
-											(float64_t) (1000.0L / g159);
+											(float64_t) g159;
 									g11++;
 								} else {
-									if (v1 == 2) {
+									if (v1 == 1) {
 										GetnVForAmpl(a1,
 												*(int16_t *) (2 * v23 + points));
 										*(float64_t *) (8 * v23 + ra_data) =
-												(float64_t) g159;
+												(float64_t) (1000.0L / g159);
 										g11++;
+									} else {
+										if (v1 == 2) {
+											GetnVForAmpl(a1,
+													*(int16_t *) (2 * v23
+															+ points));
+											*(float64_t *) (8 * v23 + ra_data) =
+													(float64_t) g159;
+											g11++;
+										}
 									}
+									v24 = v23 + 1;
+									if (v24 == v7) {
+										break;
+									}
+									v23 = v24;
+									continue;
 								}
 								v24 = v23 + 1;
 								if (v24 == v7) {
 									break;
 								}
 								v23 = v24;
-								continue;
 							}
-							v24 = v23 + 1;
-							if (v24 == v7) {
-								break;
-							}
-							v23 = v24;
+							result2 = function_1000d97b(points) & -0x10000;
+							return result2;
 						}
-						result2 = function_1000d97b(points) & -0x10000;
-						return result2;
+						v22 = 0;
+					} else {
+						v22 = 0xffff;
 					}
-					v22 = 0;
-				} else {
-					v22 = 0xffff;
 				}
+				result = function_1000d97b(points) & -0x10000 | v22;
+			} else {
+				result = (int32_t) points | 0xffff;
 			}
-			result = function_1000d97b(points) & -0x10000 | v22;
-		} else {
-			result = (int32_t) points | 0xffff;
+			return result;
 		}
-		return result;
-
 	} else {
 		/*
-		 * RBWMode == AUTO
+		 * rbw == AUTO
 		 */
 		int32_t v25 = SetRBWmode(a1, AUTO_ON /*1*/); // 0x1000a41b
 		if ((int16_t) v25 != 0) {
 			return 0x10000 * v25 / 0x10000 | 0xffff;
 		}
-		if (0x10000 * vbw != 0x80000) {
+		if (vbw != VBW_AUTO /*0x10000 * vbw != 0x80000*/) {
+			/*
+			 * vbw != AUTO
+			 */
 			if ((int16_t) SetVBWmode(a1, AUTO_OFF /*0*/) == 0) {
 				g6 = a1;
 				v10 = SetVBW(a1, v2);
@@ -5738,24 +5748,17 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 									// 0x1000a5af
 									// branch -> 0x1000a743
 								}
-								// Detected a possible infinite recursion (goto support failed); quitting...
 							}
-							// Detected a possible infinite recursion (goto support failed); quitting...
 						}
-						// Detected a possible infinite recursion (goto support failed); quitting...
 					}
-					// Detected a possible infinite recursion (goto support failed); quitting...
 				} else {
 					// 0x1000a503
 					if (0x10000 * v10 != -0x30000) {
 						// 0x1000a515
 						// branch -> 0x1000a743
 					}
-					// Detected a possible infinite recursion (goto support failed); quitting...
 				}
-				// Detected a possible infinite recursion (goto support failed); quitting...
 			}
-			// Detected a possible infinite recursion (goto support failed); quitting...
 		} else {
 			// 0x1000a49e
 			if ((int16_t) SetVBWmode(a1, AUTO_ON /*1*/) != 0) {
@@ -5765,7 +5768,9 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 			}
 		}
 
-		// XXXXXXXXXX here
+		/*
+		 * vbw == AUTO
+		 */
 		// 0x1000a51e
 		ConfigStartFreq(a1, start);
 		if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
@@ -5812,13 +5817,9 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 						// 0x1000a5af
 						// branch -> 0x1000a743
 					}
-					// Detected a possible infinite recursion (goto support failed); quitting...
 				}
-				// Detected a possible infinite recursion (goto support failed); quitting...
 			}
-			// Detected a possible infinite recursion (goto support failed); quitting...
 		}
-		// Detected a possible infinite recursion (goto support failed); quitting...
 	}
 }
 

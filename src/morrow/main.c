@@ -34,7 +34,6 @@ int main(int argc, char **argv) {
 	} else {
 		printf("mr90xx_init OK\n\n");
 	}
-	return 0;
 
 	mr90xxStatus = mr90xx_SetEngineModel(sessionId, SA9054);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
