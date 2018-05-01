@@ -3522,7 +3522,7 @@ int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		int32_t v2 = status;
 		a1->err_status = v2;
-		result = /*(int32_t)a1 & -0x10000 | */ v2;
+		result = /*(int32_t)a1 & -0x10000 | */v2;
 	} else {
 		result = GetFuncStatusCode(a1);
 	}
@@ -5494,6 +5494,9 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 	int32_t result2; // 0x1000a73f
 
 	if (rbw != RBW_AUTO /*5*/) {
+		/*
+		 * RBWMode != AUTO
+		 */
 		int32_t v11 = SetRBWmode(a1, VI_FALSE /*0*/); // 0x1000a440
 		if ((int16_t) v11 != 0) {
 			return 0x10000 * v11 / 0x10000 | 0xffff;
@@ -5548,9 +5551,11 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 				if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/) == 0x410000) {
 #else
 				// Break sweep seems to retun 0x41 if ok
-				int32_t v111 =  BreakSweep(a1, STOP_NOW /*0*/);
+				int32_t v111 = BreakSweep(a1, STOP_NOW /*0*/);
 				if (v111 != 0x410000) {
-					dlog(LOG_DEBUG, "Patching v111 from 0x%x to 0x410000 - TBC\n", v111);
+					dlog(LOG_DEBUG,
+							"Patching v111 from 0x%x to 0x410000 - TBC\n",
+							v111);
 					v111 = 0x410000;
 				}
 				if (v111 == 0x410000) {
@@ -5573,7 +5578,6 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 			}
 			return result;
 		}
-
 
 		int32_t v19 = SetVBWmode(a1, VI_FALSE /*0*/); // 0x1000a4c9
 		if ((int16_t) v19 != 0) {
@@ -5683,130 +5687,132 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 			result = (int32_t) points | 0xffff;
 		}
 		return result;
-	}
 
-	/*
-	 *
-	 *
-	 * RBWMode == AUTO below
-	 *
-	 */
-	int32_t v25 = SetRBWmode(a1, AUTO_ON /*1*/); // 0x1000a41b
-	if ((int16_t) v25 != 0) {
-		return 0x10000 * v25 / 0x10000 | 0xffff;
-	}
-	if (0x10000 * vbw != 0x80000) {
-		if ((int16_t) SetVBWmode(a1, AUTO_OFF /*0*/) == 0) {
-			g6 = a1;
-			v10 = SetVBW(a1, v2);
-			if ((int16_t) v10 == 0) {
-				ConfigStartFreq(a1, start);
-				if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
-					if ((int16_t) SetRefLevel(a1, ref_level) >= 0) {
-						v9 = SetNumCells(a1, num_points);
-						v6 = 0x10000 * v9;
-						g6 = v6 / 0x10000;
-						if ((int16_t) v9 == 0) {
-							v7 = RdNumSwpPts(a1);
-							points = alloc_1000da64(2 * v7 + 2);
-							if (points != 0) {
-								g3 = a1;
-								if (0x10000 * BreakSweep(a1,
-								STOP_NOW /*0*/) == 0x410000) {
-									if (0x10000 * StartSweep(a1) == 0x410000) {
-										while (true) {
-											if ((int16_t) GetAmplWithFreqExt(a1,
-													points, ra_freq) == 0) {
-												goto lab_0x1000a65b_3;
+	} else {
+		/*
+		 * RBWMode == AUTO
+		 */
+		int32_t v25 = SetRBWmode(a1, AUTO_ON /*1*/); // 0x1000a41b
+		if ((int16_t) v25 != 0) {
+			return 0x10000 * v25 / 0x10000 | 0xffff;
+		}
+		if (0x10000 * vbw != 0x80000) {
+			if ((int16_t) SetVBWmode(a1, AUTO_OFF /*0*/) == 0) {
+				g6 = a1;
+				v10 = SetVBW(a1, v2);
+				if ((int16_t) v10 == 0) {
+					ConfigStartFreq(a1, start);
+					if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
+						if ((int16_t) SetRefLevel(a1, ref_level) >= 0) {
+							v9 = SetNumCells(a1, num_points);
+							v6 = 0x10000 * v9;
+							g6 = v6 / 0x10000;
+							if ((int16_t) v9 == 0) {
+								v7 = RdNumSwpPts(a1);
+								points = alloc_1000da64(2 * v7 + 2);
+								if (points != 0) {
+									g3 = a1;
+									if (0x10000 * BreakSweep(a1,
+									STOP_NOW /*0*/) == 0x410000) {
+										if (0x10000 * StartSweep(a1)
+												== 0x410000) {
+											while (true) {
+												if ((int16_t) GetAmplWithFreqExt(
+														a1, points, ra_freq)
+														== 0) {
+													goto lab_0x1000a65b_3;
+												}
+												result2 = function_1000d97b(
+														points) & -0x10000
+														| 0xffff;
+												return result2;
 											}
-											result2 = function_1000d97b(points)
-													& -0x10000 | 0xffff;
-											return result2;
 										}
 									}
+									function_1000d97b(points);
 								}
-								function_1000d97b(points);
-							}
-							// Detected a possible infinite recursion (goto support failed); quitting...
-						} else {
-							// 0x1000a59d
-							if (v6 != -0x30000) {
-								// 0x1000a5af
-								// branch -> 0x1000a743
+								// Detected a possible infinite recursion (goto support failed); quitting...
+							} else {
+								// 0x1000a59d
+								if (v6 != -0x30000) {
+									// 0x1000a5af
+									// branch -> 0x1000a743
+								}
+								// Detected a possible infinite recursion (goto support failed); quitting...
 							}
 							// Detected a possible infinite recursion (goto support failed); quitting...
 						}
 						// Detected a possible infinite recursion (goto support failed); quitting...
 					}
 					// Detected a possible infinite recursion (goto support failed); quitting...
-				}
-				// Detected a possible infinite recursion (goto support failed); quitting...
-			} else {
-				// 0x1000a503
-				if (0x10000 * v10 != -0x30000) {
-					// 0x1000a515
-					// branch -> 0x1000a743
+				} else {
+					// 0x1000a503
+					if (0x10000 * v10 != -0x30000) {
+						// 0x1000a515
+						// branch -> 0x1000a743
+					}
+					// Detected a possible infinite recursion (goto support failed); quitting...
 				}
 				// Detected a possible infinite recursion (goto support failed); quitting...
 			}
 			// Detected a possible infinite recursion (goto support failed); quitting...
+		} else {
+			// 0x1000a49e
+			if ((int16_t) SetVBWmode(a1, AUTO_ON /*1*/) != 0) {
+				// 0x1000a4b8
+				// branch -> 0x1000a743
+				// Detected a possible infinite recursion (goto support failed); quitting...
+			}
 		}
-		// Detected a possible infinite recursion (goto support failed); quitting...
-	} else {
-		// 0x1000a49e
-		if ((int16_t) SetVBWmode(a1, AUTO_ON /*1*/) != 0) {
-			// 0x1000a4b8
-			// branch -> 0x1000a743
-			// Detected a possible infinite recursion (goto support failed); quitting...
-		}
-	}
 
-	// XXXXXXXXXX here
-	// 0x1000a51e
-	ConfigStartFreq(a1, start);
-	if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
-		// 0x1000a55b
-		if ((int16_t) SetRefLevel(a1, ref_level) >= 0) {
-			// 0x1000a581
-			v9 = SetNumCells(a1, num_points);
-			v6 = 0x10000 * v9;
-			g6 = v6 / 0x10000;
-			if ((int16_t) v9 == 0) {
-				// 0x1000a5b8
-				v7 = RdNumSwpPts(a1);
-				points = alloc_1000da64(2 * v7 + 2);
-				if (points != 0) {
-					// 0x1000a5e9
-					g3 = a1;
-					if (0x10000 * BreakSweep(a1,
-					STOP_NOW /*0*/) == 0x410000) {
-						// 0x1000a60f
-						if (0x10000 * StartSweep(a1) == 0x410000) {
-							while (true) {
-								// 0x1000a633
-								if ((int16_t) GetAmplWithFreqExt(a1, points,
-										ra_freq) == 0) {
-									goto lab_0x1000a65b_3;
+		// XXXXXXXXXX here
+		// 0x1000a51e
+		ConfigStartFreq(a1, start);
+		if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
+			// 0x1000a55b
+			if ((int16_t) SetRefLevel(a1, ref_level) >= 0) {
+				// 0x1000a581
+				v9 = SetNumCells(a1, num_points);
+				v6 = 0x10000 * v9;
+				g6 = v6 / 0x10000;
+				if ((int16_t) v9 == 0) {
+					// 0x1000a5b8
+					v7 = RdNumSwpPts(a1);
+					points = alloc_1000da64(2 * v7 + 2);
+					if (points != 0) {
+						// 0x1000a5e9
+						g3 = a1;
+						if (0x10000 * BreakSweep(a1,
+						STOP_NOW /*0*/) == 0x410000) {
+							// 0x1000a60f
+							if (0x10000 * StartSweep(a1) == 0x410000) {
+								while (true) {
+									// 0x1000a633
+									if ((int16_t) GetAmplWithFreqExt(a1, points,
+											ra_freq) == 0) {
+										goto lab_0x1000a65b_3;
+									}
+									// 0x1000a672
+									// branch -> 0x1000a733
+									// 0x1000a733
+									function_1000d97b(points);
+									// branch -> 0x1000a743
+									// Detected a possible infinite recursion (goto support failed); quitting...
 								}
-								// 0x1000a672
-								// branch -> 0x1000a733
-								// 0x1000a733
-								function_1000d97b(points);
-								// branch -> 0x1000a743
-								// Detected a possible infinite recursion (goto support failed); quitting...
 							}
 						}
+						// 0x1000a733
+						function_1000d97b(points);
+						// branch -> 0x1000a743
 					}
-					// 0x1000a733
-					function_1000d97b(points);
-					// branch -> 0x1000a743
-				}
-				// Detected a possible infinite recursion (goto support failed); quitting...
-			} else {
-				// 0x1000a59d
-				if (v6 != -0x30000) {
-					// 0x1000a5af
-					// branch -> 0x1000a743
+					// Detected a possible infinite recursion (goto support failed); quitting...
+				} else {
+					// 0x1000a59d
+					if (v6 != -0x30000) {
+						// 0x1000a5af
+						// branch -> 0x1000a743
+					}
+					// Detected a possible infinite recursion (goto support failed); quitting...
 				}
 				// Detected a possible infinite recursion (goto support failed); quitting...
 			}
@@ -5814,7 +5820,6 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 		}
 		// Detected a possible infinite recursion (goto support failed); quitting...
 	}
-	// Detected a possible infinite recursion (goto support failed); quitting...
 }
 
 int32_t RdNumSwpPts(SET9052 *a1) {
@@ -5893,7 +5898,8 @@ int32_t StartSweep(SET9052 *a1) {
 // DD XXX
 	if (v8 != 1) {
 		dlog(LOG_DEBUG, "Patching v8 from 0x%x to 0x41000 - TBC\n", v8);
-		v8 = 1;	}
+		v8 = 1;
+	}
 // DD XXX
 	if (0x10000 * v8 != 0x10000) {
 		result = FuncStatusFromEngineReply((int16_t) v8);
