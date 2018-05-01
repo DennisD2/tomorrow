@@ -3236,7 +3236,9 @@ char *alloc_1000da64(int32_t size) {
 	return __nh_malloc(size, g107);
 }
 
-// I assum ethis frees the incoming data structure (a1 seems to be a pointer)
+// I assume this frees the incoming data structure (a1 seems to be a pointer)
+// After examining with IDA, this is true. There is some MS code called, 'HeapFree' with a parameter 'lpMem'.
+// TODO: remove abort() when this code piece is reached.
 int32_t function_1000d97b(int32_t a1) {
 	// 0x1000d97b
 	abort();
@@ -5707,117 +5709,111 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 			/*
 			 * vbw != AUTO
 			 */
-			if ((int16_t) SetVBWmode(a1, AUTO_OFF /*0*/) == 0) {
-				g6 = a1;
-				v10 = SetVBW(a1, v2);
-				if ((int16_t) v10 == 0) {
-					ConfigStartFreq(a1, start);
-					if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
-						if ((int16_t) SetRefLevel(a1, ref_level) >= 0) {
-							v9 = SetNumCells(a1, num_points);
-							v6 = 0x10000 * v9;
-							g6 = v6 / 0x10000;
-							if ((int16_t) v9 == 0) {
-								v7 = RdNumSwpPts(a1);
-								points = alloc_1000da64(2 * v7 + 2);
-								if (points != 0) {
-									g3 = a1;
-									if (0x10000 * BreakSweep(a1,
-									STOP_NOW /*0*/) == 0x410000) {
-										if (0x10000 * StartSweep(a1)
-												== 0x410000) {
-											while (true) {
-												if ((int16_t) GetAmplWithFreqExt(
-														a1, points, ra_freq)
-														== 0) {
-													goto lab_0x1000a65b_3;
-												}
-												result2 = function_1000d97b(
-														points) & -0x10000
-														| 0xffff;
-												return result2;
-											}
-										}
-									}
-									function_1000d97b(points);
-								}
-								// Detected a possible infinite recursion (goto support failed); quitting...
-							} else {
-								// 0x1000a59d
-								if (v6 != -0x30000) {
-									// 0x1000a5af
-									// branch -> 0x1000a743
-								}
+			if ((int16_t) SetVBWmode(a1, AUTO_OFF /*0*/) != 0) {
+				return IE_ERROR;
+			}
+			g6 = a1;
+			v10 = SetVBW(a1, v2);
+			if ((int16_t) v10 == 0) {
+				return IE_ERROR;
+			}
+			ConfigStartFreq(a1, start);
+			if ((int16_t) ConfigStopFreq(a1, stop) != 0) {
+				return IE_ERROR;
+			}
+			if ((int16_t) SetRefLevel(a1, ref_level) < 0) {
+				return IE_ERROR;
+			}
+			v9 = SetNumCells(a1, num_points);
+			v6 = 0x10000 * v9;
+			g6 = v6 / 0x10000;
+			if ((int16_t) v9 != 0) {
+				return IE_ERROR;
+			}
+			v7 = RdNumSwpPts(a1);
+			points = alloc_1000da64(2 * v7 + 2);
+			if (points != 0) {
+				g3 = a1;
+				if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/) == 0x410000) {
+					if (0x10000 * StartSweep(a1) == 0x410000) {
+						while (true) {
+							if ((int16_t) GetAmplWithFreqExt(a1, points, ra_freq) == 0) {
+								goto lab_0x1000a65b_3;
 							}
+							result2 = function_1000d97b(points) & -0x10000
+									| 0xffff;
+							return result2;
 						}
 					}
-				} else {
-					// 0x1000a503
-					if (0x10000 * v10 != -0x30000) {
-						// 0x1000a515
-						// branch -> 0x1000a743
-					}
+				}
+				function_1000d97b(points);
+				// Detected a possible infinite recursion (goto support failed); quitting...
+			} else {
+				// 0x1000a59d
+				if (v6 != -0x30000) {
+					// 0x1000a5af
+					// branch -> 0x1000a743
 				}
 			}
+
 		} else {
+			/*
+			 * vbw == AUTO
+			 */
+
 			// 0x1000a49e
 			if ((int16_t) SetVBWmode(a1, AUTO_ON /*1*/) != 0) {
 				// 0x1000a4b8
 				// branch -> 0x1000a743
 				// Detected a possible infinite recursion (goto support failed); quitting...
+				return IE_ERROR;
 			}
-		}
 
-		/*
-		 * vbw == AUTO
-		 */
-		// 0x1000a51e
-		ConfigStartFreq(a1, start);
-		if ((int16_t) ConfigStopFreq(a1, stop) == 0) {
+			// 0x1000a51e
+			ConfigStartFreq(a1, start);
+			if ((int16_t) ConfigStopFreq(a1, stop) != 0) {
+				return IE_ERROR;
+			}
 			// 0x1000a55b
-			if ((int16_t) SetRefLevel(a1, ref_level) >= 0) {
-				// 0x1000a581
-				v9 = SetNumCells(a1, num_points);
-				v6 = 0x10000 * v9;
-				g6 = v6 / 0x10000;
-				if ((int16_t) v9 == 0) {
-					// 0x1000a5b8
-					v7 = RdNumSwpPts(a1);
-					points = alloc_1000da64(2 * v7 + 2);
-					if (points != 0) {
-						// 0x1000a5e9
-						g3 = a1;
-						if (0x10000 * BreakSweep(a1,
-						STOP_NOW /*0*/) == 0x410000) {
-							// 0x1000a60f
-							if (0x10000 * StartSweep(a1) == 0x410000) {
-								while (true) {
-									// 0x1000a633
-									if ((int16_t) GetAmplWithFreqExt(a1, points,
-											ra_freq) == 0) {
-										goto lab_0x1000a65b_3;
-									}
-									// 0x1000a672
-									// branch -> 0x1000a733
-									// 0x1000a733
-									function_1000d97b(points);
-									// branch -> 0x1000a743
-									// Detected a possible infinite recursion (goto support failed); quitting...
-								}
+			if ((int16_t) SetRefLevel(a1, ref_level) < 0) {
+				return IE_ERROR;
+			}
+			// 0x1000a581
+			v9 = SetNumCells(a1, num_points);
+			v6 = 0x10000 * v9;
+			g6 = v6 / 0x10000;
+			if ((int16_t) v9 != 0) {
+				return IE_ERROR;
+			}
+			// 0x1000a5b8
+			v7 = RdNumSwpPts(a1);
+			points = alloc_1000da64(2 * v7 + 2);
+			if (points != 0) {
+				// 0x1000a5e9
+				g3 = a1;
+				if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/) == 0x410000) {
+					// 0x1000a60f
+					if (0x10000 * StartSweep(a1) == 0x410000) {
+						dlog(LOG_INFO, "here\n");
+						while (true) {
+							// 0x1000a633
+							if ((int16_t) GetAmplWithFreqExt(a1, points, ra_freq) == 0) {
+								goto lab_0x1000a65b_3;
 							}
+							// 0x1000a672
+							// branch -> 0x1000a733
+							// 0x1000a733
+							function_1000d97b(points);
+							// branch -> 0x1000a743
+							// Detected a possible infinite recursion (goto support failed); quitting...
 						}
-						// 0x1000a733
-						function_1000d97b(points);
-						// branch -> 0x1000a743
 					}
-					// Detected a possible infinite recursion (goto support failed); quitting...
-				} else {
-					// 0x1000a59d
-					if (v6 != -0x30000) {
-						// 0x1000a5af
-						// branch -> 0x1000a743
-					}
+					dlog(LOG_INFO, "here1\n");
+
 				}
+				// 0x1000a733
+				function_1000d97b(points);
+				// branch -> 0x1000a743
 			}
 		}
 	}
@@ -6065,13 +6061,12 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 		return result;
 	}
 	char *pointPtr = 2 * swpIndex + points; // 0x1000bc48
-	// DD replace line above with : char *v11 = points[2*swpIndex];
+	// DD replace line above with : char *pointPtr = &points[2*swpIndex];
 	SET9052 *v12 = a1; // 0x1000bc71
 	int32_t v13; // bp-44
-	// DD v13+v3 looks tike being a float value???
+	// DD v13+v3 looks like being a float value???
 	// DD
-	int32_t v14 = function_100040c9(v12, numDataPoints - swpIndex, 3, &v13, &v3,
-			pointPtr); // 0x1000bc71
+	int32_t v14 = function_100040c9(v12, numDataPoints - swpIndex, 3, &v13, &v3, pointPtr); // 0x1000bc71
 	if ((0x10000 * v14 || 0xffff) >= 0x1ffff) {
 		g4 = v1;
 		return v14 & -0x10000 | 0xfffe;
@@ -6101,9 +6096,19 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 				int32_t v23 = 0;
 				// branch -> 0x1000bcdd
 				while (true) {
+					// DD: inside the while loop, groups of 3 words are fetched.
+					// 1st word seems to be an 16bit index and is stored in pointPtr array at position 'v21'.
+					// 2nd word is LO, 3rd word is HI byte of a 4byte int value.
+					// The 4byte int value is created/handled in function_10002ea6() and there stored in 'g159'.
+					// Then, the g159 is stored as a float value in ra_freq[] array at position 'v21+swpIndex'.
+
+					// v21 is increased by 1 via other values v22,v34,v35
+
 					// 0x1000bcdd
 					v2 = v3;
 					// DD Next line calls FetchDataWord()
+					// Value fetched seems to be a index value. This value is stored in pointPtr[] array at position 'v21'.
+					//
 					int32_t v24 = function_100039d0(v12, v16); // 0x1000bced
 					g8 = a1;
 					if (RdErrorStatus(a1) != 0) {
@@ -6127,6 +6132,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 							// 0x1000bd56
 							v2 = v3;
 							g8 = v16;
+							// v28 is LO 2 bytes of a 4 byte float value
 							int32_t v28 = function_100039d0(v12, v16); // 0x1000bd66
 							if (RdErrorStatus(a1) != 0) {
 								int32_t v29 = v27 + 1;
@@ -6149,6 +6155,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 									// 0x1000bdcc
 									v2 = v30;
 									g8 = v16;
+									// v32 is HI 2 bytes of a 4 byte float value
 									int32_t v32 = function_100039d0(v12, v16); // 0x1000bddc
 									if (RdErrorStatus(a1) != 0) {
 										int32_t v33 = v31 + 1;
@@ -6165,11 +6172,11 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 									if (RdErrorStatus(a1) == 0) {
 										// 0x1000be0e
 										v3 = v2;
-										function_10002ea6(a1,
-												(int64_t) (0x10000 * v32
-														| v28 & 0xffff));
-										*(float64_t *) (8 * v21 + 8 * swpIndex
-												+ ra_freq) = (float64_t) g159;
+										// Arg: 64 bit value made from last 2 words read in
+										// This function sets g159 as a float incarnation of the arg.
+										function_10002ea6(a1,(int64_t) (0x10000 * v32 | v28 & 0xffff));
+										// copy new float value to result array at position 'swpIndex'
+										*(float64_t *) (8 * v21 + 8 * swpIndex + ra_freq) = (float64_t) g159;
 										g11++;
 										int16_t v34 = v22 + 1; // 0x1000bcab
 										int32_t v35 = v34; // 0x1000bcb3
@@ -6294,7 +6301,7 @@ int32_t function_100040c9(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
 		result = v1 & -0x10000 | 0xffeb;
 		// branch -> 0x10004131
 #else
-		// DD Note that VISA_GetDataBlock has only 5 parameters!!! I assume a4+a5 is a float value
+		// DD Note that VISA_GetDataBlock has only 5 parameters!!!
 		result = VISA_GetDataBlock(a1, reversePointIndex, a3, a4, a5, pointPtr);
 #endif
 	} else {
@@ -7487,6 +7494,7 @@ int32_t function_1000f065(int32_t a1, int32_t a2) {
 	return result;
 }
 
+// Simply calls VISA_FetchDataWord()
 int32_t function_100039d0(SET9052 *a1, int32_t *a2) {
 	dlog(LOG_DEBUG, "function_100039d0(%d)\n", *a2);
 	SET9052 *v1 = a1; // 0x100039d4
@@ -7507,6 +7515,7 @@ int32_t function_100039d0(SET9052 *a1, int32_t *a2) {
 		}
 		result = (int32_t)v1 & -0x10000 | 0xffeb;
 #else
+		g8 = a2;
 		result = VISA_FetchDataWord(a1, a2);
 #endif
 	} else {

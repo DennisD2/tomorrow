@@ -1252,6 +1252,8 @@ int32_t readDataWord(SET9052 *deviceId) {
     	dlog(LOG_DEBUG, "readDataWord() 2, bit 10 not set --> 0x%x\n", v7);
         return v7 & -0x10000 | (int32_t)v6;
     }
+
+    // Read in word to v9
     int32_t v8 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x10001b78
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
@@ -1267,6 +1269,8 @@ int32_t readDataWord(SET9052 *deviceId) {
     return v7 & -0x10000 | (int32_t)v9;
 }
 
+// Funny looking, but simply reads in and return a data word using readDataWord().
+// The error handling looks silly. If RdErrorStatus() != 0, and the argument dword is != 0, *dword is set to one. Then, v3 is set to zero and returned.
 int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
 	dlog(LOG_DEBUG, "VISA_FetchDataWord()\n");
     int16_t v1 = readDataWord(deviceId); // bp-8
@@ -1288,7 +1292,7 @@ int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
         // branch -> 0x10001b00
     }
     // 0x10001b00
-	dlog(LOG_DEBUG, "VISA_FetchDataWord() - check if decompiled ok, see dword arg --> \n", v3);
+	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> 0x%x\n", v3);
     return v3 | v2 & -0x10000;
 }
 
@@ -1308,7 +1312,11 @@ int32_t VISA_VerDataBlock(SET9052 *a1, int32_t a2) {
     return result;
 }
 
-// a4,a5 is float???
+// What is this function doing?
+// Name says get data block, but no data is retrieved. This is checked even with IDA.
+// Depending on input values reversePointIndex and a3 and and HW status value v4, two output values are set: a4, a5.
+// a5 is always 0.
+//
 int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5) {
 	dlog(LOG_DEBUG, "VISA_GetDataBlock(reversePointIdx=%d,a3=%d)\n", reversePointIdx, a3);
     int64_t v1 = a3;
@@ -1321,6 +1329,8 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                 int64_t v3 = v1 * reversePointIdx; //  v1 * 0x100000000 * reversePointIdx / 0x100000000; // 0x1000245c
                 uint32_t v4 = VISA_CheckHWStatus(deviceId) & 0xf00 /*3840*/; // 0x10002472
                 int64_t v5;
+
+                // Depending on v4, v5 becomes 0,1,128,256,384.
                 if (v4 >= 0xd01 /*3329*/) {
                     if (v4 != 0xf00 /*3840*/) {
                         v5 = 0;

@@ -210,6 +210,12 @@ visa += 	0
 
 ###Step 4: Addition of mr90xx_MeasureAmplWithFreq()
 
+## Done
+- Reconstruct arrays (VBWFreFromCode:done, RBWFreFromCode:done, GetRBWWide, DefltSetTimeRBW, DefltSetTimeVBW)
+- Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
+- replace all (a1 & 256) and such with a1->opcode & 256. 
+   After checking, this cannot be done. There is no setting of opcode value anywhere.
+
 ## Todos
 - Make VISA_SendWord() original again
 - Make dd_readEngineStatus() original again(find out original name and make code use vi* only)
@@ -217,14 +223,10 @@ visa += 	0
 - Check if VISA_SendCommand() is really ok reimplemented or if it must be converted back to ORIG version; it should only
   use vi* functions.
 - Has VISA_GetDataBlock(() 5 or 6 args ? solve this! int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5);
-- Reconstruct arrays (VBWFreFromCode:done, RBWFreFromCode:done, GetRBWWide, DefltSetTimeRBW, DefltSetTimeVBW)
 - Fix Error mapping ENG->SW domain
-- Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
 - Check all "DD XXX" and "TODO" notes and solve the issues
 - SetVBWmode uses AUTO_ON/OFF and not VI_TRUE/FALSE. Replace this everywhere.
-- replace all (a1 & 256) and such with a1->opcode & 256. 
-   After checking, this cannot be done. There is no setting of opcode value anywhere.
-- SetErrorStatus() in visa.c replace 1,2,3,... with #defines
+- SetErrorStatus() in visa.c replace 1,2,3,... with #defines (but with what ones?)
 - rearrange MeasureAmplWithFreq with if vbwmode/rbwmode 
 
 ## Status
