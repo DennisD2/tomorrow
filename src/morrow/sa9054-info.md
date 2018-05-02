@@ -242,25 +242,26 @@ wordPtr[7]=0x0
 
 - Start sweep fails with 0xaa13 at 12th byte 
 VISA_SendCommand(1=ENG_START_SWP, 12, 7b03a988)
-wordPtr[0]=0x0
-wordPtr[1]=0xa97c
-wordPtr[2]=0x7b03
-wordPtr[3]=0xa950
-wordPtr[4]=0x7b03
-wordPtr[5]=0xa950
-wordPtr[6]=0x0
-wordPtr[7]=0x0
-wordPtr[8]=0x2
-wordPtr[9]=0xa2f0
+VISA_SendCommand(1=ENG_START_SWP, 12, 7b03a980)
+wordPtr[0]=0x5f5   	 5f5.e100 = 100 Mio
+wordPtr[1]=0xe100
+wordPtr[2]=0x8f0     8f0.d180 = 150 Mio
+wordPtr[3]=0xd180
+wordPtr[4]=0x0
+wordPtr[5]=0x0
+wordPtr[6]=0x7b03
+wordPtr[7]=0xa950
+wordPtr[8]=0x7b03
+wordPtr[9]=0xa950
 wordPtr[10]=0x0
-wordPtr[11]=0x2a
+wordPtr[11]=0x0
 
 based on 
 StartSweep (start,stop,step)
 ftol(100000000.000000) -> 100000000
-function_10002df9(100000000.000000) --> 100000000
+function_10002df9(100000000.000000) --> 100000000 <-- Warum? Eingestellt waren 149.000.000 ???
 ftol(150000000.000000) -> 150000000
-function_10002df9(150000000.000000) --> 150000000
+function_10002df9(150000000.000000) --> 150000000 
 ftol(-0.000001) -> 0
 function_10002df9(-0.000001) --> 0 <-- looks wrong
 

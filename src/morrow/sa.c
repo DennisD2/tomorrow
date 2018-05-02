@@ -5838,7 +5838,7 @@ int32_t StartSweep(SET9052 *a1) {
 	int16_t v6 = a1->rbw_code; // *(int16_t *)(a1 + 72); // 0x10004327
 	//*(int16_t *)(a1 + 80) = v6 | 256 * *(int16_t *)(a1 + 76);
 	a1->filter_code = v6 | (a1->vbw_code << 8);
-	int32_t v7 = (int32_t) v3 & 0xffff; // bp-36
+	int32_t *v7 = v3; // bp-36
 	if (/* *(int16_t *)(a1 + 64)*/a1->cell_mode == 1) {
 		// 0x100043d6
 		// branch -> 0x100043eb
@@ -5846,7 +5846,7 @@ int32_t StartSweep(SET9052 *a1) {
 	// 0x100043eb
 	g3 = a1;
 	RdEngOption(a1, ENG_OPT_1 /*1*/);
-	int32_t v8 = SendCommand(a1, ENG_START_SWP /*1*/, 12, &v7); // 0x10004433
+	int32_t v8 = SendCommand(a1, ENG_START_SWP /*1*/, 12, v7); // 0x10004433
 // DD XXX
 	if (v8 != 1) {
 		dlog(LOG_DEBUG, "Patching v8 from 0x%x to 0x41000 - TBC\n", v8);
