@@ -11,7 +11,7 @@
 #include <str_9052.h>
 
 #include <mr_defin.h>
-
+#include <mrapp.h>
 #include "sa.h"
 
 #include "dvisa.h"
@@ -3852,9 +3852,6 @@ int32_t CommTrigDetect(SET9052 *a1) {
 
 	if ((RdSweepCode(a1) & 1) == 0) {
 		// DD: Engine Command 4 is related to "set trigger details".
-		// v2 = 8 !
-		// v6 is sth. like a1->detect_code, see above
-		// but why are sent v2=8 words?
 		v9 = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t) v2, ppp);
 		v10 = v9;
 		v7 = 0x10000 * v9;
@@ -3874,8 +3871,8 @@ int32_t CommTrigDetect(SET9052 *a1) {
 		return result;
 	}
 	if (a1->trig_norm_flag /* *(int16_t *)(a1 + 110)*/!= IE_FALSE /*0*/) {
-		dlog( LOG_DEBUG,
-				"ComTrigDetect exit ->a1->trig_norm_flag != IE_FALSE =>  NOP ???\n");
+		// XXX Check orig code dlog( LOG_DEBUG,
+		//		"ComTrigDetect exit ->a1->trig_norm_flag != IE_FALSE =>  NOP ???\n");
 	}
 
 	v9 = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t) v2, ppp);
@@ -3910,8 +3907,8 @@ int32_t CommInterrupts(SET9052 *a1) {
 		int32_t *v4 = &v3; // 0x100015aa
 		g8 = v4;
 		// DD Engine Command 6 is related to "set comm interupts..."
-		// param 3 is sth. like 1
-		// v4 =  a1->intr_code
+		// param 3 is 1
+		// v4 =  &a1->intr_code
 		result = FuncStatusFromEngineReply(
 				(int16_t) SendCommand(a1, ENG_SET_INTMODE /*6*/,
 						1 /*(int32_t)1 | (int32_t)a1 & -0x10000*/, v4));
@@ -3922,7 +3919,12 @@ int32_t CommInterrupts(SET9052 *a1) {
 	return result;
 }
 
-int32_t function_10002df9(SET9052 *a1, float64_t triggerFreq) {
+// Seems to create a int32_t from the float value argument.
+// But hey, the argument is not used at all...
+// Check with IDA. Function is decompiled wrong. XXX. See below for reimplementation; reimplemented only for 9054.
+// The value created is dependent of the engine model.
+int32_t function_10002df9(SET9052 *a1, float64_t a2) {
+#ifdef ORIG
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -3938,8 +3940,7 @@ int32_t function_10002df9(SET9052 *a1, float64_t triggerFreq) {
 	g3 = v4;
 	int32_t result; // 0x10002ea5
 	//DD XXX condition next 2 lines seems wrong somewhow.
-	if (engine_model != SA9085 /*768*/
-	&& engine_model < SA9085 /*768*/== (767 - v4 & v4) < 0) {
+	if (engine_model != SA9085 /*768*/ && engine_model < SA9085 /*768*/== (767 - v4 & v4) < 0) {
 		if (engine_model == SA9034 /*1024*/) {
 			g11--;
 			result = __ftol(v4);
@@ -3966,6 +3967,13 @@ int32_t function_10002df9(SET9052 *a1, float64_t triggerFreq) {
 		result = __ftol(v4);
 	}
 	g4 = v1;
+#else
+	// For SA9054, IDA shows that the value simply is converted from float to int.
+	// This has to be decompiled manully later on.
+	int32_t result; // 0x10002ea5
+	result = __ftol(a2);
+	dlog(LOG_DEBUG, "function_10002df9(%f) --> %d\n", a2, result);
+#endif
 	return result;
 }
 
@@ -4028,8 +4036,7 @@ int32_t RdNumDataPts(SET9052 *a1) {
 						g3 = a1;
 						SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 						g4 = v1;
-						dlog(LOG_DEBUG, "RdNumDataPts() 1 --> %d\n",
-								a1->num_cells);
+						dlog(LOG_DEBUG, "RdNumDataPts() 1 --> %d\n", a1->num_cells);
 						return a1->num_cells; // *(int32_t *)(a1 + 132);
 					}
 				}
@@ -4092,7 +4099,6 @@ int32_t RdTimeoutWait(SET9052 *a1) {
 
 static struct timespec start, stop;
 static int timerRunning = 0;
-//double accum;
 
 int32_t InitTimeoutLoop(int32_t a1) {
 	dlog(LOG_DEBUG, "InitTimeoutLoop(%d)\n", a1);
@@ -4132,10 +4138,10 @@ int32_t TestTimeoutDone(int32_t a1) {
 	uint32_t tn = (stop.tv_nsec - start.tv_nsec) / 1000L / 1000L;
 	int32_t v1 = ts + tn;
 
-	dlog(LOG_DEBUG, "Delta time: %d\n", v1);
 	int32_t result;
 
 	if (v1 > a1) {
+		dlog(LOG_DEBUG, "Delta time: %d\n", v1);
 		result = v1 & -0x10000 | 1;
 	} else {
 		result = v1 & -0x10000;
@@ -4916,7 +4922,6 @@ int32_t SetNumCells(SET9052 *a1, uint32_t num_cells) {
 			int32_t v4 = num_cells - 0xffff; // 0x1000614f
 			if (v4
 					< 0 /*v4 == 0 || v4 < 0 != (0xfffe - num_cells & num_cells) < 0*/) {
-				// 0x10006158
 				//*(int32_t *)(a1 + 132) = a2;
 				a1->num_cells = num_cells;
 				v2 = function_10001718(a1);
@@ -4927,15 +4932,10 @@ int32_t SetNumCells(SET9052 *a1, uint32_t num_cells) {
 				v3 = -3;
 			}
 		}
-		// 0x1000617e
 		result = v3 | v2 & -0x10000;
-		// branch -> 0x10006182
 	} else {
-		// 0x1000613b
 		result = GetFuncStatusCode(a1);
-		// branch -> 0x10006182
 	}
-	// 0x10006182
 	return result;
 }
 
@@ -4950,20 +4950,12 @@ int32_t SetDefltPts(SET9052 *a1, uint32_t num_points, int32_t a3_unused) {
 		int32_t v4 = GetFuncStatusCode(a1); // 0x100050f7
 		v1 = v4;
 		v3 = v4;
-		// branch -> 0x10005103
 	}
-	// 0x10005103
-	if (num_points < 1 || num_points > 0x3b9aca00) {
-		// 0x10005112
-		// branch -> 0x10005123
-		// 0x10005123
+	if (num_points < 1 || num_points > 1000000000L /*0x3b9aca00*/) {
 		return v3 & -0x10000 | -3;
 	}
-	// 0x1000511a
-	*(int32_t *) (a1 + 68) = num_points;
+	//*(int32_t *) (a1 + 68) = num_points;
 	a1->deflt_pt_cnt = num_points;
-	// branch -> 0x10005123
-	// 0x10005123
 	return (int32_t) a1 & -0x10000 | (int32_t) v1;
 }
 
@@ -4976,47 +4968,27 @@ int32_t SetTrigMode(SET9052 *a1, int16_t mode, int32_t a3, int32_t a4) {
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
 		int32_t v2 = mode; // 0x10006a04
 		if (mode >= 0) {
-			// 0x10006a0c
 			if (mode == 6 || mode < 6 != (5 - v2 & v2) < 0) {
-				// 0x10006a15
 				//*(int16_t *)(a1 + 108) = a2;
 				a1->trig_code = mode;
 				int16_t v3 = 0; // bp-8
 				if ((int16_t) a3 != 0) {
-					// 0x10006a2e
 					if (mode != 0) {
-						// 0x10006a41
 						//*(int16_t *)(a1 + 110) = 1;
 						a1->trig_norm_flag = 1;
-						// branch -> 0x10006a52
-						// 0x10006a52
-						// branch -> 0x10006a56
-						// 0x10006a56
 						return (v2 & -0x10000 | (int32_t) mode) & -0x10000
 								| (int32_t) v3;
 					}
 				}
-				// 0x10006a36
 				//*(int16_t *)(a1 + 110) = 0;
 				a1->trig_norm_flag = 0;
-				// branch -> 0x10006a52
-				// 0x10006a52
-				// branch -> 0x10006a56
-				// 0x10006a56
 				return (int32_t) a1 & -0x10000 | (int32_t) v3;
 			}
 		}
-		// 0x10006a4c
-		// branch -> 0x10006a52
-		// 0x10006a52
 		result = v2 & -0x10000 | (int32_t) -3;
-		// branch -> 0x10006a56
 	} else {
-		// 0x100069f6
 		result = GetFuncStatusCode(a1);
-		// branch -> 0x10006a56
 	}
-	// 0x10006a56
 	return result;
 }
 
@@ -5431,6 +5403,7 @@ float80_t g159 = 0.0L; // st0
 float80_t g160 = 0.0L; // st1
 bool g161 = false; // zf
 
+// ra_data contains amplitude data, ra_freq contains frequency data for sweep points.
 int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 		FREQ8500 start, FREQ8500 stop, int16_t ref_level, int32_t num_points,
 		int16_t min_or_max, int16_t data_format, ViReal64 ra_data[],
@@ -5490,7 +5463,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 
 	int32_t v6;
 	int32_t v7; // 0x1000a5bc
-	char *points; // 0x1000a5cf
+	int16_t *points; // 0x1000a5cf
 	int32_t v9; // 0x1000a589
 	int32_t v10; // 0x1000a4ef
 	int32_t result2; // 0x1000a73f
@@ -5549,7 +5522,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 				return result;
 			}
 			v7 = RdNumSwpPts(a1);
-			points = alloc_1000da64(2 * v7 + 2);
+			points = (int16_t *) alloc_1000da64(2 * v7 + 2);
 			if (points != 0) {
 				g3 = a1;
 #ifdef ORIG
@@ -5567,8 +5540,10 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 #endif
 					if (0x10000 * StartSweep(a1) == 0x410000) {
 						while (true) {
-							if ((int16_t) GetAmplWithFreqExt(a1, points,
-									ra_freq) == 0) {
+							// We get the frequency values directly from GetAmplWithFreqExt().
+							// the amplitude values values need to be recalculated. We get only raw values
+							// in 'points' array and need to do some conversation below.
+							if ((int16_t) GetAmplWithFreqExt(a1, points, ra_freq) == 0) {
 								goto lab_0x1000a65b_3;
 							}
 							result2 = function_1000d97b(points) & -0x10000
@@ -5647,26 +5622,19 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 							while (true) {
 								// v1 = data_format
 								int32_t v24; // 0x1000a68b
-								if (v1 == 0) {
-									GetDbmForAmpl(a1,
-											*(int16_t *) (2 * v23 + points));
-									*(float64_t *) (8 * v23 + ra_data) =
-											(float64_t) g159;
+								if (v1 == MR90XX_DBM_FORMAT /*0*/) {
+									GetDbmForAmpl(a1, *(int16_t *) (2 * v23 + points));
+									*(float64_t *) (8 * v23 + ra_data) = (float64_t) g159;
 									g11++;
 								} else {
-									if (v1 == 1) {
-										GetnVForAmpl(a1,
-												*(int16_t *) (2 * v23 + points));
-										*(float64_t *) (8 * v23 + ra_data) =
-												(float64_t) (1000.0L / g159);
+									if (v1 == MR90XX_UV_FORMAT /*1*/) {
+										GetnVForAmpl(a1, *(int16_t *) (2 * v23 + points));
+										*(float64_t *) (8 * v23 + ra_data) = (float64_t) (1000.0L / g159);
 										g11++;
 									} else {
-										if (v1 == 2) {
-											GetnVForAmpl(a1,
-													*(int16_t *) (2 * v23
-															+ points));
-											*(float64_t *) (8 * v23 + ra_data) =
-													(float64_t) g159;
+										if (v1 == MR90XX_NV_FORMAT /*2*/) {
+											GetnVForAmpl(a1, *(int16_t *) (2 * v23 + points));
+											*(float64_t *) (8 * v23 + ra_data) = (float64_t) g159;
 											g11++;
 										}
 									}
@@ -5761,64 +5729,51 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 			 * vbw == AUTO
 			 */
 
-			// 0x1000a49e
 			if ((int16_t) SetVBWmode(a1, AUTO_ON /*1*/) != 0) {
-				// 0x1000a4b8
-				// branch -> 0x1000a743
-				// Detected a possible infinite recursion (goto support failed); quitting...
 				return IE_ERROR;
 			}
 
-			// 0x1000a51e
 			ConfigStartFreq(a1, start);
 			if ((int16_t) ConfigStopFreq(a1, stop) != 0) {
 				return IE_ERROR;
 			}
-			// 0x1000a55b
 			if ((int16_t) SetRefLevel(a1, ref_level) < 0) {
 				return IE_ERROR;
 			}
-			// 0x1000a581
 			v9 = SetNumCells(a1, num_points);
 			v6 = 0x10000 * v9;
 			g6 = v6 / 0x10000;
 			if ((int16_t) v9 != 0) {
 				return IE_ERROR;
 			}
-			// 0x1000a5b8
 			v7 = RdNumSwpPts(a1);
 			points = alloc_1000da64(2 * v7 + 2);
 			if (points != 0) {
-				// 0x1000a5e9
 				g3 = a1;
 				if (0x10000 * BreakSweep(a1, STOP_NOW /*0*/) == 0x410000) {
-					// 0x1000a60f
 					if (0x10000 * StartSweep(a1) == 0x410000) {
-						dlog(LOG_INFO, "here\n");
 						while (true) {
-							// 0x1000a633
 							if ((int16_t) GetAmplWithFreqExt(a1, points, ra_freq) == 0) {
 								goto lab_0x1000a65b_3;
 							}
-							// 0x1000a672
-							// branch -> 0x1000a733
-							// 0x1000a733
 							function_1000d97b(points);
-							// branch -> 0x1000a743
-							// Detected a possible infinite recursion (goto support failed); quitting...
 						}
 					}
 					dlog(LOG_INFO, "here1\n");
 
 				}
-				// 0x1000a733
 				function_1000d97b(points);
-				// branch -> 0x1000a743
 			}
 		}
 	}
 }
 
+/**
+ * Returns, depending on 'cell mode', the number of sweep points.
+ * If cell mode equals true, the value num_swp_pts of the SET9052 struct is returned.
+ * If cell mode equals false, the value num_cells of the SET9052 struct is returned.
+ *
+ */
 int32_t RdNumSwpPts(SET9052 *a1) {
 	g3 = a1;
 	int32_t result;
@@ -6003,7 +5958,7 @@ int32_t ClearDataFIFO(SET9052 *a1) {
 	return result2;
 }
 
-int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
+int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 	dlog(LOG_DEBUG, "GetAmplWithFreqExt\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
@@ -6060,13 +6015,11 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 		g4 = v1;
 		return result;
 	}
-	char *pointPtr = 2 * swpIndex + points; // 0x1000bc48
-	// DD replace line above with : char *pointPtr = &points[2*swpIndex];
+	//char *pointPtr = 2 * swpIndex + points; // 0x1000bc48
+	int16_t *pointPtr = &points[swpIndex];
 	SET9052 *v12 = a1; // 0x1000bc71
 	int32_t v13; // bp-44
-	// DD v13+v3 looks like being a float value???
-	// DD
-	int32_t v14 = function_100040c9(v12, numDataPoints - swpIndex, 3, &v13, &v3, pointPtr); // 0x1000bc71
+	int32_t v14 = wrapGetDataBlock(v12, numDataPoints - swpIndex, 3, &v13, &v3, pointPtr); // 0x1000bc71
 	if ((0x10000 * v14 || 0xffff) >= 0x1ffff) {
 		g4 = v1;
 		return v14 & -0x10000 | 0xfffe;
@@ -6074,14 +6027,16 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 	int32_t v15 = v13; // 0x1000bc89
 
 // DDD XXX
+#ifndef __hp9000s700
 	if (v15 == 0) {
 		v15 = 1;
 		dlog(LOG_DEBUG, "GetAmplWithFreqExt, patched v15 to 1 - TBC\n");
 	}
+#endif
 // DDD XXX
 	if (v15 != 0) {
 		v2 = v3;
-		int32_t *v16 = &v2; // 0x1000bce5
+		int16_t *v16 = &v2; // 0x1000bce5
 		g8 = 0;
 		int32_t v17; // 0x1000be7d
 		int32_t v18; // 0x1000be5e
@@ -6108,7 +6063,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 					v2 = v3;
 					// DD Next line calls FetchDataWord()
 					// Value fetched seems to be a index value. This value is stored in pointPtr[] array at position 'v21'.
-					//
+					// function_100039d0() returns fetched word. v16 contains something different which seems not to be used.
 					int32_t v24 = function_100039d0(v12, v16); // 0x1000bced
 					g8 = a1;
 					if (RdErrorStatus(a1) != 0) {
@@ -6125,7 +6080,11 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 						int16_t v26 = v2; // 0x1000bd22
 						v3 = v26;
 						g6 = (g6 | (int32_t) v26) & -0x10000 | v24 & 0xffff;
+						dlog(LOG_DEBUG, "GetAmplWithFreqExt, pointPtr[%d] becomes 0x%x\n", v21, v24);
+						// DD XXX I have changed pointPtr from char* to int16_t*. So 2*v21 shall become v21 only. Check this.
 						*(int16_t *) (pointPtr + 2 * v21) = (int16_t) v24;
+						// Replace line above with this: pointPtr[v21] = (int16_t) v24;
+
 						int32_t v27 = 0;
 						// branch -> 0x1000bd56
 						while (true) {
@@ -6134,6 +6093,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 							g8 = v16;
 							// v28 is LO 2 bytes of a 4 byte float value
 							int32_t v28 = function_100039d0(v12, v16); // 0x1000bd66
+							dlog(LOG_DEBUG, "GetAmplWithFreqExt, read LO 0x%x\n", v28);
 							if (RdErrorStatus(a1) != 0) {
 								int32_t v29 = v27 + 1;
 								if (v29 >= 3) {
@@ -6157,6 +6117,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 									g8 = v16;
 									// v32 is HI 2 bytes of a 4 byte float value
 									int32_t v32 = function_100039d0(v12, v16); // 0x1000bddc
+									dlog(LOG_DEBUG, "GetAmplWithFreqExt, read HI 0x%x\n", v32);
 									if (RdErrorStatus(a1) != 0) {
 										int32_t v33 = v31 + 1;
 										if (v33 < 3) {
@@ -6176,6 +6137,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 										// This function sets g159 as a float incarnation of the arg.
 										function_10002ea6(a1,(int64_t) (0x10000 * v32 | v28 & 0xffff));
 										// copy new float value to result array at position 'swpIndex'
+										dlog(LOG_DEBUG, "GetAmplWithFreqExt, ra_freq[%d] becomes 0x%x\n", v21, g159);
 										*(float64_t *) (8 * v21 + 8 * swpIndex + ra_freq) = (float64_t) g159;
 										g11++;
 										int16_t v34 = v22 + 1; // 0x1000bcab
@@ -6245,6 +6207,9 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, char *points, ViReal64 ra_freq[]) {
 	return result;
 }
 
+/**
+ * Returns the value of swp_in_prog in the SET9052 structure.
+ */
 int32_t IsSweeping(SET9052 *a1) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
@@ -6268,9 +6233,10 @@ int32_t IsSweeping(SET9052 *a1) {
 	return result;
 }
 
-int32_t function_100040c9(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
-		int32_t *a4, int32_t *a5, char *pointPtr) {
-	dlog(LOG_DEBUG, "function_100040c9(reversePointIndex=%d,a3=%d)\n",
+// function_100040c9
+int32_t wrapGetDataBlock(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
+		int32_t *a4, int16_t *a5, int16_t *pointPtr) {
+	dlog(LOG_DEBUG, "wrapGetDataBlock(reversePointIndex=%d,a3=%d)\n",
 			reversePointIndex, a3);
 	SET9052 *v1 = a1; // 0x100040cd
 	g3 = v1;
@@ -6302,7 +6268,10 @@ int32_t function_100040c9(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
 		// branch -> 0x10004131
 #else
 		// DD Note that VISA_GetDataBlock has only 5 parameters!!!
-		result = VISA_GetDataBlock(a1, reversePointIndex, a3, a4, a5, pointPtr);
+		// decided to remove last parameter because:
+		// it is not used in VISA_GetDataBlock()
+		// a4, a5 look "correctly" used in VISA_GetDataBlock()
+		result = VISA_GetDataBlock(a1, (int64_t)reversePointIndex, a3, a4, a5 /*, pointPtr*/);
 #endif
 	} else {
 		// 0x100040e0
@@ -7495,8 +7464,7 @@ int32_t function_1000f065(int32_t a1, int32_t a2) {
 }
 
 // Simply calls VISA_FetchDataWord()
-int32_t function_100039d0(SET9052 *a1, int32_t *a2) {
-	dlog(LOG_DEBUG, "function_100039d0(%d)\n", *a2);
+int32_t function_100039d0(SET9052 *a1, int16_t *a2) {
 	SET9052 *v1 = a1; // 0x100039d4
 	g3 = v1;
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x100039d8
@@ -7522,6 +7490,7 @@ int32_t function_100039d0(SET9052 *a1, int32_t *a2) {
 		g8 = v1;
 		result = GetFuncStatusCode(v1);
 	}
+	dlog(LOG_DEBUG, "function_100039d0() --> result,*a2 = 0x%x,%d \n", result, *a2);
 	return result;
 }
 

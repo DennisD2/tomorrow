@@ -15,7 +15,7 @@
 
 int main(int argc, char **argv) {
 
-	setLogLevel(LOG_TRACE);
+	setLogLevel(LOG_DEBUG);
 	dlog(LOG_INFO, "----------------------------------------\n");
 
 	char sessionString[50];

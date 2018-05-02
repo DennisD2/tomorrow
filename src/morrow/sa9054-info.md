@@ -215,14 +215,61 @@ visa += 	0
 - Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
 - replace all (a1 & 256) and such with a1->opcode & 256. 
    After checking, this cannot be done. There is no setting of opcode value anywhere.
+- Has VISA_GetDataBlock(() 5 or 6 args ? solve this! int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5); Analysis result: it has 5 args.
 
 ## Todos
+- in mr90xx_init, ENG_SET_TRIGDET arguments are not accepted by engine. sa.c:SendCommand 4 
+VISA_SendCommand(4=ENG_SET_TRIGDET, 8, e91090)
+wordPtr[0]=0x24
+wordPtr[1]=0x5
+wordPtr[2]=0x1f5
+wordPtr[3]=0x0
+wordPtr[4]=0x0
+wordPtr[5]=0x0
+wordPtr[6]=0x0
+wordPtr[7]=0x0
+
+Accepted values are later, in mr90xx_MeasureAmplWithFreq():
+VISA_SendCommand(4=ENG_SET_TRIGDET, 8, 40003b08)
+wordPtr[0]=0x46
+wordPtr[1]=0x1
+wordPtr[2]=0x0
+wordPtr[3]=0x28
+wordPtr[4]=0x0
+wordPtr[5]=0x0
+wordPtr[6]=0x0
+wordPtr[7]=0x0
+
+- Start sweep fails with 0xaa13 at 12th byte 
+VISA_SendCommand(1=ENG_START_SWP, 12, 7b03a988)
+wordPtr[0]=0x0
+wordPtr[1]=0xa97c
+wordPtr[2]=0x7b03
+wordPtr[3]=0xa950
+wordPtr[4]=0x7b03
+wordPtr[5]=0xa950
+wordPtr[6]=0x0
+wordPtr[7]=0x0
+wordPtr[8]=0x2
+wordPtr[9]=0xa2f0
+wordPtr[10]=0x0
+wordPtr[11]=0x2a
+
+based on 
+StartSweep (start,stop,step)
+ftol(100000000.000000) -> 100000000
+function_10002df9(100000000.000000) --> 100000000
+ftol(150000000.000000) -> 150000000
+function_10002df9(150000000.000000) --> 150000000
+ftol(-0.000001) -> 0
+function_10002df9(-0.000001) --> 0 <-- looks wrong
+
+
 - Make VISA_SendWord() original again
 - Make dd_readEngineStatus() original again(find out original name and make code use vi* only)
 - Check if we can get rid of _initEngine()
 - Check if VISA_SendCommand() is really ok reimplemented or if it must be converted back to ORIG version; it should only
   use vi* functions.
-- Has VISA_GetDataBlock(() 5 or 6 args ? solve this! int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5);
 - Fix Error mapping ENG->SW domain
 - Check all "DD XXX" and "TODO" notes and solve the issues
 - SetVBWmode uses AUTO_ON/OFF and not VI_TRUE/FALSE. Replace this everywhere.

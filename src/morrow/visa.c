@@ -505,7 +505,7 @@ int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3, int32_t* re
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t session_handle = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x1000136a
-    int16_t v3; // bp-24
+    uint16_t v3; // bp-24
     int16_t *v4 = &v3; // 0x10001373
     g5 = deviceId;
     // Mask = 512 = (1<<9) => WRITEREADY bit; result in v4
@@ -1292,7 +1292,7 @@ int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
         // branch -> 0x10001b00
     }
     // 0x10001b00
-	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> 0x%x\n", v3);
+	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> v3,*dword = 0x%x,%d\n", v3, *dword);
     return v3 | v2 & -0x10000;
 }
 
@@ -1316,9 +1316,11 @@ int32_t VISA_VerDataBlock(SET9052 *a1, int32_t a2) {
 // Name says get data block, but no data is retrieved. This is checked even with IDA.
 // Depending on input values reversePointIndex and a3 and and HW status value v4, two output values are set: a4, a5.
 // a5 is always 0.
+// After analyzing the code, it looks like the amount of data to be read is determined. This is done by examining the
+// FIFO fill state. The larger the fill state is, the larger is return value *a5.
 //
-int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5) {
-	dlog(LOG_DEBUG, "VISA_GetDataBlock(reversePointIdx=%d,a3=%d)\n", reversePointIdx, a3);
+int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, int16_t *a5) {
+	dlog(LOG_DEBUG, "VISA_GetDataBlock(reversePointIdx=%lld,a3=%d)\n", reversePointIdx, a3);
     int64_t v1 = a3;
     int32_t v2 = g3; // bp-4
     g3 = &v2;
@@ -1330,17 +1332,17 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                 uint32_t v4 = VISA_CheckHWStatus(deviceId) & 0xf00 /*3840*/; // 0x10002472
                 int64_t v5;
 
-                // Depending on v4, v5 becomes 0,1,128,256,384.
-                if (v4 >= 0xd01 /*3329*/) {
-                    if (v4 != 0xf00 /*3840*/) {
+                // Depending on FIFO fill state, v5 becomes 0,1,128,256,384.
+                if (v4 > STAT_OVER_HALF /* 0xd00 */ /*>= 0xd01 = 3329*/) {
+                    if (v4 != STAT_ALMOST_FULL /*0xf00 = 3840*/) {
                         v5 = 0;
                     } else {
-                        v5 = 384; // = 0x180
+                        v5 = 384; // = 0x180 = 256+128
                     }
                 } else {
-                    if (v4 != 0xd00 /*3328*/) {
-                        if (v4 != 0x900 /*2304*/) {
-                            if (v4 != 0xb00 /*2816*/) {
+                    if (v4 != STAT_OVER_HALF /* 0xd00 = 3328*/) {
+                        if (v4 != STAT_ALMOST_HALF /* 0x900 = 2304*/) {
+                            if (v4 != STAT_ALMOST_EMPT /* 0xb00 = 2816*/) {
                                 v5 = 0;
                             } else {
                                 v5 = 1;
@@ -1349,9 +1351,11 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                             v5 = 128; // * 0x80
                         }
                     } else {
+                    	// FIFO is exactly half full, i.e. contains 256 words
                         v5 = 256; // 0x100
                     }
                 }
+
                 int32_t v6 = v5; // 0x100024da
                 int32_t v7 = v3;
                 if (v3 > v6) {
@@ -1360,13 +1364,10 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                 int64_t v8 = v7;
                 int64_t v9 = v8;
                 if (v7 == 0) {
-                    // 0x100024f4
                     if (v6 == 1) {
-                        // 0x100024fa
                         if (a3 < 128) {
-                            // 0x10002503
+                        	// v1 is a3...
                             v9 = v1;
-                            // branch -> 0x10002509
                         } else {
                             v9 = v8;
                         }
@@ -1374,26 +1375,19 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                         v9 = v8;
                     }
                 }
-                // 0x10002509
-                *(int16_t *)a5 = 0;
+                *(int16_t *)a5 = 0; // Always 0!
                 *(int32_t *)a4 = v9 / v1; // XXX Check if equal: (int32_t)((0x100000000 * (int64_t)((int32_t)v9 >> 31) | v9 & 0xffffffff) / v1);
                 SetErrorStatus(deviceId, 0);
                 result = SetFuncStatusCode(deviceId, IE_SUCCESS /*0*/);
-                // branch -> 0x10002539
-                // 0x10002539
+            	dlog(LOG_DEBUG, "VISA_GetDataBlock() -> a4 = 0x%x\n", *a4);
                 return result;
             }
         }
-        // 0x10002438
         SetErrorStatus(deviceId, 4);
         result = SetFuncStatusCode(deviceId,  IE_ERR_VALS /*-3*/);
-        // branch -> 0x10002539
     } else {
-        // 0x1000241b
         result = GetFuncStatusCode(deviceId);
-        // branch -> 0x10002539
     }
-    // 0x10002539
     return result;
 }
 

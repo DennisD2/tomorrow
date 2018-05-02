@@ -1788,6 +1788,7 @@ int32_t VISA_GetDataBlock(int32_t deviceId, int64_t a2, int32_t a3, int32_t a4, 
         if (a4 != 0) {
             // 0x10002432
             if (a5 != 0) {
+            	// v3 = a3*a2 ...
                 int32_t v3 = v1 * 0x100000000 * a2 / 0x100000000; // 0x1000245c
                 uint32_t v4 = VISA_CheckHWStatus(deviceId) & 3840; // 0x10002472
                 int64_t v5;
