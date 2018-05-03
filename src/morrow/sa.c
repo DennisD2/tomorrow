@@ -730,7 +730,7 @@ int32_t function_10001718(SET9052 *a1) {
 			int32_t v24 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10001857
 			int32_t v25 = (0x100000000 * (int64_t) (v24 >> 31) | (int64_t) v24)
 					/ 3; // 0x10001865
-			float64_t * v26 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001870
+			float64_t *v26 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001870
 			*v26 = (float64_t) v25;
 			float80_t v27 = v6; // 0x10001876
 			g11--;
@@ -899,7 +899,7 @@ int32_t setup_rbw(SET9052 *a1) {
 			float64_t v4 = a1->stop; // *(float64_t *)(a1 + 16); // 0x10001d4f
 			float64_t v5 = a1->start; // *(float64_t *)(a1 + 8); // 0x10001d52
 			float64_t v6 = (float80_t) v5 - (float80_t) v4; // 0x10001d55
-			int16_t * v7 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10001d5b
+			int16_t *v7 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10001d5b
 			float64_t v8;
 			if (*v7 != IE_FALSE /*0*/) {
 				if (*v7 == IE_TRUE /*1*/) {
@@ -5293,10 +5293,10 @@ int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 	dlog(LOG_DEBUG, "ConfigStartFreq(%f)\n", start);
 	// entry
 	g8 = a1;
-	int32_t v1 = 0x10000 * FreqInRange(a1, start); // 0x1000b75b
-	g3 = v1 / 0x10000;
+	int32_t v1 = /* 0x10000 * */ FreqInRange(a1, start); // 0x1000b75b
+	g3 = v1 /*/ 0x10000*/;
 	int32_t result; // 0x1000b7d6
-	if ((v1 || 0xffff) < 0x1ffff) {
+	if (v1 < 1 /*(v1 || 0xffff) < 0x1ffff*/) {
 		result = SetFuncStatusCode(a1, IE_ERR_VALS /*-3*/);
 		return result;
 	}
