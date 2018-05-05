@@ -560,7 +560,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 		a1->PreampEnabled = 0;
 		//*(int16_t *)(a1 + 104) = 10;//PreampGain
 		a1->PreampGain = 10;
-		function_10001718(a1);
+		recalcStep(a1);
 		result = function_10001b13(a1) & -0x10000;
 	} else {
 		result = g3 & -0x10000 | 0xfff6;
@@ -600,7 +600,8 @@ int32_t SetZSamplRate(/*int32_t a1*/SET9052 *a1, int64_t rate) {
 	return result;
 }
 
-int32_t function_10001718(SET9052 *a1) {
+// function_10001718
+int32_t recalcStep(SET9052 *a1) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -3437,11 +3438,11 @@ int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
 			} else {
 				*cell_modePtr = 1; // this looks false!!!
 			}
-			int32_t result = (int32_t) v1 | function_10001718(a1) & -0x10000; // 0x10006041
+			int32_t result = (int32_t) v1 | recalcStep(a1) & -0x10000; // 0x10006041
 			return result;
 		}
 		*cell_modePtr = IE_FALSE /*0*/;
-		result2 = (int32_t) v1 | function_10001718(a1) & -0x10000;
+		result2 = (int32_t) v1 | recalcStep(a1) & -0x10000;
 	} else {
 		result2 = GetFuncStatusCode(a1);
 	}
@@ -4995,7 +4996,7 @@ int32_t SetNumCells(SET9052 *a1, uint32_t num_cells) {
 					< 0 /*v4 == 0 || v4 < 0 != (0xfffe - num_cells & num_cells) < 0*/) {
 				//*(int32_t *)(a1 + 132) = a2;
 				a1->num_cells = num_cells;
-				v2 = function_10001718(a1);
+				v2 = recalcStep(a1);
 				v3 = 0;
 				// branch -> 0x1000617e
 			} else {
@@ -5102,7 +5103,7 @@ int32_t StepSizeMode(SET9052 *a1, int16_t mode, int32_t unused) {
 
 		a1->step_mode = mode;
 #endif
-		result = function_10001718(a1) & -0x10000 | 1;
+		result = recalcStep(a1) & -0x10000 | 1;
 	} else {
 		result = GetFuncStatusCode(a1);
 	}
@@ -5182,7 +5183,7 @@ int32_t SetRBWmode(SET9052 *a1, int16_t mode) {
 			//*(int16_t *)(a1 + 74) = 1;
 			a1->auto_rbw = VI_TRUE;
 			setup_rbw(a1);
-			function_10001718(a1);
+			recalcStep(a1);
 			v3 = function_10001b13(a1);
 		} else {
 			//*(int16_t *)(a1 + 74) = 0;
@@ -5263,7 +5264,7 @@ int32_t SetRBW(SET9052 *a1, int16_t code) {
 					g8 = v4 & -0x10000 | (int32_t) code;
 					//*(int16_t *) (a1 + 72) = a2;
 					a1->rbw_code = code;
-					function_10001718(a1);
+					recalcStep(a1);
 					v3 = function_10001b13(a1);
 					return v3 & -0x10000;
 				}
@@ -5381,7 +5382,7 @@ int32_t ConfigStartFreq(SET9052 *a1, FREQ8500 start) {
 		return result;
 	}
 	g8 = a1;
-	int32_t v2 = 0x10000 * function_10001718(a1); // 0x1000b7b0
+	int32_t v2 = 0x10000 * recalcStep(a1); // 0x1000b7b0
 	g3 = v2 / 0x10000;
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
@@ -5412,7 +5413,7 @@ int32_t ConfigStopFreq(SET9052 *a1, FREQ8500 stop) {
 		return result;
 	}
 	g8 = a1;
-	int32_t v2 = 0x10000 * function_10001718(a1); // 0x1000b8f2
+	int32_t v2 = 0x10000 * recalcStep(a1); // 0x1000b8f2
 	g3 = v2 / 0x10000;
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
@@ -5435,7 +5436,7 @@ int32_t SetSweepCode(SET9052 *a1, int16_t code) {
 		if (code < 16) {
 			//*(int16_t *)(a1 + 130) = code;
 			a1->sweep_code = code;
-			function_10001718(a1);
+			recalcStep(a1);
 			v3 = function_10001b13(a1);
 			v2 = code < 16 ? 0 : -3;
 		} else {
