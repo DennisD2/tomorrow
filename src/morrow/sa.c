@@ -616,24 +616,30 @@ int32_t function_10001718(SET9052 *a1) {
 	float64_t v3 = a1->stop;
 	int32_t v4 = g11 - 1; // 0x1000174e
 	float64_t v5 = a1->start;
+#ifdef ORIG
+	// Next line gives negative value; after examining with IDA, I assume decompiled wrong.
 	float64_t v6 = (float80_t) v5 - (float80_t) v3; // 0x10001754
+#else
+	float64_t v6 = (float80_t) v3 - (float80_t) v5;
+#endif
 	// DD: a1 is a pointer; what does 'a1&256' mean???
 	// maybe, a1 = a1+0 = a1->op_mode ...
 	// but what is with pointer dereference
 	// i.e. there is no dereferencing, so it looks like being used as a pointer after all...
 	if (/*((int32_t) a1 & 256)*/a1->op_mode == 0) {
-		int32_t *v7 = &a1->deflt_pt_cnt;
-		int32_t *v8 = &a1->num_swp_pts;
-		*v8 = *v7;
-		int32_t *v9 = &a1->num_step_pts;
-		*v9 = *v7;
+		int32_t *deflt_pt_cntPtr = &a1->deflt_pt_cnt;
+		int32_t *num_swp_ptsPtr = &a1->num_swp_pts;
+		*num_swp_ptsPtr = *deflt_pt_cntPtr;
+		int32_t *num_step_ptsPtr = &a1->num_step_pts;
+		*num_step_ptsPtr = *deflt_pt_cntPtr;
 		g8 = a1;
 		int16_t step_mode = a1->step_mode;
 		if (step_mode != MR90XX_AUTO_ON /*1*/) {
+#ifdef ORIG
 			if (step_mode == MR90XX_STEPCNT /*2*/) {
-				int32_t v11 = *v9; // 0x10001aaa
+				//int32_t v111 = *num_step_ptsPtr; // 0x10001aaa
 				g8 = a1;
-				a1->step = (float64_t) ((float80_t) (v11 - 1) / (float80_t) v6);
+				a1->step = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / (float80_t) v6);
 				if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/== MR90XX_AUTO_ON /*1*/) {
 					setup_rbw(a1);
 				}
@@ -645,9 +651,9 @@ int32_t function_10001718(SET9052 *a1) {
 				if (step_mode == MR90XX_STEPSIZ /*3*/) {
 					g11 = v4;
 					int32_t v12 = __ftol((int32_t) step_mode) + 1; // 0x10001a57
-					*v9 = v12;
+					*num_step_ptsPtr = v12;
 					g8 = v12;
-					*v8 = v12;
+					*num_swp_ptsPtr = v12;
 					if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/== MR90XX_AUTO_ON /*1*/) {
 						setup_rbw(a1);
 					}
@@ -662,7 +668,18 @@ int32_t function_10001718(SET9052 *a1) {
 					(float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
 			g4 = v1;
 			return (int32_t) a1 & -0x10000;
+#else
+			if (a1->auto_rbw != MR90XX_AUTO_ON /*1*/) {
+				if (a1->auto_vbw == MR90XX_AUTO_ON /*1*/) {
+					setup_vbw(a1);
+				}
+			} else {
+				setup_rbw(a1);
+			}
+#endif
 		}
+
+#ifdef ORIG
 		if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/!= MR90XX_AUTO_ON /*1*/) {
 			if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */== MR90XX_AUTO_ON /*1*/) {
 				setup_vbw(a1);
@@ -670,7 +687,9 @@ int32_t function_10001718(SET9052 *a1) {
 		} else {
 			setup_rbw(a1);
 		}
+#endif
 		int16_t *cell_modePtr;
+#ifdef ORIG
 		if (a1->auto_cell /* *(int16_t *)(a1 + 66) */!= MR90XX_AUTO_ON) {
 			cell_modePtr = &a1->cell_mode; // (int16_t *)(a1 + 64);
 		} else {
@@ -688,7 +707,60 @@ int32_t function_10001718(SET9052 *a1) {
 				cell_modePtr = v14;
 			}
 		}
+#else
+		if (a1->auto_cell != MR90XX_AUTO_ON) {
+		} else {
+			int16_t *v14 = &a1->cell_mode;
+			if (*v14 == IE_FALSE) {
+				float64_t var18 = v6 / (*deflt_pt_cntPtr - 1.0); // fdivr error in decompiler
+				int32_t v15 = GetRBWwide(RBW_3MHZ /*4*/);
+				float64_t var188 = v15 / 3;
+				if (var188 != var18) {
+					SetCellMode(a1, 1);
+				}
+			}
+		}
+		if (*cell_modePtr != IE_TRUE) { // loc_1000183F
 
+		} else {
+			int32_t v24 = GetRBWwide(a1->rbw_code);
+			float64_t v25 = v24/3;
+			float64_t *v26 = &a1->step;
+			*v26 = (float64_t) v25;
+			float80_t v27 = v6;
+			float80_t var277 = v6 / v25 + 1.0;
+			int32_t v28 = __ftol(var277);
+			*num_step_ptsPtr = v28;
+			int32_t *v29 = &a1->num_cells; // (int32_t *)(a1 + 132); // 0x1000189c
+			if (v28 < *v29) {
+				int32_t v30 = *v29; // 0x100018aa
+				int32_t v30 = *v29; // 0x100018aa
+				*num_step_ptsPtr = v30;
+				float80_t var301 = v6 / (v30 - 1);
+				a1->step = var301;
+			}
+			*num_swp_ptsPtr = *num_step_ptsPtr;
+			g8 = a1;
+			if (IsValidStep(a1) != 0x1) {
+				int32_t v31 = *num_step_ptsPtr; // 0x100018fa
+				*num_step_ptsPtr = v31 + 10;
+				float64_t var288 = v6 / (*num_step_ptsPtr - 1);
+				a1->step = var288;
+
+				int32_t v32 = IsValidStep(a1);
+				while (v32 != 1) {
+					v31 = *num_step_ptsPtr;
+					*num_step_ptsPtr = v31 + 10;
+					float64_t var288 = v6 / (*num_step_ptsPtr - 1);
+					a1->step = var288;
+				}
+				function_10001b13(a1); // 1a38
+			}
+		}
+		if (a1->step == 1.0) { // 1af2
+			result = 0xffff;
+		}
+#endif
 		if (*cell_modePtr != IE_TRUE) {
 			int32_t v16 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10001948
 			int32_t v17 = (0x100000000 * (int64_t) (v16 >> 31) | (int64_t) v16)
@@ -698,26 +770,26 @@ int32_t function_10001718(SET9052 *a1) {
 			float80_t v19 = v6; // 0x10001967
 			g11--;
 			int32_t v20 = __ftol(v17); // 0x10001973
-			*v9 = v20;
-			if (v20 < *v7) {
-				int32_t v21 = *v7; // 0x10001998
-				*v9 = v21;
+			*num_step_ptsPtr = v20;
+			if (v20 < *deflt_pt_cntPtr) {
+				int32_t v21 = *deflt_pt_cntPtr; // 0x10001998
+				*num_step_ptsPtr = v21;
 				*v18 = (float64_t) ((float80_t) (v21 - 1) / v19);
 			}
-			*v8 = *v9;
+			*num_swp_ptsPtr = *num_step_ptsPtr;
 			g8 = a1;
 			if (0x10000 * IsValidStep(a1) != 0x10000) {
-				int32_t v22 = *v9 + 10; // 0x100019eb
-				*v9 = v22;
-				*v8 = v22;
-				*v18 = (float64_t) ((float80_t) (*v9 - 1) / v19);
+				int32_t v22 = *num_step_ptsPtr + 10; // 0x100019eb
+				*num_step_ptsPtr = v22;
+				*num_swp_ptsPtr = v22;
+				*v18 = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / v19);
 				int32_t v23 = 0x10000 * IsValidStep(a1); // 0x10001a30
 				g8 = v23 / 0x10000;
 				while (v23 != 0x10000) {
-					v22 = *v9 + 10;
-					*v9 = v22;
-					*v8 = v22;
-					*v18 = (float64_t) ((float80_t) (*v9 - 1) / v19);
+					v22 = *num_step_ptsPtr + 10;
+					*num_step_ptsPtr = v22;
+					*num_swp_ptsPtr = v22;
+					*v18 = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / v19);
 					v23 = 0x10000 * IsValidStep(a1);
 					g8 = v23 / 0x10000;
 				}
@@ -728,31 +800,30 @@ int32_t function_10001718(SET9052 *a1) {
 			}
 		} else {
 			int32_t v24 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10001857
-			int32_t v25 = (0x100000000 * (int64_t) (v24 >> 31) | (int64_t) v24)
-					/ 3; // 0x10001865
+			int32_t v25 = v24/3; // (0x100000000 * (int64_t) (v24 >> 31) | (int64_t) v24) / 3; // 0x10001865
 			float64_t *v26 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001870
 			*v26 = (float64_t) v25;
 			float80_t v27 = v6; // 0x10001876
 			g11--;
 			int32_t v28 = __ftol(v25); // 0x10001882
-			*v9 = v28;
+			*num_step_ptsPtr = v28;
 			int32_t *v29 = &a1->num_cells; // (int32_t *)(a1 + 132); // 0x1000189c
 			if (v28 < *v29) {
 				int32_t v30 = *v29; // 0x100018aa
-				*v9 = v30;
+				*num_step_ptsPtr = v30;
 				*v26 = (float64_t) ((float80_t) (v30 - 1) / v27);
 			}
-			*v8 = *v9;
+			*num_swp_ptsPtr = *num_step_ptsPtr;
 			g8 = a1;
 			if (0x10000 * IsValidStep(a1) != 0x10000) {
-				int32_t v31 = *v9; // 0x100018fa
-				*v9 = v31 + 10;
+				int32_t v31 = *num_step_ptsPtr; // 0x100018fa
+				*num_step_ptsPtr = v31 + 10;
 				*v26 = (float64_t) ((float80_t) (v31 + 9) / v27);
 				int32_t v32 = 0x10000 * IsValidStep(a1); // 0x10001933
 				g8 = v32 / 0x10000;
 				while (v32 != 0x10000) {
-					v31 = *v9;
-					*v9 = v31 + 10;
+					v31 = *num_step_ptsPtr;
+					*num_step_ptsPtr = v31 + 10;
 					*v26 = (float64_t) ((float80_t) (v31 + 9) / v27);
 					v32 = 0x10000 * IsValidStep(a1);
 					g8 = v32 / 0x10000;
