@@ -938,19 +938,34 @@ int32_t setup_rbw(SET9052 *a1) {
 
 			float64_t v4 = a1->stop; // *(float64_t *)(a1 + 16); // 0x10001d4f
 			float64_t v5 = a1->start; // *(float64_t *)(a1 + 8); // 0x10001d52
+#ifdef ORIG
+			// Decompiled wrong.
 			float64_t v6 = (float80_t) v5 - (float80_t) v4; // 0x10001d55
+#else
+			float64_t v6 = (float80_t) v4 - (float80_t) v5; // 0x10001d55
+#endif
 			int16_t *v7 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10001d5b
 			float64_t v8;
 			if (*v7 != IE_FALSE /*0*/) {
 				if (*v7 == IE_TRUE /*1*/) {
 					int32_t v9 = a1->num_step_pts; // *(int32_t *)(a1 + 168); // 0x10001d92
+#ifdef ORIG
+					// Decompiled wrong.
 					v8 = (float80_t) (v9 - 1) / (float80_t) v6;
+#else
+					v8 = (float80_t) v6 / (float80_t) (v9 - 1) ;
+#endif
 				} else {
 					v8 = 0.0;
 				}
 			} else {
 				int32_t v10 = a1->num_swp_pts /* *(int32_t *)(a1 + 164) */- 1; // 0x10001d72
+#ifdef ORIG
+				// Decompiled wrong.
 				v8 = (float80_t) v10 / (float80_t) v6;
+#else
+				v8 = (float80_t) v6 / (float80_t) v10;
+#endif
 			}
 
 			int32_t v11 = GetRBWwide(RBW_300HZ /*0*/); // 0x10001daf
@@ -3435,8 +3450,8 @@ int32_t RdRBW(SET9052 *a1) {
 	return result;
 }
 
-int32_t VBWCodeFromFreq(float64_t a1, int32_t a2) {
-	dlog( LOG_DEBUG, "VBWCodeFromFreq(%d) - TBI\n", a2);
+int32_t VBWCodeFromFreq(float64_t a1, int32_t a2_unused) {
+	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f, %d) - TBI\n", a1, a2_unused);
 	g6 = 1;
 	int32_t v1 = g3; // 0x1000b51a12
 	int16_t v2 = 1;
@@ -3455,6 +3470,7 @@ int32_t VBWCodeFromFreq(float64_t a1, int32_t a2) {
 		v1 = v3;
 		v2 = v4;
 	}
+	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f, %d) - TBI returns %d\n", v3);
 	return (int32_t) -3 | v3 & -0x10000;
 }
 
@@ -3858,7 +3874,7 @@ int32_t CommTrigDetect(SET9052 *a1) {
 	}
 	int32_t v5 = a1->trig_freq; // *(int32_t *)(a1 + 120); // 0x10001613
 	g8 = v5;
-	function_10002df9(a1, (float64_t) (int64_t) v5);
+	function_10002df9(a1, /*(float64_t) (int64_t)*/ v5);
 	/*int32_t*/int16_t *v6 =
 	/*g8 & -0x10000 | <-- what the heck does this mean?*/a1->detect_code; // (int32_t)*(int16_t *)(a1 + 128); // bp-24
 	int32_t v7;
@@ -6334,13 +6350,14 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t a2) {
 		// 0x1000cecd
 		int32_t v4;
 		float80_t v5;
-		if ((*(int16_t *) (a1 + 128) & 32) == 0) {
+		if ((a1->detect_code /* *(int16_t *) (a1 + 128) */ & 32) == 0) {
 			// 0x1000cf00
 			g6 = a2;
 			g8 = a1;
 			int32_t v6 = 0x10000 * function_1000cf43(a1) / 0x10000; // 0x1000cf1f
 			g3 = v6;
 			v4 = g11 - 1;
+			// DD XXX suspicious code FDIVR
 			v5 = 128.0L / (float80_t) a2 + (float80_t) v6;
 			// branch -> 0x1000cf2e
 		} else {
@@ -6384,9 +6401,10 @@ int32_t GetDbmForVoltage(SET9052 *a1, float64_t a2) {
 	int32_t result2; // 0x1000d2b0
 	if ((result & 0x4100) == 0) {
 		float80_t v2 = 1.0e+9L / (float80_t) a2; // 0x1000d261
-		int16_t v3 = *(int16_t *) (a1 + 176); // 0x1000d270
+		int16_t v3 = a1->impedance /* *(int16_t *) (a1 + 176)*/; // 0x1000d270
 		float80_t v4 = 0.001L * (float80_t) v3; // 0x1000d27d
 		g160 = v4;
+		// DD XXX suspicious code FDIVR
 		float80_t v5 = v2 * v2 / v4; // 0x1000d283
 		g159 = v5;
 		g161 = false;
@@ -6414,7 +6432,9 @@ int32_t GetnVForDbm(SET9052 *a1, float64_t a2) {
 	int32_t result = v2; // 0x1000d33a
 	float80_t v3 = -1.0L;
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-		float80_t v4 = 1000.0L / (float80_t) *(int16_t *) (a1 + 176); // 0x1000d2e2
+
+		// DD XXX TODO code below suspected to be wrong; FDIVR decompile bug. Check this
+		float80_t v4 = 1000.0L / (float80_t) a1->impedance /* *(int16_t *) (a1 + 176)*/; // 0x1000d2e2
 		float80_t v5 = 10.0L / (float80_t) a2; // 0x1000d2ee
 		g159 = v5;
 		function_1000def9(0, 0x40240000, (char) (int32_t) (float32_t) v5,
@@ -6445,7 +6465,7 @@ int32_t GetnVForAmpl(SET9052 *a1, int16_t a2) {
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 		// 0x1000cfca
 		float80_t v4;
-		if ((*(int16_t *) (a1 + 128) & 32) == 0) {
+		if (a1->detect_code /* *(int16_t *) (a1 + 128) & 32) */ == 0) {
 			// 0x1000d026
 			g8 = a1;
 			GetDbmForAmpl(a1, a2);
@@ -6457,6 +6477,7 @@ int32_t GetnVForAmpl(SET9052 *a1, int16_t a2) {
 			// 0x1000cfdb
 			g6 = a2;
 			int32_t v5 = 0x10000 * function_1000d05b(a1) / 0x10000; // 0x1000cffa
+			// DD XXX suspicious code FDIVR
 			float80_t v6 = 20.0L / (float80_t) v5; // 0x1000d003
 			g159 = v6;
 			g3 = function_1000def9(0, 0x40240000,
@@ -6483,18 +6504,18 @@ int32_t function_1000cf43(SET9052 *a1) {
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000cf4b
 	int32_t result;
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-		int16_t v2 = *(int16_t *) (a1 + 96); // 0x1000cf63
+		int16_t v2 = a1->attenuation ; // *(int16_t *) (a1 + 96); // 0x1000cf63
 		g3 = (int32_t) v2 | v1 & -0x10000;
 		int16_t v3 = v2; // bp-8
-		int16_t v4 = *(int16_t *) (a1 + 100); // 0x1000cf6e
+		int16_t v4 = a1->PreampAvailable; // *(int16_t *) (a1 + 100); // 0x1000cf6e
 		g8 = v4;
 		if (v4 != 0) {
 			// 0x1000cf76
 			g3 = a1;
-			if (*(int16_t *) (a1 + 102) != 0) {
+			if (a1->PreampEnabled /* *(int16_t *) (a1 + 102) */ != 0) {
 				// 0x1000cf81
 				g8 = a1;
-				int16_t v5 = v2 - *(int16_t *) (a1 + 104); // 0x1000cf88
+				int16_t v5 = v2 - a1->PreampGain; // *(int16_t *) (a1 + 104); // 0x1000cf88
 				g3 = (int32_t) v5 | ((int32_t) v2 | (int32_t) a1) & -0x10000;
 				v3 = v5;
 				// branch -> 0x1000cf90
@@ -6519,26 +6540,26 @@ int32_t function_1000d05b(SET9052 *a1) {
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000d063
 	int32_t result;
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-		int16_t v2 = *(int16_t *) (a1 + 96); // 0x1000d07b
+		int16_t v2 = a1->attenuation; // *(int16_t *) (a1 + 96); // 0x1000d07b
 		g3 = (int32_t) v2 | v1 & -0x10000;
 		int16_t v3 = v2; // bp-8
 		int16_t v4 = v2; // 0x1000d0b9
-		if ((*(int16_t *) (a1 + 128) & 64) == 0) {
+		if (( /* *(int16_t *) (a1 + 128)*/ a1->detect_code & 64) == 0) {
 			int16_t v5 = v2 + 30; // 0x1000d098
 			g3 = ((int32_t) v2 | v1) & -0x10000 | (int32_t) v5;
 			v3 = v5;
 			v4 = v5;
 			// branch -> 0x1000d0a0
 		}
-		int16_t v6 = *(int16_t *) (a1 + 100); // 0x1000d0a3
+		int16_t v6 = a1->PreampAvailable; // *(int16_t *) (a1 + 100); // 0x1000d0a3
 		g8 = v6;
 		if (v6 != 0) {
 			// 0x1000d0ab
 			g3 = a1;
-			if (*(int16_t *) (a1 + 102) != 0) {
+			if ( /* *(int16_t *) (a1 + 102)*/ a1->PreampEnabled != 0) {
 				// 0x1000d0b6
 				g8 = a1;
-				int16_t v7 = v4 - *(int16_t *) (a1 + 104); // 0x1000d0bd
+				int16_t v7 = v4 - a1->PreampGain; // *(int16_t *) (a1 + 104); // 0x1000d0bd
 				g3 = (int32_t) v7 | ((int32_t) v4 | (int32_t) a1) & -0x10000;
 				v3 = v7;
 				// branch -> 0x1000d0c5
