@@ -602,6 +602,7 @@ int32_t SetZSamplRate(/*int32_t a1*/SET9052 *a1, int64_t rate) {
 
 // function_10001718
 int32_t recalcStep(SET9052 *a1) {
+	dlog( LOG_DEBUG, "recalcStep()\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -636,11 +637,15 @@ int32_t recalcStep(SET9052 *a1) {
 		g8 = a1;
 		int16_t step_mode = a1->step_mode;
 		if (step_mode != MR90XX_AUTO_ON /*1*/) {
-#ifdef ORIG
 			if (step_mode == MR90XX_STEPCNT /*2*/) {
 				//int32_t v111 = *num_step_ptsPtr; // 0x10001aaa
 				g8 = a1;
+#ifdef ORIG
+				// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 				a1->step = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / (float80_t) v6);
+#else
+				a1->step = (float64_t) ((float80_t) (float80_t) v6 / (*num_step_ptsPtr - 1));
+#endif
 				if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/== MR90XX_AUTO_ON /*1*/) {
 					setup_rbw(a1);
 				}
@@ -655,32 +660,21 @@ int32_t recalcStep(SET9052 *a1) {
 					*num_step_ptsPtr = v12;
 					g8 = v12;
 					*num_swp_ptsPtr = v12;
-					if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/== MR90XX_AUTO_ON /*1*/) {
+					if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/ == MR90XX_AUTO_ON /*1*/) {
 						setup_rbw(a1);
 					}
-					if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */
-					== MR90XX_AUTO_ON /*1*/) {
+					if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */ == MR90XX_AUTO_ON /*1*/) {
 						g8 = a1;
 						setup_vbw(a1);
 					}
 				}
 			}
-			g160_currentStepWidth =
-					(float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
+			g160_currentStepWidth = (float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
 			g4 = v1;
+			dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 			return (int32_t) a1 & -0x10000;
-#else
-			if (a1->auto_rbw != MR90XX_AUTO_ON /*1*/) {
-				if (a1->auto_vbw == MR90XX_AUTO_ON /*1*/) {
-					setup_vbw(a1);
-				}
-			} else {
-				setup_rbw(a1);
-			}
-#endif
 		}
 
-#ifdef ORIG
 		if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/!= MR90XX_AUTO_ON /*1*/) {
 			if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */== MR90XX_AUTO_ON /*1*/) {
 				setup_vbw(a1);
@@ -688,9 +682,8 @@ int32_t recalcStep(SET9052 *a1) {
 		} else {
 			setup_rbw(a1);
 		}
-#endif
+
 		int16_t *cell_modePtr;
-#ifdef ORIG
 		if (a1->auto_cell /* *(int16_t *)(a1 + 66) */!= MR90XX_AUTO_ON) {
 			cell_modePtr = &a1->cell_mode; // (int16_t *)(a1 + 64);
 		} else {
@@ -708,60 +701,7 @@ int32_t recalcStep(SET9052 *a1) {
 				cell_modePtr = v14;
 			}
 		}
-#else
-		if (a1->auto_cell != MR90XX_AUTO_ON) {
-		} else {
-			int16_t *v14 = &a1->cell_mode;
-			if (*v14 == IE_FALSE) {
-				float64_t var18 = v6 / (*deflt_pt_cntPtr - 1.0); // fdivr error in decompiler
-				int32_t v15 = GetRBWwide(RBW_3MHZ /*4*/);
-				float64_t var188 = v15 / 3;
-				if (var188 != var18) {
-					SetCellMode(a1, 1);
-				}
-			}
-		}
-		if (*cell_modePtr != IE_TRUE) { // loc_1000183F
 
-		} else {
-			int32_t v24 = GetRBWwide(a1->rbw_code);
-			float64_t v25 = v24/3;
-			float64_t *v26 = &a1->step;
-			*v26 = (float64_t) v25;
-			float80_t v27 = v6;
-			float80_t var277 = v6 / v25 + 1.0;
-			int32_t v28 = __ftol(var277);
-			*num_step_ptsPtr = v28;
-			int32_t *v29 = &a1->num_cells; // (int32_t *)(a1 + 132); // 0x1000189c
-			if (v28 < *v29) {
-				int32_t v30 = *v29; // 0x100018aa
-				int32_t v30 = *v29; // 0x100018aa
-				*num_step_ptsPtr = v30;
-				float80_t var301 = v6 / (v30 - 1);
-				a1->step = var301;
-			}
-			*num_swp_ptsPtr = *num_step_ptsPtr;
-			g8 = a1;
-			if (IsValidStep(a1) != 0x1) {
-				int32_t v31 = *num_step_ptsPtr; // 0x100018fa
-				*num_step_ptsPtr = v31 + 10;
-				float64_t var288 = v6 / (*num_step_ptsPtr - 1);
-				a1->step = var288;
-
-				int32_t v32 = IsValidStep(a1);
-				while (v32 != 1) {
-					v31 = *num_step_ptsPtr;
-					*num_step_ptsPtr = v31 + 10;
-					float64_t var288 = v6 / (*num_step_ptsPtr - 1);
-					a1->step = var288;
-				}
-				function_10001b13(a1); // 1a38
-			}
-		}
-		if (a1->step == 1.0) { // 1af2
-			result = 0xffff;
-		}
-#endif
 		if (*cell_modePtr != IE_TRUE) {
 			int32_t v16 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10001948
 			int32_t v17 = (0x100000000 * (int64_t) (v16 >> 31) | (int64_t) v16)
@@ -775,7 +715,12 @@ int32_t recalcStep(SET9052 *a1) {
 			if (v20 < *deflt_pt_cntPtr) {
 				int32_t v21 = *deflt_pt_cntPtr; // 0x10001998
 				*num_step_ptsPtr = v21;
+#ifdef ORIG
+				// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 				*v18 = (float64_t) ((float80_t) (v21 - 1) / v19);
+#else
+				*v18 = (float64_t) (v19 / (float80_t) (v21 - 1));
+#endif
 			}
 			*num_swp_ptsPtr = *num_step_ptsPtr;
 			g8 = a1;
@@ -783,20 +728,31 @@ int32_t recalcStep(SET9052 *a1) {
 				int32_t v22 = *num_step_ptsPtr + 10; // 0x100019eb
 				*num_step_ptsPtr = v22;
 				*num_swp_ptsPtr = v22;
+#ifdef ORIG
+				// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 				*v18 = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / v19);
+#else
+				*v18 = (float64_t) (v19 / (float80_t) (*num_step_ptsPtr - 1));
+#endif
 				int32_t v23 = 0x10000 * IsValidStep(a1); // 0x10001a30
 				g8 = v23 / 0x10000;
 				while (v23 != 0x10000) {
 					v22 = *num_step_ptsPtr + 10;
 					*num_step_ptsPtr = v22;
 					*num_swp_ptsPtr = v22;
+#ifdef ORIG
+					// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 					*v18 = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / v19);
+#else
+					*v18 = (float64_t) (v19 / (float80_t) (*num_step_ptsPtr - 1));
+#endif
 					v23 = 0x10000 * IsValidStep(a1);
 					g8 = v23 / 0x10000;
 				}
 				function_10001b13(a1);
 				g160_currentStepWidth = (float80_t) a1->step; // *(float64_t *)(a1 + 24);
 				g4 = v1;
+				dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 				return (int32_t) a1 & -0x10000;
 			}
 		} else {
@@ -812,7 +768,12 @@ int32_t recalcStep(SET9052 *a1) {
 			if (v28 < *v29) {
 				int32_t v30 = *v29; // 0x100018aa
 				*num_step_ptsPtr = v30;
+#ifdef ORIG
+				// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 				*v26 = (float64_t) ((float80_t) (v30 - 1) / v27);
+#else
+				*v26 = (float64_t) (v27 / (float80_t) (v30 - 1));
+#endif
 			}
 			*num_swp_ptsPtr = *num_step_ptsPtr;
 			g8 = a1;
@@ -825,13 +786,19 @@ int32_t recalcStep(SET9052 *a1) {
 				while (v32 != 0x10000) {
 					v31 = *num_step_ptsPtr;
 					*num_step_ptsPtr = v31 + 10;
+#ifdef ORIG
+					// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 					*v26 = (float64_t) ((float80_t) (v31 + 9) / v27);
+#else
+					*v26 = (float64_t) (v27 / (float80_t) (v31 + 9));
+#endif
 					v32 = 0x10000 * IsValidStep(a1);
 					g8 = v32 / 0x10000;
 				}
 				function_10001b13(a1);
 				g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
 				g4 = v1;
+				dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 				return (int32_t) a1 & -0x10000;
 			}
 		}
@@ -842,6 +809,7 @@ int32_t recalcStep(SET9052 *a1) {
 		result = (int32_t) a1 & -0x10000 | 0xfffb;
 	}
 	g4 = v1;
+	dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 	return result;
 }
 
