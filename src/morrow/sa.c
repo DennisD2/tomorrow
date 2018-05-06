@@ -5441,7 +5441,7 @@ int32_t SetSweepCode(SET9052 *a1, int16_t code) {
 static int32_t function_10002d12(SET9052 *a1, uint16_t sweep_in_progress);
 int32_t GetDbmForAmpl(SET9052 *a1, int16_t a2);
 int32_t GetnVForAmpl(SET9052 *a1, int16_t a2);
-int32_t function_1000cf43(SET9052 *a1);
+int32_t getAttenuationSetting(SET9052 *a1);
 int32_t function_1000def9(int32_t a1, int32_t a2, char a3, uint32_t a4);
 float80_t function_1000e0d5(void);
 float80_t function_100136eb(float64_t a1, int32_t a2);
@@ -6339,7 +6339,8 @@ int32_t wrapGetDataBlock(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
 	return result;
 }
 
-int32_t GetDbmForAmpl(SET9052 *a1, int16_t a2) {
+int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
+	dlog(LOG_DEBUG, "GetDbmForAmpl(%d)\n", ampl);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -6352,18 +6353,23 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t a2) {
 		float80_t v5;
 		if ((a1->detect_code /* *(int16_t *) (a1 + 128) */ & 32) == 0) {
 			// 0x1000cf00
-			g6 = a2;
+			g6 = ampl;
 			g8 = a1;
-			int32_t v6 = 0x10000 * function_1000cf43(a1) / 0x10000; // 0x1000cf1f
+			int32_t v6 = 0x10000 * getAttenuationSetting(a1) / 0x10000; // 0x1000cf1f
 			g3 = v6;
 			v4 = g11 - 1;
-			// DD XXX suspicious code FDIVR
-			v5 = 128.0L / (float80_t) a2 + (float80_t) v6;
+#ifdef ORIG
+			// DD XXX suspicious code FDIV
+			v5 = DB_CONVERT_CONST /* 128.0L */ / (float80_t) ampl + (float80_t) v6;
+#else
+			// See sa_defin.h line 367
+			v5 = (float80_t) ampl / DB_CONVERT_CONST  + (float80_t) v6;
+#endif
 			// branch -> 0x1000cf2e
 		} else {
 			// 0x1000cede
 			g8 = a1;
-			GetnVForAmpl(a1, a2);
+			GetnVForAmpl(a1, ampl);
 			g11++;
 			g3 = GetDbmForVoltage(a1, (float64_t) g159);
 			v4 = g11;
@@ -6383,7 +6389,8 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t a2) {
 	return result;
 }
 
-int32_t GetDbmForVoltage(SET9052 *a1, float64_t a2) {
+int32_t GetDbmForVoltage(SET9052 *a1, float64_t volts) {
+	dlog(LOG_DEBUG, "GetDbmForVoltage(%f) - TBI, decompiled wrong\n", volts);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -6399,15 +6406,22 @@ int32_t GetDbmForVoltage(SET9052 *a1, float64_t a2) {
 	}
 	// 0x1000d246
 	int32_t result2; // 0x1000d2b0
+	// DD XXX in IDA, it can be seen that volts is tested against 0.0 ; So if-condition is wrong.
 	if ((result & 0x4100) == 0) {
-		float80_t v2 = 1.0e+9L / (float80_t) a2; // 0x1000d261
+#ifdef ORIG
+		// Decompiled wrong.
+		float80_t v2 = 1.0e+9L / (float80_t) volts; // 0x1000d261
+#else
+		float80_t v2 =  (float80_t) volts / 1.0e+9L; // 0x1000d261
+#endif
 		int16_t v3 = a1->impedance /* *(int16_t *) (a1 + 176)*/; // 0x1000d270
 		float80_t v4 = 0.001L * (float80_t) v3; // 0x1000d27d
 		g160 = v4;
-		// DD XXX suspicious code FDIVR
+		// DD XXX suspicious code FDIV - checked, and ok.
 		float80_t v5 = v2 * v2 / v4; // 0x1000d283
 		g159 = v5;
 		g161 = false;
+		// DD XXX function_1000e114() what is this doing, looks complex, see IDA...
 		g3 = function_1000e114((int32_t) (float32_t) v5, (int32_t) v3);
 		g159 *= 10.0L;
 		result2 = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
@@ -6424,7 +6438,8 @@ int32_t GetDbmForVoltage(SET9052 *a1, float64_t a2) {
 	return result2;
 }
 
-int32_t GetnVForDbm(SET9052 *a1, float64_t a2) {
+int32_t GetnVForDbm(SET9052 *a1, float64_t dbm) {
+	dlog(LOG_DEBUG, "GetnVForDbm(%f)\n", dbm);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -6432,10 +6447,15 @@ int32_t GetnVForDbm(SET9052 *a1, float64_t a2) {
 	int32_t result = v2; // 0x1000d33a
 	float80_t v3 = -1.0L;
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-
-		// DD XXX TODO code below suspected to be wrong; FDIVR decompile bug. Check this
+		// DD XXX TODO code below suspected to be wrong; FDIVR decompile bug. Check this.
+		// Checked.
+#ifdef ORIG
 		float80_t v4 = 1000.0L / (float80_t) a1->impedance /* *(int16_t *) (a1 + 176)*/; // 0x1000d2e2
-		float80_t v5 = 10.0L / (float80_t) a2; // 0x1000d2ee
+		float80_t v5 = 10.0L / (float80_t) dbm; // 0x1000d2ee
+#else
+		float80_t v4 = (float80_t) a1->impedance / 1000.0L ;
+		float80_t v5 = (float80_t) dbm / 10.0L ;
+#endif
 		g159 = v5;
 		function_1000def9(0, 0x40240000, (char) (int32_t) (float32_t) v5,
 				(int32_t) (float32_t) v4);
@@ -6455,7 +6475,8 @@ int32_t GetnVForDbm(SET9052 *a1, float64_t a2) {
 	return result;
 }
 
-int32_t GetnVForAmpl(SET9052 *a1, int16_t a2) {
+int32_t GetnVForAmpl(SET9052 *a1, int16_t ampl) {
+	dlog(LOG_DEBUG, "GetnVForAmpl(%f)\n", ampl);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -6468,21 +6489,26 @@ int32_t GetnVForAmpl(SET9052 *a1, int16_t a2) {
 		if (a1->detect_code /* *(int16_t *) (a1 + 128) & 32) */ == 0) {
 			// 0x1000d026
 			g8 = a1;
-			GetDbmForAmpl(a1, a2);
+			GetDbmForAmpl(a1, ampl);
 			g11++;
 			g3 = GetnVForDbm(a1, (float64_t) g159);
 			v4 = g159;
 			// branch -> 0x1000d046
 		} else {
 			// 0x1000cfdb
-			g6 = a2;
+			g6 = ampl;
 			int32_t v5 = 0x10000 * function_1000d05b(a1) / 0x10000; // 0x1000cffa
+#ifdef ORIG
 			// DD XXX suspicious code FDIVR
+			// Checked, was wrong.
 			float80_t v6 = 20.0L / (float80_t) v5; // 0x1000d003
+#else
+			float80_t v6 = (float80_t) v5 / 20.0L ;
+#endif
 			g159 = v6;
 			g3 = function_1000def9(0, 0x40240000,
 					(char) (int32_t) (float32_t) v6, v5);
-			v4 = 10.0L * (float80_t) a2 * g159;
+			v4 = 10.0L * (float80_t) ampl * g159;
 			// branch -> 0x1000d046
 		}
 		// 0x1000d046
@@ -6498,15 +6524,16 @@ int32_t GetnVForAmpl(SET9052 *a1, int16_t a2) {
 	return result;
 }
 
-int32_t function_1000cf43(SET9052 *a1) {
+// function_1000cf43
+int32_t getAttenuationSetting(SET9052 *a1) {
 	// 0x1000cf43
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000cf4b
 	int32_t result;
 	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
-		int16_t v2 = a1->attenuation ; // *(int16_t *) (a1 + 96); // 0x1000cf63
-		g3 = (int32_t) v2 | v1 & -0x10000;
-		int16_t v3 = v2; // bp-8
+		int16_t atten = a1->attenuation ; // *(int16_t *) (a1 + 96); // 0x1000cf63
+		g3 = (int32_t) atten | v1 & -0x10000;
+		int16_t v3 = atten; // bp-8
 		int16_t v4 = a1->PreampAvailable; // *(int16_t *) (a1 + 100); // 0x1000cf6e
 		g8 = v4;
 		if (v4 != 0) {
@@ -6515,8 +6542,8 @@ int32_t function_1000cf43(SET9052 *a1) {
 			if (a1->PreampEnabled /* *(int16_t *) (a1 + 102) */ != 0) {
 				// 0x1000cf81
 				g8 = a1;
-				int16_t v5 = v2 - a1->PreampGain; // *(int16_t *) (a1 + 104); // 0x1000cf88
-				g3 = (int32_t) v5 | ((int32_t) v2 | (int32_t) a1) & -0x10000;
+				int16_t v5 = atten - a1->PreampGain; // *(int16_t *) (a1 + 104); // 0x1000cf88
+				g3 = (int32_t) v5 | ((int32_t) atten | (int32_t) a1) & -0x10000;
 				v3 = v5;
 				// branch -> 0x1000cf90
 			}
@@ -6673,6 +6700,7 @@ void __pseudo_cond_branch(uint32_t x, uint32_t y) {
 }
 
 int32_t function_1000def9(int32_t a1, int32_t a2, char a3, uint32_t a4) {
+	dlog(LOG_DEBUG, "function_1000def9() - TBI\n");
 	int32_t v1 = __fload_withFB(); // 0x1000defd
 	g3 = v1;
 	int16_t v2 = v1; // 0x1000df04
@@ -7038,6 +7066,7 @@ int32_t function_1000def9(int32_t a1, int32_t a2, char a3, uint32_t a4) {
 }
 
 int32_t function_1000e1e4(int32_t a1) {
+	dlog(LOG_DEBUG, "function_1000e1e4() - TBI\n");
 	int32_t v1 = &a1; // 0x1000e1e4
 	__fload_withFB();
 	int16_t v2 = v1; // bp-4
