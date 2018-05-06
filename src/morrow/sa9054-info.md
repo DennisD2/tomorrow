@@ -110,6 +110,20 @@ Command 	Function				Comment
 16									(not used by libs)
 ```
 
+ENG_SET_TRIG_DET
+
+ENG_SET_TRIGDET needs the following 8 arguments:
+```
+word[0] 	detect_code
+word[1] 	trig_code
+word[2]		trig_delay & 0xffff
+word[3]		trig_delay >> 16
+word[4]		trig_threshold & 0xffff
+word[5]		trig_threshold >> 16
+word[6]		trig_freq & 0xffff
+word[7]		trig_freq >> 16
+```
+
 ## Shared Lib Function Table
 
 Function Pointers from mtcsa.c to mtcvsa.c
