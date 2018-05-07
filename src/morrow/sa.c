@@ -3856,8 +3856,12 @@ int32_t FuncStatusFromEngineReply(int16_t engReply) {
 	return v3 /*| v1 & -0x10000*/;
 }
 
+/**
+ * Set trigger detection parameters. See array 'words' for the eight words that are sent to device.
+ * Totally reworked because it was decompiled wrong.
+ */
 int32_t CommTrigDetect(SET9052 *a1) {
-	dlog( LOG_DEBUG, "CommTrigDetect\n");
+	dlog( LOG_DEBUG, "CommTrigDetect()\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	int16_t v2 = 8; // bp-32
@@ -3874,77 +3878,55 @@ int32_t CommTrigDetect(SET9052 *a1) {
 	}
 	int32_t v5 = a1->trig_freq; // *(int32_t *)(a1 + 120); // 0x10001613
 	g8 = v5;
-	function_10002df9(a1, /*(float64_t) (int64_t)*/ v5);
-	/*int32_t*/int16_t *v6 =
-	/*g8 & -0x10000 | <-- what the heck does this mean?*/a1->detect_code; // (int32_t)*(int16_t *)(a1 + 128); // bp-24
-	int32_t v7;
-	int32_t v8; // 0x100016e9
-	int32_t v9; // 0x100016dd
-	int16_t v10; // 0x100016dd
+	int32_t trig_freq_l = function_10002df9(a1, /*(float64_t) (int64_t) v5 */ a1->trig_freq);
+	// Save rounded value
+	a1->trig_freq = (FREQ8500) trig_freq_l;
 
-	// DD: Engine Command 4 is related to "set trigger ...".
-	// v2 = 8 !
-	// v6 is sth. like a1->detect_code, see above
-	dlog( LOG_DEBUG, "detect_code: %d\n", a1->detect_code);
-	dlog( LOG_DEBUG, "sweep_code: %d\n", a1->sweep_code);
-	dlog( LOG_DEBUG, "num_cells: %d\n\n", a1->num_cells);
-
-	int16 *p6 = &(a1->detect_code);
-	dlog( LOG_DEBUG, "detect_code1: %d\n", *p6);
-	dlog( LOG_DEBUG, "sweep_code1: %d\n", *(p6 + 1));
-	dlog( LOG_DEBUG, "num_cells1: %d\n\n", *(p6 + 2));
-
-	int16 *p7 = &(a1->detect_code);
-	uint32_t ii = 0;
-	dlog( LOG_DEBUG, "detect_code1: %d\n", p7[ii]);
-	dlog( LOG_DEBUG, "sweep_code1: %d\n", p7[ii + 1]);
-	dlog( LOG_DEBUG, "num_cells1: %d\n\n", p7[ii + 2]);
-
-	uint8_t *ppp = &(a1->detect_code);
-	dlog( LOG_DEBUG, "detect_codeV: %d\n", *(ppp));
-	dlog( LOG_DEBUG, "sweep_codeV: %d\n", *(ppp + 2));
-	int32 *pppp = ppp + 4;
-	dlog( LOG_DEBUG, "num_cellsV: %d\n\n", *(pppp));
-
+	int16_t trig_code;
 	if ((RdSweepCode(a1) & 1) == 0) {
-		// DD: Engine Command 4 is related to "set trigger details".
-		v9 = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t) v2, ppp);
-		v10 = v9;
-		v7 = 0x10000 * v9;
-		v8 = v7 / 0x10000;
-		if (v7 == 0x130000) {
-			g4 = v1;
-			dlog( LOG_DEBUG, "ComTrigDetect exit 1, v7 == 0x130000\n");
-			return v8 & -0x10000 | 144;
-		}
-		if (v10 < 20) {
-			result = FuncStatusFromEngineReply(v10);
+		if (a1->trig_norm_flag != IE_FALSE /*0*/) {
+			int16_t trig_code = a1->trig_code;
 		} else {
-			result = v8 & -0x10000 | 145;
+			// 0x80 signals trig_norm_flag==IE_TRUE
+			int16_t trig_code = a1->trig_code | 0x80; // 1662
 		}
-		g4 = v1;
-		dlog( LOG_DEBUG, "ComTrigDetect exit 2\n");
-		return result;
+
+	} else { // 1672
+		int16_t trig_code = a1->trig_code;
 	}
-	if (a1->trig_norm_flag /* *(int16_t *)(a1 + 110)*/!= IE_FALSE /*0*/) {
-		// XXX Check orig code dlog( LOG_DEBUG,
-		//		"ComTrigDetect exit ->a1->trig_norm_flag != IE_FALSE =>  NOP ???\n");
+	// 167d
+	int16_t words[8];
+	words[0] = a1->detect_code;
+	words[1] = trig_code;
+	words[2] = a1->trig_delay & 0xffff; // tdelay_lo
+	words[3] = a1->trig_delay >> 16; // tdelay_hi
+	words[4] = a1->trig_thresh & 0xffff; // tthresh_lo
+	words[5] = a1->trig_thresh >> 16; // tthresh_hi, always 0 because it is a 16 bit value.
+	words[6] = trig_freq_l & 0xffff; // trig_freq_lo
+	words[7] = trig_freq_l >> 16; // trig_freq_hi
+
+	dlog( LOG_DEBUG, "detect_code = 0x%x\n", a1->detect_code);
+	dlog( LOG_DEBUG, "trig_code = 0x%x\n", trig_code);
+	dlog( LOG_DEBUG, "trig_delay = 0x%x\n", a1->trig_delay );
+	dlog( LOG_DEBUG, "trig_thresh = 0x%x\n", a1->trig_thresh );
+	dlog( LOG_DEBUG, "trig_freq_l = 0x%x\n", trig_freq_l );
+	int i;
+	for (i=0; i<8; i++ ) {
+		dlog( LOG_DEBUG, "words[%d] = 0x%x\n", i, words[i]);
 	}
 
-	v9 = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t) v2, ppp);
-	v10 = v9;
-	v7 = 0x10000 * v9;
-	v8 = v7 / 0x10000;
-	if (v7 == 0x130000) {
-		g4 = v1;
-		dlog( LOG_DEBUG, "ComTrigDetect exit 1, v7 == 0x130000\n");
-		return v8 & -0x10000 | 144;
+	result = SendCommand(a1, ENG_SET_TRIGDET /*4*/, (int32_t) v2, words);
+	// result contains the engine's answer.
+	if (result == 0x13) {
+		dlog( LOG_DEBUG, "ComTrigDetect exit 1, result == 0x13\n");
+		return IE_ENG_ERR_DTEC; //  0x90=144
 	}
-	if (v10 < 20) {
-		result = FuncStatusFromEngineReply(v10);
+	if (result < 0x14) {
+		result = FuncStatusFromEngineReply(result);
 	} else {
-		result = v8 & -0x10000 | 145;
+		result = IE_ENG_ERR_TRIG ; // 0x91=145
 	}
+
 	g4 = v1;
 	dlog( LOG_DEBUG, "ComTrigDetect --> 0x%0x\n", result);
 	return result;
