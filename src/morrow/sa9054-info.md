@@ -79,7 +79,7 @@ Most codes are listed in file include/sa_defin.h:
 #define ENG_START_SWP   1			12 WORDS
 #define ENG_START_ZSPAN 2			10 WORDS
 #define ENG_START_FHOP  3			5 WORDS
-#define ENG_SET_TRIGDET 4			8 WORDS: detect_code(2), sweep_code(2), num_cells(4)
+#define ENG_SET_TRIGDET 4			8 WORDS: 
 #define ENG_LOAD_HOPFRQ 5
 #define ENG_SET_INTMODE 6			2 WORDS: intr_code(2)
 #define ENG_TERMINATE   7			1 WORD: breakMode, value seen: 0
@@ -88,41 +88,34 @@ Most codes are listed in file include/sa_defin.h:
 ```
 Own findings:
 
-```
-Command 	Function				Comment
--------------------------------------------------------------------------
-0 			unknown					Not exposed by libs and not called by lib code.
-1			Start Sweep
-2			Start zSpan
-3			Start FreqHop
-4			Set Trigger related		Params (8, g8)
-5									(not used by libs)
-6			Comm Interrupt			Params (1, a1->interrupt_code)
-7			Break Sweep				Params (1, 0)
-8									(not used by libs)			
-9									(not used by libs)
-10			GetCalPoint
-11			Pulse function related
-12									(not used by libs)
-13									(not used by libs)
-14									(not used by libs)
-15									(not used by libs)
-16									(not used by libs)
-```
+ENG_TERMINATE: takes 1 word. This seems to can have values as defines in sa_defin.h:
 
-ENG_SET_TRIG_DET
+/* ------------------------------------------------------------------------ */
+/*  Defines for argument codes to Interrupt Sweep command to the engine.    */
+/* ------------------------------------------------------------------------ */
+#define STOP_NOW        0   /* Terminate sweep immediately.                 */
+#define STOP_AFTER      1   /* Terminate sweep when current sweep completes */
+#define PAUSE_SWP       2   /* Pause the current sweep.                     */
+#define RESUME_SWP      3   /* Resume the current sweep.                    */
 
-ENG_SET_TRIGDET needs the following 8 arguments:
+ENG_INIT: takes 4 words. In code found, all values are 0.
+
+ENG_SET_INTMODE: takes 2 words.
+
+ENG_SET_TRIGDET: takes 8 words.
+```	words[0] = a1->detect_code;
+	words[1] = trig_code; // calculated in StartSweep.
+	words[2] = a1->trig_delay & 0xffff; // tdelay_lo
+	words[3] = a1->trig_delay >> 16; // tdelay_hi
+	words[4] = a1->trig_thresh & 0xffff; // tthresh_lo
+	words[5] = a1->trig_thresh >> 16; // tthresh_hi, always 0 because it is a 16 bit value.
+	words[6] = trig_freq_l & 0xffff; // trig_freq_lo
+	words[7] = trig_freq_l >> 16; // trig_freq_hi
 ```
-word[0] 	detect_code
-word[1] 	trig_code
-word[2]		trig_delay & 0xffff
-word[3]		trig_delay >> 16
-word[4]		trig_threshold & 0xffff
-word[5]		trig_threshold >> 16
-word[6]		trig_freq & 0xffff
-word[7]		trig_freq >> 16
-```
+trig_freq_l is long value of the floating value a1->trig_freq.
+
+ENG_START_SWP: takes 12 words.
+
 
 ## Shared Lib Function Table
 
