@@ -5896,7 +5896,7 @@ int32_t StartSweep(SET9052 *a1) {
 	words[6] = fstep_l >> 16; // fstep_hi
 	words[7] = a1->settle_time & 0xffff; // settlet_lo
 	words[8] = a1->settle_time >> 16; // settlet_hi
-	words[9] = a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
+	words[9] = a1->PreampEnabled? (a1->attenuation & 0xff)|0x8000 : (a1->attenuation & 0xff);
 	words[10] = a1->cell_mode!=0? 0 : a1->num_cells;
 	words[11] = a1->sweep_code; // Check code with IDA; there is RdEngOption which does sth. with sweep_code...
 
