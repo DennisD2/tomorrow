@@ -81,7 +81,7 @@ Most codes are listed in file include/sa_defin.h:
 #define ENG_START_FHOP  3			5 WORDS
 #define ENG_SET_TRIGDET 4			8 WORDS: 
 #define ENG_LOAD_HOPFRQ 5
-#define ENG_SET_INTMODE 6			2 WORDS: intr_code(2)
+#define ENG_SET_INTMODE 6			1 WORD: intr_code
 #define ENG_TERMINATE   7			1 WORD: breakMode, value seen: 0
 #define ENG_CALIBRATE   10			(6 WORDS???)
 #define ENG_UNKNOWN1    11          8 WORDS, 6 WORDS, 2 WORDS
@@ -90,6 +90,7 @@ Own findings:
 
 ENG_TERMINATE: takes 1 word. This seems to can have values as defines in sa_defin.h:
 
+```
 /* ------------------------------------------------------------------------ */
 /*  Defines for argument codes to Interrupt Sweep command to the engine.    */
 /* ------------------------------------------------------------------------ */
@@ -97,14 +98,16 @@ ENG_TERMINATE: takes 1 word. This seems to can have values as defines in sa_defi
 #define STOP_AFTER      1   /* Terminate sweep when current sweep completes */
 #define PAUSE_SWP       2   /* Pause the current sweep.                     */
 #define RESUME_SWP      3   /* Resume the current sweep.                    */
+```
 
 ENG_INIT: takes 4 words. In code found, all values are 0.
 
-ENG_SET_INTMODE: takes 2 words.
+ENG_SET_INTMODE: takes 1 word.
+	word[0] = a1->intr_code
 
 ENG_SET_TRIGDET: takes 8 words.
 ```	words[0] = a1->detect_code;
-	words[1] = trig_code; // calculated in StartSweep.
+	words[1] = trig_code; // calculated in StartSweep: (trig_norm_flag!=0)? trig_code|0x80 : trig_code;
 	words[2] = a1->trig_delay & 0xffff; // tdelay_lo
 	words[3] = a1->trig_delay >> 16; // tdelay_hi
 	words[4] = a1->trig_thresh & 0xffff; // tthresh_lo
@@ -112,10 +115,25 @@ ENG_SET_TRIGDET: takes 8 words.
 	words[6] = trig_freq_l & 0xffff; // trig_freq_lo
 	words[7] = trig_freq_l >> 16; // trig_freq_hi
 ```
-trig_freq_l is long value of the floating value a1->trig_freq.
+trig_freq_l is 32 bit long value of the floating value a1->trig_freq.
 
 ENG_START_SWP: takes 12 words.
-
+```
+	words[0] = fstart_l & 0xffff; // fstart_lo
+	words[1] = fstart_l >> 16; // fstart_hi
+	words[2] = fstop_l & 0xffff; // fstop_lo
+	words[3] = fstop_l >> 16; // fstop_hi
+	words[4] = a1->filtercode; // (vbw_code << 8)|rbw_code
+	words[5] = fstep_l & 0xffff; // fstep_lo
+	words[6] = fstep_l >> 16; // fstep_hi
+	words[7] = a1->settle_time & 0xffff; // settlet_lo
+	words[8] = a1->settle_time >> 16; // settlet_hi
+	words[9] = a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
+	words[10] = a1->cell_mode!=0? 0 : a1->num_cells; 
+	words[11] = a1->sweep_code; // Check code with IDA; there is RdEngOption which does sth. with sweep_code...
+```
+filtercode is calculated by (vbw_code << 8)|rbw_code
+words[9] = a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
 
 ## Shared Lib Function Table
 

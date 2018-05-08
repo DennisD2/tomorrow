@@ -5853,10 +5853,9 @@ int32_t StartSweep(SET9052 *a1) {
 	function_10002df9(a1, (float64_t)(int64_t)*(int32_t *)a1->stop /*(a1 + 16)*/);
 	function_10002df9(a1, (float64_t)(int64_t)*(int32_t *)a1->step /*(a1 + 24)*/);
 #else
-	int32_t v3[3];
-	v3[0] = function_10002df9(a1, a1->start);
-	v3[1] = function_10002df9(a1, a1->stop);
-	v3[2] = function_10002df9(a1, a1->step);
+	int32_t fstart_l = function_10002df9(a1, a1->start);
+	int32_t fstop_l = function_10002df9(a1, a1->stop);
+	int32_t fstep_l = function_10002df9(a1, a1->step);
 #endif
 	g3 = a1;
 	BreakSweep(a1, STOP_NOW /*0*/);
@@ -5876,6 +5875,8 @@ int32_t StartSweep(SET9052 *a1) {
 	int16_t v6 = a1->rbw_code; // *(int16_t *)(a1 + 72); // 0x10004327
 	//*(int16_t *)(a1 + 80) = v6 | 256 * *(int16_t *)(a1 + 76);
 	a1->filter_code = v6 | (a1->vbw_code << 8);
+#ifdef ORIG
+	// Uh huh decompiled totally wrong :-(
 	int32_t *v7 = v3; // bp-36
 	if (/* *(int16_t *)(a1 + 64)*/a1->cell_mode == 1) {
 		// 0x100043d6
@@ -5884,7 +5885,23 @@ int32_t StartSweep(SET9052 *a1) {
 	// 0x100043eb
 	g3 = a1;
 	RdEngOption(a1, ENG_OPT_1 /*1*/);
-	int32_t v8 = SendCommand(a1, ENG_START_SWP /*1*/, 12, v7); // 0x10004433
+#else
+	uint16_t words[12];
+	words[0] = fstart_l & 0xffff; // fstart_lo
+	words[1] = fstart_l >> 16; // fstart_hi
+	words[2] = fstop_l & 0xffff; // fstop_lo
+	words[3] = fstop_l >> 16; // fstop_hi
+	words[4] = a1->filter_code; // (vbw_code << 8)|rbw_code
+	words[5] = fstep_l & 0xffff; // fstep_lo
+	words[6] = fstep_l >> 16; // fstep_hi
+	words[7] = a1->settle_time & 0xffff; // settlet_lo
+	words[8] = a1->settle_time >> 16; // settlet_hi
+	words[9] = a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
+	words[10] = a1->cell_mode!=0? 0 : a1->num_cells;
+	words[11] = a1->sweep_code; // Check code with IDA; there is RdEngOption which does sth. with sweep_code...
+
+#endif
+	int32_t v8 = SendCommand(a1, ENG_START_SWP /*1*/, 12, words); // 0x10004433
 // DD XXX
 	if (v8 != 1) {
 		dlog(LOG_DEBUG, "Patching v8 from 0x%x to 0x41000 - TBC\n", v8);
@@ -5901,11 +5918,11 @@ int32_t StartSweep(SET9052 *a1) {
 		g4 = v1;
 		return 0x10000 * v9 / 0x10000 & -0x10000 | 0xfff0;
 	}
-	int32_t v10 = function_10002d12(a1, 129); // 0x10004471
+	int32_t v10 = function_10002d12(a1, 0x81 /*129*/); // 0x10004471
 	g3 = v10;
 	if ((int16_t) v10 == 0) {
 		g8 = a1;
-		result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | 65;
+		result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000 | 0x41 /*65*/;
 	} else {
 		result = 0x10000 * v10 / 0x10000 & -0x10000 | 0xfff0;
 	}
