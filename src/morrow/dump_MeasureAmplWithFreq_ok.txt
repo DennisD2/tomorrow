@@ -1,0 +1,2026 @@
+bash-4.3$ ./morrow 
+----------------------------------------
+main start
+ACK
+
+sa.c:SendCommand 7
+ACK
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+
+sa.c:SendCommand 4
+ACK
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+
+sa.c:SendCommand 6
+ACK
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+mr90xx_OpenSession, session added to position 1.
+
+sa.c:SendCommand 7
+ACK
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+
+sa.c:SendCommand 4
+ACK
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+
+sa.c:SendCommand 6
+ACK
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+
+sa.c:SendCommand 7
+ACK
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+
+sa.c:SendCommand 4
+ACK
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+BUSY
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+
+sa.c:SendCommand 6
+ACK
+ACK
+
+
+sa.c:SendCommand done --> 0x0
+mr90xx_init OK
+
+mr90xx_SetEngineModel OK
+
+mr90xx_InitGuiSweep OK
+
+MeasureAmplWithFreq
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(149000000.000000) -> 1
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(150000000.000000) -> 1
+SetSweepCode(1)
+recalcStep()
+RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+recalcStep(), step set to 25641.025641
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+SetRBWmode(mode=0x1)
+RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+recalcStep()
+RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+recalcStep(), step set to 25641.025641
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+SetVBWmode(0x1)
+ConfigStartFreq(149000000.000000)
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(149000000.000000) -> 1
+SetFuncStatusCode(3)
+ConfigStartFreq(150000000.000000)
+RdMinFreqLimit 3 --> 0x40000000
+FreqInRange(150000000.000000) -> 1
+recalcStep()
+RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+recalcStep(), step set to 25641.025641
+SetRefLevel(2)
+SetNumCells(40)
+recalcStep()
+RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
+VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
+VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
+ftol(0.000000) -> 0
+IsValidStep() -> 1
+DefltSetTimeRBW(0) -> 6000
+DefltSetTimeVBW(1) -> 250000
+recalcStep(), step set to 25641.025641
+RdNumSwpPts --> 40
+
+
+sa.c:BreakSweep, mode=0
+
+sa.c:SendCommand 7
+VISA_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
+wordPtr[0]=0x0
+DLFMModeOff(unused=0x0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        writeStatusReg(word 7dac=P2?,0x7dac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+
+dd_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
+words[0]=0x0
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x7)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+VISA_CheckSWStatus: 
+dd_readEngineStatus
+DLFMModeOff(unused=0x3a78)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        writeStatusReg(word 7cac=P2?,0x7cac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x3a78) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838308)
+InitTimeoutLoop(2063838308)
+        DLFMModeOn
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        writeStatusReg(word 7eac=P2?,0x7eac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> 0
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=1
+SetEngineReplyCode(1)
+VISA_CheckSWStatus -> 1
+
+
+sa.c:SendCommand done --> 0x0
+Patching v3 from 0x0 to 1 - TBC
+SetSwpIdx(0)
+StartSweep
+ftol(149000000.000000) -> 149000000
+function_10002df9(149000000.000000) --> 149000000
+ftol(150000000.000000) -> 150000000
+function_10002df9(150000000.000000) --> 150000000
+ftol(25641.025391) -> 25641
+function_10002df9(25641.025641) --> 25641
+
+
+sa.c:BreakSweep, mode=0
+
+sa.c:SendCommand 7
+VISA_SendCommand(7=ENG_TERMINATE, 1, 7b03aa40)
+wordPtr[0]=0x0
+DLFMModeOff(unused=0x0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        writeStatusReg(word 7dac=P2?,0x7dac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+
+dd_SendCommand(7=ENG_TERMINATE, 1, 7b03aa40)
+words[0]=0x0
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x7)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+VISA_CheckSWStatus: 
+dd_readEngineStatus
+DLFMModeOff(unused=0x3a78)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        writeStatusReg(word 7cac=P2?,0x7cac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x3a78) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838500)
+InitTimeoutLoop(2063838500)
+        DLFMModeOn
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        writeStatusReg(word 7eac=P2?,0x7eac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> 0
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=1
+SetEngineReplyCode(1)
+VISA_CheckSWStatus -> 1
+
+
+sa.c:SendCommand done --> 0x0
+Patching v3 from 0x0 to 1 - TBC
+SetSwpIdx(0)
+ClearDataFIFO
+VISA_ClearDataFIFO
+readDataWord()
+InitTimeoutLoop(2063837940)
+readDataWord() readResponseRegT gave error --> 0x1
+RdErrorStatus() --> 1 1
+VISA_ClearDataFIFO - finished 1
+CommTrigDetect()
+ftol(0.000000) -> 0
+function_10002df9(0.000000) --> 0
+RdSweepCode() --> 0x40000001
+detect_code = 0x46
+trig_code = 0x8b
+trig_delay = 0x0
+trig_thresh = 0x0
+trig_freq_l = 0x0
+words[0] = 0x46
+words[1] = 0x8b
+words[2] = 0x0
+words[3] = 0x0
+words[4] = 0x0
+words[5] = 0x0
+words[6] = 0x0
+words[7] = 0x0
+
+sa.c:SendCommand 4
+VISA_SendCommand(4=ENG_SET_TRIGDET, 8, 7b03aa44)
+wordPtr[0]=0x46
+wordPtr[1]=0x8b
+wordPtr[2]=0x0
+wordPtr[3]=0x0
+wordPtr[4]=0x0
+wordPtr[5]=0x0
+wordPtr[6]=0x0
+wordPtr[7]=0x0
+DLFMModeOff(unused=0x0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        writeStatusReg(word 7dac=P2?,0x7dac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+
+dd_SendCommand(4=ENG_SET_TRIGDET, 8, 7b03aa44)
+words[0]=0x46
+words[1]=0x8b
+words[2]=0x0
+words[3]=0x0
+words[4]=0x0
+words[5]=0x0
+words[6]=0x0
+words[7]=0x0
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Response: 0xaa01
+ACK
+
+dd_p1Command(0x4)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_p1Command(0x46)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x8b)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Response: 0xaa00
+BUSY
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+BUSY
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+VISA_CheckSWStatus: 
+dd_readEngineStatus
+DLFMModeOff(unused=0x3a78)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        writeStatusReg(word 7cac=P2?,0x7cac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x3a78) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838500)
+InitTimeoutLoop(2063838500)
+        DLFMModeOn
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        writeStatusReg(word 7eac=P2?,0x7eac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> 0
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=14
+SetEngineReplyCode(14)
+dd_readEngineStatus
+DLFMModeOff(unused=0x14)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        writeStatusReg(word 7dac=P2?,0x7dac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x14) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838500)
+InitTimeoutLoop(2063838500)
+        DLFMModeOn
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        writeStatusReg(word 7eac=P2?,0x7eac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        checkDLFMBitSet 2 --> 0
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=14
+SetEngineReplyCode(14)
+VISA_CheckSWStatus -> 14
+VISA_SendCommand may have failed(?), status=20.
+
+
+sa.c:SendCommand done --> 0x0
+FuncStatusFromEngineReply(0x0)
+ComTrigDetect --> 0x40
+Patching v5 from 0x400000 to 0x41000 - TBC
+
+sa.c:SendCommand 1
+VISA_SendCommand(1=ENG_START_SWP, 12, 7b03a988)
+wordPtr[0]=0x8f40
+wordPtr[1]=0x8e1
+wordPtr[2]=0xd180
+wordPtr[3]=0x8f0
+wordPtr[4]=0x100
+wordPtr[5]=0x6429
+wordPtr[6]=0x0
+wordPtr[7]=0x0
+wordPtr[8]=0x0
+wordPtr[9]=0x2a
+wordPtr[10]=0x0
+wordPtr[11]=0x1
+DLFMModeOff(unused=0x0)
+        readStatusReg() -> v2: 0x0, response: 0x7fac
+        writeStatusReg(word 7dac=P2?,0x7dac, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cac
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x0) 1 --> -2
+
+dd_SendCommand(1=ENG_START_SWP, 12, 7b03a988)
+words[0]=0x8f40
+words[1]=0x8e1
+words[2]=0xd180
+words[3]=0x8f0
+words[4]=0x100
+words[5]=0x6429
+words[6]=0x0
+words[7]=0x0
+words[8]=0x0
+words[9]=0x2a
+words[10]=0x0
+words[11]=0x1
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x1)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_p1Command(0x8f40)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x8e1)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Response: 0xaa00
+BUSY
+
+dd_p1Command(0xd180)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Response: 0xaa00
+BUSY
+
+dd_p1Command(0x8f0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+BUSY
+
+dd_p1Command(0x100)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x6429)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x2a)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x0)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+
+dd_p1Command(0x1)
+
+dd_wsCommand(command=0xcdff,readAnswer=1)
+
+dd_viOut16TO(word=0xcdff)
+
+dd_viIn16TO()
+Response: 0xffff
+
+dd_wsCommand(command=0x7e00,readAnswer=1)
+
+dd_viOut16TO(word=0x7e00)
+
+dd_viIn16TO()
+Timeout occurred during wait for READREADY.
+?
+VISA_CheckSWStatus: 
+dd_readEngineStatus
+DLFMModeOff(unused=0x3a78)
+        readStatusReg() -> v2: 0x0, response: 0x7cbc
+        writeStatusReg(word 7cbc=P2?,0x7cbc, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7cbc
+        checkDLFMBitClear() --> 0
+DLFMModeOff(unused=0x3a78) 1 --> -2
+_sendCommand: 7e00=VXI_GETSTATUS
+_doSendWord 7e00=VXI_GETSTATUS
+InitTimeoutLoop(2063838372)
+InitTimeoutLoop(2063838372)
+        DLFMModeOn
+        readStatusReg() -> v2: 0x0, response: 0x7cbc
+        writeStatusReg(word 7ebc=P2?,0x7ebc, 0x0)
+InitTimeoutLoop(0)
+        readStatusReg() -> v2: 0x0, response: 0x7fbc
+        checkDLFMBitSet 2 --> 0
+        DLFMModeOn leave 1 --> 0xfffffffe
+dd_readEngineStatus result=1
+SetEngineReplyCode(1)
+VISA_CheckSWStatus -> 1
+
+
+sa.c:SendCommand done --> 0x0
+Patching v8 from 0x0 to 0x41000 - TBC
+SetSwpIdx(0)
+function_10002d12(0x81)
+Patching result from 0x40000041 to 0x41 - TBC
+GetAmplWithFreqExt
+IsSweeping() -> 1
+RdSwpIdx() -> 0
+RdNumDataPts() 1 --> 40
+wrapGetDataBlock(reversePointIndex=40,a3=3)
+VISA_GetDataBlock(reversePointIdx=40,a3=3)
+        readStatusReg() -> v2: 0x0, response: 0x7fbc
+VISA_CheckHWStatus() --> 0xff00
+VISA_GetDataBlock() -> a4 = 40
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x30, 0x30
+VISA_FetchDataWord() --> v3,*dword = 0x30,0
+function_100039d0() --> result,*a2 = 0x30,0 
+GetAmplWithFreqExt, pointPtr[0] becomes 0x30
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x34, 0x34
+VISA_FetchDataWord() --> v3,*dword = 0x34,0
+function_100039d0() --> result,*a2 = 0x34,0 
+GetAmplWithFreqExt, read LO 0x34
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752564
+function_10002ea6(2752564)
+function_10002ea6(2752564) --> 512, 2752564.000000
+GetAmplWithFreqExt, ra_freq[0] becomes 2752564.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, pointPtr[1] becomes 0x2c
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read HI 0x2c
+fl=2883626
+function_10002ea6(2883626)
+function_10002ea6(2883626) --> 512, 2883626.000000
+GetAmplWithFreqExt, ra_freq[1] becomes 2883626.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[2] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read LO 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read HI 0x2c
+fl=2883630
+function_10002ea6(2883630)
+function_10002ea6(2883630) --> 512, 2883630.000000
+GetAmplWithFreqExt, ra_freq[2] becomes 2883630.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[3] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read LO 0x2c
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752556
+function_10002ea6(2752556)
+function_10002ea6(2752556) --> 512, 2752556.000000
+GetAmplWithFreqExt, ra_freq[3] becomes 2752556.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[4] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x30, 0x30
+VISA_FetchDataWord() --> v3,*dword = 0x30,0
+function_100039d0() --> result,*a2 = 0x30,0 
+GetAmplWithFreqExt, read LO 0x30
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752560
+function_10002ea6(2752560)
+function_10002ea6(2752560) --> 512, 2752560.000000
+GetAmplWithFreqExt, ra_freq[4] becomes 2752560.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, pointPtr[5] becomes 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read HI 0x2e
+fl=3014698
+function_10002ea6(3014698)
+function_10002ea6(3014698) --> 512, 3014698.000000
+GetAmplWithFreqExt, ra_freq[5] becomes 3014698.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[6] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x34, 0x34
+VISA_FetchDataWord() --> v3,*dword = 0x34,0
+function_100039d0() --> result,*a2 = 0x34,0 
+GetAmplWithFreqExt, read LO 0x34
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752564
+function_10002ea6(2752564)
+function_10002ea6(2752564) --> 512, 2752564.000000
+GetAmplWithFreqExt, ra_freq[6] becomes 2752564.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, pointPtr[7] becomes 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read HI 0x2c
+fl=2883626
+function_10002ea6(2883626)
+function_10002ea6(2883626) --> 512, 2883626.000000
+GetAmplWithFreqExt, ra_freq[7] becomes 2883626.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[8] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read LO 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752558
+function_10002ea6(2752558)
+function_10002ea6(2752558) --> 512, 2752558.000000
+GetAmplWithFreqExt, ra_freq[8] becomes 2752558.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, pointPtr[9] becomes 0x2c
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x32, 0x32
+VISA_FetchDataWord() --> v3,*dword = 0x32,0
+function_100039d0() --> result,*a2 = 0x32,0 
+GetAmplWithFreqExt, read HI 0x32
+fl=3276842
+function_10002ea6(3276842)
+function_10002ea6(3276842) --> 512, 3276842.000000
+GetAmplWithFreqExt, ra_freq[9] becomes 3276842.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[10] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read LO 0x2c
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752556
+function_10002ea6(2752556)
+function_10002ea6(2752556) --> 512, 2752556.000000
+GetAmplWithFreqExt, ra_freq[10] becomes 2752556.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, pointPtr[11] becomes 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752554
+function_10002ea6(2752554)
+function_10002ea6(2752554) --> 512, 2752554.000000
+GetAmplWithFreqExt, ra_freq[11] becomes 2752554.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, pointPtr[12] becomes 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read HI 0x2e
+fl=3014698
+function_10002ea6(3014698)
+function_10002ea6(3014698) --> 512, 3014698.000000
+GetAmplWithFreqExt, ra_freq[12] becomes 3014698.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x38, 0x38
+VISA_FetchDataWord() --> v3,*dword = 0x38,0
+function_100039d0() --> result,*a2 = 0x38,0 
+GetAmplWithFreqExt, pointPtr[13] becomes 0x38
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x32, 0x32
+VISA_FetchDataWord() --> v3,*dword = 0x32,0
+function_100039d0() --> result,*a2 = 0x32,0 
+GetAmplWithFreqExt, read LO 0x32
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752562
+function_10002ea6(2752562)
+function_10002ea6(2752562) --> 512, 2752562.000000
+GetAmplWithFreqExt, ra_freq[13] becomes 2752562.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x38, 0x38
+VISA_FetchDataWord() --> v3,*dword = 0x38,0
+function_100039d0() --> result,*a2 = 0x38,0 
+GetAmplWithFreqExt, pointPtr[14] becomes 0x38
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read HI 0x2e
+fl=3014698
+function_10002ea6(3014698)
+function_10002ea6(3014698) --> 512, 3014698.000000
+GetAmplWithFreqExt, ra_freq[14] becomes 3014698.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[15] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x34, 0x34
+VISA_FetchDataWord() --> v3,*dword = 0x34,0
+function_100039d0() --> result,*a2 = 0x34,0 
+GetAmplWithFreqExt, read HI 0x34
+fl=3407914
+function_10002ea6(3407914)
+function_10002ea6(3407914) --> 512, 3407914.000000
+GetAmplWithFreqExt, ra_freq[15] becomes 3407914.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[16] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x30, 0x30
+VISA_FetchDataWord() --> v3,*dword = 0x30,0
+function_100039d0() --> result,*a2 = 0x30,0 
+GetAmplWithFreqExt, read LO 0x30
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752560
+function_10002ea6(2752560)
+function_10002ea6(2752560) --> 512, 2752560.000000
+GetAmplWithFreqExt, ra_freq[16] becomes 2752560.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[17] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x30, 0x30
+VISA_FetchDataWord() --> v3,*dword = 0x30,0
+function_100039d0() --> result,*a2 = 0x30,0 
+GetAmplWithFreqExt, read LO 0x30
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752560
+function_10002ea6(2752560)
+function_10002ea6(2752560) --> 512, 2752560.000000
+GetAmplWithFreqExt, ra_freq[17] becomes 2752560.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[18] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read HI 0x2e
+fl=3014698
+function_10002ea6(3014698)
+function_10002ea6(3014698) --> 512, 3014698.000000
+GetAmplWithFreqExt, ra_freq[18] becomes 3014698.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[19] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x30, 0x30
+VISA_FetchDataWord() --> v3,*dword = 0x30,0
+function_100039d0() --> result,*a2 = 0x30,0 
+GetAmplWithFreqExt, read LO 0x30
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752560
+function_10002ea6(2752560)
+function_10002ea6(2752560) --> 512, 2752560.000000
+GetAmplWithFreqExt, ra_freq[19] becomes 2752560.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x34, 0x34
+VISA_FetchDataWord() --> v3,*dword = 0x34,0
+function_100039d0() --> result,*a2 = 0x34,0 
+GetAmplWithFreqExt, pointPtr[20] becomes 0x34
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read HI 0x2c
+fl=2883626
+function_10002ea6(2883626)
+function_10002ea6(2883626) --> 512, 2883626.000000
+GetAmplWithFreqExt, ra_freq[20] becomes 2883626.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[21] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x32, 0x32
+VISA_FetchDataWord() --> v3,*dword = 0x32,0
+function_100039d0() --> result,*a2 = 0x32,0 
+GetAmplWithFreqExt, read LO 0x32
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752562
+function_10002ea6(2752562)
+function_10002ea6(2752562) --> 512, 2752562.000000
+GetAmplWithFreqExt, ra_freq[21] becomes 2752562.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, pointPtr[22] becomes 0x2c
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read HI 0x2e
+fl=3014698
+function_10002ea6(3014698)
+function_10002ea6(3014698) --> 512, 3014698.000000
+GetAmplWithFreqExt, ra_freq[22] becomes 3014698.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, pointPtr[23] becomes 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x32, 0x32
+VISA_FetchDataWord() --> v3,*dword = 0x32,0
+function_100039d0() --> result,*a2 = 0x32,0 
+GetAmplWithFreqExt, read HI 0x32
+fl=3276842
+function_10002ea6(3276842)
+function_10002ea6(3276842) --> 512, 3276842.000000
+GetAmplWithFreqExt, ra_freq[23] becomes 3276842.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[24] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752554
+function_10002ea6(2752554)
+function_10002ea6(2752554) --> 512, 2752554.000000
+GetAmplWithFreqExt, ra_freq[24] becomes 2752554.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[25] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752554
+function_10002ea6(2752554)
+function_10002ea6(2752554) --> 512, 2752554.000000
+GetAmplWithFreqExt, ra_freq[25] becomes 2752554.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[26] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752554
+function_10002ea6(2752554)
+function_10002ea6(2752554) --> 512, 2752554.000000
+GetAmplWithFreqExt, ra_freq[26] becomes 2752554.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, pointPtr[27] becomes 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read HI 0x2e
+fl=3014698
+function_10002ea6(3014698)
+function_10002ea6(3014698) --> 512, 3014698.000000
+GetAmplWithFreqExt, ra_freq[27] becomes 3014698.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[28] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read LO 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752558
+function_10002ea6(2752558)
+function_10002ea6(2752558) --> 512, 2752558.000000
+GetAmplWithFreqExt, ra_freq[28] becomes 2752558.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, pointPtr[29] becomes 0x2c
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752554
+function_10002ea6(2752554)
+function_10002ea6(2752554) --> 512, 2752554.000000
+GetAmplWithFreqExt, ra_freq[29] becomes 2752554.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[30] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x30, 0x30
+VISA_FetchDataWord() --> v3,*dword = 0x30,0
+function_100039d0() --> result,*a2 = 0x30,0 
+GetAmplWithFreqExt, read LO 0x30
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752560
+function_10002ea6(2752560)
+function_10002ea6(2752560) --> 512, 2752560.000000
+GetAmplWithFreqExt, ra_freq[30] becomes 2752560.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x32, 0x32
+VISA_FetchDataWord() --> v3,*dword = 0x32,0
+function_100039d0() --> result,*a2 = 0x32,0 
+GetAmplWithFreqExt, pointPtr[31] becomes 0x32
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x36, 0x36
+VISA_FetchDataWord() --> v3,*dword = 0x36,0
+function_100039d0() --> result,*a2 = 0x36,0 
+GetAmplWithFreqExt, read HI 0x36
+fl=3538986
+function_10002ea6(3538986)
+function_10002ea6(3538986) --> 512, 3538986.000000
+GetAmplWithFreqExt, ra_freq[31] becomes 3538986.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x36, 0x36
+VISA_FetchDataWord() --> v3,*dword = 0x36,0
+function_100039d0() --> result,*a2 = 0x36,0 
+GetAmplWithFreqExt, pointPtr[32] becomes 0x36
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read HI 0x2e
+fl=3014698
+function_10002ea6(3014698)
+function_10002ea6(3014698) --> 512, 3014698.000000
+GetAmplWithFreqExt, ra_freq[32] becomes 3014698.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[33] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read LO 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752558
+function_10002ea6(2752558)
+function_10002ea6(2752558) --> 512, 2752558.000000
+GetAmplWithFreqExt, ra_freq[33] becomes 2752558.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[34] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x34, 0x34
+VISA_FetchDataWord() --> v3,*dword = 0x34,0
+function_100039d0() --> result,*a2 = 0x34,0 
+GetAmplWithFreqExt, read HI 0x34
+fl=3407914
+function_10002ea6(3407914)
+function_10002ea6(3407914) --> 512, 3407914.000000
+GetAmplWithFreqExt, ra_freq[34] becomes 3407914.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[35] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x30, 0x30
+VISA_FetchDataWord() --> v3,*dword = 0x30,0
+function_100039d0() --> result,*a2 = 0x30,0 
+GetAmplWithFreqExt, read LO 0x30
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752560
+function_10002ea6(2752560)
+function_10002ea6(2752560) --> 512, 2752560.000000
+GetAmplWithFreqExt, ra_freq[35] becomes 2752560.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[36] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2e, 0x2e
+VISA_FetchDataWord() --> v3,*dword = 0x2e,0
+function_100039d0() --> result,*a2 = 0x2e,0 
+GetAmplWithFreqExt, read LO 0x2e
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752558
+function_10002ea6(2752558)
+function_10002ea6(2752558) --> 512, 2752558.000000
+GetAmplWithFreqExt, ra_freq[36] becomes 2752558.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x34, 0x34
+VISA_FetchDataWord() --> v3,*dword = 0x34,0
+function_100039d0() --> result,*a2 = 0x34,0 
+GetAmplWithFreqExt, pointPtr[37] becomes 0x34
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x32, 0x32
+VISA_FetchDataWord() --> v3,*dword = 0x32,0
+function_100039d0() --> result,*a2 = 0x32,0 
+GetAmplWithFreqExt, read HI 0x32
+fl=3276842
+function_10002ea6(3276842)
+function_10002ea6(3276842) --> 512, 3276842.000000
+GetAmplWithFreqExt, ra_freq[37] becomes 3276842.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[38] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read LO 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() readResponseRegT gave error --> 0x1
+RdErrorStatus() --> 1 1
+VISA_FetchDataWord() --> v3,*dword = 0x0,1
+function_100039d0() --> result,*a2 = 0x0,1 
+GetAmplWithFreqExt, read HI 0x0
+RdErrorStatus() --> 1 1
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read HI 0x2c
+fl=2883626
+function_10002ea6(2883626)
+function_10002ea6(2883626) --> 512, 2883626.000000
+GetAmplWithFreqExt, ra_freq[38] becomes 2883626.000000
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, pointPtr[39] becomes 0x2a
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2c, 0x2c
+VISA_FetchDataWord() --> v3,*dword = 0x2c,0
+function_100039d0() --> result,*a2 = 0x2c,0 
+GetAmplWithFreqExt, read LO 0x2c
+VISA_FetchDataWord()
+readDataWord()
+InitTimeoutLoop(2063838068)
+readDataWord() ok --> 0x2a, 0x2a
+VISA_FetchDataWord() --> v3,*dword = 0x2a,0
+function_100039d0() --> result,*a2 = 0x2a,0 
+GetAmplWithFreqExt, read HI 0x2a
+fl=2752556
+function_10002ea6(2752556)
+function_10002ea6(2752556) --> 512, 2752556.000000
+GetAmplWithFreqExt, ra_freq[39] becomes 2752556.000000
+VISA_VerDataBlock(00) -> 2063837864
+SetSwpIdx(40)
+RdNumDataPts() 1 --> 40
+RdSwpIdx() -> 40
+GetDbmForAmpl(48)
+GetDbmForAmpl(44)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(46)
+GetDbmForAmpl(42)
+GetDbmForAmpl(46)
+GetDbmForAmpl(42)
+GetDbmForAmpl(44)
+GetDbmForAmpl(42)
+GetDbmForAmpl(46)
+GetDbmForAmpl(46)
+GetDbmForAmpl(56)
+GetDbmForAmpl(56)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(52)
+GetDbmForAmpl(42)
+GetDbmForAmpl(44)
+GetDbmForAmpl(46)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(46)
+GetDbmForAmpl(42)
+GetDbmForAmpl(44)
+GetDbmForAmpl(42)
+GetDbmForAmpl(50)
+GetDbmForAmpl(54)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+GetDbmForAmpl(52)
+GetDbmForAmpl(42)
+GetDbmForAmpl(42)
+function_1000d97b() reached - TBI - Should free allocated space
+mapVisaErrorToAPIError(0x0)
+mr90xx_MeasureAmplWithFreq OK
+Amplitude =      42.37, Frequency =         42
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =      42.34, Frequency =         42
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =      42.33, Frequency =         42
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =      42.33, Frequency =         42
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =      42.33, Frequency =         42
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+Amplitude =       0.00, Frequency =          0
+bash-4.3$ 
