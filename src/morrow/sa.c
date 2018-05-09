@@ -3294,10 +3294,10 @@ char *alloc_1000da64(int32_t size) {
 // I assume this frees the incoming data structure (a1 seems to be a pointer)
 // After examining with IDA, this is true. There is some MS code called, 'HeapFree' with a parameter 'lpMem'.
 // TODO: remove abort() when this code piece is reached.
-int32_t function_1000d97b(int32_t a1) {
+int32_t function_1000d97b(int16_t *a1) {
+	dlog(LOG_DEBUG, "function_1000d97b() reached - TBI - Should free allocated space\n");
 	// 0x1000d97b
-	abort();
-	// UNREACHABLE
+	//abort();
 }
 int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
@@ -3570,7 +3570,7 @@ int32_t RdErrorStatus(SET9052 *a1) {
 }
 
 int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
-	if (status != 0) {
+	if (status != IE_SUCCESS && status != IE_WARN_VALS) {
 		dlog(LOG_DEBUG, "SetErrorStatus(%x)\n", status);
 	}
 	g3 = a1;
@@ -6190,9 +6190,11 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 										v3 = v2;
 										// Arg: 64 bit value made from last 2 words read in
 										// This function sets g159 as a float incarnation of the arg.
-										function_10002ea6(a1,(int64_t) (0x10000 * v32 | v28 & 0xffff));
+										int64_t fl = ((int64_t)v32 << 16) | (v28 & 0xffff);
+										dlog(LOG_DEBUG, "fl=%lld\n", fl);
+										function_10002ea6(a1,fl);
 										// copy new float value to result array at position 'swpIndex'
-										dlog(LOG_DEBUG, "GetAmplWithFreqExt, ra_freq[%d] becomes 0x%x\n", v21, g159);
+										dlog(LOG_DEBUG, "GetAmplWithFreqExt, ra_freq[%d] becomes %llf\n", v21, g159);
 										*(float64_t *) (8 * v21 + 8 * swpIndex + ra_freq) = (float64_t) g159;
 										g11++;
 										int16_t v34 = v22 + 1; // 0x1000bcab
@@ -7587,6 +7589,7 @@ int32_t function_100039d0(SET9052 *a1, int16_t *a2) {
 // It looks like that it is set in most cases to input value inValue.
 // Also, g6 and g11 are set...
 int32_t function_10002ea6(SET9052 *a1, int64_t inValue) {
+	dlog(LOG_DEBUG, "function_10002ea6(%lld)\n", inValue);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -7640,6 +7643,7 @@ int32_t function_10002ea6(SET9052 *a1, int64_t inValue) {
 		result3 = result2;
 	}
 	g4 = v1;
+	dlog(LOG_DEBUG, "function_10002ea6(%lld) --> %d, %lf\n", inValue, result3, g159);
 	return result3;
 }
 

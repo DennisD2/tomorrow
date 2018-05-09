@@ -805,7 +805,7 @@ int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t* val) {
         g5 = deviceId;
         result2 = SetErrorStatus(deviceId, IE_WARN_VALS /*1*/) & -0x10000 | 0x8004;
     }
-	dlog( LOG_DEBUG, "\treadResponseReg(a2=0x%x) --> %d\n", mask, result2);
+	dlog( LOG_TRACE, "\treadResponseReg(a2=0x%x) --> %d\n", mask, result2);
     return result2;
 }
 
@@ -1228,7 +1228,7 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
 // called by VISA_FetchDataWord and VISA_ClearDataFIFO.
 // function_10001b08
 int32_t readDataWord(SET9052 *deviceId) {
-	dlog(LOG_DEBUG, "readDataWord() basic read function when fetching data from the engine  \n");
+	dlog(LOG_DEBUG, "readDataWord()\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2 = RdTimeoutWait(deviceId); // 0x10001b1f
@@ -1258,14 +1258,14 @@ int32_t readDataWord(SET9052 *deviceId) {
     int16_t v9; // bp-8
     int32_t v10; // 0x10001bb4
     if (m_viIn16(v8, 1, REG_DATALOW_BO /*14*/, &v9) == 0) {
-        v10 = 0;
+       v10 = 0;
     } else {
         v10 = 1;
         v9 = 0;
     }
     v7 = SetErrorStatus(deviceId, v10);
     g3 = v1;
-	dlog(LOG_DEBUG, "readDataWord() 3, ok --> 0x%x\n", v7 & -0x10000 | (int32_t)v9);
+	dlog(LOG_DEBUG, "readDataWord() ok --> 0x%x, 0x%x\n", v9, v7 & -0x10000 | (int32_t)v9);
     return v7 & -0x10000 | (int32_t)v9;
 }
 
@@ -1379,7 +1379,7 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3
                 *(int32_t *)a4 = v9 / v1; // XXX Check if equal: (int32_t)((0x100000000 * (int64_t)((int32_t)v9 >> 31) | v9 & 0xffffffff) / v1);
                 SetErrorStatus(deviceId, 0);
                 result = SetFuncStatusCode(deviceId, IE_SUCCESS /*0*/);
-            	dlog(LOG_DEBUG, "VISA_GetDataBlock() -> a4 = 0x%x\n", *a4);
+            	dlog(LOG_DEBUG, "VISA_GetDataBlock() -> a4 = %d\n", *a4);
                 return result;
             }
         }
@@ -1396,19 +1396,22 @@ int32_t VISA_CheckHWStatus(SET9052 *a1) {
     g3 = &v1;
     int16_t v2; // bp-8
     int32_t v3 = readStatusReg(a1, &v2); // 0x10001a62
-    int32_t v4 = 0xffffff00 /*-256*/;
+    //int32_t v4 = 0xffffff00 /*-256*/;
     int32_t v5 = v3; // 0x10001a8e
-    if ((0x10000 * v3 || 0xffff) < 0x1ffff) {
-        int32_t v6 = 16 * ((int32_t)v2 & 0xf0 /*240*/); // 0x10001a87
-        v4 = v6;
+    if (v3 != 0 /*(0x10000 * v3 || 0xffff) < 0x1ffff*/) {
+        int32_t v6 = ((int32_t)v2 & 0xf0 /*240*/) << 4; // 0x10001a87
+        //v4 = v6;
         v5 = v6;
-        // branch -> 0x10001a8e
+    } else {
+    	//v4 = 0xff00;
+        v5 = 0xff00;
     }
-    // 0x10001a8e
     g3 = v1;
-    int32_t result = v5 & 0xffff0000 /*-0x10000*/ | v4;
+    int32_t result = v5;
+    //int32_t result = v5 & 0xffff0000 /*-0x10000*/ | v4;
 	dlog(LOG_DEBUG, "VISA_CheckHWStatus() --> 0x%x\n", result);
-    return v5 & -0x10000 | v4;
+    //return v5 & -0x10000 | v4;
+	return result;
 }
 
 /*------------------------------------------------------------------------------------*/
