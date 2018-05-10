@@ -4671,7 +4671,7 @@ int32_t SetDetectLog(SET9052 *a1, int32_t mode_unused) {
 		return result;
 	}
 	int16_t *v2 = &a1->detect_code; // (int16_t *)(a1 + 128); // 0x10005bf1
-	int32_t v3 = (int32_t) *v2 | 6; // 0x10005bfb
+	int32_t v3 = (int32_t) *v2 | DTEC_LOG|DTEC_ENABL /*6*/; // 0x10005bfb
 	*v2 = (int16_t) v3;
 	*v2 = (int16_t) (v3 & -42);
 	int32_t v4 = SetRefLevel(a1, a1->ref_level /* *(int16_t *) (a1 + 98) */); // 0x10005c31
@@ -4727,7 +4727,7 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 					//*(int16_t *) (a1 + 102) = 1;
 					a1->PreampEnabled = IE_TRUE;
 					v13 = &a1->detect_code; // (int16_t *) (a1 + 128);
-					*v13 = *v13 | 64;
+					*v13 = *v13 | DTEC_ATTOFF /*64*/;
 					//*(int16_t *) (a1 + 96) = (int16_t) v12;
 					a1->attenuation = (int16_t) v12;
 					v8 = v10;
@@ -4742,7 +4742,7 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 			//*(int16_t *) (a1 + 102) = 0;
 			a1->PreampEnabled = IE_FALSE;
 			v13 = &a1->detect_code; // (int16_t *) (a1 + 128);
-			*v13 = *v13 | 64;
+			*v13 = *v13 | DTEC_ATTOFF /*64*/;
 			v7 = v12;
 			//*(int16_t *) (a1 + 96) = (int16_t) v12;
 			a1->attenuation = (int16_t) v12;
@@ -5661,8 +5661,10 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 								// v1 = data_format
 								int32_t v24; // 0x1000a68b
 								if (v1 == MR90XX_DBM_FORMAT /*0*/) {
-									GetDbmForAmpl(a1, *(int16_t *) (2 * v23 + points));
-									*(float64_t *) (8 * v23 + ra_data) = (float64_t) g159;
+									//GetDbmForAmpl(a1, *(int16_t *) (2 * v23 + points));
+									GetDbmForAmpl(a1, points[v23]);
+									//*(float64_t *) (8 * v23 + ra_data) = (float64_t) g159;
+									ra_data[v23] = (float64_t) g159;
 									g11++;
 								} else {
 									if (v1 == MR90XX_UV_FORMAT /*1*/) {
@@ -6195,7 +6197,8 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 										function_10002ea6(a1,fl);
 										// copy new float value to result array at position 'swpIndex'
 										dlog(LOG_DEBUG, "GetAmplWithFreqExt, ra_freq[%d] becomes %llf\n", v21, g159);
-										*(float64_t *) (8 * v21 + 8 * swpIndex + ra_freq) = (float64_t) g159;
+										// *(float64_t *) (8 * v21 + 8 * swpIndex + ra_freq) = (float64_t) g159;
+										ra_freq[v21+swpIndex] = (float64_t) g159;
 										g11++;
 										int16_t v34 = v22 + 1; // 0x1000bcab
 										int32_t v35 = v34; // 0x1000bcb3
@@ -6352,11 +6355,13 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
 		// 0x1000cecd
 		int32_t v4;
 		float80_t v5;
-		if ((a1->detect_code /* *(int16_t *) (a1 + 128) */ & 32) == 0) {
+		if ((a1->detect_code /* *(int16_t *) (a1 + 128) */ & DTEC_LIN /*32*/) == 0) {
+			dlog(LOG_DEBUG, "GetDbmForAmpl(%d), not DTEC_LIN\n", ampl);
 			// 0x1000cf00
 			g6 = ampl;
 			g8 = a1;
-			int32_t v6 = 0x10000 * getAttenuationSetting(a1) / 0x10000; // 0x1000cf1f
+			//int32_t v6 = 0x10000 * getAttenuationSetting(a1) / 0x10000; // 0x1000cf1f
+			int32_t v6 = getAttenuationSetting(a1);
 			g3 = v6;
 			v4 = g11 - 1;
 #ifdef ORIG
@@ -6368,6 +6373,7 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
 #endif
 			// branch -> 0x1000cf2e
 		} else {
+			dlog(LOG_DEBUG, "GetDbmForAmpl(%d), DTEC_LIN\n", ampl);
 			// 0x1000cede
 			g8 = a1;
 			GetnVForAmpl(a1, ampl);
@@ -6477,7 +6483,7 @@ int32_t GetnVForDbm(SET9052 *a1, float64_t dbm) {
 }
 
 int32_t GetnVForAmpl(SET9052 *a1, int16_t ampl) {
-	dlog(LOG_DEBUG, "GetnVForAmpl(%f)\n", ampl);
+	dlog(LOG_DEBUG, "GetnVForAmpl(%d)\n", ampl);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -6487,7 +6493,7 @@ int32_t GetnVForAmpl(SET9052 *a1, int16_t ampl) {
 	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 		// 0x1000cfca
 		float80_t v4;
-		if (a1->detect_code /* *(int16_t *) (a1 + 128) & 32) */ == 0) {
+		if (a1->detect_code /* *(int16_t *) (a1 + 128) & 32) */ & DTEC_LIN == 0) {
 			// 0x1000d026
 			g8 = a1;
 			GetDbmForAmpl(a1, ampl);
@@ -6572,7 +6578,7 @@ int32_t function_1000d05b(SET9052 *a1) {
 		g3 = (int32_t) v2 | v1 & -0x10000;
 		int16_t v3 = v2; // bp-8
 		int16_t v4 = v2; // 0x1000d0b9
-		if (( /* *(int16_t *) (a1 + 128)*/ a1->detect_code & 64) == 0) {
+		if (( /* *(int16_t *) (a1 + 128)*/ a1->detect_code & DTEC_ATTOFF /*64*/) == 0) {
 			int16_t v5 = v2 + 30; // 0x1000d098
 			g3 = ((int32_t) v2 | v1) & -0x10000 | (int32_t) v5;
 			v3 = v5;
