@@ -3738,6 +3738,7 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numWords,
 	}
 	dlog( LOG_INFO, "sa.c:SendCommand done --> 0x%x, ", result);
 	checkResponse(a1->engine_reply_code);
+	dlog( LOG_INFO, "\n");
 	return result;
 }
 
@@ -6140,8 +6141,8 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 						g6 = (g6 | (int32_t) v26) & -0x10000 | v24 & 0xffff;
 						dlog(LOG_DEBUG, "GetAmplWithFreqExt, pointPtr[%d] becomes 0x%x\n", v21, v24);
 						// DD XXX I have changed pointPtr from char* to int16_t*. So 2*v21 shall become v21 only. Check this.
-						*(int16_t *) (pointPtr + 2 * v21) = (int16_t) v24;
-						// Replace line above with this: pointPtr[v21] = (int16_t) v24;
+						//*(int16_t *) (pointPtr + 2 * v21) = (int16_t) v24;
+						pointPtr[v21] = (int16_t) v24;
 
 						int32_t v27 = 0;
 						// branch -> 0x1000bd56
@@ -6557,8 +6558,12 @@ int32_t getAttenuationSetting(SET9052 *a1) {
 			}
 		}
 		// 0x1000cf90
+#ifdef ORIG
 		result = (int32_t) v3
 				| SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
+#else
+		result = (int32_t) v3;
+#endif
 		// branch -> 0x1000cfa2
 	} else {
 		// 0x1000cf5a

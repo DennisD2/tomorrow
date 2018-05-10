@@ -765,7 +765,7 @@ int32_t readResponseRegT(SET9052 * deviceId, int32_t timeout, int16_t mask, int1
 		}
 
 		if (isLarger(&start, &now, timeout)) {
-			// timeout reached
+			dlog(LOG_ERROR, "readResponseRegT, timeout (%d ms) reached.\n", timeout);
 			toReached=1;
 		}
 	}
@@ -1196,7 +1196,7 @@ int32_t readDataWord(SET9052 *deviceId) {
     }
     v7 = SetErrorStatus(deviceId, v10);
     g3 = v1;
-	dlog(LOG_DEBUG, "readDataWord() ok --> 0x%x, 0x%x\n", v9, v7 & -0x10000 | (int32_t)v9);
+	dlog(LOG_DEBUG, "readDataWord() ok --> 0x%x, 0x%x\n", (v9&0xffff), v7 & -0x10000 | (int32_t)v9);
     return v7 & -0x10000 | (int32_t)v9;
 }
 
@@ -1208,21 +1208,13 @@ int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
     int32_t v2 = RdErrorStatus(deviceId); // 0x10001ae0
     int32_t v3; // 0x10001b00
     if (v2 == 0) {
-        // entry.dec_label_pc_10001b00_crit_edge
         v3 = v1;
-        // branch -> 0x10001b00
     } else {
-        // 0x10001aec
         if (dword != NULL) {
-            // 0x10001af2
             *dword = 1;
-            // branch -> 0x10001afa
         }
-        // 0x10001afa
         v3 = 0;
-        // branch -> 0x10001b00
     }
-    // 0x10001b00
 	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> v3,*dword = 0x%x,%d\n", v3, *dword);
     return v3 | v2 & -0x10000;
 }

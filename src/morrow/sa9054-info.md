@@ -75,7 +75,7 @@ Most codes are listed in file include/sa_defin.h:
 /*  Constant definitions of command numbers to the engine.                  */
 /* ------------------------------------------------------------------------ */
 #define ENG_INIT        0			4 WORDS:  unknown(4), Wert = 0. 
-									Testing shows that 3 (!?!) values are required.
+											  Testing shows that 3 (!?!) values are required.
 #define ENG_START_SWP   1			12 WORDS
 #define ENG_START_ZSPAN 2			10 WORDS
 #define ENG_START_FHOP  3			5 WORDS
@@ -84,7 +84,7 @@ Most codes are listed in file include/sa_defin.h:
 #define ENG_SET_INTMODE 6			1 WORD: intr_code
 #define ENG_TERMINATE   7			1 WORD: breakMode, value seen: 0
 #define ENG_CALIBRATE   10			(6 WORDS???)
-#define ENG_UNKNOWN1    11          8 WORDS, 6 WORDS, 2 WORDS
+#define ENG_UNKNOWN1    11        8 WORDS, 6 WORDS, 2 WORDS
 ```
 Own findings:
 
@@ -100,7 +100,7 @@ ENG_TERMINATE: takes 1 word. This seems to can have values as defines in sa_defi
 #define RESUME_SWP      3   /* Resume the current sweep.                    */
 ```
 
-ENG_INIT: takes 4 words. In code found, all values are 0.
+ENG_INIT: takes 4 words. In code found, all values are 0. But see my comment in table above (three instead of 4 values).
 
 ENG_SET_INTMODE: takes 1 word.
 	word[0] = a1->intr_code
@@ -132,8 +132,9 @@ ENG_START_SWP: takes 12 words.
 	words[10] = a1->cell_mode!=0? 0 : a1->num_cells; 
 	words[11] = a1->sweep_code; // Check code with IDA; there is RdEngOption which does sth. with sweep_code...
 ```
-filtercode is calculated by (vbw_code << 8)|rbw_code
-words[9] = a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
+fstart_l, fstop_l and fstep_l are 32 bit long values of the floating value a1->start,stop and step.
+filtercode is calculated by: (vbw_code << 8)|rbw_code
+words[9] = is calculated by: a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
 
 ## Shared Lib Function Table
 
@@ -214,7 +215,7 @@ Function Pointers from mtcsa.c to mtcvsa.c
     19     42    352 pnp.h
     37    104    968 sa.h
     51    147   1343 vximorrow.h
-  9859  36168 301758 insgesamt
+  9859  36168 301758 total
   ```
 --> 9859 Lines total.
 
@@ -234,6 +235,13 @@ visa += 	0
 ```
 
 ###Step 4: Addition of mr90xx_MeasureAmplWithFreq()
+```
+dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
+  1231 pnp.c
+  7741 sa.c
+  1344 visa.c
+ 10316 total
+```
 
 ## Done
 - Reconstruct arrays (VBWFreFromCode:done, RBWFreFromCode:done, GetRBWWide, DefltSetTimeRBW, DefltSetTimeVBW)
@@ -241,61 +249,15 @@ visa += 	0
 - replace all (a1 & 256) and such with a1->opcode & 256. 
    After checking, this cannot be done. There is no setting of opcode value anywhere.
 - Has VISA_GetDataBlock(() 5 or 6 args ? solve this! int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx, int32_t a3, int32_t *a4, /*int32_t*/int16_t *a5); Analysis result: it has 5 args.
+- Make VISA_SendWord() original again
+- Check if we can get rid of _initEngine() - it's away.
+- Check if VISA_SendCommand() is really ok reimplemented or if it must be converted back to ORIG version; it should only
+  use vi* functions. Ok, it seems to run ok.
+- rearrange MeasureAmplWithFreq with if vbwmode/rbwmode 
 
 ## Todos
-- in mr90xx_init, ENG_SET_TRIGDET arguments are not accepted by engine. sa.c:SendCommand 4 
-VISA_SendCommand(4=ENG_SET_TRIGDET, 8, e91090)
-wordPtr[0]=0x24
-wordPtr[1]=0x5
-wordPtr[2]=0x1f5
-wordPtr[3]=0x0
-wordPtr[4]=0x0
-wordPtr[5]=0x0
-wordPtr[6]=0x0
-wordPtr[7]=0x0
 
-Accepted values are later, in mr90xx_MeasureAmplWithFreq():
-VISA_SendCommand(4=ENG_SET_TRIGDET, 8, 40003b08)
-wordPtr[0]=0x46
-wordPtr[1]=0x1
-wordPtr[2]=0x0
-wordPtr[3]=0x28
-wordPtr[4]=0x0
-wordPtr[5]=0x0
-wordPtr[6]=0x0
-wordPtr[7]=0x0
-
-- Start sweep fails with 0xaa13 at 12th byte 
-VISA_SendCommand(1=ENG_START_SWP, 12, 7b03a988)
-VISA_SendCommand(1=ENG_START_SWP, 12, 7b03a980)
-wordPtr[0]=0x5f5   	 5f5.e100 = 100 Mio
-wordPtr[1]=0xe100
-wordPtr[2]=0x8f0     8f0.d180 = 150 Mio
-wordPtr[3]=0xd180
-wordPtr[4]=0x0
-wordPtr[5]=0x0
-wordPtr[6]=0x7b03
-wordPtr[7]=0xa950
-wordPtr[8]=0x7b03
-wordPtr[9]=0xa950
-wordPtr[10]=0x0
-wordPtr[11]=0x0
-
-based on 
-StartSweep (start,stop,step)
-ftol(100000000.000000) -> 100000000
-function_10002df9(100000000.000000) --> 100000000 <-- Warum? Eingestellt waren 149.000.000 ???
-ftol(150000000.000000) -> 150000000
-function_10002df9(150000000.000000) --> 150000000 
-ftol(-0.000001) -> 0
-function_10002df9(-0.000001) --> 0 <-- looks wrong
-
-
-- Make VISA_SendWord() original again
 - Make dd_readEngineStatus() original again(find out original name and make code use vi* only)
-- Check if we can get rid of _initEngine()
-- Check if VISA_SendCommand() is really ok reimplemented or if it must be converted back to ORIG version; it should only
-  use vi* functions.
 - Fix Error mapping ENG->SW domain
 - Check all "DD XXX" and "TODO" notes and solve the issues
 - SetVBWmode uses AUTO_ON/OFF and not VI_TRUE/FALSE. Replace this everywhere.
@@ -307,325 +269,62 @@ function_10002df9(-0.000001) --> 0 <-- looks wrong
 - mr90xx_init() OK with tweaks
 - mr90xx_setEngine() OK 
 - mr90xx_initGuiSweep() OK with tweaks
-- mr90xx_MeasureAmplWithFreq: Currently analyzed
+- mr90xx_MeasureAmplWithFreq: Runs ok and sets analyzer to run sweeping, but data fetching from device has bugs. I am on that.
 
-As soon as mr90xx_MeasureAmplWithFreq() works, aquisition data can be retrieved from the Spectrum Analyzer.
-
-bash-4.3$ ./morrow 
-----------------------------------------
-main start
-ACK
-mr90xx_OpenSession, session added to position 1.
-mr90xx_init OK
-
-mr90xx_SetEngineModel OK
-
-mr90xx_InitGuiSweep OK
-
-MeasureAmplWithFreq
-RdMinFreqLimit 3 --> 0x40000000
-FreqInRange(149000000.000000) -> 1
-RdMinFreqLimit 3 --> 0x40000000
-FreqInRange(150000000.000000) -> 1
-SetSweepCode(1)
-RBWFreqFromCode(0); frequencyLimit_rbwFrequency was set to: 300.000000 
-VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
-VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
-ftol(0.000000) -> 0
-IsValidStep() -> 1
-DefltSetTimeRBW(0) -> 6000
-DefltSetTimeVBW(1) -> 250000
-DefltSetTimeRBW(0) -> 6000
-DefltSetTimeVBW(1) -> 250000
-SetRBWmode(mode=0x0)
-SetRBW(0x5)
-RBWFreqFromCode(5); frequencyLimit_rbwFrequency was set to: 3000000.000000 
-VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
-VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
-ftol(0.000000) -> 0
-IsValidStep() -> 1
-DefltSetTimeRBW(5) -> -1
-DefltSetTimeVBW(1) -> 250000
-DefltSetTimeRBW(5) -> -1
-DefltSetTimeVBW(1) -> 250000
-SetVBWmode(0x1)
-ConfigStartFreq(149000000.000000)
-RdMinFreqLimit 3 --> 0x40000000
-FreqInRange(149000000.000000) -> 1
-SetFuncStatusCode(fffd)
-ConfigStartFreq(150000000.000000)
-RdMinFreqLimit 3 --> 0x40000000
-FreqInRange(150000000.000000) -> 1
-RBWFreqFromCode(5); frequencyLimit_rbwFrequency was set to: 3000000.000000 
-VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
-VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
-ftol(0.000000) -> 0
-IsValidStep() -> 1
-DefltSetTimeRBW(5) -> -1
-DefltSetTimeVBW(1) -> 250000
-SetRefLevel(2)
-SetNumCells(40)
-RBWFreqFromCode(5); frequencyLimit_rbwFrequency was set to: 3000000.000000 
-VBWFreqFromCode(7); frequencyLimit was set to: 3000000.000000 
-VBWFreqFromCode(1); frequencyLimit was set to: 3.000000 
-ftol(0.000000) -> 0
-IsValidStep() -> 1
-DefltSetTimeRBW(5) -> -1
-DefltSetTimeVBW(1) -> 250000
-RdNumSwpPts --> 40
+As soon as mr90xx_MeasureAmplWithFreq() works fully, aquisition data can be retrieved from the Spectrum Analyzer.
 
 
-sa.c:BreakSweep, mode=0
+This is what the demo program dumps out. It is amplitude and frequency data from a 40 points sweep
+in range 149Mhz..150Mhz. A small rod antenna is connected to the device input.
 
-sa.c:SendCommand 7
-VISA_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
-wordPtr[0]=0x0
-DLFMModeOff(unused=0x0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        write2StatusReg(word 7cac=P2?,0x7cac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7cac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        checkDLFMBitClear() --> 0
-DLFMModeOff(unused=0x0) 1 --> -2
+-42db is default attenuation setting. So all amplitude values are slightly above that level.
 
-dd_SendCommand(7=ENG_TERMINATE, 1, 7b03a980)
-words[0]=0x0
+The amplitude value (16 bit) is read in as a single word, the fetched data is in range 0x20..0x40 
+(possible range is 0x0000..0xffff). This looks wrong.
 
-dd_wsCommand(command=0xcdff,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 94us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
+The frequency value is read in as low and high byte of a 32 bit value. The fetched words are also in range 0x00..0x40,
+so I think all values fetched are incorrect. 
 
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 90us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-?
+This needs further analysis.
 
-dd_p1Command(0x7)
-        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WR time: 89 us
-        WRITEREADY after 1 tries.
-        reg[0x5]=0x4980 mask=0x200 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WR2 time: 5448 us
-        WRITEREADY2 after 3 tries.
+Amplitude =      42.33, Frequency =    3014706
+Amplitude =      42.33, Frequency =    2752560
+Amplitude =      42.34, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2752556
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.37, Frequency =    2883630
+Amplitude =      42.42, Frequency =    2883626
+Amplitude =      42.33, Frequency =    3014700
+Amplitude =      42.33, Frequency =    3145774
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2883626
+Amplitude =      42.33, Frequency =    3014704
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2883626
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.48, Frequency =    2752554
+Amplitude =      42.33, Frequency =    3014700
+Amplitude =      42.36, Frequency =    2752554
+Amplitude =      42.34, Frequency =    2752560
+Amplitude =      42.37, Frequency =    3145772
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2752558
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    3014698
+Amplitude =      42.33, Frequency =    2883626
+Amplitude =      42.37, Frequency =    3276852
+Amplitude =      42.34, Frequency =    3014702
+Amplitude =      42.33, Frequency =    3407914
+Amplitude =      42.33, Frequency =    2752560
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.36, Frequency =    2752558
+Amplitude =      42.34, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2752558
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    2752554
+Amplitude =      42.33, Frequency =    3538988
+Amplitude =      42.33, Frequency =    2883630
+Amplitude =      42.34, Frequency =    2752554
 
-dd_wsCommand(command=0xcdff,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 86us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 87us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-
-dd_p1Command(0x0)
-        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WR time: 88 us
-        WRITEREADY after 1 tries.
-        reg[0x5]=0x4980 mask=0x200 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WR2 time: 4959 us
-        WRITEREADY2 after 3 tries.
-
-dd_wsCommand(command=0xcdff,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 87us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 87us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-?
-VISA_CheckSWStatus: 
-dd_readEngineStatus
-DLFMModeOff(unused=0x3ac8)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        write2StatusReg(word 7cac=P2?,0x7cac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7cac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        checkDLFMBitClear() --> 0
-DLFMModeOff(unused=0x3ac8) 1 --> -2
-_sendCommand: 7e00=VXI_GETSTATUS
-_doSendWord 7e00=VXI_GETSTATUS
-InitTimeoutLoop(2063838308)
-        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
-        readResponseReg(a2=0x200) --> -65535
-        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
-
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 108us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
-SetErrorStatus(1)
-        DLFMModeOn
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7eac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        checkDLFMBitSet 2 --> -65536
-        DLFMModeOn leave 1 --> 0xfffffffe
-dd_readEngineStatus result=0
-SetEngineReplyCode(0)
-dd_readEngineStatus
-DLFMModeOff(unused=0x0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7dac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        checkDLFMBitClear() --> 0
-DLFMModeOff(unused=0x0) 1 --> -2
-_sendCommand: 7e00=VXI_GETSTATUS
-_doSendWord 7e00=VXI_GETSTATUS
-InitTimeoutLoop(2063838308)
-        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
-        readResponseReg(a2=0x200) --> -65535
-        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
-
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 92us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
-SetErrorStatus(1)
-        DLFMModeOn
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7eac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        checkDLFMBitSet 2 --> -65536
-        DLFMModeOn leave 1 --> 0xfffffffe
-dd_readEngineStatus result=0
-SetEngineReplyCode(0)
-dd_readEngineStatus
-DLFMModeOff(unused=0x0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7dac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        checkDLFMBitClear() --> 0
-DLFMModeOff(unused=0x0) 1 --> -2
-_sendCommand: 7e00=VXI_GETSTATUS
-_doSendWord 7e00=VXI_GETSTATUS
-InitTimeoutLoop(2063838308)
-        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
-        readResponseReg(a2=0x200) --> -65535
-        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
-
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 187us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
-SetErrorStatus(1)
-        DLFMModeOn
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7eac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        checkDLFMBitSet 2 --> -65536
-        DLFMModeOn leave 1 --> 0xfffffffe
-dd_readEngineStatus result=0
-SetEngineReplyCode(0)
-dd_readEngineStatus
-DLFMModeOff(unused=0x0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7dac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        checkDLFMBitClear() --> 0
-DLFMModeOff(unused=0x0) 1 --> -2
-_sendCommand: 7e00=VXI_GETSTATUS
-_doSendWord 7e00=VXI_GETSTATUS
-InitTimeoutLoop(2063838308)
-        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
-        readResponseReg(a2=0x200) --> -65535
-        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
-
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 93us (1 tries).
-        reg[0x5]=0x4980 mask=0x400 masked=0, ,
-        reg[0x5]=0x4b80 mask=0x400 masked=0, ,WR
-Timeout occurred during wait for READREADY.
-        WScmdAlike() -> ret=0xffff, response=0x1, rpe=0x0. Returning 0xffff
-SetErrorStatus(1)
-        DLFMModeOn
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        write2StatusReg(word 7eac=P2?,0x7eac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7eac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        checkDLFMBitSet 2 --> -65536
-        DLFMModeOn leave 1 --> 0xfffffffe
-dd_readEngineStatus result=0
-SetEngineReplyCode(0)
-dd_readEngineStatus
-DLFMModeOff(unused=0x0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7fac
-        readStatusReg() -> v2: 0x0, response: 0x7fac
-        write2StatusReg(word 7dac=P2?,0x7dac, 0x0)
-        dd_viOut16(1, 0x1, 0x4, 0x7dac)
-InitTimeoutLoop(0)
-        dd_viIn16(1, 0x1, 0x4) --> 0x7cac
-        readStatusReg() -> v2: 0x0, response: 0x7cac
-        checkDLFMBitClear() --> 0
-DLFMModeOff(unused=0x0) 1 --> -2
-_sendCommand: 7e00=VXI_GETSTATUS
-_doSendWord 7e00=VXI_GETSTATUS
-InitTimeoutLoop(2063838308)
-        dd_viIn16(1, 0x1, 0xa) --> 0x4b80
-        readResponseReg(a2=0x200) --> -65535
-        WScmdAlike(1, 1, 14, 0x7e00=VXI_GETSTATUS)
-
-dd_wsCommand(command=0x7e00,readAnswer=1)
-        XX reg[0x5]=0x4b80 mask=0x200 masked=200, ,WR
-        WRITEREADY after 94us (1 tries).
