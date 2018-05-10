@@ -6336,12 +6336,9 @@ int32_t wrapGetDataBlock(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
 		result = VISA_GetDataBlock(a1, (int64_t)reversePointIndex, a3, a4, a5 /*, pointPtr*/);
 #endif
 	} else {
-		// 0x100040e0
 		g8 = v1;
 		result = GetFuncStatusCode(v1);
-		// branch -> 0x10004131
 	}
-	// 0x10004131
 	return result;
 }
 
@@ -6353,13 +6350,11 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x1000ceb6
 	int32_t result = v2; // 0x1000cf42
 	float80_t v3 = -1000.0L;
-	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-		// 0x1000cecd
+	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
 		int32_t v4;
 		float80_t v5;
 		if ((a1->detect_code /* *(int16_t *) (a1 + 128) */ & DTEC_LIN /*32*/) == 0) {
 			dlog(LOG_DEBUG, "GetDbmForAmpl(%d), not DTEC_LIN\n", ampl);
-			// 0x1000cf00
 			g6 = ampl;
 			g8 = a1;
 			//int32_t v6 = 0x10000 * getAttenuationSetting(a1) / 0x10000; // 0x1000cf1f
@@ -6373,25 +6368,19 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
 			// See sa_defin.h line 367
 			v5 = (float80_t) ampl / DB_CONVERT_CONST  + (float80_t) v6;
 #endif
-			// branch -> 0x1000cf2e
 		} else {
 			dlog(LOG_DEBUG, "GetDbmForAmpl(%d), DTEC_LIN\n", ampl);
-			// 0x1000cede
 			g8 = a1;
 			GetnVForAmpl(a1, ampl);
 			g11++;
 			g3 = GetDbmForVoltage(a1, (float64_t) g159);
 			v4 = g11;
 			v5 = g159;
-			// branch -> 0x1000cf2e
 		}
-		// 0x1000cf2e
 		g11 = v4 + 1;
 		result = SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		v3 = v5;
-		// branch -> 0x1000cf3f
 	}
-	// 0x1000cf3f
 	g159 = v3;
 	g11--;
 	g4 = v1;
@@ -6535,7 +6524,6 @@ int32_t GetnVForAmpl(SET9052 *a1, int16_t ampl) {
 
 // function_1000cf43
 int32_t getAttenuationSetting(SET9052 *a1) {
-	// 0x1000cf43
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000cf4b
 	int32_t result;
@@ -6546,31 +6534,23 @@ int32_t getAttenuationSetting(SET9052 *a1) {
 		int16_t v4 = a1->PreampAvailable; // *(int16_t *) (a1 + 100); // 0x1000cf6e
 		g8 = v4;
 		if (v4 != 0) {
-			// 0x1000cf76
 			g3 = a1;
 			if (a1->PreampEnabled /* *(int16_t *) (a1 + 102) */ != 0) {
-				// 0x1000cf81
 				g8 = a1;
 				int16_t v5 = atten - a1->PreampGain; // *(int16_t *) (a1 + 104); // 0x1000cf88
 				g3 = (int32_t) v5 | ((int32_t) atten | (int32_t) a1) & -0x10000;
 				v3 = v5;
-				// branch -> 0x1000cf90
 			}
 		}
-		// 0x1000cf90
 #ifdef ORIG
 		result = (int32_t) v3
 				| SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
 #else
 		result = (int32_t) v3;
 #endif
-		// branch -> 0x1000cfa2
 	} else {
-		// 0x1000cf5a
 		result = v1 | 0xffff;
-		// branch -> 0x1000cfa2
 	}
-	// 0x1000cfa2
 	return result;
 }
 
@@ -7593,7 +7573,7 @@ int32_t function_100039d0(SET9052 *a1, int16_t *a2) {
 		g8 = v1;
 		result = GetFuncStatusCode(v1);
 	}
-	dlog(LOG_DEBUG, "function_100039d0() --> result,*a2 = 0x%x,%d \n", result, *a2);
+	dlog(LOG_DEBUG, "function_100039d0() --> result=0x%x\n", result);
 	return result;
 }
 
