@@ -19,6 +19,10 @@
 #include "helper.h"
 #include "vximorrow.h"
 
+// Data Low Fill Mode DLFM
+#define DLFM_BIT 0x200 /*512*/
+#define DLFM_READY_BIT 0x100 /*256*/
+
 static int32_t m_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t val16);
 static int32_t m_viIn16(int32_t session_handle, int32_t space, int32_t offset, int16_t *val16);
 
@@ -429,12 +433,12 @@ int32_t _sendCommand(SET9052 *deviceId, int16_t command) {
 // Sets bit 9 and waits until bit 8 is set or timeout.
 // function_100016c8
 int32_t DLFMModeOn(SET9052 *deviceId) {
-	dlog( LOG_DEBUG, "\tDLFMModeOn\n");
+	dlog( LOG_DEBUG, "\tDLFMModeOn()\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t timeout = RdTimeoutWait(deviceId); // 0x100016d2
     uint16_t v3; // bp-20
-    if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
+    if (readStatusReg(deviceId, &v3) >= 1 /*(0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff*/) {
         g5 = deviceId;
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001707
         g3 = v1;
@@ -442,32 +446,31 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
         return result;
     }
     uint16_t v4 = v3; // 0x10001710
-    // DD : next line set bit position 9 (counted from zero)
-    // This sets DLFM mode,
-   uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | WRITEREADY /*512*/; // 0x10001714
+    // DD : next line set bit position 9 (counted from zero). This sets DLFM mode
+    uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | DLFM_BIT /*512*/; // 0x10001714
     v3 = v5;
-    int32_t v6 = 0x10000 * v5 / 0x10000; // 0x1000171b
+    int32_t v6 = v5; // 0x1000171b
     g2 = v6;
     int32_t result2; // 0x100017e0
-    if ((0x10000 * writeStatusReg(deviceId, (int16_t)v6, v6, 0) || 0xffff) < 0x1ffff) {
+    if (writeStatusReg(deviceId, (int16_t)v6, v6, 0) < 1) {
         InitTimeoutLoop(0);
         int32_t v7;
         while (true) {
-            int32_t v8 = 0x10000 * checkDLFMBitSet(deviceId, &v3); // 0x10001764
-            if ((v8 || 0xffff) < 0x1ffff) {
+            int32_t v8 = /*0x10000 * */ checkDLFMBitSet(deviceId, &v3); // 0x10001764
+            if (/*(v8 || 0xffff) < 0x1ffff*/ v8 == 0) {
                 v7 = v8 / 0x10000;
                 g5 = v7;
                 SetErrorStatus(deviceId, v7);
                 g3 = v1;
-            	dlog( LOG_DEBUG, "\tDLFMModeOn leave 1 --> 0x%x\n", -2);
+            	dlog( LOG_DEBUG, "\tDLFMModeOn leave ok --> 0x%x\n", -2);
                 return -2;
             }
-            if ((0x10000 * TestTimeoutDone(timeout) || 0xffff) >= 0x1ffff) {
+            if (  TestTimeoutDone(timeout) /*(0x10000 * TestTimeoutDone(timeout) || 0xffff) >= 0x1ffff*/) {
                 break;
             }
         }
-        int32_t v9 = 0x10000 * checkDLFMBitSet(deviceId, &v3); // 0x100017ac
-        v7 = v9 / 0x10000;
+        int32_t v9 = /* 0x10000 * */ checkDLFMBitSet(deviceId, &v3); // 0x100017ac
+        v7 = v9 /* / 0x10000 */;
         g5 = v7;
         SetErrorStatus(deviceId, v7);
         result2 = -2;
@@ -475,7 +478,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
         result2 = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
     }
     g3 = v1;
-	dlog( LOG_DEBUG, "\tDLFMModeOn leave 2 --> 0x%x\n", result2);
+	dlog( LOG_DEBUG, "\tDLFMModeOn leave 3 --> 0x%x\n", result2);
     return result2;
 }
 
@@ -693,8 +696,8 @@ int32_t writeStatusReg(SET9052 *deviceId, uint16_t word, int32_t unused, int32_t
 // Check DLFM bit 8 in status register for being set.
 // returns 0 if set, 3 if cleared.
 // function_100017e1
-int32_t checkDLFMBitSet(SET9052 *deviceId, int16_t * a2) {
-	//dlog( LOG_DEBUG, "\tcheckDLFMBitSet\n");
+int32_t checkDLFMBitSet(SET9052 *deviceId, int16_t *a2) {
+	//dlog( LOG_DEBUG, "\tcheckDLFMBitSet()\n");
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t v2;
@@ -708,7 +711,7 @@ int32_t checkDLFMBitSet(SET9052 *deviceId, int16_t * a2) {
     int16_t v3; // bp-12
     int32_t v4; // 0x1000182b
     // Check if Bit 8 is set
-    if ((*a2 & (1<<8) /*256*/) != 0) {
+    if ((*a2 & DLFM_READY_BIT /* (1<<8) = 256*/) != 0) {
         v3 = IE_SUCCESS /*0*/;
         v4 = 0;
     } else {
@@ -858,7 +861,7 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
     g3 = &v1;
     int32_t timeout = RdTimeoutWait(deviceId); // 0x100010eb
     uint16_t v3; // bp-20
-    if ((0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff) {
+    if (readStatusReg(deviceId, &v3)  >= 1 /*(0x10000 * readStatusReg(deviceId, &v3) || 0xffff) >= 0x1ffff*/) {
         int32_t result = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe; // 0x10001120
         g3 = v1;
     	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x) 1 --> %d\n", unused, result) ;
@@ -870,27 +873,27 @@ int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
     v3 = v4;
     int32_t v5 = v4; // 0x10001136
     g2 = v5;
-    int32_t v6 = 0x10000 * writeStatusReg(deviceId, v4, v5, 0); // 0x10001147
-    g7 = v6 / 0x10000;
+    int32_t v6 = /* 0x10000 * */ writeStatusReg(deviceId, v4, v5, 0); // 0x10001147
+    g7 = v6 /* / 0x10000*/;
     int32_t result2; // 0x100011fb
-    if ((v6 || 0xffff) < 0x1ffff) {
+    if (v6 < 1 /*(v6 || 0xffff) < 0x1ffff*/) {
         InitTimeoutLoop(0);
         while (true) {
-            int32_t v7 = 0x10000 * checkDLFMBitClear(deviceId, &v3); // 0x1000117f
-            if ((v7 || 0xffff) < 0x1ffff) {
+            int32_t v7 = /*0x10000 * */ checkDLFMBitClear(deviceId, &v3); // 0x1000117f
+            if (v7 < 1 /*(v7 || 0xffff) < 0x1ffff*/) {
                 g7 = deviceId;
-                SetErrorStatus(deviceId, v7 / 0x10000);
+                SetErrorStatus(deviceId, v7 /* / 0x10000*/);
                 g3 = v1;
-            	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x) 1 --> -2\n", unused) ;
+            	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x) ok --> -2\n", unused) ;
                 return -2;
             }
-            if ((0x10000 * TestTimeoutDone(timeout) || 0xffff) >= 0x1ffff) {
+            if (TestTimeoutDone(timeout) >= 1 /*(0x10000 * TestTimeoutDone(timeout) || 0xffff) >= 0x1ffff*/) {
                 break;
             }
         }
-        int32_t v8 = 0x10000 * checkDLFMBitClear(deviceId, &v3); // 0x100011c7
+        int32_t v8 = /* 0x10000 * */ checkDLFMBitClear(deviceId, &v3); // 0x100011c7
         g7 = deviceId;
-        SetErrorStatus(deviceId, v8 / 0x10000);
+        SetErrorStatus(deviceId, v8 /* / 0x10000*/);
         result2 = -2;
     } else {
         result2 = SetErrorStatus(deviceId, 1) & -0x10000 | 0xfffe;
@@ -934,7 +937,7 @@ int32_t checkDLFMBitClear(SET9052 *deviceId, int16_t *a2) {
     int16_t v3; // bp-12
     int32_t v4; // 0x100012e1
     // Check bit 8
-    if ((*a2 & (1<<8) /*256*/) == 0) {
+    if ((*a2 & DLFM_READY_BIT /*(1<<8) = 256*/) == 0) {
         v3 = IE_SUCCESS /*0*/;
         v4 = 0;
     } else {
@@ -1215,7 +1218,7 @@ int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
         }
         v3 = 0;
     }
-	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> v3,*dword = 0x%x,%d\n", v3, *dword);
+	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> 0x%x\n", v3);
     return v3 | v2 & -0x10000;
 }
 

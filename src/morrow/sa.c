@@ -4141,7 +4141,7 @@ static struct timespec start, stop;
 static int timerRunning = 0;
 
 int32_t InitTimeoutLoop(int32_t a1) {
-	dlog(LOG_DEBUG, "InitTimeoutLoop(%d)\n", a1);
+	dlog(LOG_DEBUG, "\tInitTimeoutLoop(%d)\n", a1);
 	if (timerRunning) {
 		dlog(LOG_ERROR, "InitTimeoutLoop(%d), timer already running\n");
 		return 0;
@@ -4161,7 +4161,7 @@ int32_t InitTimeoutLoop(int32_t a1) {
 }
 
 int32_t TestTimeoutDone(int32_t a1) {
-	dlog(LOG_DEBUG, "TestTimeoutDone(%d)\n", a1);
+	dlog(LOG_DEBUG, "\tTestTimeoutDone(%d)\n", a1);
 
 #ifdef ORIG
 	int32_t v1 = IeTimerFrom(g94); // 0x1000d4d3
