@@ -400,7 +400,7 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
 	dlog( LOG_INFO, "VISA_SendWord: %x\n", command);
     int16_t v1 = -2; // bp-8
     g2 = deviceId;
-#ifdef ORIG
+#ifdef true
     int32_t v2 = sendWord(deviceId, VXI_ENGINECMD /*0x7f00*/); // 0x100019db
     g2 = v2;
     if (v2 != 0) {
@@ -1020,8 +1020,8 @@ int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	dlog( LOG_DEBUG, "\t_imported_function_ord_130(%d, %d)\n", a1, a2);
 }
 
-
-void _initEngine(INST id, int argc) {
+#ifdef _1ST_TRY
+void _initEngine(INST id) {
 	unsigned int ret;
 	uint16_t response, rpe;
 
@@ -1052,7 +1052,7 @@ void _initEngine(INST id, int argc) {
 		exit(0);
 	}
 }
-
+#endif
 
 int _getStatus(INST id, int *fifo, int *status) {
 	unsigned short cmd = VXI_GETSTATUS;
@@ -1111,7 +1111,7 @@ int32_t dd_viOpen(int32_t a1, char *session_string, int32_t a3, int32_t a4, int3
 	*session_id = id;
 	itimeout (id, 10000);
 
-	_initEngine(id, 2);
+	//_initEngine(id);
 	sleep(1);
 
 #else
@@ -1156,25 +1156,6 @@ int32_t m_viOut16(int32_t session_handle, int32_t space, int32_t offset, int16_t
 	int32_t ret = dd_viOut16(session_handle, space, offset, val16);
 	return ret;
 }
-
-#ifdef _1ST_TRY
-/**
- * Return value is 0 on success. This can be seen e.g. in _doSendWord() where processing stops
- * if we return sth. different from 0.
- */
-// Was _imported_function_ord_262 which equals ViOut16
-int32_t dd_viWsCmdAlike(int32_t session_handle, int32_t a2, int32_t a3, int32_t command) {
-	dlog( LOG_DEBUG, "\tWScmdAlike(%d, %d, %d, 0x%x=%s)\n", session_handle, a2, a3, command, getCmdNameP2(command));
-	uint16_t ret;
-	uint16_t cmd = command;
-	uint16_t response;
-	uint16_t rpe;
-
-	ret = dd_wsCommand(session_handle, cmd, &response, &rpe);
-	dlog( LOG_DEBUG, "\tWScmdAlike() -> ret=0x%x, response=0x%x, rpe=0x%x. Returning 0x%x\n", ret, response, rpe, ret);
-	return ret;
-}
-#endif
 
 int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 	dlog( LOG_DEBUG, "viSetBuf(%d,%d,%d)\n", session_handle, mask, size);
