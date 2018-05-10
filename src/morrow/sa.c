@@ -3702,9 +3702,9 @@ int32_t updateSweepInProgValue(SET9052 *a1, uint16_t value) {
 	return result;
 }
 
-int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes,
+int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numWords,
 		uint16_t *wordPtr) {
-	dlog( LOG_INFO, "\nsa.c:SendCommand %x\n", command);
+	dlog( LOG_INFO, "\nsa.c:SendCommand(command=%x, numWords=%d)\n", command, numWords);
 	SET9052 *v1 = a1; // 0x10003b52
 	g3 = v1;
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003b56
@@ -3730,13 +3730,14 @@ int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numBytes,
 		}
 		result = (int32_t) v1 & -0x10000 | 0xffeb;
 #else
-		result = VISA_SendCommand(a1, command, numBytes, wordPtr);
+		result = VISA_SendCommand(a1, command, numWords, wordPtr);
 #endif
 	} else {
 		g8 = v1;
 		result = GetFuncStatusCode(v1);
 	}
-	dlog( LOG_INFO, "\n\nsa.c:SendCommand done --> 0x%x\n", result);
+	dlog( LOG_INFO, "sa.c:SendCommand done --> 0x%x, ", result);
+	checkResponse(a1->engine_reply_code);
 	return result;
 }
 

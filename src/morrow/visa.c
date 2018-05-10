@@ -247,10 +247,10 @@ int32_t VISA_InitEngine(SET9052 *deviceId) {
  * a number of bytes (numBytes) in memory, starting at location 'wordPtr'. All bytes are sent
  * in chunks of a word (2 bytes) by using the function 'VISA_SendWord'.
  */
-int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numBytes, uint16_t *wordPtr) {
-	dlog( LOG_DEBUG, "VISA_SendCommand(%x=%s, %d, %lx)\n", command, getCmdNameP1(command), numBytes, wordPtr);
+int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numWords, uint16_t *wordPtr) {
+	dlog( LOG_DEBUG, "VISA_SendCommand(%x=%s, numWords=%d)\n", command, getCmdNameP1(command), numWords);
     int i;
-    for (i=0; i<numBytes; i++) {
+    for (i=0; i<numWords; i++) {
     	dlog( LOG_DEBUG, "wordPtr[%d]=0x%x\n", i, wordPtr[i] );
     }
 #ifdef ORIG
@@ -358,35 +358,24 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numBytes, u
     	return -1;
     }
 
-#ifdef TRY_1
 	uint16_t response, rpe;
-	// Check status before sending command
-	dd_wsCommand(deviceId, VXI_GETSTATUS, &response, &rpe);
     // Send command
     VISA_SendWord(deviceId, command);
     // Send parameter words
-    if (numBytes>0) {
+    if (numWords>0) {
     	int i;
-        for (i=0; i<numBytes; i++) {
+        for (i=0; i<numWords; i++) {
         	VISA_SendWord(deviceId, wordPtr[i]);
-    		// check for protocol errors
-    	    //int32_t v1 = _sendCommand(deviceId, 0xcdff);
-    		//uint16_t response, rpe;
-    		dd_wsCommand(deviceId, VXI_GETSTATUS, &response, &rpe);
-    		checkResponse(response);
+    		//dd_wsCommand(deviceId, VXI_GETSTATUS, &response, &rpe);
+    		//checkResponse(response);
         }
 		int32_t status = VISA_CheckSWStatus(deviceId);
+    	dlog( LOG_DEBUG, "VISA_SendCommand status=0x%x.\n", deviceId->engine_reply_code);
         if ((status & 0xffff) != 1) {
         	dlog( LOG_DEBUG, "VISA_SendCommand failed, status=%d.\n", status);
         }
     }
-#else
-    dd_SendCommand(deviceId, command, numBytes, wordPtr);
-	int32_t status = VISA_CheckSWStatus(deviceId);
-    if ((status & 0xffff) != 1) {
-    	dlog( LOG_DEBUG, "VISA_SendCommand may have failed(?), status=%d.\n", status);
-    }
-#endif
+    DLFMModeOn(deviceId);
     return 0;
 #endif
 }
@@ -397,10 +386,10 @@ int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numBytes, u
  * will then be forwarded to P1.
  */
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
-	dlog( LOG_INFO, "VISA_SendWord: %x\n", command);
+	dlog( LOG_DEBUG, "VISA_SendWord(%x)\n", command);
     int16_t v1 = -2; // bp-8
     g2 = deviceId;
-#ifdef true
+
     int32_t v2 = sendWord(deviceId, VXI_ENGINECMD /*0x7f00*/); // 0x100019db
     g2 = v2;
     if (v2 != 0) {
@@ -413,11 +402,6 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
     } else {
         dlog( LOG_ERROR, "VISA_SendWord: failed (2)\n");
     }
-#else
-    int readAnswer = 0;
-    dd_p1Command(deviceId->session_handle, command, readAnswer);
-    int32_t v3 = 1;
-#endif
     return (int32_t)v1 | v3 & -0x10000;
 }
 
@@ -425,7 +409,7 @@ int32_t VISA_SendWord(SET9052 *deviceId, int16_t command) {
  * Function to send a command/word to P2 CPU. Simply the command is written.
  */
 int32_t _sendCommand(SET9052 *deviceId, int16_t command) {
-	dlog( LOG_DEBUG, "_sendCommand: %x=%s\n", command, getCmdNameP2((command&0xffff)));
+	dlog( LOG_DEBUG, "_sendCommand(%x=%s)\n", command, getCmdNameP2((command&0xffff)));
     int32_t v1 = g3; // bp-4
     g3 = &v1;
     int32_t response; // bp-12
@@ -1019,40 +1003,6 @@ int32_t _imported_function_ord_130(int32_t a1, int32_t a2) {
 	return 0;
 	dlog( LOG_DEBUG, "\t_imported_function_ord_130(%d, %d)\n", a1, a2);
 }
-
-#ifdef _1ST_TRY
-void _initEngine(INST id) {
-	unsigned int ret;
-	uint16_t response, rpe;
-
-	dlog(LOG_DEBUG, "_initEngine\n");
-	dd_wsCommand(id, WS_CMD_ANO, &response, &rpe);
-	dd_wsCommand(id, WS_CMD_BNO, &response, &rpe);
-
-	dd_wsCommandNoAnswer(id, VXI_RESETENG, &response, &rpe);
-
-	// Send ENG_INIT with 3 word parameters, all value 0
-	// This was tested and works.
-	// (Code is different and sends 4 words !?!).
-	dd_p1Command(id, ENG_INIT, 0);
-	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
-	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
-	dd_p1Command(id, 0, 0);
-	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
-	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
-	dd_p1Command(id, 0, 0);
-	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
-	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
-	dd_p1Command(id, 0, 0);
-	dd_wsCommand(id, WS_CMD_RPE, &response, &rpe);
-	dd_wsCommand(id, VXI_GETSTATUS, &response, &rpe);
-
-	if (checkResponse(response) != 0) {
-		dlog(LOG_DEBUG, "_initEngine failed. Exiting.\n");
-		exit(0);
-	}
-}
-#endif
 
 int _getStatus(INST id, int *fifo, int *status) {
 	unsigned short cmd = VXI_GETSTATUS;

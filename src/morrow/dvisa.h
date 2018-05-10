@@ -16,7 +16,7 @@ int32_t VISA_ResetEngine(SET9052 *deviceId);
 
 int32_t VISA_OpenSessionStep(SET9052 * deviceId);
 int32_t VISA_SendWord(SET9052 *deviceId, int16_t command);
-int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numBytes, uint16_t *wordPtr);
+int32_t VISA_SendCommand(SET9052 *deviceId, int16_t command, int16_t numWords, uint16_t *wordPtr);
 
 int32_t VISA_ClearDataFIFO(SET9052 *deviceId);
 // We have a problem in 5 or 6 params for the next function: commented out till cleared!

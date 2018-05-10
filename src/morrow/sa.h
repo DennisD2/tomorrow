@@ -25,7 +25,7 @@ int32_t VBWFreqFromCode(int16_t a1);
 int32_t RBWFreqFromCode(int16_t a1);
 int32_t DefltSetTimeRBW(int16_t timeValue);
 int32_t DefltSetTimeVBW(int16_t timeValue);
-int32_t SendCommand(SET9052 *a1, int32_t a2, int32_t a3, /*int32_t*/uint16_t *a4) ;
+int32_t SendCommand(SET9052 *a1, int32_t command, int32_t numWords, /*int32_t*/uint16_t *words) ;
 int32_t FuncStatusFromEngineReply(int16_t a1) ;
 int32_t SetEngineModel(SET9052 *a1, int16_t engine_model);
 
