@@ -244,6 +244,7 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 ```
 
 ## Done
+- is dd_readEngineStatus() original, check with IDA
 - Reconstruct arrays (VBWFreFromCode:done, RBWFreFromCode:done, GetRBWWide, DefltSetTimeRBW, DefltSetTimeVBW)
 - Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
 - replace all (a1 & 256) and such with a1->opcode & 256. 
@@ -269,15 +270,68 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 - mr90xx_init() OK with tweaks
 - mr90xx_setEngine() OK 
 - mr90xx_initGuiSweep() OK with tweaks
-- mr90xx_MeasureAmplWithFreq: Runs ok and sets analyzer to run sweeping, but data fetching from device has bugs. I am on that.
+- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping, but data fetching from device has bugs. I am on that.
+
+mr90xx_MeasureAmplWithFreq() calls GetAmplWithFreqExt() which checks FIFO ~48000 times. Most times FIFO is empty:
+	FIFO has no data.
+in 40 cases, FIFO contains something. So basically this seems ok. it looks like that after some time (needed for the measurement),
+the measurement result is provided:
+	FIFO < 25% full.
+This means everything between 0 and 512/4=128 words.
+
+But when fetching data then, the values read in are always the same value: 	0xbee9 :-(
+
+
+```
+GetAmplWithFreqExt
+IsSweeping() -> 1
+RdSwpIdx() -> 3
+RdNumDataPts() 1 --> 40
+wrapGetDataBlock(reversePointIndex=37,a3=3)
+VISA_GetDataBlock(reversePointIdx=37,a3=3)
+        readStatusReg() -> v2: 0x0, response: 0x7fbc
+VISA_CheckHWStatus() --> 0xb00
+FIFO < 25% full.
+VISA_GetDataBlock() -> a4 = 1
+VISA_FetchDataWord()
+readDataWord()
+        InitTimeoutLoop(2063838068)
+        readResponseRegT ok after 20 ms.
+readDataWord() ok --> 0xbee9, 0xffffbee9
+VISA_FetchDataWord() --> 0xffffbee9
+function_100039d0() --> result=0xffffbee9
+GetAmplWithFreqExt, pointPtr[0] becomes 0xffffbee9
+VISA_FetchDataWord()
+readDataWord()
+        InitTimeoutLoop(2063838068)
+        readResponseRegT ok after 249819 ms.
+readDataWord() ok --> 0xbee9, 0xffffbee9
+VISA_FetchDataWord() --> 0xffffbee9
+function_100039d0() --> result=0xffffbee9
+GetAmplWithFreqExt, read LO 0xffffbee9
+VISA_FetchDataWord()
+readDataWord()
+        InitTimeoutLoop(2063838068)
+        readResponseRegT ok after -748848 ms.
+readDataWord() ok --> 0xbee9, 0xffffbee9
+VISA_FetchDataWord() --> 0xffffbee9
+function_100039d0() --> result=0xffffbee9
+GetAmplWithFreqExt, read HI 0xffffbee9
+fl=-1091977495
+function_10002ea6(-1091977495)
+function_10002ea6(-1091977495) --> 512, -1091977495.000000
+GetAmplWithFreqExt, ra_freq[0] becomes -1091977495.000000
+VISA_VerDataBlock(00) -> 2063837864
+SetSwpIdx(4)
+RdNumDataPts() 1 --> 40
+RdSwpIdx() -> 4
+```
 
 As soon as mr90xx_MeasureAmplWithFreq() works fully, aquisition data can be retrieved from the Spectrum Analyzer.
 
 
 This is what the demo program dumps out. It is amplitude and frequency data from a 40 points sweep
 in range 149Mhz..150Mhz. A small rod antenna is connected to the device input.
-
--42db is default attenuation setting. So all amplitude values are slightly above that level.
 
 The amplitude value (16 bit) is read in as a single word, the fetched data is in range 0x20..0x40 
 (possible range is 0x0000..0xffff). This looks wrong.
@@ -287,44 +341,42 @@ so I think all values fetched are incorrect.
 
 This needs further analysis.
 
-Amplitude =      42.33, Frequency =    3014706
-Amplitude =      42.33, Frequency =    2752560
-Amplitude =      42.34, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2752556
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.37, Frequency =    2883630
-Amplitude =      42.42, Frequency =    2883626
-Amplitude =      42.33, Frequency =    3014700
-Amplitude =      42.33, Frequency =    3145774
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2883626
-Amplitude =      42.33, Frequency =    3014704
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2883626
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.48, Frequency =    2752554
-Amplitude =      42.33, Frequency =    3014700
-Amplitude =      42.36, Frequency =    2752554
-Amplitude =      42.34, Frequency =    2752560
-Amplitude =      42.37, Frequency =    3145772
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2752558
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    3014698
-Amplitude =      42.33, Frequency =    2883626
-Amplitude =      42.37, Frequency =    3276852
-Amplitude =      42.34, Frequency =    3014702
-Amplitude =      42.33, Frequency =    3407914
-Amplitude =      42.33, Frequency =    2752560
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.36, Frequency =    2752558
-Amplitude =      42.34, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2752558
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    2752554
-Amplitude =      42.33, Frequency =    3538988
-Amplitude =      42.33, Frequency =    2883630
-Amplitude =      42.34, Frequency =    2752554
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+
 
