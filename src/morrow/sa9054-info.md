@@ -2,11 +2,11 @@
 
 The information below is a collection of facts, assumptions, open issues and more topics.
 
-The information was gathered from a Morrow SA9054. It may apply to other Morrow models like SA9052, SA9034 and SA9085 as well.
+The information was gathered from a Morrow V9054. It may apply to other Morrow models like V9052, V9034 and V9085 as well.
 Other devices from Morrow may use the same code base.
 
 ## General
-The Morrow 9054 has two CPUs. 
+The Morrow V9054 has two CPUs. 
 CPU named P2 is the CPU which handles the VXI Bus communication. It can be accessed by standard VXI Word Serial Protocol. P2 
 understands the common Word Serial Commands like `Abort Normal Operation`.
 CPU named P1 is the aquisition CPU which controls filters, attenuators etc. of the aquisition engine of the spectrum analyzer.
@@ -35,7 +35,7 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow/orig> wc -l *.c
 ```
 
 ## Approach
-I started with three empty `clean room` files for the three libs (pnp.c, sa.c and visa.c). From an example C source code I found in the documentation, some most important function can be seen:
+I started with three empty `clean room` files for the three libs (pnp.c, sa.c and visa.c). From an [example C source code](main.c) I found in the documentation, some important function can be seen:
 
 ```
 mr90xx_init() to initialize the VISA communication, the hardware and the libs.
@@ -75,7 +75,7 @@ Most codes are listed in file include/sa_defin.h:
 /*  Constant definitions of command numbers to the engine.                  */
 /* ------------------------------------------------------------------------ */
 #define ENG_INIT        0			4 WORDS:  unknown(4), Wert = 0. 
-											  Testing shows that 3 (!?!) values are required.
+                                  Testing shows that 3 (!?!) values are required.
 #define ENG_START_SWP   1			12 WORDS
 #define ENG_START_ZSPAN 2			10 WORDS
 #define ENG_START_FHOP  3			5 WORDS
@@ -273,18 +273,23 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
   contain frequency values.
 
 mr90xx_MeasureAmplWithFreq() calls GetAmplWithFreqExt() which checks FIFO ~48000 times. Most times FIFO is empty:
+```
 	FIFO has no data.
+```
 in 40 cases, FIFO contains something. So basically this seems ok. it looks like that after some time (needed for the measurement),
 the measurement result is provided:
+```
 	FIFO < 25% full.
+````
 This means everything between 0 and 512/4=128 words.
 
 But when fetching data then, the values read in are always the same value: 	0xbee9 :-(
-At this time I did 2 things:
-- copied main.c to main2.c and changed the frequency range thjerte to 1..2Mhz.
-- Hooked the Spectrum analyzer input to my frequency generator, with 0db attenuation.
 
-Replaced the call to mr90xx_MeasureAmplWithFreq() with my own code:
+At this time I did 2 things:
+- Copied main.c to main2.c and changed the frequency range there to 1..2Mhz.
+- Hooked the Spectrum Analyzer input to my frequency generator, with 0db attenuation.
+
+Replaced the call to mr90xx_MeasureAmplWithFreq() with my own code, with DLFM (Data Low Fast Mode) switched off:
 
 ```c
 ```	wordPtr[0]=0x4240; // 1..2Mhz
@@ -340,7 +345,7 @@ Replaced the call to mr90xx_MeasureAmplWithFreq() with my own code:
 
 ```
 
-And hey, I get
+And hey, after sime fiddling around I got:
 
 ```
 [0,    1000000] Amplitude =      64.00
@@ -358,7 +363,7 @@ And hey, I get
 [12,    1300000] Amplitude =      53.00
 [13,    1325000] Amplitude =      64.00
 [14,    1350000] Amplitude =      74.00
-[15,    1375000] Amplitude =     108.00 <---- Frequency generator set to ~1,3805 Mhz
+[15,    1375000] Amplitude =     108.00 <---- Frequency generator set to ~1,3800 Mhz
 [16,    1400000] Amplitude =      70.00
 [17,    1425000] Amplitude =      68.00
 [18,    1450000] Amplitude =      53.00
@@ -386,12 +391,12 @@ And hey, I get
 
 ```
 
-So the amplitude seemc to be retrieved correctly. 
+So the amplitude seems to be retrieved correctly. The frequency was calculated by my for-loop, because I did not get the frequency
+values from the Spectrum Analyzer...
 
 ## Ongoing work
 
-But the frequency values cannot be retrieved for some reason...
-The original main.c produces the follwoing output:
+The frequency values cannot be retrieved for some reason... the original main.c produces the following output:
 
 ```
 GetAmplWithFreqExt
@@ -436,57 +441,6 @@ VISA_VerDataBlock(00) -> 2063837864
 SetSwpIdx(4)
 RdNumDataPts() 1 --> 40
 RdSwpIdx() -> 4
-```
-
-This is what the original demo program dumps out. It is amplitude and frequency data from a 40 points sweep
-in range 149Mhz..150Mhz. A small rod antenna is connected to the device input.
-
-The amplitude value (16 bit) is read in as a single word, the fetched data is in range 0x20..0x40 
-(possible range is 0x0000..0xffff). This looks wrong.
-
-The frequency value is read in as low and high byte of a 32 bit value. The fetched words are also in range 0x00..0x40,
-so I think all values fetched are incorrect. 
-
-
-
-```
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
 ```
 
 This needs further analysis...

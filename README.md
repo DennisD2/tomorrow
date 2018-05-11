@@ -42,8 +42,6 @@ int main(int argc, char **argv) {
 	ViStatus mr90xxStatus;
 	ViSession sessionId;
 
-	printf("main start\n");
-
 	sprintf(sessionString, "vxi,126");
 
 	mr90xxStatus = mr90xx_init(sessionString, VI_TRUE, VI_TRUE, &sessionId);
