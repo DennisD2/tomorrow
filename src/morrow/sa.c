@@ -6078,7 +6078,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 	int16_t *pointPtr = &points[swpIndex];
 	SET9052 *v12 = a1; // 0x1000bc71
 	int32_t v13; // bp-44
-	int32_t v14 = wrapGetDataBlock(v12, numDataPoints - swpIndex, 3, &v13, &v3, pointPtr); // 0x1000bc71
+	int32_t v14 = wrapGetDataBlock(v12, numDataPoints - swpIndex, 3, &v13, &v3 /*, pointPtr*/); // 0x1000bc71
 	if ((0x10000 * v14 || 0xffff) >= 0x1ffff) {
 		g4 = v1;
 		return v14 & -0x10000 | 0xfffe;
@@ -6102,7 +6102,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 		int32_t v19; // 0x1000be92
 		int32_t v20; // 0x1000be55
 		if (v15 > 0) {
-			int32_t v21 = 0; // 0x1000bcb367
+			int32_t current_i = 0; // 0x1000bcb367
 			int16_t v22 = 0;
 			// branch -> 0x1000bcd4
 
@@ -6111,17 +6111,17 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 				// branch -> 0x1000bcdd
 				while (true) {
 					// DD: inside the while loop, groups of 3 words are fetched.
-					// 1st word seems to be an 16bit index and is stored in pointPtr array at position 'v21'.
-					// 2nd word is LO, 3rd word is HI byte of a 4byte int value.
-					// The 4byte int value is created/handled in function_10002ea6() and there stored in 'g159'.
-					// Then, the g159 is stored as a float value in ra_freq[] array at position 'v21+swpIndex'.
+					// 1st word seems to be a 16 bit raw amplitude value and is stored in pointPtr array at position 'current_i'.
+					// 2nd word is LO, 3rd word is HI byte of a 4 byte int value.
+					// The 4 byte int value is created/handled in function_10002ea6() and there stored in 'g159'.
+					// Then, the g159 is stored as a float value in ra_freq[] array at position 'current_i+swpIndex'.
 
-					// v21 is increased by 1 via other values v22,v34,v35
+					// current_i is increased by 1 via other values v22,v34,v35
 
 					// 0x1000bcdd
 					v2 = v3;
 					// DD Next line calls FetchDataWord()
-					// Value fetched seems to be a index value. This value is stored in pointPtr[] array at position 'v21'.
+					// Value fetched seems to be a index value. This value is stored in pointPtr[] array at position 'current_i'.
 					// function_100039d0() returns fetched word. v16 contains something different which seems not to be used.
 					int32_t v24 = function_100039d0(v12, v16); // 0x1000bced
 					g8 = a1;
@@ -6139,10 +6139,10 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 						int16_t v26 = v2; // 0x1000bd22
 						v3 = v26;
 						g6 = (g6 | (int32_t) v26) & -0x10000 | v24 & 0xffff;
-						dlog(LOG_DEBUG, "GetAmplWithFreqExt, pointPtr[%d] becomes 0x%x\n", v21, v24);
+						dlog(LOG_DEBUG, "GetAmplWithFreqExt, pointPtr[%d] becomes 0x%x\n", current_i, v24);
 						// DD XXX I have changed pointPtr from char* to int16_t*. So 2*v21 shall become v21 only. Check this.
 						//*(int16_t *) (pointPtr + 2 * v21) = (int16_t) v24;
-						pointPtr[v21] = (int16_t) v24;
+						pointPtr[current_i] = (int16_t) v24;
 
 						int32_t v27 = 0;
 						// branch -> 0x1000bd56
@@ -6198,9 +6198,9 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 										dlog(LOG_DEBUG, "fl=%lld\n", fl);
 										function_10002ea6(a1,fl);
 										// copy new float value to result array at position 'swpIndex'
-										dlog(LOG_DEBUG, "GetAmplWithFreqExt, ra_freq[%d] becomes %llf\n", v21, g159);
+										dlog(LOG_DEBUG, "GetAmplWithFreqExt, ra_freq[%d] becomes %llf\n", current_i, g159);
 										// *(float64_t *) (8 * v21 + 8 * swpIndex + ra_freq) = (float64_t) g159;
-										ra_freq[v21+swpIndex] = (float64_t) g159;
+										ra_freq[current_i+swpIndex] = (float64_t) g159;
 										g11++;
 										int16_t v34 = v22 + 1; // 0x1000bcab
 										int32_t v35 = v34; // 0x1000bcb3
@@ -6209,7 +6209,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 											// break (via goto) -> 0x1000be55
 											goto lab_0x1000be55;
 										}
-										v21 = v35;
+										current_i = v35;
 										v22 = v34;
 										// continue (via goto) -> 0x1000bcd4
 										goto lab_0x1000bcd4;
@@ -6297,7 +6297,7 @@ int32_t IsSweeping(SET9052 *a1) {
 
 // function_100040c9
 int32_t wrapGetDataBlock(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
-		int32_t *a4, int16_t *a5, int16_t *pointPtr) {
+		int32_t *a4, int16_t *a5 /*, int16_t *pointPtr*/) {
 	dlog(LOG_DEBUG, "wrapGetDataBlock(reversePointIndex=%d,a3=%d)\n",
 			reversePointIndex, a3);
 	SET9052 *v1 = a1; // 0x100040cd
@@ -6331,7 +6331,7 @@ int32_t wrapGetDataBlock(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
 #else
 		// DD Note that VISA_GetDataBlock has only 5 parameters!!!
 		// decided to remove last parameter because:
-		// it is not used in VISA_GetDataBlock()
+		// in IDA, it is NOT a parameter!
 		// a4, a5 look "correctly" used in VISA_GetDataBlock()
 		result = VISA_GetDataBlock(a1, (int64_t)reversePointIndex, a3, a4, a5 /*, pointPtr*/);
 #endif
