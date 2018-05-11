@@ -467,7 +467,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
 		return result;
 	}
 	uint16_t v4 = v3; // 0x10001710
-	// DD : next line set bit position 9 (counted from zero). This sets DLFM mode
+	// DD : next line set bit position 9. This sets DLFM mode
 	uint16_t v5 = v4 & -0xff01 | g7 & -0x10000 | v4 & 0xfd00 | DLFM_BIT /*512*/; // 0x10001714
 	v3 = v5;
 	int32_t v6 = v5; // 0x1000171b
@@ -794,6 +794,10 @@ int32_t readResponseRegT(SET9052 * deviceId, int32_t timeout, int16_t mask,
 			exit(-1);
 		}
 		if ((*val & mask) != 0) {
+			long delta_s_in_ms = (now.tv_sec - start.tv_sec)*1000L;
+			long delta_ns_in_ms = (now.tv_nsec - start.tv_nsec)/1000L;
+			long delta = delta_s_in_ms + delta_ns_in_ms;
+			dlog(LOG_DEBUG, "\treadResponseRegT ok after %ld ms.\n", delta);
 			return 0; // OK
 		}
 
@@ -893,7 +897,7 @@ int32_t dd_readEngineStatus(SET9052 *deviceId) {
 // Clears bit 9 and waits until bit 8 is clear or timeout.
 // function_100010e1
 int32_t DLFMModeOff(SET9052 *deviceId, int32_t unused) {
-	dlog( LOG_DEBUG, "DLFMModeOff(unused=0x%x)\n", unused);
+	dlog( LOG_DEBUG, "\tDLFMModeOff(unused=0x%x)\n", unused);
 	int32_t v1 = g3; // bp-4
 	g3 = &v1;
 	int32_t timeout = RdTimeoutWait(deviceId); // 0x100010eb
@@ -1176,7 +1180,7 @@ int32_t dd_viSetBuf(int32_t session_handle, int32_t mask, int32_t size) {
 
 // Seems to read 512 times in until FIFO is empty
 int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
-	dlog(LOG_DEBUG, "VISA_ClearDataFIFO\n");
+	dlog(LOG_DEBUG, "VISA_ClearDataFIFO()\n");
 	int16_t v1 = 0; // bp-8
 	int32_t result2; // 0x10001e41
 	while (true) {
@@ -1189,17 +1193,34 @@ int32_t VISA_ClearDataFIFO(SET9052 *deviceId) {
 			result2 = (int32_t) v3 & -0x10000 | (int32_t) v4;
 			v1 = v4;
 			int32_t v5 = v4; // 0x10001e49
-			if (v4 != 512 && v4 < 512 == (511 - v5 & v5) < 0) {
+			if (v4 != FIFO_DEPTH /*512*/ && v4 < FIFO_DEPTH /*512*/ == (511 - v5 & v5) < 0) {
 				break;
 			}
 			continue;
 		}
-		dlog(LOG_DEBUG, "VISA_ClearDataFIFO - finished 1\n");
+		dlog(LOG_DEBUG, "VISA_ClearDataFIFO - error occurred, but maybe ok.\n");
 		return result;
 	}
 	dlog(LOG_DEBUG, "VISA_ClearDataFIFO - finished 2\n");
 	return result2;
 }
+
+void fifoPrint(int f) {
+	char *p ="?";
+	switch (f) {
+	case STAT_EMPTY: p="has no data"; break;
+	case STAT_ALMOST_EMPT: p="< 25% full"; break;
+	case STAT_ALMOST_HALF: p="> 25% but < 1/2 full"; break;
+	case STAT_OVER_HALF:   p="> 50% full"; break;
+	case STAT_ALMOST_FULL: p="> 75% full"; break;
+	case STAT_SENDFULL: p="100% full"; break;
+	case STAT_DATAHALF: p="at least half full"; break;
+	case STAT_DATA2575: p="almost empty or almost full 25% or 75%"; break;
+	case STAT_DATAWAIT: p="- data waiting in fifo"; break;
+	}
+	dlog(LOG_DEBUG, "FIFO %s.\n", p);
+}
+
 
 // Checks READREADY bit 10 in response register. If clear, return an error. If set,
 // read in register 14 = 0xe = DataLow and return the value.
@@ -1210,26 +1231,27 @@ int32_t readDataWord(SET9052 *deviceId) {
 	dlog(LOG_DEBUG, "readDataWord()\n");
 	int32_t v1 = g3; // bp-4
 	g3 = &v1;
-	int32_t v2 = RdTimeoutWait(deviceId); // 0x10001b1f
+	int32_t timeout = RdTimeoutWait(deviceId); // 0x10001b1f
 	int16_t v3; // bp-24
 	int16_t *v4 = &v3; // 0x10001b2a
 	g5 = v4;
+
 	// 1024 = (1<<10), bit position 10 in response register.
-	int32_t v5 = readResponseRegT(deviceId, v2, READREADY /*1024*/, v4); // 0x10001b3b
+	int32_t v5 = readResponseRegT(deviceId, timeout, READREADY /*1024*/, v4); // 0x10001b3b
 	int16_t v6 = v5; // 0x10001b3b
 	int32_t v7; // 0x10001bbc
 	if ((int16_t) v5 <= -1) {
 		v7 = SetErrorStatus(deviceId, 1);
 		g3 = v1;
 		dlog(LOG_DEBUG, "readDataWord() readResponseRegT gave error --> 0x%x\n",
-				v7);
+				v5);
 		return v7 & -0x10000 | (int32_t) v6;
 	}
 	// If bit 10 is clear, this is an error and we return.
 	if ((v3 & READREADY /*1024*/) == 0) {
 		v7 = SetErrorStatus(deviceId, 2);
 		g3 = v1;
-		dlog(LOG_DEBUG, "readDataWord() 2, bit 10 not set --> 0x%x\n", v7);
+		dlog(LOG_DEBUG, "readDataWord() 2, READREADY bit not set --> 0x%x\n", v7);
 		return v7 & -0x10000 | (int32_t) v6;
 	}
 
@@ -1307,6 +1329,14 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx,
 				uint32_t v4 = VISA_CheckHWStatus(deviceId) & 0xf00 /*3840*/; // 0x10002472
 				int64_t v5;
 
+				// DD start ; code to check status / FIFO fill state
+				//uint16_t status = 0;
+				//readStatusReg(deviceId, &status);
+				//dlog( LOG_DEBUG, "\tFIFO:  0x%x\n", (status&0xf0));
+				//int fifoValue = VISA_CheckHWStatus(deviceId);
+				fifoPrint(v4);
+				// DD stop
+
 				// Depending on FIFO fill state, v5 becomes 0,1,128,256,384.
 				if (v4 > STAT_OVER_HALF /* 0xd00 *//*>= 0xd01 = 3329*/) {
 					if (v4 != STAT_ALMOST_FULL /*0xf00 = 3840*/) {
@@ -1366,6 +1396,12 @@ int32_t VISA_GetDataBlock(SET9052 *deviceId, int64_t reversePointIdx,
 	return result;
 }
 
+/**
+ * Reads status register (4), ands content with 0xf0 (i.e. masks in bits 4..7).
+ * The result is shifted left << by four and returned.
+ *
+ * So basically this function returns the FIFO state shifted left by 4.
+ */
 int32_t VISA_CheckHWStatus(SET9052 *a1) {
 	int32_t v1 = g3; // bp-4
 	g3 = &v1;
@@ -1373,7 +1409,7 @@ int32_t VISA_CheckHWStatus(SET9052 *a1) {
 	int32_t v3 = readStatusReg(a1, &v2); // 0x10001a62
 	//int32_t v4 = 0xffffff00 /*-256*/;
 	int32_t v5 = v3; // 0x10001a8e
-	if (v3 != 0 /*(0x10000 * v3 || 0xffff) < 0x1ffff*/) {
+	if (v3 < 1 /*(0x10000 * v3 || 0xffff) < 0x1ffff*/) {
 		int32_t v6 = ((int32_t) v2 & 0xf0 /*240*/) << 4; // 0x10001a87
 		//v4 = v6;
 		v5 = v6;
