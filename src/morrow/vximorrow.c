@@ -145,15 +145,14 @@ uint32_t dd_viOut16TO(INST id, int32_t timeout, uint16_t word) {
 		dlog(LOG_ERROR, "clock gettime");
 		exit(-1);
 	}
-	long deltams = stop.tv_sec -start.tv_sec*1000;
-	long deltans = stop.tv_nsec - start.tv_nsec;
+	long deltams = (stop.tv_sec -start.tv_sec)*1000;
+	long deltans = (stop.tv_nsec - start.tv_nsec)/1000;
 	long delta = deltams+deltans;
 	if (timeoutCnt >= TIMEOUT) {
 		dlog(LOG_ERROR, "Timeout occurred while checking WRITEREADY.\n");
 		return -1;
 	}
-	dlog(LOG_TRACE, "\tWRITEREADY after %ldus (%d tries).\n",
-			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
+	dlog(LOG_TRACE, "\tWRITEREADY after %ldus (%d tries).\n", delta, timeoutCnt);
 
 	// Write the command to send to the DATALOW register
 	//q[REG_DATALOW] = cmd;
@@ -213,12 +212,12 @@ uint32_t dd_viIn16TO(INST id, int32_t timeout , uint16_t *theResponse, uint16_t 
 		dlog(LOG_ERROR, "Timeout occurred during wait for READREADY.\n");
 		return -1;
 	}
-	dlog(LOG_TRACE, "\tREADREADY after %ldus (%d tries).\n",
-			(stop.tv_nsec - start.tv_nsec) / 1000L, timeoutCnt);
+	uint32_t delta = (stop.tv_nsec - start.tv_nsec) / 1000L;
+	dlog(LOG_TRACE, "\tREADREADY after %ldus (%d tries).\n", delta, timeoutCnt);
 
 	// Read result from Datalow
 	uint16_t response = q[REG_DATALOW];
-	dlog(LOG_DEBUG, "Response: 0x%x\n", response);
+	dlog(LOG_DEBUG, "Response: 0x%x (%d ms)\n", response, delta);
 
 	*rpe = 0; // ???
 	*theResponse = response;
