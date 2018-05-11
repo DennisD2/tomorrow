@@ -37,7 +37,7 @@ static int32_t readResponseRegT(SET9052 *deviceId, int32_t timeout,
 
 static int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3,
 		int32_t *response);
-static int32_t sendWord(SET9052 *deviceId, int16_t command);
+int32_t sendWord(SET9052 *deviceId, int16_t command);
 static int32_t _sendCommand(SET9052 *deviceId, int16_t command);
 
 static int32_t g2 = 0; // eax

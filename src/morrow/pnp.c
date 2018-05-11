@@ -53,7 +53,7 @@ static int32_t g94 = 0;
 
 
 static int32_t mapVisaErrorToAPIError(int16_t errorCode);
-static SET9052 *sessionForId(int32_t sessionId);
+SET9052 *sessionForId(int32_t sessionId);
 static int32_t freeMemory(SET9052 *a1) ;
 
 static int32_t function_10006643(char a1);
@@ -921,7 +921,7 @@ static int32_t sessionForId2(int32_t sessionId, int32_t *returnId) {
 	return result;
 }
 
-static SET9052 *sessionForId(int32_t sessionId) {
+SET9052 *sessionForId(int32_t sessionId) {
 	// Array, base = g60. a1 = index. WORD size.
 	// return g60[a1];
 	// idea: why not just returning a1 ?
