@@ -244,7 +244,6 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 ```
 
 ## Done
-- is dd_readEngineStatus() original, check with IDA
 - Reconstruct arrays (VBWFreFromCode:done, RBWFreFromCode:done, GetRBWWide, DefltSetTimeRBW, DefltSetTimeVBW)
 - Check all return values of SetFuncStatusCode() - ok till InitGuiSweep
 - replace all (a1 & 256) and such with a1->opcode & 256. 
@@ -270,7 +269,8 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 - mr90xx_init() OK with tweaks
 - mr90xx_setEngine() OK 
 - mr90xx_initGuiSweep() OK with tweaks
-- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping, but data fetching from device has bugs. I am on that.
+- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping, but data fetching from device does not
+  contain frequency values.
 
 mr90xx_MeasureAmplWithFreq() calls GetAmplWithFreqExt() which checks FIFO ~48000 times. Most times FIFO is empty:
 	FIFO has no data.
@@ -280,7 +280,118 @@ the measurement result is provided:
 This means everything between 0 and 512/4=128 words.
 
 But when fetching data then, the values read in are always the same value: 	0xbee9 :-(
+At this time I did 2 things:
+- copied main.c to main2.c and changed the frequency range thjerte to 1..2Mhz.
+- Hooked the Spectrum analyzer input to my frequency generator, with 0db attenuation.
 
+Replaced the call to mr90xx_MeasureAmplWithFreq() with my own code:
+
+```c
+```	wordPtr[0]=0x4240; // 1..2Mhz
+	wordPtr[1]=0xf;
+	wordPtr[2]=0x8480;
+	wordPtr[3]=0x1e;
+	wordPtr[4]=0x100;
+	wordPtr[5]=0x6429;
+	wordPtr[6]=0x0;
+	wordPtr[7]=0x0;
+	wordPtr[8]=0x0;
+	wordPtr[9]=0x2a;
+	wordPtr[10]=0x0;
+	wordPtr[11]=0x1;
+
+	SET9052 *a1 = sessionForId(sessionId);
+	uint32_t unused;
+	DLFMModeOff(a1, unused);
+	VISA_ClearDataFIFO(a1);
+	SendCommand(a1, ENG_START_SWP, 12, wordPtr);
+	DLFMModeOff(a1, unused);
+
+	int i;
+
+	int no_data = 1;
+	for (i = 0; i < number_points; i++) {
+		while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
+		}
+		uint32_t v4 = VISA_CheckHWStatus(a1) & 0xf00 /*3840*/; // 0x10002472
+		fifoPrint(v4);
+
+		if (v4 != STAT_EMPTY) {
+			no_data = 0;
+			uint16_t data = 0;
+#ifdef DLFM
+			// Read from Data Low
+			data = readDataWord(a1);
+			amp_array[i] = (float64_t) data;
+#else
+			sendWord(a1, VXI_ENGINEDATA);
+			//data = readDataWord(a1);
+			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
+			dlog(LOG_INFO, "data[%d] = 0x%x, %d, %u\n", i, data, data, data);
+			amp_array[i] = (float64_t) data;
+#endif
+		}
+	}
+	
+	for (i = 0; i < number_points; i++) {
+		float f = start_freq + i*(stop_freq-start_freq)/ number_points;
+		printf("[%d, %10.0f] Amplitude = %10.2f\n", i, f, amp_array[i]);
+	}
+
+```
+
+And hey, I get
+
+```
+[0,    1000000] Amplitude =      64.00
+[1,    1025000] Amplitude =      62.00
+[2,    1050000] Amplitude =      45.00
+[3,    1075000] Amplitude =      53.00
+[4,    1100000] Amplitude =      55.00
+[5,    1125000] Amplitude =      49.00
+[6,    1150000] Amplitude =      53.00
+[7,    1175000] Amplitude =      53.00
+[8,    1200000] Amplitude =      66.00
+[9,    1225000] Amplitude =      45.00
+[10,    1250000] Amplitude =      47.00
+[11,    1275000] Amplitude =      55.00
+[12,    1300000] Amplitude =      53.00
+[13,    1325000] Amplitude =      64.00
+[14,    1350000] Amplitude =      74.00
+[15,    1375000] Amplitude =     108.00 <---- Frequency generator set to ~1,3805 Mhz
+[16,    1400000] Amplitude =      70.00
+[17,    1425000] Amplitude =      68.00
+[18,    1450000] Amplitude =      53.00
+[19,    1475000] Amplitude =      47.00
+[20,    1500000] Amplitude =      61.00
+[21,    1525000] Amplitude =      43.00
+[22,    1550000] Amplitude =      59.00
+[23,    1575000] Amplitude =      62.00
+[24,    1600000] Amplitude =      45.00
+[25,    1625000] Amplitude =      43.00
+[26,    1650000] Amplitude =      49.00
+[27,    1675000] Amplitude =      43.00
+[28,    1700000] Amplitude =      55.00
+[29,    1725000] Amplitude =      43.00
+[30,    1750000] Amplitude =      43.00
+[31,    1775000] Amplitude =      45.00
+[32,    1800000] Amplitude =      51.00
+[33,    1825000] Amplitude =      47.00
+[34,    1850000] Amplitude =      43.00
+[35,    1875000] Amplitude =      49.00
+[36,    1900000] Amplitude =      43.00
+[37,    1925000] Amplitude =      43.00
+[38,    1950000] Amplitude =      53.00
+[39,    1975000] Amplitude =      49.00
+
+```
+
+So the amplitude seemc to be retrieved correctly. 
+
+## Ongoing work
+
+But the frequency values cannot be retrieved for some reason...
+The original main.c produces the follwoing output:
 
 ```
 GetAmplWithFreqExt
@@ -327,10 +438,7 @@ RdNumDataPts() 1 --> 40
 RdSwpIdx() -> 4
 ```
 
-As soon as mr90xx_MeasureAmplWithFreq() works fully, aquisition data can be retrieved from the Spectrum Analyzer.
-
-
-This is what the demo program dumps out. It is amplitude and frequency data from a 40 points sweep
+This is what the original demo program dumps out. It is amplitude and frequency data from a 40 points sweep
 in range 149Mhz..150Mhz. A small rod antenna is connected to the device input.
 
 The amplitude value (16 bit) is read in as a single word, the fetched data is in range 0x20..0x40 
@@ -339,44 +447,47 @@ The amplitude value (16 bit) is read in as a single word, the fetched data is in
 The frequency value is read in as low and high byte of a 32 bit value. The fetched words are also in range 0x00..0x40,
 so I think all values fetched are incorrect. 
 
-This needs further analysis.
 
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
-Amplitude =     -88.18, Frequency = -1091977495
 
+```
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+Amplitude =     -88.18, Frequency = -1091977495
+```
+
+This needs further analysis...
 
