@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
 	setLogLevel(LOG_INFO);
 
-	ViReal64 amp_array[40], freq_array[40], b_array[40], c_array[40];
+	ViReal64 amp_array[40], freq_array[40];
 	/*mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
 		MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
 		MR90XX_SWP_MIN,
@@ -102,7 +102,6 @@ int main(int argc, char **argv) {
 	wordPtr[11]=0x1;
 */
 
-
 	wordPtr[0]=0x4240; // 1..2Mhz
 	wordPtr[1]=0xf;
 	wordPtr[2]=0x8480;
@@ -114,7 +113,7 @@ int main(int argc, char **argv) {
 	wordPtr[8]=0x0;
 	wordPtr[9]=0x2a;
 	wordPtr[10]=0x0;
-	wordPtr[11]=0x1;
+	wordPtr[11]= MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS;
 
 	SET9052 *a1 = sessionForId(sessionId);
 	uint32_t unused;
@@ -151,16 +150,16 @@ int main(int argc, char **argv) {
 			dlog(LOG_INFO, "data[%d] = 0x%x, %d, %u\n", i, data, data, data);
 			amp_array[i] = (float64_t) data;
 
-			while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
-			}
+			//while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
+			//}
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
 			dlog(LOG_INFO, "LO[%d] = 0x%x, %d, %u\n", i, data, data, data);
 			uint16_t flo = data;
 
-			while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
-			}
+			//while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
+			//}
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
