@@ -4393,7 +4393,7 @@ int32_t InitGuiSweep(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start,
 		if ((int16_t) v14 != 0) {
 			return 0x10000 * v14 / 0x10000 | 0xffff;
 		}
-		v15 = SetSweepCode(a1, 5);
+		v15 = SetSweepCode(a1, SWP_CONT|SWP_MAX /*5*/);
 		if ((int16_t) v15 != 0) {
 			return 0x10000 * v15 / 0x10000 | 0xffff;
 		}
@@ -4468,7 +4468,7 @@ int32_t InitGuiSweep(SET9052 *a1, int16_t rbw, int32_t vbw, FREQ8500 start,
 		if ((int16_t) v14 != 0) {
 			return 0x10000 * v14 / 0x10000 | 0xffff;
 		}
-		v15 = SetSweepCode(a1, 5);
+		v15 = SetSweepCode(a1, SWP_CONT|SWP_MAX /*5*/);
 		if ((int16_t) v15 != 0) {
 			return 0x10000 * v15 / 0x10000 | 0xffff;
 		}
@@ -5398,7 +5398,7 @@ int32_t SetSweepCode(SET9052 *a1, int16_t code) {
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e2d
 	g3 = v1;
 	int32_t result; // 0x10005e96
-	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+	if (v1 < 1 /*(0x10000 * v1 || 0xffff) < 0x1ffff*/) {
 		int32_t v2; // 0x10005e8f
 		int32_t v3; // 0x10005e8f
 		if (code < 16) {
@@ -5497,7 +5497,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 	}
 #endif
 
-	if ((int16_t) SetSweepCode(a1, (int16_t) (v4 || 9)) != 0) {
+	if ((int16_t) SetSweepCode(a1, (int16_t) (v4 || (SWP_CONT|SWP_FRQPTS) /*9*/)) != 0) {
 		return IE_ERROR;
 	}
 
