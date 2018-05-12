@@ -119,10 +119,14 @@ int main(int argc, char **argv) {
 	SET9052 *a1 = sessionForId(sessionId);
 	uint32_t unused;
 	DLFMModeOff(a1, unused);
+	// Clear FIFO
 	VISA_ClearDataFIFO(a1);
+	// Set Sweep code to the same values as mr90xx_MeasureAmplWithFreq() would do.
+	SetSweepCode(a1, MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS);
+	// Start (continuous) sweep
 	SendCommand(a1, ENG_START_SWP, 12, wordPtr);
+	// Endure that DLFM mode is off for 'normal' data reading
 	DLFMModeOff(a1, unused);
-	//int numDataPoints = RdNumDataPts(sessionId);
 
 	int i;
 
@@ -130,7 +134,7 @@ int main(int argc, char **argv) {
 	for (i = 0; i < number_points; i++) {
 		while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
 		}
-		uint32_t v4 = VISA_CheckHWStatus(a1) & 0xf00 /*3840*/; // 0x10002472
+		uint32_t v4 = VISA_CheckHWStatus(a1) & 0xf00;
 		fifoPrint(v4);
 
 		if (v4 != STAT_EMPTY) {
@@ -146,55 +150,28 @@ int main(int argc, char **argv) {
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
 			dlog(LOG_INFO, "data[%d] = 0x%x, %d, %u\n", i, data, data, data);
 			amp_array[i] = (float64_t) data;
-#endif
-		}
-	}
 
-	for (i = 0; i < number_points; i++) {
-		while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
-		}
-		uint32_t v4 = VISA_CheckHWStatus(a1) & 0xf00 /*3840*/; // 0x10002472
-		fifoPrint(v4);
-
-		if (v4 != STAT_EMPTY) {
-			no_data = 0;
-			uint16_t data = 0;
-#ifdef DLFM
-			// Read from Data Low
-			data = readDataWord(a1);
-			amp_array[i] = (float64_t) data;
-#else
+			while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
+			}
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "data[%d] = 0x%x, %d, %u\n", i, data, data, data);
-			b_array[i] = (float64_t) data;
-#endif
-		}
-	}
-	for (i = 0; i < number_points; i++) {
-		while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
-		}
-		uint32_t v4 = VISA_CheckHWStatus(a1) & 0xf00 /*3840*/; // 0x10002472
-		fifoPrint(v4);
+			dlog(LOG_INFO, "LO[%d] = 0x%x, %d, %u\n", i, data, data, data);
+			uint16_t flo = data;
 
-		if (v4 != STAT_EMPTY) {
-			no_data = 0;
-			uint16_t data = 0;
-#ifdef DLFM
-			// Read from Data Low
-			data = readDataWord(a1);
-			amp_array[i] = (float64_t) data;
-#else
+			while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
+			}
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "data[%d] = 0x%x, %d, %u\n", i, data, data, data);
-			c_array[i] = (float64_t) data;
+			dlog(LOG_INFO, "HI[%d] = 0x%x, %d, %u\n", i, data, data, data);
+			uint16_t fhi = data;
+
+			uint32_t freq = ((uint32_t)fhi << 16) | (flo & 0xffff);
+			freq_array[i] = (float64_t) freq;
 #endif
 		}
 	}
-
 
 	if (no_data) {
 		return 1;
@@ -202,6 +179,6 @@ int main(int argc, char **argv) {
 
 	for (i = 0; i < number_points; i++) {
 		float f = start_freq + i*(stop_freq-start_freq)/ number_points;
-		printf("[%d, %10.0f] Amplitude = %10.2f\n", i, f, amp_array[i]);
+		printf("[%d, %10.0f] Amplitude = %10.2f, Frequency = %10.0f\n", i, f, amp_array[i], freq_array[i]);
 	}
 }
