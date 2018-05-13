@@ -70,7 +70,7 @@ The code allows Engine command values in range 0..16.
 
 Most codes are listed in file include/sa_defin.h:
 
-```
+```c
 /* ------------------------------------------------------------------------ */
 /*  Constant definitions of command numbers to the engine.                  */
 /* ------------------------------------------------------------------------ */
@@ -90,7 +90,7 @@ Own findings:
 
 ENG_TERMINATE: takes 1 word. This seems to can have values as defines in sa_defin.h:
 
-```
+```c
 /* ------------------------------------------------------------------------ */
 /*  Defines for argument codes to Interrupt Sweep command to the engine.    */
 /* ------------------------------------------------------------------------ */
@@ -103,10 +103,13 @@ ENG_TERMINATE: takes 1 word. This seems to can have values as defines in sa_defi
 ENG_INIT: takes 4 words. In code found, all values are 0. But see my comment in table above (three instead of 4 values).
 
 ENG_SET_INTMODE: takes 1 word.
+```c
 	word[0] = a1->intr_code
+```
 
 ENG_SET_TRIGDET: takes 8 words.
-```	words[0] = a1->detect_code;
+```	c
+words[0] = a1->detect_code;
 	words[1] = trig_code; // calculated in StartSweep: (trig_norm_flag!=0)? trig_code|0x80 : trig_code;
 	words[2] = a1->trig_delay & 0xffff; // tdelay_lo
 	words[3] = a1->trig_delay >> 16; // tdelay_hi
@@ -118,7 +121,7 @@ ENG_SET_TRIGDET: takes 8 words.
 trig_freq_l is 32 bit long value of the floating value a1->trig_freq.
 
 ENG_START_SWP: takes 12 words.
-```
+```c
 	words[0] = fstart_l & 0xffff; // fstart_lo
 	words[1] = fstart_l >> 16; // fstart_hi
 	words[2] = fstop_l & 0xffff; // fstop_lo
@@ -141,7 +144,7 @@ words[9] = is calculated by: a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 :
 Function Pointers from mtcsa.c to mtcvsa.c
  /* from mtcsa32.c */
  
- ```
+ ```c
    int32_t (*func)() = GetProcAddress((int32_t *)hModule, (char *)function_10003280(v1, (int32_t)"OpenSessionStep")); // 0x10003377
     *(int32_t *)(a1 + 720) = (int32_t)func;
     g8 = v1;
@@ -262,28 +265,14 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 - Check all "DD XXX" and "TODO" notes and solve the issues
 - SetVBWmode uses AUTO_ON/OFF and not VI_TRUE/FALSE. Replace this everywhere.
 - SetErrorStatus() in visa.c replace 1,2,3,... with #defines (but with what ones?)
-- rearrange MeasureAmplWithFreq with if vbwmode/rbwmode 
 
 ## Status
 
 - mr90xx_init() OK with tweaks
 - mr90xx_setEngine() OK 
 - mr90xx_initGuiSweep() OK with tweaks
-- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping, but data fetching from device does not
-  contain frequency values.
-
-mr90xx_MeasureAmplWithFreq() calls GetAmplWithFreqExt() which checks FIFO ~48000 times. Most times FIFO is empty:
-```
-	FIFO has no data.
-```
-in 40 cases, FIFO contains something. So basically this seems ok. it looks like that after some time (needed for the measurement),
-the measurement result is provided:
-```
-	FIFO < 25% full.
-````
-This means everything between 0 and 512/4=128 words.
-
-But when fetching data then, the values read in are always the same value: 	0xbee9 :-(
+- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping and fetches amplitude data.
+  But data fetching from device does not contain frequency values.
 
 At this time I did 2 things:
 - Copied main.c to main2.c and changed the frequency range there to 1..2Mhz.
@@ -292,37 +281,48 @@ At this time I did 2 things:
 Replaced the call to mr90xx_MeasureAmplWithFreq() with my own code, with DLFM (Data Low Fast Mode) switched off:
 
 ```c
-```	wordPtr[0]=0x4240; // 1..2Mhz
-	wordPtr[1]=0xf;
-	wordPtr[2]=0x8480;
-	wordPtr[3]=0x1e;
-	wordPtr[4]=0x100;
-	wordPtr[5]=0x6429;
-	wordPtr[6]=0x0;
-	wordPtr[7]=0x0;
-	wordPtr[8]=0x0;
-	wordPtr[9]=0x2a;
-	wordPtr[10]=0x0;
-	wordPtr[11]=0x1;
-
+	setLogLevel(LOG_DEBUG);
 	SET9052 *a1 = sessionForId(sessionId);
+	// Set Sweep code to the same values as mr90xx_MeasureAmplWithFreq() would do.
+	SetSweepCode(a1, MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS);
+
+	wordPtr[0]=0x4240; // 1..2Mhz // start LO
+	wordPtr[1]=0xf; // start HI
+	wordPtr[2]=0x8480; // stop LO
+	wordPtr[3]=0x1e; // stop HI
+	wordPtr[4]=0x100; // filter_code
+	wordPtr[5]=0x6429; // step LO
+	wordPtr[6]=0x0; // step HI
+	wordPtr[7]=0x0; // settle time LO
+	wordPtr[8]=0x0; // settle time HI
+	wordPtr[9]=0x2a; // attenuation
+	wordPtr[10] = RdCellMode(a1)!=1? 0 : a1->num_cells; // I am not 100% sure if !=0 or !=1 is correct; check with IDA
+	// Next line; reading option is ok, but nobody in lib code sets any options, so RgEngOption(*) always returns 0 :-(
+	int32_t opt1 = RdEngOption(a1, ENG_OPT_1 /*1*/);
+	uint16_t sweep_code = (opt1 & 0x10) | a1->sweep_code; // See IDA
+	//dlog(LOG_DEBUG, "EngineOpts: 0x%x, a1->sweep_code=0x%x, sweep_code=0x%x\n", opt1, a1->sweep_code, sweep_code );
+	wordPtr[11] = sweep_code;
+
+	setLogLevel(LOG_INFO);
+
 	uint32_t unused;
 	DLFMModeOff(a1, unused);
+	// Clear FIFO
 	VISA_ClearDataFIFO(a1);
+	// Start (continuous) sweep
 	SendCommand(a1, ENG_START_SWP, 12, wordPtr);
+	// Endure that DLFM mode is off for 'normal' data reading
 	DLFMModeOff(a1, unused);
 
 	int i;
 
-	int no_data = 1;
 	for (i = 0; i < number_points; i++) {
 		while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
 		}
-		uint32_t v4 = VISA_CheckHWStatus(a1) & 0xf00 /*3840*/; // 0x10002472
+		uint32_t v4 = VISA_CheckHWStatus(a1) & 0xf00;
 		fifoPrint(v4);
 
 		if (v4 != STAT_EMPTY) {
-			no_data = 0;
 			uint16_t data = 0;
 #ifdef DLFM
 			// Read from Data Low
@@ -332,116 +332,84 @@ Replaced the call to mr90xx_MeasureAmplWithFreq() with my own code, with DLFM (D
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "data[%d] = 0x%x, %d, %u\n", i, data, data, data);
+			dlog(LOG_INFO, "amp[%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
 			amp_array[i] = (float64_t) data;
+
+			sendWord(a1, VXI_ENGINEDATA);
+			//data = readDataWord(a1);
+			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
+			dlog(LOG_INFO, "freq lo [%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
+			uint16_t flo = data;
+
+			sendWord(a1, VXI_ENGINEDATA);
+			//data = readDataWord(a1);
+			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
+			dlog(LOG_INFO, "freq hi [%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
+			uint16_t fhi = data;
+
+			uint32_t freq = ((uint32_t)fhi << 16) | (flo & 0xffff);
+			freq_array[i] = (float64_t) freq;
 #endif
 		}
 	}
-	
+
 	for (i = 0; i < number_points; i++) {
 		float f = start_freq + i*(stop_freq-start_freq)/ number_points;
-		printf("[%d, %10.0f] Amplitude = %10.2f\n", i, f, amp_array[i]);
+		printf("[%d, %10.0f] Amplitude = %10.2f, Frequency = %10.0f\n", i, f, amp_array[i], freq_array[i]);
 	}
 
-```
-
-And hey, after sime fiddling around I got:
-
-```
-[0,    1000000] Amplitude =      64.00
-[1,    1025000] Amplitude =      62.00
-[2,    1050000] Amplitude =      45.00
-[3,    1075000] Amplitude =      53.00
-[4,    1100000] Amplitude =      55.00
-[5,    1125000] Amplitude =      49.00
-[6,    1150000] Amplitude =      53.00
-[7,    1175000] Amplitude =      53.00
-[8,    1200000] Amplitude =      66.00
-[9,    1225000] Amplitude =      45.00
-[10,    1250000] Amplitude =      47.00
-[11,    1275000] Amplitude =      55.00
-[12,    1300000] Amplitude =      53.00
-[13,    1325000] Amplitude =      64.00
-[14,    1350000] Amplitude =      74.00
-[15,    1375000] Amplitude =     108.00 <---- Frequency generator set to ~1,3800 Mhz
-[16,    1400000] Amplitude =      70.00
-[17,    1425000] Amplitude =      68.00
-[18,    1450000] Amplitude =      53.00
-[19,    1475000] Amplitude =      47.00
-[20,    1500000] Amplitude =      61.00
-[21,    1525000] Amplitude =      43.00
-[22,    1550000] Amplitude =      59.00
-[23,    1575000] Amplitude =      62.00
-[24,    1600000] Amplitude =      45.00
-[25,    1625000] Amplitude =      43.00
-[26,    1650000] Amplitude =      49.00
-[27,    1675000] Amplitude =      43.00
-[28,    1700000] Amplitude =      55.00
-[29,    1725000] Amplitude =      43.00
-[30,    1750000] Amplitude =      43.00
-[31,    1775000] Amplitude =      45.00
-[32,    1800000] Amplitude =      51.00
-[33,    1825000] Amplitude =      47.00
-[34,    1850000] Amplitude =      43.00
-[35,    1875000] Amplitude =      49.00
-[36,    1900000] Amplitude =      43.00
-[37,    1925000] Amplitude =      43.00
-[38,    1950000] Amplitude =      53.00
-[39,    1975000] Amplitude =      49.00
 
 ```
 
-So the amplitude seems to be retrieved correctly. The frequency was calculated by my for-loop, because I did not get the frequency
-values from the Spectrum Analyzer...
+And hey, after some fiddling around I got:
+
+```
+[0,    1000000] Amplitude =      51.00, Frequency =    1000000
+[1,    1025000] Amplitude =      57.00, Frequency =    1025641
+[2,    1050000] Amplitude =      61.00, Frequency =    1051282
+[3,    1075000] Amplitude =      55.00, Frequency =    1076923
+[4,    1100000] Amplitude =      55.00, Frequency =    1102564
+[5,    1125000] Amplitude =      55.00, Frequency =    1128205
+[6,    1150000] Amplitude =      51.00, Frequency =    1153846
+[7,    1175000] Amplitude =      47.00, Frequency =    1179487
+[8,    1200000] Amplitude =      57.00, Frequency =    1205128
+[9,    1225000] Amplitude =      59.00, Frequency =    1230769
+[10,    1250000] Amplitude =      49.00, Frequency =    1256410
+[11,    1275000] Amplitude =      57.00, Frequency =    1282051
+[12,    1300000] Amplitude =      59.00, Frequency =    1307692
+[13,    1325000] Amplitude =      62.00, Frequency =    1333333
+[14,    1350000] Amplitude =      68.00, Frequency =    1358974
+[15,    1375000] Amplitude =     102.00, Frequency =    1384615 <-- Frequency generator is at 1,393Mhz
+[16,    1400000] Amplitude =      82.00, Frequency =    1410256
+[17,    1425000] Amplitude =      68.00, Frequency =    1435897
+[18,    1450000] Amplitude =      59.00, Frequency =    1461538
+[19,    1475000] Amplitude =      64.00, Frequency =    1487179
+[20,    1500000] Amplitude =      53.00, Frequency =    1512820
+[21,    1525000] Amplitude =      51.00, Frequency =    1538461
+[22,    1550000] Amplitude =      45.00, Frequency =    1564102
+[23,    1575000] Amplitude =      53.00, Frequency =    1589743
+[24,    1600000] Amplitude =      49.00, Frequency =    1615384
+[25,    1625000] Amplitude =      43.00, Frequency =    1641025
+[26,    1650000] Amplitude =      43.00, Frequency =    1666666
+[27,    1675000] Amplitude =      43.00, Frequency =    1692307
+[28,    1700000] Amplitude =      43.00, Frequency =    1717948
+[29,    1725000] Amplitude =      43.00, Frequency =    1743589
+[30,    1750000] Amplitude =      45.00, Frequency =    1769230
+[31,    1775000] Amplitude =      43.00, Frequency =    1794871
+[32,    1800000] Amplitude =      43.00, Frequency =    1820512
+[33,    1825000] Amplitude =      43.00, Frequency =    1846153
+[34,    1850000] Amplitude =      47.00, Frequency =    1871794
+[35,    1875000] Amplitude =      49.00, Frequency =    1897435
+[36,    1900000] Amplitude =      47.00, Frequency =    1923076
+[37,    1925000] Amplitude =      45.00, Frequency =    1948717
+[38,    1950000] Amplitude =      43.00, Frequency =    1974358
+[39,    1975000] Amplitude =      49.00, Frequency =    1999999
+
+```
+
+So  amplitude and frequency seems to be retrieved correctly!
 
 ## Ongoing work
 
-The frequency values cannot be retrieved for some reason... the original main.c produces the following output:
-
-```
-GetAmplWithFreqExt
-IsSweeping() -> 1
-RdSwpIdx() -> 3
-RdNumDataPts() 1 --> 40
-wrapGetDataBlock(reversePointIndex=37,a3=3)
-VISA_GetDataBlock(reversePointIdx=37,a3=3)
-        readStatusReg() -> v2: 0x0, response: 0x7fbc
-VISA_CheckHWStatus() --> 0xb00
-FIFO < 25% full.
-VISA_GetDataBlock() -> a4 = 1
-VISA_FetchDataWord()
-readDataWord()
-        InitTimeoutLoop(2063838068)
-        readResponseRegT ok after 20 ms.
-readDataWord() ok --> 0xbee9, 0xffffbee9
-VISA_FetchDataWord() --> 0xffffbee9
-function_100039d0() --> result=0xffffbee9
-GetAmplWithFreqExt, pointPtr[0] becomes 0xffffbee9
-VISA_FetchDataWord()
-readDataWord()
-        InitTimeoutLoop(2063838068)
-        readResponseRegT ok after 249819 ms.
-readDataWord() ok --> 0xbee9, 0xffffbee9
-VISA_FetchDataWord() --> 0xffffbee9
-function_100039d0() --> result=0xffffbee9
-GetAmplWithFreqExt, read LO 0xffffbee9
-VISA_FetchDataWord()
-readDataWord()
-        InitTimeoutLoop(2063838068)
-        readResponseRegT ok after -748848 ms.
-readDataWord() ok --> 0xbee9, 0xffffbee9
-VISA_FetchDataWord() --> 0xffffbee9
-function_100039d0() --> result=0xffffbee9
-GetAmplWithFreqExt, read HI 0xffffbee9
-fl=-1091977495
-function_10002ea6(-1091977495)
-function_10002ea6(-1091977495) --> 512, -1091977495.000000
-GetAmplWithFreqExt, ra_freq[0] becomes -1091977495.000000
-VISA_VerDataBlock(00) -> 2063837864
-SetSwpIdx(4)
-RdNumDataPts() 1 --> 40
-RdSwpIdx() -> 4
-```
-
-This needs further analysis...
+I can retrieve amplitude and frequency data in Non-DLFM mode, but the original function mr90xx_MeasureAmplWithFreq() does only retrieve amplitude for now. This needs further analysis...
 

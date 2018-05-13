@@ -160,19 +160,19 @@ int main(int argc, char **argv) {
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "amp[%d] = 0x%x, %d\n", i, data, data);
+			dlog(LOG_INFO, "amp[%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
 			amp_array[i] = (float64_t) data;
 
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "freq lo [%d] = 0x%x, %d\n", i, data, data);
+			dlog(LOG_INFO, "freq lo [%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
 			uint16_t flo = data;
 
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "freq hi [%d] = 0x%x, %d\n", i, data, data);
+			dlog(LOG_INFO, "freq hi [%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
 			uint16_t fhi = data;
 
 			uint32_t freq = ((uint32_t)fhi << 16) | (flo & 0xffff);
