@@ -4864,7 +4864,7 @@ int32_t InitInstrData(/*int32_t a1*/ SET9052 *a1) {
         // start of values not settled so far
         *(int32_t *)(a1 + 192) = 0;//interfaceType?
         *(int32_t *)(a1 + 180) = 55;//ie_duration?
-        *(int32_t *)(a1 + 200) = 0;//func_status_code?
+        *(int32_t *)(a1 + 200) = 0;//options flag
         *(int32_t *)(a1 + 468) = 0;//data_port?
         *(int16_t *)(a1 + 472) = 880;
         *(int16_t *)(a1 + 474) = 5;//commHandle?
