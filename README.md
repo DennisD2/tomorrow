@@ -142,7 +142,11 @@ Amplitude =     -70.95 dBm, Frequency =    1999999 Hz
 
 
 ```
-	
+![40 points spectrum in the range 1..2Mhz](src/spectrum000.png "40 points spectrum in the range 1..2Mhz")
+
+A 500 points spectrum in the range 1..2Mhz was converted and plotted with gnuplot:
+![500 points spectrum in the range 1..2Mhz](src/spectrum500.png "500 points spectrum in the range 1..2Mhz")
+
 See Makefile for build targets.
 
 Build with
