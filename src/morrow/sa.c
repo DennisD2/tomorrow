@@ -6363,7 +6363,7 @@ int32_t wrapGetDataBlock(SET9052 *a1, int32_t reversePointIndex, int32_t a3,
 }
 
 int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
-	dlog(LOG_DEBUG, "GetDbmForAmpl(%d)\n", ampl);
+	//dlog(LOG_DEBUG, "GetDbmForAmpl(%d)\n", ampl);
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -6374,7 +6374,7 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
 		int32_t v4;
 		float80_t v5;
 		if ((a1->detect_code /* *(int16_t *) (a1 + 128) */ & DTEC_LIN /*32*/) == 0) {
-			dlog(LOG_DEBUG, "GetDbmForAmpl(%d), not DTEC_LIN\n", ampl);
+			//dlog(LOG_DEBUG, "GetDbmForAmpl(%d), not DTEC_LIN\n", ampl);
 			g6 = ampl;
 			g8 = a1;
 			//int32_t v6 = 0x10000 * getAttenuationSetting(a1) / 0x10000; // 0x1000cf1f
@@ -6389,7 +6389,7 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
 			v5 = (float80_t) ampl / DB_CONVERT_CONST  + (float80_t) v6;
 #endif
 		} else {
-			dlog(LOG_DEBUG, "GetDbmForAmpl(%d), DTEC_LIN\n", ampl);
+			//dlog(LOG_DEBUG, "GetDbmForAmpl(%d), DTEC_LIN\n", ampl);
 			g8 = a1;
 			GetnVForAmpl(a1, ampl);
 			g11++;
@@ -6404,6 +6404,7 @@ int32_t GetDbmForAmpl(SET9052 *a1, int16_t ampl) {
 	g159 = v3;
 	g11--;
 	g4 = v1;
+	dlog(LOG_DEBUG, "GetDbmForAmpl(%d) --> %llf \n", ampl, g159);
 	return result;
 }
 

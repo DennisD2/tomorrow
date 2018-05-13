@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 
 	int i;
 	for (i = 0; i < number_points; i++) {
-		printf("Amplitude = %10.2f, Frequency = %10.0f\n", amp_array[i],
+		printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
 				freq_array[i]);
 	}
 }
