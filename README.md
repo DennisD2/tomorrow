@@ -95,7 +95,8 @@ int main(int argc, char **argv) {
 
 ```
 
-main.c output:
+main.c output, which looks nice when running code with no debug logging. If I do debug logging,
+the amplitude values are wrong (always 42.x dBm):
 
 ```
 Amplitude =     -58.05 dBm, Frequency =    1000000 Hz

@@ -63,22 +63,24 @@ int main(int argc, char **argv) {
 		dlog(LOG_INFO, "mr90xx_InitGuiSweep OK\n\n");
 	}
 
-	setLogLevel(LOG_DEBUG);
+	setLogLevel(LOG_INFO);
 
-	ViReal64 amp_array[40], freq_array[40];
-	mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
-		MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
-		MR90XX_SWP_MIN,
-		MR90XX_DBM_FORMAT, amp_array, freq_array);
-	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
-		dlog(LOG_ERROR, "Error mr90xx_MeasureAmplWithFreq\n");
-	} else {
-		dlog(LOG_INFO, "mr90xx_MeasureAmplWithFreq OK\n");
-	}
+	while (1) {
+		ViReal64 amp_array[40], freq_array[40];
+		mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
+			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
+			MR90XX_SWP_MIN,
+			MR90XX_DBM_FORMAT, amp_array, freq_array);
+		if (mr90xxStatus != MR90XX_IE_SUCCESS) {
+			dlog(LOG_ERROR, "Error mr90xx_MeasureAmplWithFreq\n");
+		} else {
+			dlog(LOG_INFO, "mr90xx_MeasureAmplWithFreq OK\n");
+		}
 
-	int i;
-	for (i = 0; i < number_points; i++) {
-		printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
-				freq_array[i]);
+		int i;
+		for (i = 0; i < number_points; i++) {
+			printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
+					freq_array[i]);
+		}
 	}
 }

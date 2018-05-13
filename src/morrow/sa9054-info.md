@@ -258,7 +258,7 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 - rearrange MeasureAmplWithFreq with if vbwmode/rbwmode 
 
 ## Todos
-
+- GetRBWwide() is reimplemented correctly, but the code then fails. Correct this.
 - Make dd_readEngineStatus() original again(find out original name and make code use vi* only)
 - Fix Error mapping ENG->SW domain
 - Check all "DD XXX" and "TODO" notes and solve the issues

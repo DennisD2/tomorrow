@@ -30,9 +30,6 @@ static char *alloc_1000da64(int32_t size);
 static int32_t g3 = 0; // eax
 
 static int32_t *g4 = 0; // ebp
-// these are values related to rbw. I have no clue what values need to be set instead of 0....
-// g4 is used at other places as int value. !?!
-//static int32_t g4[] = { 0,0,0,0 };
 
 static int32_t g5 = 0; // ebx
 static int32_t g6 = 0; // ecx
@@ -43,37 +40,14 @@ static int32_t g9 = 0; // esi
 static int32_t g11 = 0; // fpu_stat_TOP
 static char * g12;
 
-// Seems to be some array; g13..g17
-//int32_t g13 = 0x1000505d; // 20573
-//int32_t g14 = 0x1000c8b7; // 51385
-//int32_t g15 = 0x1000c923;
-//int32_t g16 = 0x1000cbc9;
-//int32_t g17 = 0x1000ccaf;
-//int32_t *g13 = { 0x1000505d, 0x1000c8b7, 0x1000c923, 0x1000cbc9, 0x1000ccaf };
-
-// g14..g17 is or are arrays.
-//static int32_t g14_rbwTimeFactor = 0x1000c8b7;
-//static int32_t g14_rbwTimeFactor[] = { 0x1000c8b7, 0x1000c923, 0x1000cbc9,
-//		0x1000ccaf };
-
-//static int32_t g15_vbwTimeFactor = 0x1000c923;
-//static int32_t g15_vbwTimeFactor[] = { 0x1000c923, 0x1000cbc9, 0x1000ccaf };
-
-//static float64_t g40[] = { 0.0, 0.0, 0.0, 0.0 };
-
 static int32_t g49; // 0x100183d4
 static int32_t g50 = 1;
 
 static int32_t g61 = 0;
 
-static int32_t g94 = 0;
-
 static int32_t g107 = 0;
 
-//static int32_t g128 = 0;
 static int32_t g129 = 0;
-//static int32_t g130 = 0;
-//static int32_t g131 = 0;
 
 float80_t frequencyLimit = 0.0L; // st0 vbw????
 static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
@@ -90,20 +64,9 @@ int32_t InitEngine(SET9052 *a1) {
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003c7d
 	g3 = v2;
 	int32_t result; // 0x10003cd0
-	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-#ifdef ORIG
-		if (*(int32_t *)(v1 + 660) != 0) {
-			int32_t * v3 = (int32_t *)(v1 + 712); // 0x10003ca9
-			if (*v3 != 0) {
-				__pseudo_call(*v3);
-				return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
-			}
-		}
-		result = (int32_t) v1 & -0x10000 | 0xffeb;
-#else
+	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
 		/* InitEngine call */
 		result = VISA_InitEngine(a1);
-#endif
 	} else {
 		result = GetFuncStatusCode(v1);
 	}
@@ -117,20 +80,9 @@ int32_t ResetEngine(SET9052 *a1) {
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003cd9
 	g3 = v2;
 	int32_t result; // 0x10003d2c
-	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-#ifdef ORIG
-		if (*(int32_t *)(v1 + 660) != 0) {
-			int32_t * v3 = (int32_t *)(v1 + 716); // 0x10003d05
-			if (*v3 != 0) {
-				__pseudo_call(*v3);
-				return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
-			}
-		}
-		result = v1 & -0x10000 | 0xffeb;
-#else
+	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
 		/* InitEngine call */
 		result = VISA_ResetEngine(a1);
-#endif
 	} else {
 		result = GetFuncStatusCode(v1);
 	}
@@ -165,7 +117,6 @@ int32_t RdSessionString(SET9052 *a1, char *sessionString) {
 }
 
 int32_t TestFuncStatusAndPtr(SET9052 *a1) {
-	//dlog( LOG_DEBUG, "TestFuncStatusAndPtr\n");
 	if (a1 == NULL) {
 		return g3 & -0x10000 | 0xfff6;
 	}
@@ -376,7 +327,7 @@ int32_t function_1000d5e1(char * a1) {
 
 // DD: because (a1 + 2) == engine_model, a1 must be (struct SAStruct *) = SET9052 !!! yippie 2
 int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
-	dlog( LOG_DEBUG, "InitInstrData\n");
+	dlog( LOG_DEBUG, "InitInstrData()\n");
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	int32_t result;
@@ -606,7 +557,7 @@ int32_t recalcStep(SET9052 *a1) {
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001728
 	g3 = v2;
 	int32_t result; // 0x10001b12
-	if ((0x10000 * v2 || 0xffff) >= 0x1ffff) {
+	if (v2 >= 1 /*(0x10000 * v2 || 0xffff) >= 0x1ffff*/) {
 		g8 = a1;
 		result = GetFuncStatusCode(a1);
 		g4 = v1;
@@ -1389,26 +1340,9 @@ int32_t function_10003f7a(SET9052 *a1) {
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003f82
 	g3 = v2;
 	int32_t result; // 0x10003fd5
-	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-
-#ifdef ORIG
-		// DD: call to 660 - Windows moduleHandle - ignore this
-		// DD: call to 720 - OpenSessionStep
-		//if (*(int32_t *)(v1 + 660) != 0) {
-		int32_t * v3 = (int32_t *)(v1 + 720);// 0x10003fae
-		if (*v3 != 0) {
-			// 0x10003fbd
-			__pseudo_call(*v3);
-			// branch -> 0x10003fd2
-			// 0x10003fd2
-			return 0x10000 * (int32_t)v1 / 0x10000 | (int32_t)v1 & -0x10000;
-		}
-		//}
-		return 0x10000 * (int32_t) ret / 0x10000 | (int32_t) ret & -0x10000;
-#else
+	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
 		int32_t ret = VISA_OpenSessionStep(a1);
 		return ret;
-#endif
 		result = (int32_t) v1 & -0x10000 | 0xffeb;
 	} else {
 		result = GetFuncStatusCode(v1);
@@ -1719,42 +1653,56 @@ int32_t IsValidStep(SET9052 *a1) {
 }
 
 /**
- * Get resolution BandWidth (code?) wide
+ * Get resolution Bandwidth wide. Whatever that means.
  * Returns -3 on error.
+ * Accepted input range 0..4.
+ * XORIG: in #else-part, I have the correct code derived from IDA. But that leads to errors due to wrong step size.
+ * So I leave it in the first version which returns always '1' for input. This is wrong, but the overall process works.
+ * TODO: Needs to be analyzed deeper and corrected.
  */
 int32_t GetRBWwide(int16_t value) {
 	int32_t v1 = g4; // 0x1000d3b4
 	int32_t v2 = v1; // bp-4
 	int32_t v3 = value; // 0x1000d3dd
 	if (value < 0) {
-		// negative values are not accespted
+		// negative values are not accepted
 		g4 = v1;
 		return -3;
 	}
 	int32_t result;
+#define XORIG
+#ifdef XORIG
 	// TODO here; the function seems to have decompiled with semantical errors.
 	// first workaround: we return 1...
 	return 1;
 
 	// DD: the if condition seems to make no sense
 	if (value == 4 || value < 4 != (3 - v3 & v3) < 0) {
-		// DD1: this gives a SEGV. v2 aka g4 is substracted an offset and the result is dereferenced -> Bang!
-		// DD2: After leaning a little bit more the line is like:
-		// result = g4[v3-6]
-		// So g40 is an array of uint32_t; v3=value and in range 0..5 (rbw code) maybe  0..4 without AUTO value
+		// So g40 is an array of uint32_t; v3=value and in range 0..4 (rbw code) maybe  0..4 without AUTO value
 		result = *(int32_t *) (4 * v3 - 24 + (int32_t) &v2);
 	} else {
 		result = -3;
 	}
-
+#else
+	int32_t rbw_frequencies[] = { 300, 3000, 30000, 300000L, 300000L };
+	if (value > RBW_3MHZ) {
+		result = -3;
+	} else {
+		result = rbw_frequencies[value];
+	}
+#endif
 	g4 = v1;
+	dlog(LOG_INFO, "GetRBWwide(%d) -> %d\n", value, result);
 	return result;
 }
 
 // Should return 3E6 for e.g. VBW_3MHZ (?), i.e. a frequency from a code.
 // Function seems to be decompiled wrong. The value derived (v2) is not returned?!?
 // But the value is set to global 'frequencyLimit_rbwFrequency'. Is this enough?
-int32_t RBWFreqFromCode(int16_t code) {
+//
+// After checking with IDA, a float is returned. So i changed the function to return the calculated value.
+// TODO: But the calling code is also wrong at all places, so it needs further work :-(
+float64_t RBWFreqFromCode(int16_t code) {
 #ifdef ORIG
 	int32_t result = code; // 0x1000b557
 	if (code < RBW_300HZ /*0*/) {
@@ -1766,7 +1714,6 @@ int32_t RBWFreqFromCode(int16_t code) {
 	float80_t v1;
 	if (code <= RBW_3MHZ /*4*/) {
 		g8 = result;
-		// TODO:
 		//float64_t v2 = *(float64_t *) (8 * result + (int32_t) &g40); // 0x1000b574
 		float64_t v2 = g40[code];
 		v1 = v2;
@@ -1800,7 +1747,11 @@ int32_t RBWFreqFromCode(int16_t code) {
 	dlog(LOG_DEBUG,
 			"RBWFreqFromCode(%d); frequencyLimit_rbwFrequency was set to: %f \n",
 			code, frequencyLimit_rbwFrequency);
+#ifdef first_try
 	return code;
+#else
+	return frequencyLimit_rbwFrequency;
+#endif
 }
 
 // Should return 3E6 for e.g. VBW_3MHZ (?), i.e. a frequency from a code.
@@ -3455,8 +3406,12 @@ int32_t RdRBW(SET9052 *a1) {
 	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
 		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
+#ifdef ORIG
 		result = (int32_t) *(int16_t *) (&a1->rbw_code /*a1 + 72*/)
 				| (int32_t) a1 & -0x10000;
+#else
+		result = a1->rbw_code;
+#endif
 	} else {
 		result = v1 | 0xffff;
 	}
@@ -5188,7 +5143,8 @@ int32_t function_10001e98(SET9052 *a1) {
 		g8 = a1;
 		int16_t v3 = a1->auto_vbw; // *(int16_t *) (a1 + 78); // 0x10001ec7
 		if (v3 != VI_FALSE /*0*/) {
-			RBWFreqFromCode((int16_t) RdRBW(a1));
+			float64_t rbw_freq = RBWFreqFromCode((int16_t) RdRBW(a1));
+			// TODO: Code below looks wrong decompiled. Chec with IDA.
 			float64_t v4 = a1->filter_ratio; // *(float64_t *) (a1 + 88); // 0x10001ee9
 			g11++;
 			int32_t v5 = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
