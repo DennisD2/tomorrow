@@ -44,8 +44,15 @@ int main(int argc, char **argv) {
 	}
 
 	ViInt16 number_points = 40;
+#ifdef SPAN_149_to_150_MHZ
+	// 149..150 Mhz
 	ViReal64 start_freq = 149000000;
 	ViReal64 stop_freq = 150000000;
+#else
+	// 1..2 Mhz
+	ViReal64 start_freq = 1000000;
+	ViReal64 stop_freq =  2000000;
+#endif
 	ViInt16 ref_level = 2;
 	mr90xxStatus = mr90xx_InitGuiSweep(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points);
@@ -55,8 +62,6 @@ int main(int argc, char **argv) {
 	} else {
 		dlog(LOG_INFO, "mr90xx_InitGuiSweep OK\n\n");
 	}
-
-	setLogLevel(LOG_DEBUG);
 
 	ViReal64 amp_array[40], freq_array[40];
 	mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,

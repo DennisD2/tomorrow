@@ -241,16 +241,13 @@ int32_t SetEngineReplyCode(SET9052 *a1, uint16_t code) {
 	return result;
 }
 
-#define ENG_OPT_0 0
-#define ENG_OPT_1 1
-#define ENG_OPT_2 2
 /* Inquire engine option 0x01, 0x02, 0x04 depending on option value. */
 int32_t RdEngOption(SET9052 *a1, int32_t option) {
 	//dlog( LOG_DEBUG, "RdEngOption(%d)\n", option);
 	if (a1 == 0) {
-		return g3 & -0x10000 | 0xfff6;
+		return /*g3 & -0x10000 |*/ 0xfff6;
 	}
-	g3 = a1;
+	//g3 = a1;
 	a1->func_status_code = 0;
 	g6 = option;
 	if (option == ENG_OPT_0) {
@@ -561,7 +558,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 		//*(int16_t *)(a1 + 104) = 10;//PreampGain
 		a1->PreampGain = 10;
 		recalcStep(a1);
-		result = function_10001b13(a1) & -0x10000;
+		result = recalcSweepAndSettleTime(a1) & -0x10000;
 	} else {
 		result = g3 & -0x10000 | 0xfff6;
 	}
@@ -749,7 +746,7 @@ int32_t recalcStep(SET9052 *a1) {
 					v23 = 0x10000 * IsValidStep(a1);
 					g8 = v23 / 0x10000;
 				}
-				function_10001b13(a1);
+				recalcSweepAndSettleTime(a1);
 				g160_currentStepWidth = (float80_t) a1->step; // *(float64_t *)(a1 + 24);
 				g4 = v1;
 				dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
@@ -795,14 +792,14 @@ int32_t recalcStep(SET9052 *a1) {
 					v32 = 0x10000 * IsValidStep(a1);
 					g8 = v32 / 0x10000;
 				}
-				function_10001b13(a1);
+				recalcSweepAndSettleTime(a1);
 				g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
 				g4 = v1;
 				dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 				return (int32_t) a1 & -0x10000;
 			}
 		}
-		function_10001b13(a1);
+		recalcSweepAndSettleTime(a1);
 		g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
 		result = (int32_t) a1 & -0x10000;
 	} else {
@@ -813,7 +810,8 @@ int32_t recalcStep(SET9052 *a1) {
 	return result;
 }
 
-int32_t function_10001b13(SET9052 *a1) {
+// function_10001b13
+int32_t recalcSweepAndSettleTime(SET9052 *a1) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
@@ -3432,6 +3430,21 @@ int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
 	return result2;
 }
 
+int32_t RdCellMode(SET9052 *a1) {
+    g3 = a1;
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10006050
+    g3 = v1;
+    int32_t result;
+    if (v1 < 1 /*(0x10000 * v1 || 0xffff) < 0x1ffff*/) {
+        g8 = a1;
+        SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
+        result = a1->cell_mode != 0; // *(int16_t *)(a1 + 64) != 0;
+    } else {
+        result = v1 | 0xffff;
+    }
+    return result;
+}
+
 int32_t RdRBW(SET9052 *a1) {
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100057ee
@@ -4044,11 +4057,11 @@ int32_t RdSweepCode(SET9052 *a1) {
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10005e9e
 	g3 = v1;
 	int32_t result;
-	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+	if (v1 < 1 /*(0x10000 * v1 || 0xffff) < 0x1ffff*/) {
 		g8 = a1;
 		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 		result = (int32_t) /* *(int16_t *)(a1 + 130)*/a1->sweep_code
-				| (int32_t) (int32_t) a1 & -0x10000;
+				/* | (int32_t) (int32_t) a1 & -0x10000 */;
 	} else {
 		result = v1 | 0xffff;
 	}
@@ -5127,7 +5140,7 @@ int32_t SwpTimeMode(SET9052 *a1, int16_t mode, int32_t unused) {
 			break;
 		}
 		}
-		result = v3 & 0xffff | function_10001b13(a1) & -0x10000;
+		result = v3 & 0xffff | recalcSweepAndSettleTime(a1) & -0x10000;
 	} else {
 		result = GetFuncStatusCode(a1);
 	}
@@ -5152,7 +5165,7 @@ int32_t SetRBWmode(SET9052 *a1, int16_t mode) {
 			a1->auto_rbw = VI_TRUE;
 			setup_rbw(a1);
 			recalcStep(a1);
-			v3 = function_10001b13(a1);
+			v3 = recalcSweepAndSettleTime(a1);
 		} else {
 			//*(int16_t *)(a1 + 74) = 0;
 			a1->auto_rbw = VI_FALSE;
@@ -5233,7 +5246,7 @@ int32_t SetRBW(SET9052 *a1, int16_t code) {
 					//*(int16_t *) (a1 + 72) = a2;
 					a1->rbw_code = code;
 					recalcStep(a1);
-					v3 = function_10001b13(a1);
+					v3 = recalcSweepAndSettleTime(a1);
 					return v3 & -0x10000;
 				}
 				v5 = v4;
@@ -5314,7 +5327,7 @@ int32_t SetVBW(SET9052 *a1, uint16_t code) {
 				g8 = v7 & -0x10000 | (int32_t) code;
 				//*(int16_t *)(a1 + 76) = code;
 				a1->vbw_code = code;
-				v6 = function_10001b13(a1);
+				v6 = recalcSweepAndSettleTime(a1);
 				return v6 & -0x10000;
 			}
 			v8 = v7;
@@ -5405,7 +5418,7 @@ int32_t SetSweepCode(SET9052 *a1, int16_t code) {
 			//*(int16_t *)(a1 + 130) = code;
 			a1->sweep_code = code;
 			recalcStep(a1);
-			v3 = function_10001b13(a1);
+			v3 = recalcSweepAndSettleTime(a1);
 			v2 = code < 16 ? 0 : -3;
 		} else {
 			v3 = code;
@@ -5901,8 +5914,12 @@ int32_t StartSweep(SET9052 *a1) {
 	words[7] = a1->settle_time & 0xffff; // settlet_lo
 	words[8] = a1->settle_time >> 16; // settlet_hi
 	words[9] = a1->PreampEnabled? (a1->attenuation & 0xff)|0x8000 : (a1->attenuation & 0xff);
-	words[10] = a1->cell_mode!=0? 0 : a1->num_cells;
-	words[11] = a1->sweep_code; // Check code with IDA; there is RdEngOption which does sth. with sweep_code...
+	words[10] = a1->cell_mode!=1? 0 : a1->num_cells; // I am not 100% sure if !=0 or !=1 is correct; check with IDA
+	// Next line; reading option is ok, but nobody in lib code sets any options, so RgEngOption(*) always returns 0 :-(
+	int32_t opt1 = RdEngOption(a1, ENG_OPT_1 /*1*/);
+	uint16_t sweep_code = (opt1 & 0x10) | a1->sweep_code; // See IDA
+	//dlog(LOG_DEBUG, "EngineOpts: 0x%x, a1->sweep_code=0x%x, sweep_code=0x%x\n", opt1, a1->sweep_code, sweep_code );
+	words[11] = sweep_code;
 
 #endif
 	int32_t v8 = SendCommand(a1, ENG_START_SWP /*1*/, 12, words); // 0x10004433

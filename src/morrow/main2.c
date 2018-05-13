@@ -13,8 +13,8 @@
 
 #include "helper.h"
 
-//#include "compatibility.h"
 #include "vximorrow.h"
+#include "sa.h"
 
 int main(int argc, char **argv) {
 
@@ -101,27 +101,40 @@ int main(int argc, char **argv) {
 	wordPtr[10]=0x0;
 	wordPtr[11]=0x1;
 */
-
-	wordPtr[0]=0x4240; // 1..2Mhz
-	wordPtr[1]=0xf;
-	wordPtr[2]=0x8480;
-	wordPtr[3]=0x1e;
-	wordPtr[4]=0x100;
-	wordPtr[5]=0x6429;
-	wordPtr[6]=0x0;
-	wordPtr[7]=0x0;
-	wordPtr[8]=0x0;
-	wordPtr[9]=0x2a;
-	wordPtr[10]=0x0;
-	wordPtr[11]= MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS;
-
+	setLogLevel(LOG_DEBUG);
 	SET9052 *a1 = sessionForId(sessionId);
+	// Set Sweep code to the same values as mr90xx_MeasureAmplWithFreq() would do.
+	SetSweepCode(a1, MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS);
+
+
+	wordPtr[0]=0x4240; // 1..2Mhz // start LO
+	wordPtr[1]=0xf; // start HI
+	wordPtr[2]=0x8480; // stop LO
+	wordPtr[3]=0x1e; // stop HI
+	wordPtr[4]=0x100; // filter_code
+	wordPtr[5]=0x6429; // step LO
+	wordPtr[6]=0x0; // step HI
+	wordPtr[7]=0x0; // settle time LO
+	wordPtr[8]=0x0; // settle time HI
+	wordPtr[9]=0x2a; // attenuation
+#ifdef ORIG
+	wordPtr[10]=0x0; // num cells
+	wordPtr[11]= MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS; // sweep code
+#else
+	wordPtr[10] = RdCellMode(a1)!=1? 0 : a1->num_cells; // I am not 100% sure if !=0 or !=1 is correct; check with IDA
+	// Next line; reading option is ok, but nobody in lib code sets any options, so RgEngOption(*) always returns 0 :-(
+	int32_t opt1 = RdEngOption(a1, ENG_OPT_1 /*1*/);
+	uint16_t sweep_code = (opt1 & 0x10) | a1->sweep_code; // See IDA
+	//dlog(LOG_DEBUG, "EngineOpts: 0x%x, a1->sweep_code=0x%x, sweep_code=0x%x\n", opt1, a1->sweep_code, sweep_code );
+	wordPtr[11] = sweep_code;
+#endif
+
+	setLogLevel(LOG_INFO);
+
 	uint32_t unused;
 	DLFMModeOff(a1, unused);
 	// Clear FIFO
 	VISA_ClearDataFIFO(a1);
-	// Set Sweep code to the same values as mr90xx_MeasureAmplWithFreq() would do.
-	SetSweepCode(a1, MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS);
 	// Start (continuous) sweep
 	SendCommand(a1, ENG_START_SWP, 12, wordPtr);
 	// Endure that DLFM mode is off for 'normal' data reading
@@ -147,23 +160,19 @@ int main(int argc, char **argv) {
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "data[%d] = 0x%x, %d, %u\n", i, data, data, data);
+			dlog(LOG_INFO, "amp[%d] = 0x%x, %d\n", i, data, data);
 			amp_array[i] = (float64_t) data;
 
-			//while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
-			//}
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "LO[%d] = 0x%x, %d, %u\n", i, data, data, data);
+			dlog(LOG_INFO, "freq lo [%d] = 0x%x, %d\n", i, data, data);
 			uint16_t flo = data;
 
-			//while (VISA_CheckHWStatus(a1) == STAT_EMPTY) {
-			//}
 			sendWord(a1, VXI_ENGINEDATA);
 			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
-			dlog(LOG_INFO, "HI[%d] = 0x%x, %d, %u\n", i, data, data, data);
+			dlog(LOG_INFO, "freq hi [%d] = 0x%x, %d\n", i, data, data);
 			uint16_t fhi = data;
 
 			uint32_t freq = ((uint32_t)fhi << 16) | (flo & 0xffff);
