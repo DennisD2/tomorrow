@@ -98,46 +98,47 @@ int main(int argc, char **argv) {
 main.c output:
 
 ```
-Amplitude =      42.40 dBm, Frequency =    1000000 Hz
-Amplitude =      42.34 dBm, Frequency =    1025641 Hz
-Amplitude =      42.46 dBm, Frequency =    1051282 Hz
-Amplitude =      42.34 dBm, Frequency =    1076923 Hz
-Amplitude =      42.34 dBm, Frequency =    1102564 Hz
-Amplitude =      42.35 dBm, Frequency =    1128205 Hz
-Amplitude =      42.45 dBm, Frequency =    1153846 Hz
-Amplitude =      42.35 dBm, Frequency =    1179487 Hz
-Amplitude =      42.38 dBm, Frequency =    1205128 Hz
-Amplitude =      42.35 dBm, Frequency =    1230769 Hz
-Amplitude =      42.43 dBm, Frequency =    1256410 Hz
-Amplitude =      42.38 dBm, Frequency =    1282051 Hz
-Amplitude =      42.45 dBm, Frequency =    1307692 Hz
-Amplitude =      42.43 dBm, Frequency =    1333333 Hz
-Amplitude =      42.58 dBm, Frequency =    1358974 Hz
-Amplitude =      43.10 dBm, Frequency =    1384615 Hz <-- My Frequency generator runs at 1,385 Mhz
-Amplitude =      42.66 dBm, Frequency =    1410256 Hz
-Amplitude =      42.48 dBm, Frequency =    1435897 Hz
-Amplitude =      42.48 dBm, Frequency =    1461538 Hz
-Amplitude =      42.37 dBm, Frequency =    1487179 Hz
-Amplitude =      42.48 dBm, Frequency =    1512820 Hz
-Amplitude =      42.34 dBm, Frequency =    1538461 Hz
-Amplitude =      42.40 dBm, Frequency =    1564102 Hz
-Amplitude =      42.37 dBm, Frequency =    1589743 Hz
-Amplitude =      42.41 dBm, Frequency =    1615384 Hz
-Amplitude =      42.38 dBm, Frequency =    1641025 Hz
-Amplitude =      42.34 dBm, Frequency =    1666666 Hz
-Amplitude =      42.34 dBm, Frequency =    1692307 Hz
-Amplitude =      42.34 dBm, Frequency =    1717948 Hz
-Amplitude =      42.34 dBm, Frequency =    1743589 Hz
-Amplitude =      42.34 dBm, Frequency =    1769230 Hz
-Amplitude =      42.45 dBm, Frequency =    1794871 Hz
-Amplitude =      42.34 dBm, Frequency =    1820512 Hz
-Amplitude =      42.34 dBm, Frequency =    1846153 Hz
-Amplitude =      42.34 dBm, Frequency =    1871794 Hz
-Amplitude =      42.34 dBm, Frequency =    1897435 Hz
-Amplitude =      42.34 dBm, Frequency =    1923076 Hz
-Amplitude =      42.34 dBm, Frequency =    1948717 Hz
-Amplitude =      42.34 dBm, Frequency =    1974358 Hz
-Amplitude =      42.40 dBm, Frequency =    1999999 Hz
+Amplitude =     -58.05 dBm, Frequency =    1000000 Hz
+Amplitude =     -57.36 dBm, Frequency =    1025641 Hz
+Amplitude =     -58.87 dBm, Frequency =    1051282 Hz
+Amplitude =     -58.15 dBm, Frequency =    1076923 Hz
+Amplitude =     -59.13 dBm, Frequency =    1102564 Hz
+Amplitude =     -59.31 dBm, Frequency =    1128205 Hz
+Amplitude =     -60.41 dBm, Frequency =    1153846 Hz
+Amplitude =     -59.25 dBm, Frequency =    1179487 Hz
+Amplitude =     -60.37 dBm, Frequency =    1205128 Hz
+Amplitude =     -58.38 dBm, Frequency =    1230769 Hz
+Amplitude =     -56.74 dBm, Frequency =    1256410 Hz
+Amplitude =     -54.05 dBm, Frequency =    1282051 Hz
+Amplitude =     -51.81 dBm, Frequency =    1307692 Hz
+Amplitude =     -50.77 dBm, Frequency =    1333333 Hz
+Amplitude =     -48.34 dBm, Frequency =    1358974 Hz
+Amplitude =     -34.76 dBm, Frequency =    1384615 Hz <-- My frequency genertor runs at 1,385Mhz
+Amplitude =     -47.90 dBm, Frequency =    1410256 Hz
+Amplitude =     -51.17 dBm, Frequency =    1435897 Hz
+Amplitude =     -51.58 dBm, Frequency =    1461538 Hz
+Amplitude =     -55.66 dBm, Frequency =    1487179 Hz
+Amplitude =     -55.73 dBm, Frequency =    1512820 Hz
+Amplitude =     -58.32 dBm, Frequency =    1538461 Hz
+Amplitude =     -59.84 dBm, Frequency =    1564102 Hz
+Amplitude =     -62.11 dBm, Frequency =    1589743 Hz
+Amplitude =     -62.80 dBm, Frequency =    1615384 Hz
+Amplitude =     -65.15 dBm, Frequency =    1641025 Hz
+Amplitude =     -64.59 dBm, Frequency =    1666666 Hz
+Amplitude =     -65.74 dBm, Frequency =    1692307 Hz
+Amplitude =     -66.73 dBm, Frequency =    1717948 Hz
+Amplitude =     -66.82 dBm, Frequency =    1743589 Hz
+Amplitude =     -68.91 dBm, Frequency =    1769230 Hz
+Amplitude =     -67.42 dBm, Frequency =    1794871 Hz
+Amplitude =     -68.31 dBm, Frequency =    1820512 Hz
+Amplitude =     -70.87 dBm, Frequency =    1846153 Hz
+Amplitude =     -69.09 dBm, Frequency =    1871794 Hz
+Amplitude =     -71.15 dBm, Frequency =    1897435 Hz
+Amplitude =     -71.23 dBm, Frequency =    1923076 Hz
+Amplitude =     -71.23 dBm, Frequency =    1948717 Hz
+Amplitude =     -71.72 dBm, Frequency =    1974358 Hz
+Amplitude =     -70.95 dBm, Frequency =    1999999 Hz
+
 
 ```
 	
