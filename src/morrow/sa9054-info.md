@@ -126,18 +126,17 @@ ENG_START_SWP: takes 12 words.
 	words[1] = fstart_l >> 16; // fstart_hi
 	words[2] = fstop_l & 0xffff; // fstop_lo
 	words[3] = fstop_l >> 16; // fstop_hi
-	words[4] = a1->filtercode; // (vbw_code << 8)|rbw_code
+	words[4] = (a1->vbw_code << 8)|a1->rbw_code
 	words[5] = fstep_l & 0xffff; // fstep_lo
 	words[6] = fstep_l >> 16; // fstep_hi
 	words[7] = a1->settle_time & 0xffff; // settlet_lo
 	words[8] = a1->settle_time >> 16; // settlet_hi
 	words[9] = a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
-	words[10] = a1->cell_mode!=0? 0 : a1->num_cells; 
-	words[11] = a1->sweep_code; // Check code with IDA; there is RdEngOption which does sth. with sweep_code...
+	words[10] = a1->cell_mode!=1? 0 : a1->num_cells; 
+	words[11] = (RdEngOption(a1, ENG_OPT_1 /*1*/) & 0x10) | a1->sweep_code; // See IDA
 ```
-fstart_l, fstop_l and fstep_l are 32 bit long values of the floating value a1->start,stop and step.
-filtercode is calculated by: (vbw_code << 8)|rbw_code
-words[9] = is calculated by: a1->PreampEnabled? (a1->attenuation & 0ff)|0x8000 : (a1->attenuation & 0ff);
+fstart_l, fstop_l and fstep_l are 32 bit long values of the floating value a1->start, a1->stop and a1->step.
+
 
 ## Shared Lib Function Table
 
@@ -296,11 +295,10 @@ Replaced the call to mr90xx_MeasureAmplWithFreq() with my own code, with DLFM (D
 	wordPtr[7]=0x0; // settle time LO
 	wordPtr[8]=0x0; // settle time HI
 	wordPtr[9]=0x2a; // attenuation
-	wordPtr[10] = RdCellMode(a1)!=1? 0 : a1->num_cells; // I am not 100% sure if !=0 or !=1 is correct; check with IDA
+	wordPtr[10] = RdCellMode(a1)!=1? 0 : a1->num_cells; 
 	// Next line; reading option is ok, but nobody in lib code sets any options, so RgEngOption(*) always returns 0 :-(
 	int32_t opt1 = RdEngOption(a1, ENG_OPT_1 /*1*/);
 	uint16_t sweep_code = (opt1 & 0x10) | a1->sweep_code; // See IDA
-	//dlog(LOG_DEBUG, "EngineOpts: 0x%x, a1->sweep_code=0x%x, sweep_code=0x%x\n", opt1, a1->sweep_code, sweep_code );
 	wordPtr[11] = sweep_code;
 
 	setLogLevel(LOG_INFO);

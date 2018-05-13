@@ -5914,11 +5914,10 @@ int32_t StartSweep(SET9052 *a1) {
 	words[7] = a1->settle_time & 0xffff; // settlet_lo
 	words[8] = a1->settle_time >> 16; // settlet_hi
 	words[9] = a1->PreampEnabled? (a1->attenuation & 0xff)|0x8000 : (a1->attenuation & 0xff);
-	words[10] = a1->cell_mode!=1? 0 : a1->num_cells; // I am not 100% sure if !=0 or !=1 is correct; check with IDA
+	words[10] = a1->cell_mode!=1? 0 : a1->num_cells;
 	// Next line; reading option is ok, but nobody in lib code sets any options, so RgEngOption(*) always returns 0 :-(
 	int32_t opt1 = RdEngOption(a1, ENG_OPT_1 /*1*/);
 	uint16_t sweep_code = (opt1 & 0x10) | a1->sweep_code; // See IDA
-	//dlog(LOG_DEBUG, "EngineOpts: 0x%x, a1->sweep_code=0x%x, sweep_code=0x%x\n", opt1, a1->sweep_code, sweep_code );
 	words[11] = sweep_code;
 
 #endif
