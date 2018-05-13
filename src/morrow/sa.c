@@ -5490,7 +5490,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 	}
 #else
 	int32_t v4 = min_or_max;
-	if (min_or_max != 2 && min_or_max != 4) {
+	if (min_or_max != SWP_MIN /*2*/ && min_or_max != SWP_MAX /*4*/) {
 		return min_or_max & -0x10000 | 0xfffd;
 	}
 #endif
@@ -5505,12 +5505,16 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 		}
 	}
 #else
-	if (data_format != 0 && data_format != 1 && data_format != 2) {
+	if (data_format != MR90XX_DBM_FORMAT /*0*/ && data_format != 1 && data_format !=  MR90XX_NV_FORMAT /*2*/) {
 		return data_format & -0x10000 | 0xfffd;
 	}
 #endif
 
+#ifdef ORIG
 	if ((int16_t) SetSweepCode(a1, (int16_t) (v4 || (SWP_CONT|SWP_FRQPTS) /*9*/)) != 0) {
+#else
+	if ((int16_t) SetSweepCode(a1, v4|SWP_CONT|SWP_FRQPTS) != 0) {
+#endif
 		return IE_ERROR;
 	}
 
