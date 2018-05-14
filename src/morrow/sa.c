@@ -6098,8 +6098,8 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 					v2 = v3;
 					// DD Next line calls FetchDataWord()
 					// Value fetched seems to be a index value. This value is stored in pointPtr[] array at position 'current_i'.
-					// function_100039d0() returns fetched word. v16 contains something different which seems not to be used.
-					int32_t v24 = function_100039d0(v12, v16); // 0x1000bced
+					// wrapFechDataWord() returns fetched word. v16 contains something different which seems not to be used.
+					int32_t v24 = wrapFechDataWord(v12, v16); // 0x1000bced
 					g8 = a1;
 					if (RdErrorStatus(a1) != 0) {
 						int32_t v25 = v23 + 1;
@@ -6127,7 +6127,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 							v2 = v3;
 							g8 = v16;
 							// v28 is LO 2 bytes of a 4 byte float value
-							int32_t v28 = function_100039d0(v12, v16); // 0x1000bd66
+							int32_t v28 = wrapFechDataWord(v12, v16); // 0x1000bd66
 							dlog(LOG_DEBUG, "GetAmplWithFreqExt, read LO 0x%x\n", v28);
 							if (RdErrorStatus(a1) != 0) {
 								int32_t v29 = v27 + 1;
@@ -6151,7 +6151,7 @@ int32_t GetAmplWithFreqExt(SET9052 *a1, int16_t points[], ViReal64 ra_freq[]) {
 									v2 = v30;
 									g8 = v16;
 									// v32 is HI 2 bytes of a 4 byte float value
-									int32_t v32 = function_100039d0(v12, v16); // 0x1000bddc
+									int32_t v32 = wrapFechDataWord(v12, v16); // 0x1000bddc
 									dlog(LOG_DEBUG, "GetAmplWithFreqExt, read HI 0x%x\n", v32);
 									if (RdErrorStatus(a1) != 0) {
 										int32_t v33 = v31 + 1;
@@ -7524,13 +7524,14 @@ int32_t function_1000f065(int32_t a1, int32_t a2) {
 }
 
 // Simply calls VISA_FetchDataWord()
-int32_t function_100039d0(SET9052 *a1, int16_t *a2) {
+// function_100039d0
+int32_t wrapFechDataWord(SET9052 *a1, int16_t *a2) {
 	SET9052 *v1 = a1; // 0x100039d4
 	g3 = v1;
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x100039d8
 	g3 = v2;
 	int32_t result; // 0x10003a2f
-	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff */) {
 #ifdef ORIG
 		if (*(int32_t *)(v1 + 660) != 0) {
 			// FetchDataWord()
@@ -7550,7 +7551,7 @@ int32_t function_100039d0(SET9052 *a1, int16_t *a2) {
 		g8 = v1;
 		result = GetFuncStatusCode(v1);
 	}
-	dlog(LOG_DEBUG, "function_100039d0() --> result=0x%x\n", result);
+	dlog(LOG_DEBUG, "wrapFechDataWord() --> result=0x%x\n", result);
 	return result;
 }
 

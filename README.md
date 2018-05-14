@@ -114,7 +114,7 @@ Amplitude =     -54.05 dBm, Frequency =    1282051 Hz
 Amplitude =     -51.81 dBm, Frequency =    1307692 Hz
 Amplitude =     -50.77 dBm, Frequency =    1333333 Hz
 Amplitude =     -48.34 dBm, Frequency =    1358974 Hz
-Amplitude =     -34.76 dBm, Frequency =    1384615 Hz <-- My frequency genertor runs at 1,385Mhz
+Amplitude =     -34.76 dBm, Frequency =    1384615 Hz <-- My frequency generator runs at 1,385Mhz
 Amplitude =     -47.90 dBm, Frequency =    1410256 Hz
 Amplitude =     -51.17 dBm, Frequency =    1435897 Hz
 Amplitude =     -51.58 dBm, Frequency =    1461538 Hz
