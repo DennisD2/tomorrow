@@ -43,7 +43,9 @@ int main(int argc, char **argv) {
 		dlog(LOG_INFO, "mr90xx_SetEngineModel OK\n\n");
 	}
 
-	ViInt16 number_points = 40;
+#define NUM_POINTS 40
+
+	ViInt16 number_points = NUM_POINTS;
 #ifdef SPAN_149_to_150_MHZ
 	// 149..150 Mhz
 	ViReal64 start_freq = 149000000;
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
 	setLogLevel(LOG_INFO);
 
 	while (1) {
-		ViReal64 amp_array[40], freq_array[40];
+		ViReal64 amp_array[NUM_POINTS], freq_array[NUM_POINTS];
 		mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
 			MR90XX_SWP_MIN,
