@@ -1236,74 +1236,70 @@ int32_t readDataWord(SET9052 *deviceId) {
 	int16_t *v4 = &v3; // 0x10001b2a
 	g5 = v4;
 
-	// 1024 = (1<<10), bit position 10 in response register.
+	// Wait for READREADY bit with timeout.
 	int32_t v5 = readResponseRegT(deviceId, timeout, READREADY /*1024*/, v4); // 0x10001b3b
-	int16_t v6 = v5; // 0x10001b3b
+	//int16_t v6 = v5; // 0x10001b3b
 	int32_t v7; // 0x10001bbc
 	if ((int16_t) v5 <= -1) {
 		v7 = SetErrorStatus(deviceId, 1);
 		g3 = v1;
 		dlog(LOG_DEBUG, "readDataWord() readResponseRegT gave error --> 0x%x\n",
 				v5);
-		return v7 & -0x10000 | (int32_t) v6;
+		return v7 & -0x10000 | (int32_t) v5;
 	}
-	// If bit 10 is clear, this is an error and we return.
 	if ((v3 & READREADY /*1024*/) == 0) {
+		// If we reached timeout and READREADY is not set
 		v7 = SetErrorStatus(deviceId, 2);
 		g3 = v1;
 		dlog(LOG_DEBUG, "readDataWord() 2, READREADY bit not set --> 0x%x\n", v7);
-		return v7 & -0x10000 | (int32_t) v6;
+		return v7 & -0x10000 | (int32_t) v5;
 	}
 
-	// Read in word to v9
-	int32_t v8 = deviceId->session_handle; // *(int32_t *)(deviceId + 468); // 0x10001b78
-	int16_t v9; // bp-8
-	int32_t v10; // 0x10001bb4
-	if (m_viIn16(v8, 1, REG_DATALOW_BO /*14*/, &v9) == 0) {
-		v10 = 0;
+	// Read in word
+	int32_t session_handle = deviceId->session_handle;
+	int16_t word; // bp-8
+	int32_t status; // 0x10001bb4
+	if (m_viIn16(session_handle, 1, REG_DATALOW_BO /*14*/, &word) == 0) {
+		status = 0;
 	} else {
-		v10 = 1;
-		v9 = 0;
+		status = 1;
+		word = 0;
 	}
-	v7 = SetErrorStatus(deviceId, v10);
+	v7 = SetErrorStatus(deviceId, status);
 	g3 = v1;
-	dlog(LOG_DEBUG, "readDataWord() ok --> 0x%x, 0x%x\n", (v9 & 0xffff),
-			v7 & -0x10000 | (int32_t) v9);
-	return v7 & -0x10000 | (int32_t) v9;
+	dlog(LOG_DEBUG, "readDataWord() ok --> 0x%x\n", word);
+	return /*v7 & -0x10000 |*/ (int32_t) word;
 }
 
 // Funny looking, but simply reads in and return a data word using readDataWord().
-// The error handling looks silly. If RdErrorStatus() != 0, and the argument dword is != 0, *dword is set to one. Then, v3 is set to zero and returned.
+// The error handling looks silly.
+// If RdErrorStatus() != 0, and the argument dword is != 0, *dword is set to one. Then, result is set to zero and returned.
 int32_t VISA_FetchDataWord(SET9052 *deviceId, int16_t *dword) {
 	dlog(LOG_DEBUG, "VISA_FetchDataWord()\n");
-	int16_t v1 = readDataWord(deviceId); // bp-8
-	int32_t v2 = RdErrorStatus(deviceId); // 0x10001ae0
-	int32_t v3; // 0x10001b00
-	if (v2 == 0) {
-		v3 = v1;
+	int16_t word = readDataWord(deviceId); // bp-8
+	int32_t status = RdErrorStatus(deviceId); // 0x10001ae0
+	int32_t result; // 0x10001b00
+	if (status == 0) {
+		result = word;
 	} else {
 		if (dword != NULL) {
 			*dword = 1;
 		}
-		v3 = 0;
+		result = 0;
 	}
-	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> 0x%x\n", v3);
-	return v3 | v2 & -0x10000;
+	dlog(LOG_DEBUG, "VISA_FetchDataWord() --> 0x%x\n", result);
+	return result | status /*& -0x10000*/;
 }
 
-int32_t VISA_VerDataBlock(SET9052 *a1, int32_t a2) {
+// I would assume Verify data block. This function just checks if data!=0. Was checked with IDA.
+int32_t VISA_VerDataBlock(SET9052 *a1, int32_t data) {
 	int32_t result; // 0x10001ac7
-	if ((0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff) {
-		// 0x10001aba
-		result = (a2 & 0xffff) != 0;
-		// branch -> 0x10001ac6
+	if (TestFuncStatusAndPtr(a1) < 1 /*(0x10000 * TestFuncStatusAndPtr(a1) || 0xffff) < 0x1ffff*/) {
+		result = (data & 0xffff) != 0;
 	} else {
-		// 0x10001aac
 		result = GetFuncStatusCode(a1);
-		// branch -> 0x10001ac6
 	}
-	// 0x10001ac6
-	dlog( LOG_DEBUG, "VISA_VerDataBlock(%0x%x) -> %d\n", a2, result);
+	dlog( LOG_DEBUG, "VISA_VerDataBlock(%0x%x) -> %d\n", data, result);
 	return result;
 }
 

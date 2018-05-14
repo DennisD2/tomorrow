@@ -118,23 +118,23 @@ int32_t RdSessionString(SET9052 *a1, char *sessionString) {
 
 int32_t TestFuncStatusAndPtr(SET9052 *a1) {
 	if (a1 == NULL) {
-		return g3 & -0x10000 | 0xfff6;
+		return /* g3 & -0x10000 | */ 0xfff6;
 	}
 	g3 = a1;
 	int32_t v1 = RdEngOption(a1, ENG_OPT_2 /*2*/); // 0x10001437
 	g3 = v1;
-	int32_t v2 = 0x10000 * v1; // 0x1000143f
-	g6 = v2 / 0x10000;
-	if ((v2 || 0xffff) < 0x1ffff) {
+	int32_t v2 = /* 0x10000 * */ v1; // 0x1000143f
+	g6 = v2 /* / 0x10000 */;
+	if (v2 < 1 /*(v2 || 0xffff) < 0x1ffff*/) {
 		//dlog( LOG_DEBUG, "TestFuncStatusAndPtr() --> %x, %x\n", v1, v2);
-		return v1 & -0x10000;
+		return 0; // v1 & -0x10000;
 	}
 	g8 = a1;
-	int32_t v3 = GetFuncStatusCode(a1); // 0x1000144f
-	int32_t v4 = 0x10000 * v3 / 0x10000; // 0x1000145b
+	int32_t status = GetFuncStatusCode(a1); // 0x1000144f
+	int32_t v4 = /* 0x10000 * */ status /* / 0x10000 */; // 0x1000145b
 	int32_t result; // 0x1000146f
-	if ((int16_t) v3 >= 0) {
-		result = v4 & -0x10000;
+	if ((int16_t) status >= 0) {
+		result = 0; //v4 & -0x10000;
 	} else {
 		result = v4;
 	}
@@ -3510,9 +3510,9 @@ int32_t GetFuncStatusCode(SET9052 *a1) {
 		// TODO: what is "func_status_code | a1 & -0x10000" doing: why ORing with a1 ?
 		// Maybe my replacement is not the same as the original line. Check this.
 		//result = (int32_t)*(int16_t *)(a1 + 204) | a1 & -0x10000;
-		result = a1->func_status_code | /*(int32_t)a1 &*/-0x10000;
+		result = a1->func_status_code /*| (int32_t)a1 &-0x10000 */;
 	} else {
-		result = g3 & -0x10000 | 0xfff6;
+		result = /* g3 & -0x10000 | */ 0xfff6;
 	}
 	return result;
 }
@@ -3521,15 +3521,15 @@ int32_t RdErrorStatus(SET9052 *a1) {
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1);
 	g3 = v1;
-	int32_t v2 = 0x10000 * v1;
-	g6 = v2 / 0x10000;
+	int32_t v2 = /*0x10000 * */ v1;
+	g6 = v2 /* / 0x10000*/;
 	int32_t result;
-	if ((v2 || 0xffff) < 0x1ffff) {
+	if (v2 < 1 /*(v2 || 0xffff) < 0x1ffff*/) {
 		result = a1->err_status;
 		g6 = result;
 	} else {
 		g8 = a1;
-		result = 0x10000 * GetFuncStatusCode(a1) / 0x10000;
+		result = /*0x10000 * */ GetFuncStatusCode(a1) /* / 0x10000 */;
 	}
 	if (a1->err_status != 0) {
 		dlog( LOG_DEBUG, "RdErrorStatus() --> %x %x\n", a1->err_status, result);
@@ -3545,7 +3545,7 @@ int32_t SetErrorStatus(SET9052 * a1, int16_t status) {
 	int32_t v1 = TestFuncStatusAndPtr(a1);
 	g3 = v1;
 	int32_t result;
-	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+	if (v1 < 1 /*(0x10000 * v1 || 0xffff) < 0x1ffff*/) {
 		int32_t v2 = status;
 		a1->err_status = v2;
 		result = /*(int32_t)a1 & -0x10000 | */v2;
@@ -7523,9 +7523,10 @@ int32_t function_1000f065(int32_t a1, int32_t a2) {
 	return result;
 }
 
-// Simply calls VISA_FetchDataWord()
+// Simply calls VISA_FetchDataWord(). fetched word is returned.
+// Menaing 'dword' parameter is unknown so far.
 // function_100039d0
-int32_t wrapFechDataWord(SET9052 *a1, int16_t *a2) {
+int32_t wrapFechDataWord(SET9052 *a1, int16_t *dword) {
 	SET9052 *v1 = a1; // 0x100039d4
 	g3 = v1;
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x100039d8
@@ -7537,15 +7538,15 @@ int32_t wrapFechDataWord(SET9052 *a1, int16_t *a2) {
 			// FetchDataWord()
 			int32_t * v3 = (int32_t *)(v1 + 680);// 0x10003a04
 			if (*v3 != 0) {
-				g8 = a2;
+				g8 = val16;
 				__pseudo_call(*v3);
 				return 0x10000 * v1 / 0x10000 | v1 & -0x10000;
 			}
 		}
 		result = (int32_t)v1 & -0x10000 | 0xffeb;
 #else
-		g8 = a2;
-		result = VISA_FetchDataWord(a1, a2);
+		g8 = dword;
+		result = VISA_FetchDataWord(a1, dword);
 #endif
 	} else {
 		g8 = v1;
