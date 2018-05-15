@@ -4666,18 +4666,18 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 	if ((0x10000 * v3 || 0xffff) < 0x1ffff) {
 		//*(int16_t *) (a1 + 98) = level;
 		a1->ref_level = level;
-		int32_t v4 = 0x10000 * RdDetect(a1); // 0x1000642e
+		int32_t detect_code = RdDetect(a1); // 0x1000642e
 		int32_t v5 = level; // 0x10006560
-		int32_t v6 = 0x10000 * RdMaxAttLimit(a1) / 0x10000 + MIN_REFL /* - 40*/; // 0x10006573
+		int32_t v6 = RdMaxAttLimit(a1) + MIN_REFL /* - 40*/; // 0x10006573
 		g8 = v6;
 		int32_t v7; // eax
 		int16_t v8;
 		int32_t v9;
-		if (v4 != 0x200000) {
+		if (detect_code != 0x2) {
 			int16_t v10;
 			int32_t v11;
 			if ((int16_t) v5 > (int16_t) v6) {
-				v10 = 0x10000 * RdMaxAttLimit(a1) / 0x10000 + 0xffd8;
+				v10 = RdMaxAttLimit(a1) + 0xffd8;
 				v11 = 1;
 			} else {
 				g8 = v5;
@@ -4722,7 +4722,7 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 			int16_t v14;
 			int32_t v15;
 			if ((int16_t) v5 > (int16_t) v6) {
-				v14 = 0x10000 * RdMaxAttLimit(a1) / 0x10000 + 0xffd8;
+				v14 = RdMaxAttLimit(a1) + 0xffd8;
 				v15 = 1;
 			} else {
 				g8 = v5;
@@ -4752,14 +4752,14 @@ int32_t SetRefLevel(SET9052 *a1, int16_t level) {
 					v22 = *v21;
 					v23 = v22;
 					v20 = v22;
-					if ((int16_t) v16
-							> (int16_t) (0x10000 * v19 / 0x10000 + 0xffba)) {
+					if ((int16_t) v16 > (int16_t) (v19 + 0xffba)) {
 						v18 = (int32_t) (v20 & -65) | v23 & -256;
 					} else {
 						v18 = (int32_t) (v20 | 64) | v23 & -256;
 					}
 					*v21 = (int16_t) v18;
 					g8 = a1;
+					// TODO check next line with IDA
 					RdLinearAttn(a1);
 					//*(int16_t *) (a1 + 96) = (int16_t) v17;
 					a1->attenuation = (int16_t) v17;
@@ -4820,7 +4820,7 @@ int32_t RdMaxAttLimit(SET9052 *a1) {
 	int32_t result; // 0x100063e5
 	if (v2 != SA9085 /*768*/&& v2 < SA9085 /*768*/== (767 - v3 & v3) < 0) {
 		if (v2 == SA9034 /*1024*/) {
-			result = (int32_t) a1 & -0x10000 | 60;
+			result = /*(int32_t) a1 & -0x10000 |*/ 60;
 		} else {
 			g8 = a1;
 			result = SetFuncStatusCode(a1, IE_ERR_ENGMOD /*-13*/) | 0xffff;
@@ -4828,7 +4828,7 @@ int32_t RdMaxAttLimit(SET9052 *a1) {
 		return result;
 	}
 	if (v2 == SA9085 /*768*/) {
-		result = (int32_t) a1 & -0x10000 | 70;
+		result = /*(int32_t) a1 & -0x10000 |*/ 70;
 	} else {
 		if (v2 != SA9052 /*256*/) {
 			if (v2 != SA9054 /*512*/) {
@@ -4838,7 +4838,7 @@ int32_t RdMaxAttLimit(SET9052 *a1) {
 				return result2;
 			}
 		}
-		result = (int32_t) a1 & -0x10000 | 60;
+		result = /*(int32_t) a1 & -0x10000 |*/ 60;
 	}
 	return result;
 }
@@ -4857,14 +4857,12 @@ int32_t RdDetect(SET9052 *a1) {
 		if ((*v3 & DTEC_LIN /*32*/) != 0) {
 			v1 = DTEC_LIN /*32*/;
 		}
-		int32_t v4 = (int32_t) *v3 & DTEC_3IF /*8*/; // 0x10005dc7
-		g8 = v4;
-		if (v4 != 0) {
+		if ((*v3 & DTEC_3IF /*8*/) != 0) {
 			v1 = DTEC_3IF /*8*/;
 		}
 		g3 = a1;
 		result = (int32_t) v1
-				| SetFuncStatusCode(a1, IE_SUCCESS /*0*/) & -0x10000;
+				| SetFuncStatusCode(a1, IE_SUCCESS /*0*/) /* & -0x10000*/;
 	} else {
 		result = GetFuncStatusCode(a1);
 	}

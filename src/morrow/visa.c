@@ -31,8 +31,8 @@ static int32_t readStatusReg(SET9052 *deviceId, uint16_t *val16);
 static int32_t writeStatusReg(SET9052 *deviceId, uint16_t word, int32_t a3,
 		int32_t a4);
 
-static int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t *val16);
-static int32_t readResponseRegT(SET9052 *deviceId, int32_t timeout,
+int32_t readResponseReg(SET9052 *deviceId, int16_t mask, int16_t *val16);
+int32_t readResponseRegT(SET9052 *deviceId, int32_t timeout,
 		int16_t mask, int16_t *val16);
 
 static int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3,
@@ -511,7 +511,7 @@ int32_t DLFMModeOn(SET9052 *deviceId) {
 // function_10001354
 int32_t _doSendWord(SET9052 *deviceId, uint16_t command, int32_t a3,
 		int32_t* response) {
-	dlog( LOG_DEBUG, "_doSendWord %x=%s\n", command,
+	dlog( LOG_DEBUG, "_doSendWord(%x=%s)\n", command,
 			getCmdNameP2((command & 0xffff)));
 	int32_t v1 = g3; // bp-4
 	g3 = &v1;
@@ -795,7 +795,7 @@ int32_t readResponseRegT(SET9052 * deviceId, int32_t timeout, int16_t mask,
 		}
 		if ((*val & mask) != 0) {
 			long delta_s_in_ms = (now.tv_sec - start.tv_sec)*1000L;
-			long delta_ns_in_ms = (now.tv_nsec - start.tv_nsec)/1000L;
+			long delta_ns_in_ms = (now.tv_nsec - start.tv_nsec)/1000000L;
 			long delta = delta_s_in_ms + delta_ns_in_ms;
 			dlog(LOG_DEBUG, "\treadResponseRegT ok after %ld ms.\n", delta);
 			return 0; // OK

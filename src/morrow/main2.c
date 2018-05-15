@@ -16,6 +16,8 @@
 #include "vximorrow.h"
 #include "sa.h"
 
+#include "time.h"
+
 int main(int argc, char **argv) {
 
 	setLogLevel(LOG_INFO);
@@ -46,9 +48,10 @@ int main(int argc, char **argv) {
 		dlog(LOG_INFO, "mr90xx_SetEngineModel OK\n\n");
 	}
 
-	ViInt16 number_points = 40;
-	ViReal64 start_freq =1000000;
-	ViReal64 stop_freq = 2000000;
+#define NUM_POINTS 40
+	ViInt16 number_points = NUM_POINTS;
+	ViReal64 start_freq =1200000;
+	ViReal64 stop_freq = 1600000;
 	ViInt16 ref_level = 2;
 	mr90xxStatus = mr90xx_InitGuiSweep(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points);
@@ -61,7 +64,7 @@ int main(int argc, char **argv) {
 
 	setLogLevel(LOG_INFO);
 
-	ViReal64 amp_array[40], freq_array[40];
+	ViReal64 amp_array[NUM_POINTS], freq_array[NUM_POINTS];
 	/*mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
 		MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
 		MR90XX_SWP_MIN,
@@ -72,62 +75,32 @@ int main(int argc, char **argv) {
 		dlog(LOG_INFO, "mr90xx_MeasureAmplWithFreq OK\n");
 	}*/
 	uint16_t wordPtr[12];
-/*
-	wordPtr[0]=0x8f40; // 149..150 Mhz
-	wordPtr[1]=0x8e1;
-	wordPtr[2]=0xd180;
-	wordPtr[3]=0x8f0;
-	wordPtr[4]=0x100;
-	wordPtr[5]=0x6429;
-	wordPtr[6]=0x0;
-	wordPtr[7]=0x0;
-	wordPtr[8]=0x0;
-	wordPtr[9]=0x2a;
-	wordPtr[10]=0x0;
-	wordPtr[11]=0x1;
-*/
 
-/*
-	wordPtr[0]=0xbba0; // 900K..1100Khz
-	wordPtr[1]=0xd;
-	wordPtr[2]=0xc8e0;
-	wordPtr[3]=0x10;
-	wordPtr[4]=0x100;
-	wordPtr[5]=0x1408;
-	wordPtr[6]=0x0;
-	wordPtr[7]=0x0;
-	wordPtr[8]=0x0;
-	wordPtr[9]=0x2a;
-	wordPtr[10]=0x0;
-	wordPtr[11]=0x1;
-*/
 	setLogLevel(LOG_DEBUG);
 	SET9052 *a1 = sessionForId(sessionId);
 	// Set Sweep code to the same values as mr90xx_MeasureAmplWithFreq() would do.
 	SetSweepCode(a1, MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS);
 
-
-	wordPtr[0]=0x4240; // 1..2Mhz // start LO
-	wordPtr[1]=0xf; // start HI
-	wordPtr[2]=0x8480; // stop LO
-	wordPtr[3]=0x1e; // stop HI
-	wordPtr[4]=0x100; // filter_code
-	wordPtr[5]=0x6429; // step LO
-	wordPtr[6]=0x0; // step HI
-	wordPtr[7]=0x0; // settle time LO
-	wordPtr[8]=0x0; // settle time HI
-	wordPtr[9]=0x2a; // attenuation
-#ifdef ORIG
-	wordPtr[10]=0x0; // num cells
-	wordPtr[11]= MR90XX_SWP_MIN|MR90XX_SWP_CONT|MR90XX_SWP_FRQPTS; // sweep code
-#else
-	wordPtr[10] = RdCellMode(a1)!=1? 0 : a1->num_cells; // I am not 100% sure if !=0 or !=1 is correct; check with IDA
+	//SetNumCells(a1,40);
+	uint32_t fstart = __ftol(start_freq);
+	uint32_t fstop = __ftol(stop_freq);
+	uint32_t fstep = (fstop-fstart)/(a1->num_cells-1); // __ftol(a1->step);
+	wordPtr[0] = fstart & 0xffff; // 0x4240; // 1..2Mhz // start LO
+	wordPtr[1] = fstart >> 16; // 0xf; // start HI
+	wordPtr[2] = fstop & 0xffff; 0x8480; // stop LO
+	wordPtr[3] = fstop >> 16; // 0x1e; // stop HI
+	wordPtr[4] = 0x100; // filter_code
+	wordPtr[5] = fstep&0xffff; // 0x6429; // step LO
+	wordPtr[6] = fstep >> 16 ; //0x0; // step HI
+	wordPtr[7] = 0x0; // settle time LO
+	wordPtr[8] = 0x0; // settle time HI
+	wordPtr[9] = a1->PreampEnabled? (a1->attenuation & 0xff)|0x8000 : (a1->attenuation & 0xff); // 0x2a; // attenuation
+	wordPtr[10] = RdCellMode(a1)!=1? 0 : a1->num_cells;
 	// Next line; reading option is ok, but nobody in lib code sets any options, so RgEngOption(*) always returns 0 :-(
 	int32_t opt1 = RdEngOption(a1, ENG_OPT_1 /*1*/);
 	uint16_t sweep_code = (opt1 & 0x10) | a1->sweep_code; // See IDA
 	//dlog(LOG_DEBUG, "EngineOpts: 0x%x, a1->sweep_code=0x%x, sweep_code=0x%x\n", opt1, a1->sweep_code, sweep_code );
 	wordPtr[11] = sweep_code;
-#endif
 
 	setLogLevel(LOG_INFO);
 
@@ -141,6 +114,13 @@ int main(int argc, char **argv) {
 	DLFMModeOff(a1, unused);
 
 	int i;
+
+	struct timespec start, now;
+	if (clock_gettime( CLOCK_REALTIME, &start) == -1) {
+		dlog(LOG_ERROR, "clock gettime");
+		exit(-1);
+	}
+
 
 	int no_data = 1;
 	for (i = 0; i < number_points; i++) {
@@ -158,19 +138,21 @@ int main(int argc, char **argv) {
 			amp_array[i] = (float64_t) data;
 #else
 			sendWord(a1, VXI_ENGINEDATA);
-			//data = readDataWord(a1);
+//			data = dd_p1Command(a1->session_handle, VXI_ENGINEDATA, 0);
+//			uint32_t val;
+//			while (readResponseReg(a1, READREADY, &val) != IE_SUCCESS) {
+//				// wait
+//			}
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
 			dlog(LOG_INFO, "amp[%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
 			amp_array[i] = (float64_t) data;
 
 			sendWord(a1, VXI_ENGINEDATA);
-			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
 			dlog(LOG_INFO, "freq lo [%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
 			uint16_t flo = data;
 
 			sendWord(a1, VXI_ENGINEDATA);
-			//data = readDataWord(a1);
 			dd_viIn16(a1->session_handle, 1, REG_DATALOW_BO, &data);
 			dlog(LOG_INFO, "freq hi [%d] = 0x%x, %d\n", i, data, data); // <-- line is required; timing issue!
 			uint16_t fhi = data;
@@ -180,13 +162,23 @@ int main(int argc, char **argv) {
 #endif
 		}
 	}
+	if (clock_gettime( CLOCK_REALTIME, &now) == -1) {
+		dlog(LOG_ERROR, "clock gettime");
+		exit(-1);
+	}
 
 	if (no_data) {
 		return 1;
 	}
 
 	for (i = 0; i < number_points; i++) {
-		float f = start_freq + i*(stop_freq-start_freq)/ number_points;
-		printf("[%d, %10.0f] Amplitude = %10.2f, Frequency = %10.0f\n", i, f, amp_array[i], freq_array[i]);
+		//float f = start_freq + i*(stop_freq-start_freq)/ number_points;
+		printf("[%d] Amplitude = %10.2f, Frequency = %10.0f\n", i, amp_array[i], freq_array[i]);
 	}
+
+	long delta_s_in_ms = (now.tv_sec - start.tv_sec)*1000L;
+	long delta_ns_in_ms = (now.tv_nsec - start.tv_nsec)/1000L/1000L;
+	long delta = delta_s_in_ms + delta_ns_in_ms;
+	dlog(LOG_INFO, "\tTime spent: %ld ms, %ld ms per iteration.\n", delta, delta/number_points);
+
 }
