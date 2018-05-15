@@ -259,6 +259,8 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 
 ## Todos
 - GetRBWwide() is reimplemented correctly, but the code then fails. Correct this.
+- A 40 point sweep needs ~30 seconds. This is way too long. The manual says that settling times etc. are in millisecond range. So why
+  are the aquisitions run that long? Analyze timing and find out where all the time is lost.
 - Make dd_readEngineStatus() original again(find out original name and make code use vi* only)
 - Fix Error mapping ENG->SW domain
 - Check all "DD XXX" and "TODO" notes and solve the issues
@@ -270,8 +272,7 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 - mr90xx_init() OK with tweaks
 - mr90xx_setEngine() OK 
 - mr90xx_initGuiSweep() OK with tweaks
-- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping and fetches amplitude data.
-  But data fetching from device does not contain frequency values.
+- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping and fetches amplitude and frequency data.
 
 At this time I did 2 things:
 - Copied main.c to main2.c and changed the frequency range there to 1..2Mhz.
@@ -409,5 +410,4 @@ So  amplitude and frequency seems to be retrieved correctly!
 
 ## Ongoing work
 
-I can retrieve amplitude and frequency data in Non-DLFM mode, but the original function mr90xx_MeasureAmplWithFreq() does only retrieve amplitude for now. This needs further analysis...
 

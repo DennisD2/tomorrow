@@ -10,7 +10,6 @@ src/morrow/orig contains decompilation results for the original Windows 95 libra
 
 src/morrow/rpc* contains my try to use ONS/RPC together with the Morrow Spectrum Analyzer. This try failed because it seems the Word Serial Protocol (binary data stream) does not work via ONS/RPC.
 
-For deeper discussion of `tomorrow` code, see [src/morrow/sa9054-info.md](src/morrow/sa9054-info.md).
 
 ## State of code:
 
@@ -144,11 +143,14 @@ Amplitude =     -70.95 dBm, Frequency =    1999999 Hz
 ```
 A 40 point spectrum was fed into gnuplot:
 
-![40 points spectrum in the range 1..2Mhz](src/spectrum000.png "40 points spectrum in the range 1..2Mhz")
+![40 points spectrum in the range 1..2Mhz](doc/spectrum000.png "40 points spectrum in the range 1..2Mhz")
 
 A 500 points spectrum in the same range:
-![500 points spectrum in the range 1..2Mhz](src/spectrum500.png "500 points spectrum in the range 1..2Mhz")
+![500 points spectrum in the range 1..2Mhz](doc/spectrum500.png "500 points spectrum in the range 1..2Mhz")
 
+For deeper discussion of `tomorrow` code, see [src/morrow/sa9054-info.md](src/morrow/sa9054-info.md).
+
+# Build the code
 See Makefile for build targets.
 
 Build with
