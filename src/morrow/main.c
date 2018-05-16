@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
 		dlog(LOG_INFO, "mr90xx_InitGuiSweep OK\n\n");
 	}
 
-	setLogLevel(LOG_DEBUG);
+	setLogLevel(LOG_INFO);
 
 	while (1) {
 		ViReal64 amp_array[NUM_POINTS], freq_array[NUM_POINTS];
