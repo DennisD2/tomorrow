@@ -914,19 +914,24 @@ int32_t recalcRBW(SET9052 *a1) {
 			}
 
 			int32_t v11 = GetRBWwide(RBW_300HZ /*0*/); // 0x10001daf
+#ifdef ORIG
 			int32_t v12 = (0x100000000 * (int64_t) (v11 >> 31) | (int64_t) v11)
 					/ 3; // 0x10001dbd
-			int16_t v13; // 0x10001e7f
-			if ((v12 & 256) == 0) {
+#else
+			int32_t v12 = v11 / 3;
+#endif
+			int16_t auto_vbw; // 0x10001e7f
+			//if ((v12 & 256) == 0) {
+			if (v12 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 0;
 				a1->rbw_code = RBW_300HZ /*0*/;
 				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
 				a1->step = (int32_t) (float32_t) cell_width;
 				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
 				*(int32_t *) (a1 + 28) = 0;
-				v13 = a1->auto_vbw; // *(int16_t *)(a1 + 78);
-				g8 = v13;
-				if (v13 != IE_TRUE /*1*/) {
+				auto_vbw = a1->auto_vbw; // *(int16_t *)(a1 + 78);
+				g8 = auto_vbw;
+				if (auto_vbw != IE_TRUE /*1*/) {
 					result = 0;
 				} else {
 					result = recalcVBW(a1);
@@ -936,18 +941,23 @@ int32_t recalcRBW(SET9052 *a1) {
 			}
 
 			int32_t v14 = GetRBWwide(RBW_3KHZ /*1*/); // 0x10001ddf
+#ifdef ORIG
 			int32_t v15 = (0x100000000 * (int64_t) (v14 >> 31) | (int64_t) v14)
 					/ 3; // 0x10001ded
-			if ((v15 & 256) == 0) {
+#else
+			int32_t v15 = v14 / 3;
+#endif
+			//if ((v15 & 256) == 0) {
+			if (v15 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 1;
 				a1->rbw_code = RBW_3KHZ /*1*/;
 				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
 				a1->step = (int32_t) (float32_t) cell_width;
 				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
 				*(int32_t *) (a1 + 28) = 0;
-				v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
-				g8 = v13;
-				if (v13 != 1) {
+				auto_vbw = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
+				g8 = auto_vbw;
+				if (auto_vbw != 1) {
 					result = 0;
 				} else {
 					result = recalcVBW(a1);
@@ -957,18 +967,23 @@ int32_t recalcRBW(SET9052 *a1) {
 			}
 
 			int32_t v16 = GetRBWwide(RBW_30KHZ /*2*/); // 0x10001e0c
+#ifdef ORIG
 			int32_t v17 = (0x100000000 * (int64_t) (v16 >> 31) | (int64_t) v16)
 					/ 3; // 0x10001e1a
-			if ((v17 & 256) == 0) {
+#else
+			int32_t v17 = v16 / 3;
+#endif
+			//if ((v17 & 256) == 0) {
+			if (v17 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 2;
 				a1->rbw_code = RBW_30KHZ /*2*/;
 				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
 				a1->step = (int32_t) (float32_t) cell_width;
 				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
 				*(int32_t *) (a1 + 28) = 0;
-				v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
-				g8 = v13;
-				if (v13 != 1) {
+				auto_vbw = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
+				g8 = auto_vbw;
+				if (auto_vbw != 1) {
 					result = 0;
 				} else {
 					result = recalcVBW(a1);
@@ -978,31 +993,37 @@ int32_t recalcRBW(SET9052 *a1) {
 			}
 
 			int32_t v18 = GetRBWwide(RBW_3MHZ /*3*/); // 0x10001e39
+#ifdef ORIG
 			int32_t v19 = (0x100000000 * (int64_t) (v18 >> 31) | (int64_t) v18)
 					/ 3; // 0x10001e47
-			if ((v19 & 256) != 0) {
+#else
+			int32_t v19 = v18 / 3;
+#endif
+			//if ((v19 & 256) != 0) {
+			if (v19 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 4;
 				a1->rbw_code = RBW_3MHZ;
 			} else {
 				//*(int16_t *)(a1 + 72) = 3;
 				a1->rbw_code = RBW_300KHZ;
 			}
+
 			//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-			a1->step = (int32_t) (float32_t) cell_width;
-			// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
-			*(int32_t *) (a1 + 28) = 0;
-			v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
-			g8 = v13;
-			if (v13 != 1) {
+			a1->step = /*(int32_t) (float32_t)*/ cell_width;
+			auto_vbw = a1->auto_vbw; // *(int16_t *)(a1 + 78);
+			g8 = auto_vbw;
+			if (auto_vbw != IE_TRUE /*1*/) {
 				result = 0;
 			} else {
 				result = recalcVBW(a1);
 			}
 			g4 = v1;
+			dlog(LOG_DEBUG, "recalcRBW() --> %d\n", a1->rbw_code);
 			return result;
 		}
 		result = 0;
 	}
+	dlog(LOG_DEBUG, "recalcRBW() --> %d\n", a1->rbw_code);
 	g4 = v1;
 	return result;
 }
