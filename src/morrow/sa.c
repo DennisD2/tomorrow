@@ -875,42 +875,41 @@ int32_t recalcRBW(SET9052 *a1) {
 	g4 = &v1;
 	g3 = a1;
 	g8 = a1;
-	int32_t v2 = 0x10000 * TestFuncStatusAndPtr(a1); // 0x10001d2d
-	int32_t result = v2 / 0x10000; // 0x10001e97
-	if ((v2 || 0xffff) < 0x1ffff) {
-		int16_t v3 = a1->auto_rbw; // *(int16_t *)(a1 + 74); // 0x10001d3c
-		g8 = v3;
-		if (v3 != AUTO_OFF /*0*/) {
-
+	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001d2d
+	int32_t result = v2; // 0x10001e97
+	if (v2 < 1 /*(v2 || 0xffff) < 0x1ffff*/) {
+		int16_t auto_rbw = a1->auto_rbw; // *(int16_t *)(a1 + 74); // 0x10001d3c
+		g8 = auto_rbw;
+		if (auto_rbw == AUTO_ON /*!= AUTO_OFF 0*/) {
 			float64_t v4 = a1->stop; // *(float64_t *)(a1 + 16); // 0x10001d4f
 			float64_t v5 = a1->start; // *(float64_t *)(a1 + 8); // 0x10001d52
 #ifdef ORIG
 			// Decompiled wrong.
-			float64_t v6 = (float80_t) v5 - (float80_t) v4; // 0x10001d55
+			float64_t span = (float80_t) v5 - (float80_t) v4; // 0x10001d55
 #else
-			float64_t v6 = (float80_t) v4 - (float80_t) v5; // 0x10001d55
+			float64_t span = v4 - v5;
 #endif
 			int16_t *v7 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10001d5b
-			float64_t v8;
+			float64_t cell_width;
 			if (*v7 != IE_FALSE /*0*/) {
 				if (*v7 == IE_TRUE /*1*/) {
 					int32_t v9 = a1->num_step_pts; // *(int32_t *)(a1 + 168); // 0x10001d92
 #ifdef ORIG
 					// Decompiled wrong.
-					v8 = (float80_t) (v9 - 1) / (float80_t) v6;
+					cell_width = (float80_t) (v9 - 1) / (float80_t) span;
 #else
-					v8 = (float80_t) v6 / (float80_t) (v9 - 1) ;
+					cell_width = span / (v9 - 1) ;
 #endif
 				} else {
-					v8 = 0.0;
+					cell_width = 0.0;
 				}
 			} else {
 				int32_t v10 = a1->num_swp_pts /* *(int32_t *)(a1 + 164) */- 1; // 0x10001d72
 #ifdef ORIG
 				// Decompiled wrong.
-				v8 = (float80_t) v10 / (float80_t) v6;
+				cell_width = (float80_t) v10 / (float80_t) span;
 #else
-				v8 = (float80_t) v6 / (float80_t) v10;
+				cell_width = span / v10;
 #endif
 			}
 
@@ -922,7 +921,7 @@ int32_t recalcRBW(SET9052 *a1) {
 				//*(int16_t *)(a1 + 72) = 0;
 				a1->rbw_code = RBW_300HZ /*0*/;
 				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-				a1->step = (int32_t) (float32_t) v8;
+				a1->step = (int32_t) (float32_t) cell_width;
 				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
 				*(int32_t *) (a1 + 28) = 0;
 				v13 = a1->auto_vbw; // *(int16_t *)(a1 + 78);
@@ -943,7 +942,7 @@ int32_t recalcRBW(SET9052 *a1) {
 				//*(int16_t *)(a1 + 72) = 1;
 				a1->rbw_code = RBW_3KHZ /*1*/;
 				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-				a1->step = (int32_t) (float32_t) v8;
+				a1->step = (int32_t) (float32_t) cell_width;
 				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
 				*(int32_t *) (a1 + 28) = 0;
 				v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
@@ -964,7 +963,7 @@ int32_t recalcRBW(SET9052 *a1) {
 				//*(int16_t *)(a1 + 72) = 2;
 				a1->rbw_code = RBW_30KHZ /*2*/;
 				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-				a1->step = (int32_t) (float32_t) v8;
+				a1->step = (int32_t) (float32_t) cell_width;
 				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
 				*(int32_t *) (a1 + 28) = 0;
 				v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
@@ -989,7 +988,7 @@ int32_t recalcRBW(SET9052 *a1) {
 				a1->rbw_code = RBW_300KHZ;
 			}
 			//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-			a1->step = (int32_t) (float32_t) v8;
+			a1->step = (int32_t) (float32_t) cell_width;
 			// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
 			*(int32_t *) (a1 + 28) = 0;
 			v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
