@@ -1630,14 +1630,16 @@ int32_t IsValidStep(SET9052 *a1) {
 	int32_t v1 = g9; // 0x10006dd2
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006dd7
-	if ((0x10000 * v2 || 0xffff) >= 0x1ffff) {
+	if (v2 >= 1 /*(0x10000 * v2 || 0xffff) >= 0x1ffff*/) {
 		g9 = v1;
 		dlog( LOG_DEBUG, "IsValidStep() -> %d\n", v2 | 0xffff);
 		return v2 | 0xffff;
 	}
 	int32_t v3 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10006df7
-	int64_t v4 = 0x100000000 * (int64_t) (v3 >> 31) | (int64_t) v3; // 0x10006e05
+	//int64_t v4 = 0x100000000 * (int64_t) (v3 >> 31) | (int64_t) v3; // 0x10006e05
+	int64_t v4 = (int64_t)v3;
 	int32_t v5 = v4 / 3; // 0x10006e05
+#ifdef ORIG
 	g8 = v4 % 3;
 	int32_t result; // 0x10006e24
 	if ((v5 & 256) == 0) {
@@ -1646,6 +1648,14 @@ int32_t IsValidStep(SET9052 *a1) {
 		result = v5 & -0x10000;
 	}
 	g9 = v1;
+#else
+	int32_t result;
+	if (v5 < a1->step) {
+		result = 1;
+	} else {
+		result = 0;
+	}
+#endif
 	dlog( LOG_DEBUG, "IsValidStep() -> %d\n", result);
 	return result;
 }
