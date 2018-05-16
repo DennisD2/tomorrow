@@ -25,7 +25,6 @@ static int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7, int32_t a8);
 
 static int32_t FreqInRange(SET9052 * a1, float64_t freq);
-int32_t VBWCodeFromFreq(float64_t frequency);
 static char *alloc_1000da64(int32_t size);
 
 static int32_t g3 = 0; // eax
@@ -51,7 +50,7 @@ static int32_t g107 = 0;
 static int32_t g129 = 0;
 
 float80_t frequencyLimit = 0.0L; // st0 vbw????
-//static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
+static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
 static float80_t g160_currentStepWidth = 0.0L; // st1
 
 char *__nh_malloc(int32_t numBytes, int32_t a2) {
@@ -518,7 +517,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 }
 
 int32_t SetZSamplRate(/*int32_t a1*/SET9052 *a1, int64_t rate) {
-	dlog( LOG_DEBUG, "SetZSamplRate(%d)\n", rate);
+	dlog( LOG_DEBUG, "SetZSamplRate(0x%x)\n", rate);
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100067e3
 	g3 = v1;
@@ -571,9 +570,13 @@ int32_t recalcStep(SET9052 *a1) {
 	// Next line gives negative value; after examining with IDA, I assume decompiled wrong.
 	float64_t v6 = (float80_t) v5 - (float80_t) v3; // 0x10001754
 #else
-	float64_t v6 = v3 - v5;
+	float64_t v6 = (float80_t) v3 - (float80_t) v5;
 #endif
-	if (v3 > v5 /* ((int32_t) a1 & 256)a1->op_mode == 0*/) {
+	// DD: a1 is a pointer; what does 'a1&256' mean???
+	// maybe, a1 = a1+0 = a1->op_mode ...
+	// but what is with pointer dereference
+	// i.e. there is no dereferencing, so it looks like being used as a pointer after all...
+	if (/*((int32_t) a1 & 256)*/a1->op_mode == 0) {
 		int32_t *deflt_pt_cntPtr = &a1->deflt_pt_cnt;
 		int32_t *num_swp_ptsPtr = &a1->num_swp_pts;
 		*num_swp_ptsPtr = *deflt_pt_cntPtr;
@@ -589,14 +592,14 @@ int32_t recalcStep(SET9052 *a1) {
 				// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 				a1->step = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / (float80_t) v6);
 #else
-				a1->step = (float64_t) (v6 / (*num_step_ptsPtr - 1));
+				a1->step = (float64_t) ((float80_t) (float80_t) v6 / (*num_step_ptsPtr - 1));
 #endif
 				if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/== MR90XX_AUTO_ON /*1*/) {
-					recalcRBW(a1);
+					setup_rbw(a1);
 				}
 				if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */== MR90XX_AUTO_ON /*1*/) {
 					g8 = a1;
-					recalcVBW(a1);
+					setup_vbw(a1);
 				}
 			} else {
 				if (step_mode == MR90XX_STEPSIZ /*3*/) {
@@ -606,11 +609,11 @@ int32_t recalcStep(SET9052 *a1) {
 					g8 = v12;
 					*num_swp_ptsPtr = v12;
 					if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/ == MR90XX_AUTO_ON /*1*/) {
-						recalcRBW(a1);
+						setup_rbw(a1);
 					}
 					if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */ == MR90XX_AUTO_ON /*1*/) {
 						g8 = a1;
-						recalcVBW(a1);
+						setup_vbw(a1);
 					}
 				}
 			}
@@ -622,10 +625,10 @@ int32_t recalcStep(SET9052 *a1) {
 
 		if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/!= MR90XX_AUTO_ON /*1*/) {
 			if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */== MR90XX_AUTO_ON /*1*/) {
-				recalcVBW(a1);
+				setup_vbw(a1);
 			}
 		} else {
-			recalcRBW(a1);
+			setup_rbw(a1);
 		}
 
 		int16_t *cell_modePtr;
@@ -710,13 +713,7 @@ int32_t recalcStep(SET9052 *a1) {
 			int32_t v28 = __ftol(v25); // 0x10001882
 			*num_step_ptsPtr = v28;
 			int32_t *v29 = &a1->num_cells; // (int32_t *)(a1 + 132); // 0x1000189c
-#ifdef ORIG
 			if (v28 < *v29) {
-#else
-			// TODO: step seems wrong when calculated like ORIG
-			dlog(LOG_INFO, "Patched if - TBI\n");
-			if (v28 >= *v29) {
-#endif
 				int32_t v30 = *v29; // 0x100018aa
 				*num_step_ptsPtr = v30;
 #ifdef ORIG
@@ -728,17 +725,13 @@ int32_t recalcStep(SET9052 *a1) {
 			}
 			*num_swp_ptsPtr = *num_step_ptsPtr;
 			g8 = a1;
-			if (IsValidStep(a1) != 0x1) {
+			if (0x10000 * IsValidStep(a1) != 0x10000) {
 				int32_t v31 = *num_step_ptsPtr; // 0x100018fa
 				*num_step_ptsPtr = v31 + 10;
-#ifdef ORIG
 				*v26 = (float64_t) ((float80_t) (v31 + 9) / v27);
-#else
-				*v26 =  v27 / (v31 + 9);
-#endif
-				int32_t v32 = IsValidStep(a1); // 0x10001933
-				g8 = v32 ;
-				while (v32 != 0x1) {
+				int32_t v32 = 0x10000 * IsValidStep(a1); // 0x10001933
+				g8 = v32 / 0x10000;
+				while (v32 != 0x10000) {
 					v31 = *num_step_ptsPtr;
 					*num_step_ptsPtr = v31 + 10;
 #ifdef ORIG
@@ -747,8 +740,8 @@ int32_t recalcStep(SET9052 *a1) {
 #else
 					*v26 = (float64_t) (v27 / (float80_t) (v31 + 9));
 #endif
-					v32 = IsValidStep(a1);
-					g8 = v32 ;
+					v32 = 0x10000 * IsValidStep(a1);
+					g8 = v32 / 0x10000;
 				}
 				recalcSweepAndSettleTime(a1);
 				g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
@@ -880,193 +873,190 @@ int32_t recalcSweepAndSettleTime(SET9052 *a1) {
 	return result3;
 }
 
-// sub_10001D01
-int32_t recalcRBW(SET9052 *a1) {
+int32_t setup_rbw(SET9052 *a1) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
 	g8 = a1;
-	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001d2d
-	int32_t result = v2; // 0x10001e97
-	if (v2 < 1 /*(v2 || 0xffff) < 0x1ffff*/) {
-		int16_t auto_rbw = a1->auto_rbw; // *(int16_t *)(a1 + 74); // 0x10001d3c
-		g8 = auto_rbw;
-		if (auto_rbw == AUTO_ON /*!= AUTO_OFF 0*/) {
+	int32_t v2 = 0x10000 * TestFuncStatusAndPtr(a1); // 0x10001d2d
+	int32_t result = v2 / 0x10000; // 0x10001e97
+	if ((v2 || 0xffff) < 0x1ffff) {
+		int16_t v3 = a1->auto_rbw; // *(int16_t *)(a1 + 74); // 0x10001d3c
+		g8 = v3;
+		if (v3 != AUTO_OFF /*0*/) {
+
 			float64_t v4 = a1->stop; // *(float64_t *)(a1 + 16); // 0x10001d4f
 			float64_t v5 = a1->start; // *(float64_t *)(a1 + 8); // 0x10001d52
 #ifdef ORIG
 			// Decompiled wrong.
-			float64_t span = (float80_t) v5 - (float80_t) v4; // 0x10001d55
+			float64_t v6 = (float80_t) v5 - (float80_t) v4; // 0x10001d55
 #else
-			float64_t span = v4 - v5;
+			float64_t v6 = (float80_t) v4 - (float80_t) v5; // 0x10001d55
 #endif
 			int16_t *v7 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10001d5b
-			float64_t cell_width;
+			float64_t v8;
 			if (*v7 != IE_FALSE /*0*/) {
 				if (*v7 == IE_TRUE /*1*/) {
 					int32_t v9 = a1->num_step_pts; // *(int32_t *)(a1 + 168); // 0x10001d92
 #ifdef ORIG
 					// Decompiled wrong.
-					cell_width = (float80_t) (v9 - 1) / (float80_t) span;
+					v8 = (float80_t) (v9 - 1) / (float80_t) v6;
 #else
-					cell_width = span / (v9 - 1) ;
+					v8 = (float80_t) v6 / (float80_t) (v9 - 1) ;
 #endif
 				} else {
-					cell_width = 0.0;
+					v8 = 0.0;
 				}
 			} else {
 				int32_t v10 = a1->num_swp_pts /* *(int32_t *)(a1 + 164) */- 1; // 0x10001d72
 #ifdef ORIG
 				// Decompiled wrong.
-				cell_width = (float80_t) v10 / (float80_t) span;
+				v8 = (float80_t) v10 / (float80_t) v6;
 #else
-				cell_width = span / v10;
+				v8 = (float80_t) v6 / (float80_t) v10;
 #endif
 			}
 
 			int32_t v11 = GetRBWwide(RBW_300HZ /*0*/); // 0x10001daf
-#ifdef ORIG
 			int32_t v12 = (0x100000000 * (int64_t) (v11 >> 31) | (int64_t) v11)
 					/ 3; // 0x10001dbd
-#else
-			int32_t v12 = v11 / 3;
-#endif
-			int16_t auto_vbw; // 0x10001e7f
-			//if ((v12 & 256) == 0) {
-			if (v12 < cell_width) {
+			int16_t v13; // 0x10001e7f
+			if ((v12 & 256) == 0) {
 				//*(int16_t *)(a1 + 72) = 0;
 				a1->rbw_code = RBW_300HZ /*0*/;
+				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+				a1->step = (int32_t) (float32_t) v8;
+				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
+				*(int32_t *) (a1 + 28) = 0;
+				v13 = a1->auto_vbw; // *(int16_t *)(a1 + 78);
+				g8 = v13;
+				if (v13 != IE_TRUE /*1*/) {
+					result = 0;
+				} else {
+					result = setup_vbw(a1);
+				}
+				g4 = v1;
+				return result;
 			}
 
 			int32_t v14 = GetRBWwide(RBW_3KHZ /*1*/); // 0x10001ddf
-#ifdef ORIG
 			int32_t v15 = (0x100000000 * (int64_t) (v14 >> 31) | (int64_t) v14)
 					/ 3; // 0x10001ded
-#else
-			int32_t v15 = v14 / 3;
-#endif
-			//if ((v15 & 256) == 0) {
-			if (v15 < cell_width) {
+			if ((v15 & 256) == 0) {
 				//*(int16_t *)(a1 + 72) = 1;
 				a1->rbw_code = RBW_3KHZ /*1*/;
+				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+				a1->step = (int32_t) (float32_t) v8;
+				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
+				*(int32_t *) (a1 + 28) = 0;
+				v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
+				g8 = v13;
+				if (v13 != 1) {
+					result = 0;
+				} else {
+					result = setup_vbw(a1);
+				}
+				g4 = v1;
+				return result;
 			}
 
 			int32_t v16 = GetRBWwide(RBW_30KHZ /*2*/); // 0x10001e0c
-#ifdef ORIG
 			int32_t v17 = (0x100000000 * (int64_t) (v16 >> 31) | (int64_t) v16)
 					/ 3; // 0x10001e1a
-#else
-			int32_t v17 = v16 / 3;
-#endif
-			//if ((v17 & 256) == 0) {
-			if (v17 < cell_width) {
+			if ((v17 & 256) == 0) {
 				//*(int16_t *)(a1 + 72) = 2;
 				a1->rbw_code = RBW_30KHZ /*2*/;
+				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
+				a1->step = (int32_t) (float32_t) v8;
+				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
+				*(int32_t *) (a1 + 28) = 0;
+				v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
+				g8 = v13;
+				if (v13 != 1) {
+					result = 0;
+				} else {
+					result = setup_vbw(a1);
+				}
+				g4 = v1;
+				return result;
 			}
 
 			int32_t v18 = GetRBWwide(RBW_3MHZ /*3*/); // 0x10001e39
-#ifdef ORIG
 			int32_t v19 = (0x100000000 * (int64_t) (v18 >> 31) | (int64_t) v18)
 					/ 3; // 0x10001e47
-#else
-			int32_t v19 = v18 / 3;
-#endif
-			//if ((v19 & 256) != 0) {
-			if (v19 < cell_width) {
+			if ((v19 & 256) != 0) {
 				//*(int16_t *)(a1 + 72) = 4;
 				a1->rbw_code = RBW_3MHZ;
 			} else {
 				//*(int16_t *)(a1 + 72) = 3;
 				a1->rbw_code = RBW_300KHZ;
 			}
-
 			//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-			a1->step = /*(int32_t) (float32_t)*/ cell_width;
-			auto_vbw = a1->auto_vbw; // *(int16_t *)(a1 + 78);
-			g8 = auto_vbw;
-			if (auto_vbw != IE_TRUE /*1*/) {
+			a1->step = (int32_t) (float32_t) v8;
+			// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
+			*(int32_t *) (a1 + 28) = 0;
+			v13 = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
+			g8 = v13;
+			if (v13 != 1) {
 				result = 0;
 			} else {
-				result = recalcVBW(a1);
+				result = setup_vbw(a1);
 			}
 			g4 = v1;
-			dlog(LOG_DEBUG, "recalcRBW() --> %d\n", a1->rbw_code);
 			return result;
 		}
 		result = 0;
 	}
-	dlog(LOG_DEBUG, "recalcRBW() --> %d\n", a1->rbw_code);
 	g4 = v1;
 	return result;
 }
 
-// 10001e98
-int32_t recalcVBW(SET9052 *a1) {
+int32_t setup_vbw(SET9052 *a1) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001eb0
 	int32_t result = v2; // 0x10001f52
-	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
+	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
-		int16_t auto_vbw = a1->auto_vbw; // *(int16_t *)(a1 + 78); // 0x10001ec7
-		if (auto_vbw == VI_TRUE /* != VI_FALSE 0*/) {
-			//dlog(LOG_DEBUG, "recalcVBW() , auto_vwb==true\n");
-			float64_t rbw_freq = RBWFreqFromCode((int16_t) RdRBW(a1));
-			//dlog(LOG_DEBUG, "recalcVBW(), rbw_freq=%lf\n", rbw_freq);
-			float64_t vbw_freq = rbw_freq * a1->filter_ratio; // *(float64_t *)(a1 + 88); // 0x10001ee9
-			//dlog(LOG_DEBUG, "recalcVBW(), rbw_freq=%lf, vbw_freq=%lf\n", rbw_freq, vbw_freq);
+		int16_t v3 = a1->auto_vbw; // *(int16_t *)(a1 + 78); // 0x10001ec7
+		if (v3 != VI_FALSE /*0*/) {
+			RBWFreqFromCode((int16_t) RdRBW(a1)); // result not used?
+			float64_t v4 = a1->filter_ratio; // *(float64_t *)(a1 + 88); // 0x10001ee9
 			g11++;
-			float64_t vbw_freq_max = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
-			//dlog(LOG_DEBUG, "recalcVBW(), VBWFreqFromCode(7)=%lf\n", vbw_freq_max);
+			int32_t v5 = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
 			g11++;
-			int32_t v6 = vbw_freq_max; // 0x10001f5211
-			int16_t vbw_code = VBW_3MHZ /*7*/;
-#ifdef ORIG
-			// Decompiled wrong
-			if ((vbw_freq_max & 0x4100) == 0) {
-				int32_t vbw_freq_min = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
+			int32_t v6 = v5; // 0x10001f5211
+			int16_t v7 = 7;
+			if ((v5 & 0x4100) == 0) {
+				int32_t v8 = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
 				g11++;
-				if ((vbw_freq_min & 256) != 0) {
+				if ((v8 & 256) != 0) {
 					g3 = 0;
 					int32_t v9 = VBWCodeFromFreq(
-							(float64_t) ((float80_t) a1->filter_ratio
+							(float64_t) ((float80_t) v4
 									* frequencyLimit_rbwFrequency), 0); // 0x10001f2f
 					v6 = v9;
 					v7 = v9;
 				} else {
-					v6 = vbw_freq_min;
+					v6 = v8;
 					v7 = 1;
 				}
 			}
-#else
-			if (vbw_freq <= vbw_freq_max) {
-				int32_t vbw_freq_min = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
-				if (vbw_freq >= vbw_freq_min) {
-					vbw_code = VBWCodeFromFreq(vbw_freq);
-				} else {
-					vbw_code = VBW_3HZ;
-				}
-			}  else {
-				vbw_code = VBW_3MHZ; // from IDA
-			}
-#endif
-			g8 = vbw_code;
-			if (vbw_code != -1) {
+			g8 = v7;
+			if (v7 != -1) {
 				//*(int16_t *)(a1 + 76) = v7;
-				a1->vbw_code = vbw_code;
+				a1->vbw_code = v7;
 				result = a1;
 			} else {
 				result = v6;
 			}
 			g4 = v1;
-			dlog(LOG_DEBUG, "recalcVBW() --> %d\n", vbw_code);
 			return result;
 		}
-		result = auto_vbw;
+		result = v3;
 	}
 	g4 = v1;
-	dlog(LOG_DEBUG, "recalcVBW() --> %d\n", a1->vbw_code);
 	return result;
 }
 
@@ -1642,16 +1632,14 @@ int32_t IsValidStep(SET9052 *a1) {
 	int32_t v1 = g9; // 0x10006dd2
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006dd7
-	if (v2 >= 1 /*(0x10000 * v2 || 0xffff) >= 0x1ffff*/) {
+	if ((0x10000 * v2 || 0xffff) >= 0x1ffff) {
 		g9 = v1;
 		dlog( LOG_DEBUG, "IsValidStep() -> %d\n", v2 | 0xffff);
 		return v2 | 0xffff;
 	}
 	int32_t v3 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10006df7
-	//int64_t v4 = 0x100000000 * (int64_t) (v3 >> 31) | (int64_t) v3; // 0x10006e05
-	int64_t v4 = (int64_t)v3;
+	int64_t v4 = 0x100000000 * (int64_t) (v3 >> 31) | (int64_t) v3; // 0x10006e05
 	int32_t v5 = v4 / 3; // 0x10006e05
-#ifdef ORIG
 	g8 = v4 % 3;
 	int32_t result; // 0x10006e24
 	if ((v5 & 256) == 0) {
@@ -1660,14 +1648,6 @@ int32_t IsValidStep(SET9052 *a1) {
 		result = v5 & -0x10000;
 	}
 	g9 = v1;
-#else
-	int32_t result;
-	if (v5 < a1->step) {
-		result = 1;
-	} else {
-		result = 0;
-	}
-#endif
 	dlog( LOG_DEBUG, "IsValidStep() -> %d\n", result);
 	return result;
 }
@@ -1690,7 +1670,7 @@ int32_t GetRBWwide(int16_t value) {
 		return -3;
 	}
 	int32_t result;
-//#define XORIG
+#define XORIG
 #ifdef XORIG
 	// TODO here; the function seems to have decompiled with semantical errors.
 	// first workaround: we return 1...
@@ -1704,7 +1684,7 @@ int32_t GetRBWwide(int16_t value) {
 		result = -3;
 	}
 #else
-	int32_t rbw_frequencies[] = { 300, 3000, 30000, 300000L, 3000000L };
+	int32_t rbw_frequencies[] = { 300, 3000, 30000, 300000L, 300000L };
 	if (value > RBW_3MHZ) {
 		result = -3;
 	} else {
@@ -1716,7 +1696,12 @@ int32_t GetRBWwide(int16_t value) {
 	return result;
 }
 
-// Returns a frequency for a RBW code. E.g. 3E6 for RBW_3MHZ.
+// Should return 3E6 for e.g. VBW_3MHZ (?), i.e. a frequency from a code.
+// Function seems to be decompiled wrong. The value derived (v2) is not returned?!?
+// But the value is set to global 'frequencyLimit_rbwFrequency'. Is this enough?
+//
+// After checking with IDA, a float is returned. So i changed the function to return the calculated value.
+// TODO: But the calling code is also wrong at all places, so it needs further work :-(
 float64_t RBWFreqFromCode(int16_t code) {
 #ifdef ORIG
 	int32_t result = code; // 0x1000b557
@@ -1738,36 +1723,40 @@ float64_t RBWFreqFromCode(int16_t code) {
 	frequencyLimit_rbwFrequency = v1;
 	g11--;
 #endif
-	float64_t result;
-	result = 3000000.0; // assumption.
+	frequencyLimit_rbwFrequency = 3000000.0; // assumption.
 	switch (code) {
 	case RBW_300HZ:
-		result = 300.0;
+		frequencyLimit_rbwFrequency = 300.0;
 		break;
 	case RBW_3KHZ:
-		result = 3000.0;
+		frequencyLimit_rbwFrequency = 3000.0;
 		break;
 	case RBW_30KHZ:
-		result = 30000.0;
+		frequencyLimit_rbwFrequency = 30000.0;
 		break;
 	case RBW_300KHZ:
-		result = 300000.0;
+		frequencyLimit_rbwFrequency = 300000.0;
 		break;
 	case RBW_3MHZ:
-		result = 3000000.0;
+		frequencyLimit_rbwFrequency = 3000000.0;
 		break;
 	case RBW_AUTO:
-		result = 3000000.0;
+		frequencyLimit_rbwFrequency = 3000000.0;
 		break;
 	}
-	dlog(LOG_DEBUG,	"RBWFreqFromCode(%d) --> %f \n", code, result);
-	return result;
+	dlog(LOG_DEBUG,
+			"RBWFreqFromCode(%d); frequencyLimit_rbwFrequency was set to: %f \n",
+			code, frequencyLimit_rbwFrequency);
+#ifdef first_try
+	return code;
+#else
+	return frequencyLimit_rbwFrequency;
+#endif
 }
 
-float64_t vbw_frequencies[] = { 0.0, 3.0, 30.0, 300.0, 3000.0, 30000.0, 300000.0L, 3000000.0L };
-
-// Returns a frequency for a VBW code. E.g. 3E6 for VBW_3MHZ.
-float64_t VBWFreqFromCode(int16_t code) {
+// Should return 3E6 for e.g. VBW_3MHZ (?), i.e. a frequency from a code.
+// See comments for RBWFreqFromCode(), but here it is even worse.
+int32_t VBWFreqFromCode(int16_t code) {
 #ifdef ORIG
 	int32_t result = code; // 0x1000b580
 	if (code < VBW_NONE /*0*/) {
@@ -1780,11 +1769,41 @@ float64_t VBWFreqFromCode(int16_t code) {
 	}
 	g11--;
 	return result;
-#endif
-	if (code < VBW_NONE || code > VBW_3MHZ) {
-		return -3.0;
+#else
+	frequencyLimit = 3000000.0; // assumption.
+	switch (code) {
+	case VBW_NONE:
+		frequencyLimit = 0.0;
+		break;
+	case VBW_3HZ:
+		frequencyLimit = 3.0;
+		break;
+	case VBW_30HZ:
+		frequencyLimit = 30.0;
+		break;
+	case VBW_300HZ:
+		frequencyLimit = 300.0;
+		break;
+	case VBW_3KHZ:
+		frequencyLimit = 3000.0;
+		break;
+	case VBW_30KHZ:
+		frequencyLimit = 30000.0;
+		break;
+	case VBW_300KHZ:
+		frequencyLimit = 300000.0;
+		break;
+	case VBW_3MHZ:
+		frequencyLimit = 3000000.0;
+		break;
+	case VBW_AUTO:
+		frequencyLimit = 3000000.0;
+		break;
 	}
-	return vbw_frequencies[code];
+	dlog(LOG_DEBUG, "VBWFreqFromCode(%d); frequencyLimit was set to: %f \n",
+			code, frequencyLimit);
+	return code;
+#endif
 }
 
 // Returns time in [us] for given rbw code; values from ida
@@ -3362,7 +3381,6 @@ int32_t SetCellMode(/*int32_t a1*/SET9052 *a1, int16_t mode) {
 	return result2;
 }
 
-// returns cell mode
 int32_t RdCellMode(SET9052 *a1) {
     g3 = a1;
     int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10006050
@@ -3378,15 +3396,14 @@ int32_t RdCellMode(SET9052 *a1) {
     return result;
 }
 
-// Returns RBW code
 int32_t RdRBW(SET9052 *a1) {
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x100057ee
 	g3 = v1;
-	int32_t v2 =v1; // 0x100057f6
-	g6 = v2;
+	int32_t v2 = 0x10000 * v1; // 0x100057f6
+	g6 = v2 / 0x10000;
 	int32_t result;
-	if (v2 < 1 /*(v2 || 0xffff) < 0x1ffff*/) {
+	if ((v2 || 0xffff) < 0x1ffff) {
 		g8 = a1;
 		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
 #ifdef ORIG
@@ -3401,9 +3418,8 @@ int32_t RdRBW(SET9052 *a1) {
 	return result;
 }
 
-// Calculated VBW code from a frequency
-int32_t VBWCodeFromFreq(float64_t frequency) {
-#ifdef ORIG
+int32_t VBWCodeFromFreq(float64_t a1, int32_t a2_unused) {
+	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f, %d) - TBI\n", a1, a2_unused);
 	g6 = 1;
 	int32_t v1 = g3; // 0x1000b51a12
 	int16_t v2 = 1;
@@ -3424,20 +3440,6 @@ int32_t VBWCodeFromFreq(float64_t frequency) {
 	}
 	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f, %d) - TBI returns %d\n", v3);
 	return (int32_t) -3 | v3 & -0x10000;
-#else
-	// vbw_frequencies contains all frequencies for vbw codes
-	int i;
-	for (i = 0; i < VBW_3MHZ - 1; i++) {
-		float64_t start = vbw_frequencies[i];
-		float64_t end = vbw_frequencies[i + 1];
-		if (frequency >= start && frequency <= end) {
-			dlog( LOG_DEBUG, "VBWCodeFromFreq(%f) --> %d\n", frequency, i);
-			return i;
-		}
-	}
-	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f) --> %d\n", frequency, VBW_3MHZ);
-	return vbw_frequencies[VBW_3MHZ];
-#endif
 }
 
 int32_t SetPortNum(SET9052 *a1, uint16_t a2) {
@@ -5114,7 +5116,7 @@ int32_t SetRBWmode(SET9052 *a1, int16_t mode) {
 			}
 			//*(int16_t *)(a1 + 74) = 1;
 			a1->auto_rbw = VI_TRUE;
-			recalcRBW(a1);
+			setup_rbw(a1);
 			recalcStep(a1);
 			v3 = recalcSweepAndSettleTime(a1);
 		} else {
@@ -5129,7 +5131,6 @@ int32_t SetRBWmode(SET9052 *a1, int16_t mode) {
 	return result;
 }
 
-#ifdef NOT
 int32_t function_10001e98(SET9052 *a1) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
@@ -5178,7 +5179,6 @@ int32_t function_10001e98(SET9052 *a1) {
 	g4 = v1;
 	return result;
 }
-#endif
 
 int32_t SetRBW(SET9052 *a1, int16_t code) {
 	dlog(LOG_DEBUG, "SetRBW(0x%x)\n", code);
