@@ -721,13 +721,17 @@ int32_t recalcStep(SET9052 *a1) {
 			}
 			*num_swp_ptsPtr = *num_step_ptsPtr;
 			g8 = a1;
-			if (0x10000 * IsValidStep(a1) != 0x10000) {
+			if (IsValidStep(a1) != 0x1) {
 				int32_t v31 = *num_step_ptsPtr; // 0x100018fa
 				*num_step_ptsPtr = v31 + 10;
+#ifdef ORIG
 				*v26 = (float64_t) ((float80_t) (v31 + 9) / v27);
-				int32_t v32 = 0x10000 * IsValidStep(a1); // 0x10001933
-				g8 = v32 / 0x10000;
-				while (v32 != 0x10000) {
+#else
+				*v26 =  v27 / (v31 + 9);
+#endif
+				int32_t v32 = IsValidStep(a1); // 0x10001933
+				g8 = v32 ;
+				while (v32 != 0x1) {
 					v31 = *num_step_ptsPtr;
 					*num_step_ptsPtr = v31 + 10;
 #ifdef ORIG
@@ -736,8 +740,8 @@ int32_t recalcStep(SET9052 *a1) {
 #else
 					*v26 = (float64_t) (v27 / (float80_t) (v31 + 9));
 #endif
-					v32 = 0x10000 * IsValidStep(a1);
-					g8 = v32 / 0x10000;
+					v32 = IsValidStep(a1);
+					g8 = v32 ;
 				}
 				recalcSweepAndSettleTime(a1);
 				g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
