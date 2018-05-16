@@ -1015,46 +1015,75 @@ int32_t recalcVBW(SET9052 *a1) {
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001eb0
 	int32_t result = v2; // 0x10001f52
-	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
+	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
 		g8 = a1;
-		int16_t v3 = a1->auto_vbw; // *(int16_t *)(a1 + 78); // 0x10001ec7
-		if (v3 != VI_FALSE /*0*/) {
-			RBWFreqFromCode((int16_t) RdRBW(a1)); // result not used?
-			float64_t v4 = a1->filter_ratio; // *(float64_t *)(a1 + 88); // 0x10001ee9
+		int16_t auto_vbw = a1->auto_vbw; // *(int16_t *)(a1 + 78); // 0x10001ec7
+		if (auto_vbw == VI_TRUE /* != VI_FALSE 0*/) {
+			//dlog(LOG_DEBUG, "recalcVBW() , auto_vwb==true\n");
+			float64_t rbw_freq = RBWFreqFromCode((int16_t) RdRBW(a1));
+			//dlog(LOG_DEBUG, "recalcVBW(), rbw_freq=%lf\n", rbw_freq);
+			float64_t vbw_freq = rbw_freq * a1->filter_ratio; // *(float64_t *)(a1 + 88); // 0x10001ee9
+			//dlog(LOG_DEBUG, "recalcVBW(), rbw_freq=%lf, vbw_freq=%lf\n", rbw_freq, vbw_freq);
 			g11++;
-			int32_t v5 = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
+			float64_t vbw_freq_max = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
+			//dlog(LOG_DEBUG, "recalcVBW(), VBWFreqFromCode(7)=%lf\n", vbw_freq_max);
 			g11++;
-			int32_t v6 = v5; // 0x10001f5211
-			int16_t v7 = 7;
-			if ((v5 & 0x4100) == 0) {
-				int32_t v8 = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
+			int32_t v6 = vbw_freq_max; // 0x10001f5211
+			int16_t vbw_code = VBW_3MHZ /*7*/;
+
+#ifdef recalcVBW_ORIG
+			// Decompiled wrong
+			if ((vbw_freq_max & 0x4100) == 0) {
+				int32_t vbw_freq_min = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
 				g11++;
-				if ((v8 & 256) != 0) {
+				if ((vbw_freq_min & 256) != 0) {
 					g3 = 0;
 					int32_t v9 = VBWCodeFromFreq(
-							(float64_t) ((float80_t) v4
+							(float64_t) ((float80_t) a1->filter_ratio
 									* frequencyLimit_rbwFrequency), 0); // 0x10001f2f
 					v6 = v9;
-					v7 = v9;
+					vbw_code = v9;
 				} else {
-					v6 = v8;
-					v7 = 1;
+					v6 = vbw_freq_min;
+					vbw_code = 1;
 				}
 			}
-			g8 = v7;
-			if (v7 != -1) {
+#endif
+
+#define recalcVBW_ORIG_FAKE
+#ifdef recalcVBW_ORIG_FAKE
+			// Set a fake value as long as the implementation fails.
+			vbw_code = VBW_30KHZ;
+#else
+			// New code implementation, derived from IDA. With this code,
+			// The rest of the code does not work :-(
+			if (vbw_freq <= vbw_freq_max) {
+				int32_t vbw_freq_min = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
+				if (vbw_freq >= vbw_freq_min) {
+					vbw_code = VBWCodeFromFreq(vbw_freq);
+				} else {
+					vbw_code = VBW_3HZ;
+				}
+			}  else {
+				vbw_code = VBW_3MHZ; // from IDA
+			}
+#endif
+			g8 = vbw_code;
+			if (vbw_code != -1) {
 				//*(int16_t *)(a1 + 76) = v7;
-				a1->vbw_code = v7;
+				a1->vbw_code = vbw_code;
 				result = a1;
 			} else {
 				result = v6;
 			}
 			g4 = v1;
+			dlog(LOG_DEBUG, "recalcVBW() --> %d\n", vbw_code);
 			return result;
 		}
-		result = v3;
+		result = auto_vbw;
 	}
 	g4 = v1;
+	dlog(LOG_DEBUG, "recalcVBW() --> %d\n", a1->vbw_code);
 	return result;
 }
 
@@ -1678,12 +1707,7 @@ int32_t GetRBWwide(int16_t value) {
 		return -3;
 	}
 	int32_t result;
-#define XORIG
-#ifdef XORIG
-	// TODO here; the function seems to have decompiled with semantical errors.
-	// first workaround: we return 1...
-	return 1;
-
+#ifdef ORIG
 	// DD: the if condition seems to make no sense
 	if (value == 4 || value < 4 != (3 - v3 & v3) < 0) {
 		// So g40 is an array of uint32_t; v3=value and in range 0..4 (rbw code) maybe  0..4 without AUTO value
@@ -1700,7 +1724,7 @@ int32_t GetRBWwide(int16_t value) {
 	}
 #endif
 	g4 = v1;
-	dlog(LOG_INFO, "GetRBWwide(%d) -> %d\n", value, result);
+	dlog(LOG_DEBUG, "GetRBWwide(%d) -> %d\n", value, result);
 	return result;
 }
 
