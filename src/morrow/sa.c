@@ -1056,7 +1056,7 @@ int32_t recalcVBW(SET9052 *a1) {
 			int32_t v6 = vbw_freq_max; // 0x10001f5211
 			int16_t vbw_code = VBW_3MHZ /*7*/;
 
-#ifdef recalcVBW_ORIG
+#ifdef ORIG
 			// Decompiled wrong
 			if ((vbw_freq_max & 0x4100) == 0) {
 				int32_t vbw_freq_min = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
@@ -1074,12 +1074,6 @@ int32_t recalcVBW(SET9052 *a1) {
 				}
 			}
 #endif
-
-#define recalcVBW_ORIG_FAKE
-#ifdef recalcVBW_ORIG_FAKE
-			// Set a fake value as long as the implementation fails.
-			vbw_code = VBW_30KHZ;
-#else
 			// New code implementation, derived from IDA. With this code,
 			// The rest of the code does not work :-(
 			if (vbw_freq <= vbw_freq_max) {
@@ -1092,6 +1086,13 @@ int32_t recalcVBW(SET9052 *a1) {
 			}  else {
 				vbw_code = VBW_3MHZ; // from IDA
 			}
+
+#define recalcVBW_ORIG_FAKE
+#ifdef recalcVBW_ORIG_FAKE
+			// TODO: Set a fake value as long as the implementation fails.
+			int16_t fake_vbw_code = VBW_30KHZ;
+			dlog(LOG_WARN, "recalcVBW() --> %d, faked value to %d - TBF\n", vbw_code, fake_vbw_code);
+			vbw_code = fake_vbw_code;
 #endif
 			g8 = vbw_code;
 			if (vbw_code != -1) {
