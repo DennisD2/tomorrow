@@ -3379,8 +3379,9 @@ int32_t RdRBW(SET9052 *a1) {
 	return result;
 }
 
-int32_t VBWCodeFromFreq(float64_t a1, int32_t a2_unused) {
-	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f, %d) - TBI\n", a1, a2_unused);
+// Calculated VBW code from a frequency
+int32_t VBWCodeFromFreq(float64_t frequency) {
+#ifdef ORIG
 	g6 = 1;
 	int32_t v1 = g3; // 0x1000b51a12
 	int16_t v2 = 1;
@@ -3401,6 +3402,20 @@ int32_t VBWCodeFromFreq(float64_t a1, int32_t a2_unused) {
 	}
 	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f, %d) - TBI returns %d\n", v3);
 	return (int32_t) -3 | v3 & -0x10000;
+#else
+	// vbw_frequencies contains all frequencies for vbw codes
+	int i;
+	for (i = 0; i < VBW_3MHZ - 1; i++) {
+		float64_t start = vbw_frequencies[i];
+		float64_t end = vbw_frequencies[i + 1];
+		if (frequency >= start && frequency <= end) {
+			dlog( LOG_DEBUG, "VBWCodeFromFreq(%f) --> %d\n", frequency, i);
+			return i;
+		}
+	}
+	dlog( LOG_DEBUG, "VBWCodeFromFreq(%f) --> %d\n", frequency, VBW_3MHZ);
+	return vbw_frequencies[VBW_3MHZ];
+#endif
 }
 
 int32_t SetPortNum(SET9052 *a1, uint16_t a2) {
