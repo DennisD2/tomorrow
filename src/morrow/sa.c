@@ -25,6 +25,7 @@ static int32_t function_10013d49(int32_t a1, int32_t a2, char a3, int32_t a4,
 		int32_t a5, int32_t a6, int32_t a7, int32_t a8);
 
 static int32_t FreqInRange(SET9052 * a1, float64_t freq);
+int32_t VBWCodeFromFreq(float64_t frequency);
 static char *alloc_1000da64(int32_t size);
 
 static int32_t g3 = 0; // eax
@@ -50,7 +51,7 @@ static int32_t g107 = 0;
 static int32_t g129 = 0;
 
 float80_t frequencyLimit = 0.0L; // st0 vbw????
-static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
+//static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
 static float80_t g160_currentStepWidth = 0.0L; // st1
 
 char *__nh_malloc(int32_t numBytes, int32_t a2) {
