@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 	wordPtr[1] = fstart >> 16; // 0xf; // start HI
 	wordPtr[2] = fstop & 0xffff; 0x8480; // stop LO
 	wordPtr[3] = fstop >> 16; // 0x1e; // stop HI
-	wordPtr[4] = 0x100; // filter_code
+	wordPtr[4] =  a1->filter_code; // filter_code
 	wordPtr[5] = fstep&0xffff; // 0x6429; // step LO
 	wordPtr[6] = fstep >> 16 ; //0x0; // step HI
 	wordPtr[7] = 0x0; // settle time LO
