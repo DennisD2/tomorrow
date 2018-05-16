@@ -930,19 +930,6 @@ int32_t recalcRBW(SET9052 *a1) {
 			if (v12 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 0;
 				a1->rbw_code = RBW_300HZ /*0*/;
-				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-				a1->step = (int32_t) (float32_t) cell_width;
-				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
-				*(int32_t *) (a1 + 28) = 0;
-				auto_vbw = a1->auto_vbw; // *(int16_t *)(a1 + 78);
-				g8 = auto_vbw;
-				if (auto_vbw != IE_TRUE /*1*/) {
-					result = 0;
-				} else {
-					result = recalcVBW(a1);
-				}
-				g4 = v1;
-				return result;
 			}
 
 			int32_t v14 = GetRBWwide(RBW_3KHZ /*1*/); // 0x10001ddf
@@ -956,19 +943,6 @@ int32_t recalcRBW(SET9052 *a1) {
 			if (v15 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 1;
 				a1->rbw_code = RBW_3KHZ /*1*/;
-				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-				a1->step = (int32_t) (float32_t) cell_width;
-				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
-				*(int32_t *) (a1 + 28) = 0;
-				auto_vbw = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
-				g8 = auto_vbw;
-				if (auto_vbw != 1) {
-					result = 0;
-				} else {
-					result = recalcVBW(a1);
-				}
-				g4 = v1;
-				return result;
 			}
 
 			int32_t v16 = GetRBWwide(RBW_30KHZ /*2*/); // 0x10001e0c
@@ -982,19 +956,6 @@ int32_t recalcRBW(SET9052 *a1) {
 			if (v17 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 2;
 				a1->rbw_code = RBW_30KHZ /*2*/;
-				//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
-				a1->step = (int32_t) (float32_t) cell_width;
-				// DD: TODO a1+28 is inside a1->step? an error in original code? can the line be commented out?
-				*(int32_t *) (a1 + 28) = 0;
-				auto_vbw = a1->auto_vbw; // v13 = *(int16_t *)(a1 + 78);
-				g8 = auto_vbw;
-				if (auto_vbw != 1) {
-					result = 0;
-				} else {
-					result = recalcVBW(a1);
-				}
-				g4 = v1;
-				return result;
 			}
 
 			int32_t v18 = GetRBWwide(RBW_3MHZ /*3*/); // 0x10001e39
@@ -1090,9 +1051,9 @@ int32_t recalcVBW(SET9052 *a1) {
 #define recalcVBW_ORIG_FAKE
 #ifdef recalcVBW_ORIG_FAKE
 			// TODO: Set a fake value as long as the implementation fails.
-			int16_t fake_vbw_code = VBW_30KHZ;
-			dlog(LOG_WARN, "recalcVBW() --> %d, faked value to %d - TBF\n", vbw_code, fake_vbw_code);
-			vbw_code = fake_vbw_code;
+			//int16_t fake_vbw_code = VBW_30KHZ;
+			//dlog(LOG_WARN, "recalcVBW() --> %d, faked value to %d - TBF\n", vbw_code, fake_vbw_code);
+			//vbw_code = fake_vbw_code;
 #endif
 			g8 = vbw_code;
 			if (vbw_code != -1) {
@@ -1711,7 +1672,14 @@ int32_t IsValidStep(SET9052 *a1) {
 		result = 0;
 	}
 #endif
-	dlog( LOG_DEBUG, "IsValidStep() -> %d\n", result);
+	if (result==0) {
+		dlog( LOG_WARN, "IsValidStep() -> step=%lf, faked %d to 1\n", a1->step, result);
+		float64_t newStep =  (a1->stop - a1->start)/(a1->num_cells-1);
+		a1->step = newStep;
+		dlog( LOG_WARN, "IsValidStep() -> faked step to %lf\n", a1->step);
+		result=1;
+	}
+	dlog( LOG_DEBUG, "IsValidStep() step=%lf -> %d\n", a1->step, result);
 	return result;
 }
 
