@@ -15,7 +15,7 @@
 
 int main(int argc, char **argv) {
 
-	setLogLevel(LOG_INFO);
+	setLogLevel(LOG_DEBUG);
 	dlog(LOG_INFO, "----------------------------------------\n");
 
 	char sessionString[50];
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
 		dlog(LOG_INFO, "mr90xx_InitGuiSweep OK\n\n");
 	}
 
-	setLogLevel(LOG_INFO);
+	setLogLevel(LOG_DEBUG);
 
 	while (1) {
 		ViReal64 amp_array[NUM_POINTS], freq_array[NUM_POINTS];
