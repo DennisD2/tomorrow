@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
 	uint16_t number_points = NUM_POINTS;
 
 	int socket_desc, client_sock, read_size;
-	socklen_t c;
+	unsigned int c;
 	struct sockaddr_in server, client;
 	char client_request[512];
 

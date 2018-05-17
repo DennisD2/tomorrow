@@ -410,4 +410,7 @@ So  amplitude and frequency seems to be retrieved correctly!
 
 ## Ongoing work
 
+cmake -DCMAKE_C_COMPILER=/usr/local/pa11_32/bin/gcc
+
+
 

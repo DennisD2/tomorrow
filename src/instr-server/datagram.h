@@ -8,7 +8,7 @@
 #ifndef DATAGRAM_H_
 #define DATAGRAM_H_
 
-#include <stdint.h>
+#include <compatibility.h>
 #include <string.h>
 
 #define DG_ASCII 'a'
