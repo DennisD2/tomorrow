@@ -99,12 +99,12 @@ int dg_readBinary(unsigned char *buffer, TDatagram_t *dg) {
 }
 
 int dg_read( void *buffer, TDatagram_t *dg) {
-	char *b = (char *)buffer;
-	if (b[0] != DG_ASCII && b[0] != DG_BINARY) {
-		printf("Unknown datagram type '%c'.\n", b[0]);
+	char b = ((char *)buffer)[0];
+	if (b != DG_ASCII && b != DG_BINARY) {
+		printf("Unknown datagram type '%c'.\n", b);
 		return -1;
 	}
-	if (b[0] == DG_ASCII)
+	if (b == DG_ASCII)
 		return dg_readString((char*)buffer, dg);
 	else
 		return dg_readBinary((unsigned char *)buffer, dg);
