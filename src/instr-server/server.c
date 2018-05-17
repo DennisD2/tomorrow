@@ -30,10 +30,10 @@
 // PI
 #define PI 3.14159265
 
-#define NUM_POINTS 512
+#define NUM_POINTS 500
 
 typedef struct _DeviceControl_t {
-	ViInt16 num_points;
+	uint16_t num_points;
 	ViReal64 start;
 	ViReal64 stop;
 	ViInt16 ref_level;
@@ -48,17 +48,17 @@ double amplitudes[] = { -58.05, -57.36, -58.87, -58.15, -59.13, -59.31, -60.41,
 		-65.15, -64.59, -65.74, -66.73, -66.82, -68.91, -67.42, -68.31, -70.87,
 		-69.09, -71.15, -71.23, -71.23, -71.72, -70.95 };
 
-int doMeasurement(ViInt16 number_points, ViReal64 amp_array[],
+int doMeasurement(uint16_t number_points, ViReal64 amp_array[],
 		ViReal64 freq_array[]);
 
 // returns number of bytes used for data
-int getCurrentData(int number_points, unsigned char *bytes) {
+int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 	int i;
 	ViReal64 amp_array[number_points], freq_array[number_points];
 #ifdef REAL_DEVICE
 	doMeasurement(number_points, amp_array, freq_array);
 #else
-	// Read in fale data
+	// Read in fake data
 	for (i = 0; i < number_points; i++) {
 		amp_array[i] = amplitudes[i % 40];
 	}
@@ -67,7 +67,13 @@ int getCurrentData(int number_points, unsigned char *bytes) {
 	//	printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
 	//			freq_array[i]);
 	//}
-	for (i = 0; i < number_points; i += 2) {
+
+	// Prologue: number of points UINT16_t
+	i=0;
+	bytes[i++] = (number_points >> 8) & 0xff;
+	bytes[i++] = number_points & 0xff;
+
+	for ( /* no init */; i < number_points; i += 2) {
 		int amplitude = (int) amp_array[i] + 100;
 		bytes[i] = amplitude >> 8; // HI
 		bytes[i + 1] = amplitude & 0xff; // LO
@@ -75,7 +81,7 @@ int getCurrentData(int number_points, unsigned char *bytes) {
 	return number_points * 2;
 }
 
-int initDevice(int number_points) {
+int initDevice(uint16_t number_points) {
 	setLogLevel(LOG_DEBUG);
 	dlog(LOG_INFO, "----------------------------------------\n");
 
@@ -131,7 +137,7 @@ int initDevice(int number_points) {
 	return mr90xxStatus;
 }
 
-int doMeasurement(ViInt16 number_points, ViReal64 amp_array[],
+int doMeasurement(uint16_t number_points, ViReal64 amp_array[],
 		ViReal64 freq_array[]) {
 	setLogLevel(LOG_INFO);
 
@@ -150,7 +156,7 @@ int doMeasurement(ViInt16 number_points, ViReal64 amp_array[],
 }
 
 int main(int argc, char *argv[]) {
-	ViInt16 number_points = NUM_POINTS;
+	uint16_t number_points = NUM_POINTS;
 
 	int socket_desc, client_sock, read_size;
 	socklen_t c;

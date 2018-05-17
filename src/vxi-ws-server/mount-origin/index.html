@@ -94,7 +94,7 @@ function sendmsg1()
 setInterval( sendmsg1, 25 );
 
 function redrawCanvas(data, fps) {
-	var dataOffset = 3;
+	var dataOffset = 3 + 2;
 	var height = 800;
 	var width = 1024;
 	var c=document.getElementById("myCanvas");
@@ -102,13 +102,17 @@ function redrawCanvas(data, fps) {
 	ctx.fillStyle="black";
 	ctx.fillRect(0, 0, width, height);
 
-	ctx.font = "12px Arial";
-	ctx.fillStyle="yellow";
-	ctx.fillText(fps + "fps /" + width + " values", 10, height - 10); 
-	ctx.beginPath();
-
 	var decoded = window.atob(data);
 	//console.log(decoded);
+	hi = decoded.charCodeAt(3);
+	lo = decoded.charCodeAt(3 + 1);
+	var num_points = hi*256 + lo;
+	
+	ctx.font = "12px Arial";
+	ctx.fillStyle="yellow";
+	ctx.fillText(fps + "fps /" + num_points + " values" + hi + "," + lo, 10, height - 10); 
+	ctx.beginPath();
+	
 	hi = decoded.charCodeAt(dataOffset);
 	lo = decoded.charCodeAt(dataOffset + 1);
 	y = hi*256 + lo;
