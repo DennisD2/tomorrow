@@ -8,7 +8,18 @@ src/morrow/include contains various required header files.
 
 src/morrow/orig contains decompilation results for the original Windows 95 libraries. These files were created with RetDec decompiler and are a starting point for own code.
 
+src/vxi-ws-server contains a WebSockets server written in C that retrieves spectrum analyzer data via TCP and allows to display the data in a web browser. 
+
+src/instr-server contains a simple TCP/IP server that can access the Spoectrum analyzer and offers a TCP/IP interface to get the spectrum analyzer data. The instr-server is called by the vxi-ws-server.
+
 src/morrow/rpc* contains my try to use ONS/RPC together with the Morrow Spectrum Analyzer. This try failed because it seems the Word Serial Protocol (binary data stream) does not work via ONS/RPC.
+
+# Regarding speed
+In tests without the spectrum analyzer, I was able to produce 1024-point samples in the instr-server and to transfer and display them with a 40 frames per second framerate at the browser. So the chain of two servers and the web browser is not slowing down the display of analyzer data. 
+
+The spectrum analyzer needs between 0.25 microseconds and 250 milliseconds per spectrum point. The speed depends on filter settling time and slows down when using very narrow resolution bandwith filter values. So for 500 points the analyzer needs between some milliseconds and ~120 seconds for a complete scan. 
+
+So the bottleneck is usually the analyzer, not the network transmission and browser code.
 
 
 ## State of code:

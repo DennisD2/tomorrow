@@ -413,6 +413,23 @@ So  amplitude and frequency seems to be retrieved correctly!
 
 ## Ongoing work
 
+What I have:
+
+- A web page that can display 1024 point traces with 40 frames per second, written in JavaScript, using protl.ly and WebSockets. This page can be displayed in any Browser.
+
+- A WebSockets server application that calls via TCP IP the "instrument server". The WebSockets server can be accessed by any WebSockets client like Browsers. Sub project is named vxi-ws-server
+
+- A TCP/IP server to be run on the VXI controller. This server
+calls the device, gets the trace data and allows a calling client to retrieve the trace data. This project is called instr-server
+instr-server is called by vxi-ws-server.
+
+In tests without the spectrum analyzer, I was able to produce 1024-point samples in the instr-server and to transfer and display them with a 40 frames per second framerate at the browser. So the chain of two servers and the web browser are not slowing down the display of analyzer data.
+
+Topic for ongoing work:
+
+- The code fails currently because the analyzer can not cope with 40 calls per seconds. I have to fix that. 
+
+
 Make JavaScript frontend that accesses the device via TCP / Web Sockets.
 
 cmake -DCMAKE_C_COMPILER=/usr/local/pa11_32/bin/gcc
