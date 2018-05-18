@@ -30,7 +30,7 @@
 // PI
 #define PI 3.14159265
 
-#define NUM_POINTS 500
+#define NUM_POINTS 40
 
 typedef struct _DeviceControl_t {
 	uint16_t num_points;
@@ -51,22 +51,31 @@ double amplitudes[] = { -58.05, -57.36, -58.87, -58.15, -59.13, -59.31, -60.41,
 int doMeasurement(uint16_t number_points, ViReal64 amp_array[],
 		ViReal64 freq_array[]);
 
+int inMeasurement = 0;
 // returns number of bytes used for data
 int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 	int i;
 	ViReal64 amp_array[number_points], freq_array[number_points];
 #ifdef REAL_DEVICE
+	if (inMeasurement) {
+		for (i=0; i<number_points; i++) {
+			amp_array[i] = 0.0;
+		}
+		return number_points * 2;
+	}
+	inMeasurement = 1;
 	doMeasurement(number_points, amp_array, freq_array);
+	inMeasurement = 0;
 #else
 	// Read in fake data
 	for (i = 0; i < number_points; i++) {
 		amp_array[i] = amplitudes[i % 40];
 	}
 #endif
-	//for (i = 0; i < number_points; i++) {
-	//	printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
-	//			freq_array[i]);
-	//}
+	for (i = 0; i < number_points; i++) {
+		printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
+				freq_array[i]);
+	}
 
 	// Prologue: number of points UINT16_t
 	i=0;

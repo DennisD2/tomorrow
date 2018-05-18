@@ -13,14 +13,14 @@ CPU named P1 is the aquisition CPU which controls filters, attenuators etc. of t
 P1 can be accessed by special commands (Engine Commands) that are routed through P2. 
 
 ## Starting point
-With the Morrow Spectrum Analyzer, I got a floppy disk containing Windows 95 driver library binaries, Header files and and a CD containing a GUI to access the device. The setup requires an ISA or maybe PCI-based VXI controller card inside the PC. I also have 
-some manuals from Morrow, but have not the programming guide. All data from late 1990ies.
+With the Morrow Spectrum Analyzer, I got a floppy disk containing Windows 95 driver library binaries, Header files and and a CD containing a GUI to access the device. 
+The setup requires an ISA or maybe PCI-based VXI controller card inside the PC. I also have some manuals from Morrow, but have not the programming guide. All data from late 1990ies.
 
-My setting in 2018 is: Linux PC, no Windows anywhere. The Morrow analyzer is contained in a HP VXI Mainframe E8401A. The 
+My setting in 2018 is: Linux PC, no Windows anywhere. The Morrow analyzer was inserted into my HP VXI Mainframe E8401A. The 
 Mainframe contains a single slot UNIX workstation HP E1498A running HP/UX 10.2 as VXI Controller. The mainframe and the Linux PC are connected via 10 MBit LAN connection.
 
 ## Tools used
-To analyze the 20 year old code, I tried the `RetDec` decompiler which gives good results as long as the functions are not too complicated.
+To analyze the 25 year old code, I tried the `RetDec` decompiler which gives good results as long as the functions are not too complicated.
 The result gives good clues what the code is doing. Using `IDA Free`, which cannot decompile, but disassemble in a very nice way, it can always be found out whats going on.
 
 The issue for reverse engineering here is the enormous mass of code. Decompilation of the three DLLs gives ~133.000 lines of source
@@ -44,21 +44,24 @@ mr90xx_initGuiSweep() to define all parameters required for a sweep run.
 mr90xx_MeasureAmplWithFreq() to execute a measurement and to provide output data.
 ```
 
-I copied the decompiled code from the DLL library file to the clean file pnp.c
-I wrote down main.c that calls mr90xx_init(). The compile+linking step then throwed out all undefined symbols.
-These were functions and global variables. 
+I wrote down main.c that only calls mr90xx_init(). The compile+linking step then throwed 
+out all undefined symbols. These were functions and global variables. 
 
-In the next step, I copied all undefined symbols from the decompilation files to the clean room files and restart compile+linking step.
-This gave another list of undefined symbols.
+In the next step, I copied all undefined symbols from the decompilation files to the clean room files (pnp.c, sa.c and visa.c) and restart compile+linking step. This gave another list of undefined symbols.
 
 The last step was repeated until there are no missing symbols anymore. 
 
-The code result is then compiled on the target platform and the working code is examined and corrected until it is assumed that the code
+The code result was then compiled on the target platform and the working code is examined and corrected until it is assumed that the code
 is doing the correct thing.
 
-The sometimes funny looking decompiled C source can often be replaced with a much shorter 'human' implementation then.
+After that, I added the next API function to pnp.c and repeated all steps. This was done for all four mr90xx*() functions listed above.
 
-After all these steps, the next function is added to pnp.c and all steps are repeated with the newly added function.
+The sometimes funny looking decompiled C source can often be replaced with a much shorter 'human' implementation then. The RetDec decompilation was in the following cases usually wrong:
+
+- Use of double values (64 bit floats) as variables or function arguments
+- Use of globally defined arrays 
+
+So, all code that contained doubles and global arrays needed to be rechecked with IDA tool. From the x86 op codes, the correct C code was then derived. The point s is, that this process needs much time. You may spend a whole day and more on a single, but complex 50 line C code function.
 
 To allow compile+linking step on my Linux PC (which is much faster than the VXI controller board) I created a mock implementation
 of the Word Serial Protocol with fake device registers of the Spectrum Analyzer. This allowed me to use gdb for debugging. On the target platform, gdb failed to work (which is very sad in such a case). So it was very important to have at least a complete debugging enviroment even be it on another platform. This allowed me to trace many bugs in the source even before it run on the target platform.
@@ -410,7 +413,10 @@ So  amplitude and frequency seems to be retrieved correctly!
 
 ## Ongoing work
 
+Make JavaScript frontend that accesses the device via TCP / Web Sockets.
+
 cmake -DCMAKE_C_COMPILER=/usr/local/pa11_32/bin/gcc
 
+./vxi-ws-server 192.168.178.78 8888 // needs IP address, hostname will not work
 
 

@@ -136,10 +136,12 @@ int main(int argc, char **argv)
 		targetPort = atoi(argv[2]);
     } else {
 		lwsl_user("You may use host and port as command line args.\n");
+		printf("You may use host and port as command line args.\n");
 	}
     serverInfo.targetHost = targetHost;
     serverInfo.targetPort = targetPort;
     lwsl_user("Using host: %s:%d\n", targetHost, targetPort);
+    printf("Using host: %s:%d\n", targetHost, targetPort);
 
 	struct lws_context_creation_info info;
 	struct lws_context *context;
