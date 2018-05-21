@@ -73,10 +73,10 @@ int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 		amp_array[i] = amplitudes[i % 40];
 	}
 #endif
-	for (i = 0; i < number_points; i++) {
-		printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
-				freq_array[i]);
-	}
+	//for (i = 0; i < number_points; i++) {
+	//	printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
+	//			freq_array[i]);
+	//}
 
 	// Prologue: number of points UINT16_t
 	i=0;
@@ -89,7 +89,7 @@ int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 		int amplitude = (int) (amp_array[i]*100);
 		bytes[j] = amplitude >> 8; // HI
 		bytes[j + 1] = amplitude & 0xff; // LO
-		printf("amplitude[%d]=%d=0x%x, bytes[%d,%d] = 0x%02x%02x\n", i, amplitude, amplitude, j, j+1, bytes[j], bytes[j+1]);
+		//printf("amplitude[%d]=%d=0x%x, bytes[%d,%d] = 0x%02x%02x\n", i, amplitude, amplitude, j, j+1, bytes[j], bytes[j+1]);
 	}
 	return j /*number_points * 2*/;
 }
