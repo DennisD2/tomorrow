@@ -108,9 +108,78 @@ function calcY(height, hi, lo) {
 	//console.log(y);
 	zero = height - (height/140) * 120; 
 	//console.log("z=" + zero);
-	return height - zero - y ;
+	return zero - (height/140)*y ;
 }
 
+function calcX( width, numPoints, x) {
+	return x*(width/numPoints);
+}
+
+function drawGraticule(ctx, height, width, num_points) {
+	// zero line
+	ctx.beginPath();
+	zero = height - (height/140) * 120; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.strokeStyle="red";
+	ctx.stroke(); 
+	ctx.closePath();
+	
+	ctx.beginPath();
+	ctx.strokeStyle="grey";
+	zero = height - (height/140) * 130; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+
+	zero = height - (height/140) * 110; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 100; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 90; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 80; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	
+	zero = height - (height/140) * 70; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 60; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 50; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 40; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 30; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 20; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	zero = height - (height/140) * 10; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
+	ctx.stroke(); 
+	
+	ctx.closePath();
+}
 function redrawCanvas(data, fps) {
 	var dataOffset = 3 + 2;
 	var height = 800;
@@ -126,18 +195,11 @@ function redrawCanvas(data, fps) {
 	lo = decoded.charCodeAt(3 + 1);
 	var num_points = hi*256 + lo;
 	
-	// zero line
-	ctx.beginPath();
-	zero = height - (height/140) * 120; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(num_points*2, zero );
-	ctx.strokeStyle="white";
-	ctx.stroke(); 
-	ctx.closePath();
+	drawGraticule(ctx, height, width, num_points);
 	
 	ctx.font = "12px Arial";
 	ctx.fillStyle="yellow";
-	ctx.fillText(fps + "fps /" + num_points + " values", 10, height - 10); 
+	ctx.fillText(fps + " fps /" + num_points + " values", 10, height - 10); 
 	ctx.beginPath();
 	
 	hi = decoded.charCodeAt(dataOffset);
@@ -150,7 +212,7 @@ function redrawCanvas(data, fps) {
 		lo = decoded.charCodeAt(x + 1 + dataOffset+2);	
 		y = calcY(height, hi, lo);
 
-		ctx.lineTo(x, y );
+		ctx.lineTo(calcX(width, num_points, x/2), y );
 	}
 	ctx.strokeStyle="lightgreen";
 	ctx.stroke(); 
