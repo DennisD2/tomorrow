@@ -116,69 +116,31 @@ function calcX( width, numPoints, x) {
 }
 
 function drawGraticule(ctx, height, width, num_points) {
+	
+	ctx.beginPath();
+	var i;
+	ctx.strokeStyle="grey";
+	ctx.font = "12px Arial";
+	ctx.fillStyle="yellow";
+	for (i=10; i<=140; i+= 10) {
+		zero = height - (height/140) * i; 
+		ctx.moveTo(0, zero);
+		ctx.lineTo(width*2, zero );
+		ctx.stroke(); 
+		pos = height - (height/140) * (i+10) - 5; 
+		ctx.fillText(i-110 + " dBm", 10, pos ); 
+	}
+	ctx.closePath();
+	
 	// zero line
 	ctx.beginPath();
 	zero = height - (height/140) * 120; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
 	ctx.strokeStyle="red";
+	ctx.moveTo(0, zero);
+	ctx.lineTo(width*2, zero );
 	ctx.stroke(); 
 	ctx.closePath();
 	
-	ctx.beginPath();
-	ctx.strokeStyle="grey";
-	zero = height - (height/140) * 130; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-
-	zero = height - (height/140) * 110; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 100; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 90; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 80; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	
-	zero = height - (height/140) * 70; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 60; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 50; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 40; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 30; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 20; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	zero = height - (height/140) * 10; 
-	ctx.moveTo(0, zero);
-	ctx.lineTo(width*2, zero );
-	ctx.stroke(); 
-	
-	ctx.closePath();
 }
 function redrawCanvas(data, fps) {
 	var dataOffset = 3 + 2;
