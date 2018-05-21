@@ -5,7 +5,7 @@
 		<img src="libwebsockets.org-logo.png" width=100><br>
 	
 		<p>Canvas connected to WebSocket Server.</p>
-		<button id=b onclick="sendmsg();">Send</button>
+		<button id=b onclick="sendmsg1();">Send</button>
 		<p></p>
 
 		<canvas id="myCanvas" width="1024" height="800" style="border:1px solid #000000;">
@@ -91,7 +91,25 @@ function sendmsg1()
 
 }
 
-setInterval( sendmsg1, 25 );
+var intervalTime = 500000; // 25;
+
+setInterval( sendmsg1, intervalTime );
+
+function calcY(height, hi, lo) {
+	sign = hi & 0x80;
+	y = hi*256 + lo;
+	if (sign) {
+		y = y - 65536;
+	}
+	//console.log(y.toString(16) + ", " + y);
+	y=y/100;
+	// y is in range -120..+20
+	// scale to height..0
+	console.log(y);
+	zero = height - (height/140) * 120; 
+	//console.log("z=" + zero);
+	return height - zero - y ;
+}
 
 function redrawCanvas(data, fps) {
 	var dataOffset = 3 + 2;
@@ -101,12 +119,21 @@ function redrawCanvas(data, fps) {
 	var ctx=c.getContext("2d");
 	ctx.fillStyle="black";
 	ctx.fillRect(0, 0, width, height);
-
+	
 	var decoded = window.atob(data);
 	//console.log(decoded);
 	hi = decoded.charCodeAt(3);
 	lo = decoded.charCodeAt(3 + 1);
 	var num_points = hi*256 + lo;
+	
+	// zero line
+	ctx.beginPath();
+	zero = height - (height/140) * 120; 
+	ctx.moveTo(0, zero);
+	ctx.lineTo(num_points*2, zero );
+	ctx.strokeStyle="white";
+	ctx.stroke(); 
+	ctx.closePath();
 	
 	ctx.font = "12px Arial";
 	ctx.fillStyle="yellow";
@@ -115,17 +142,20 @@ function redrawCanvas(data, fps) {
 	
 	hi = decoded.charCodeAt(dataOffset);
 	lo = decoded.charCodeAt(dataOffset + 1);
-	y = hi*256 + lo;
-	ctx.moveTo(0, height - y);
-	for (var x=dataOffset+2; x</*decoded.length*/width; x+=2) {
-		//		y = height - decoded.charCodeAt(x + dataOffset);
-		hi = decoded.charCodeAt(x);
-		lo = decoded.charCodeAt(x + 1);
-		y = hi*256 + lo;
-		ctx.lineTo(x-dataOffset, y);
+	y = calcY(height, hi, lo);
+
+	ctx.moveTo(0, y);
+	for (var x=0; x<num_points*2; x+=2) {
+		hi = decoded.charCodeAt(x + dataOffset+2);
+		lo = decoded.charCodeAt(x + 1 + dataOffset+2);	
+		y = calcY(height, hi, lo);
+
+		ctx.lineTo(x, y );
 	}
 	ctx.strokeStyle="lightgreen";
 	ctx.stroke(); 
+	ctx.closePath();
+	
 }
 
 

@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 
 	setLogLevel(LOG_INFO);
 
-	while (1) {
+	//while (1) {
 		ViReal64 amp_array[NUM_POINTS], freq_array[NUM_POINTS];
 		mr90xxStatus = mr90xx_MeasureAmplWithFreq(sessionId, MR90XX_RBW_AUTO,
 			MR90XX_VBW_AUTO, start_freq, stop_freq, ref_level, number_points,
@@ -84,5 +84,5 @@ int main(int argc, char **argv) {
 			printf("Amplitude = %10.2f dBm, Frequency = %10.0f Hz\n", amp_array[i],
 					freq_array[i]);
 		}
-	}
+	//}
 }

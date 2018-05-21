@@ -984,12 +984,14 @@ int32_t recalcRBW(SET9052 *a1) {
 				result = recalcVBW(a1);
 			}
 			g4 = v1;
-			dlog(LOG_DEBUG, "recalcRBW() --> %d\n", a1->rbw_code);
+			dlog(LOG_DEBUG, "recalcRBW() 1 --> %d, based on cell width %llf\n", a1->rbw_code, cell_width);
+			a1->rbw_code = RBW_3KHZ;
+			dlog(LOG_ERROR, "XXX Patching rbw_code to %d", a1->rbw_code);
 			return result;
 		}
 		result = 0;
 	}
-	dlog(LOG_DEBUG, "recalcRBW() --> %d\n", a1->rbw_code);
+	dlog(LOG_DEBUG, "recalcRBW() 2 --> %d\n", a1->rbw_code);
 	g4 = v1;
 	return result;
 }

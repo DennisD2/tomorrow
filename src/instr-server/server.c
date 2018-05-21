@@ -30,7 +30,7 @@
 // PI
 #define PI 3.14159265
 
-#define NUM_POINTS 40
+#define NUM_POINTS 200
 
 typedef struct _DeviceControl_t {
 	uint16_t num_points;
@@ -56,6 +56,7 @@ int inMeasurement = 0;
 int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 	int i;
 	ViReal64 amp_array[number_points], freq_array[number_points];
+#define REAL_DEVICE
 #ifdef REAL_DEVICE
 	if (inMeasurement) {
 		for (i=0; i<number_points; i++) {
@@ -82,12 +83,15 @@ int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 	bytes[i++] = (number_points >> 8) & 0xff;
 	bytes[i++] = number_points & 0xff;
 
-	for ( /* no init */; i < number_points; i += 2) {
-		int amplitude = (int) amp_array[i] + 100;
-		bytes[i] = amplitude >> 8; // HI
-		bytes[i + 1] = amplitude & 0xff; // LO
+	i=0;
+	int j=2;
+	for ( /* no init */; i < number_points; i++, j += 2) {
+		int amplitude = (int) (amp_array[i]*100);
+		bytes[j] = amplitude >> 8; // HI
+		bytes[j + 1] = amplitude & 0xff; // LO
+		printf("amplitude[%d]=%d=0x%x, bytes[%d,%d] = 0x%02x%02x\n", i, amplitude, amplitude, j, j+1, bytes[j], bytes[j+1]);
 	}
-	return number_points * 2;
+	return j /*number_points * 2*/;
 }
 
 int initDevice(uint16_t number_points) {
