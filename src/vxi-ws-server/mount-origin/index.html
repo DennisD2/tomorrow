@@ -105,7 +105,7 @@ function calcY(height, hi, lo) {
 	y=y/100;
 	// y is in range -120..+20
 	// scale to height..0
-	console.log(y);
+	//console.log(y);
 	zero = height - (height/140) * 120; 
 	//console.log("z=" + zero);
 	return height - zero - y ;
@@ -156,6 +156,8 @@ function redrawCanvas(data, fps) {
 	ctx.stroke(); 
 	ctx.closePath();
 	
+	// call again
+	sendmsg1();
 }
 
 
