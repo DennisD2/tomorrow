@@ -2,6 +2,9 @@
 
 Code to access a Morrow V9054 Spectrum Analyzer. This is Work In Progress.
 
+![200 points spectrum in the range 1..2Mhz](doc/browser001.png "200 points spectrum in the range 1..2Mhz, visualized in web browser, refreshed at 2 frames per second")
+
+
 src/morrow contains all Morrow specific code. 
 
 src/morrow/include contains various required header files.
@@ -158,6 +161,12 @@ A 40 point spectrum was fed into gnuplot:
 
 A 500 points spectrum in the same range:
 ![500 points spectrum in the range 1..2Mhz](doc/spectrum500.png "500 points spectrum in the range 1..2Mhz")
+
+200 points spectrum in the same range, displayed in a web browser using the web frontend. The software used for that screenshot
+still creates lot of debugging output and even then 2 frames per second is reached. I expected a frame rate of 4..5 frames per
+second if all debugging logging is supressed.
+![200 points spectrum in the range 1..2Mhz](doc/browser001.png "200 points spectrum in the range 1..2Mhz, visualized in web browser")
+
 
 For deeper discussion of `tomorrow` code, see [src/morrow/sa9054-info.md](src/morrow/sa9054-info.md).
 

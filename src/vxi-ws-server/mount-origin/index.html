@@ -116,7 +116,6 @@ function calcX( width, numPoints, x) {
 }
 
 function drawGraticule(ctx, height, width, num_points) {
-	
 	ctx.beginPath();
 	var i;
 	ctx.strokeStyle="grey";
@@ -140,8 +139,8 @@ function drawGraticule(ctx, height, width, num_points) {
 	ctx.lineTo(width*2, zero );
 	ctx.stroke(); 
 	ctx.closePath();
-	
 }
+
 function redrawCanvas(data, fps) {
 	var dataOffset = 3 + 2;
 	var height = 800;
