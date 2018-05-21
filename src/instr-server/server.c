@@ -107,7 +107,7 @@ int initDevice(uint16_t number_points) {
 	ViReal64 start_freq = 1000000;
 	ViReal64 stop_freq = 2000000;
 #endif
-	ViInt16 ref_level = 2;
+	ViInt16 ref_level = 20;
 	ViSession sessionId;
 
 	// Initialize device control struct
