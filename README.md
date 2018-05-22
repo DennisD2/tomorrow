@@ -20,9 +20,12 @@ src/morrow/rpc* contains my try to use ONS/RPC together with the Morrow Spectrum
 # Regarding speed
 In tests without the spectrum analyzer, I was able to produce 1024-point samples in the instr-server and to transfer and display them with a 40 frames per second framerate at the browser. So the chain of two servers and the web browser is not slowing down the display of analyzer data. 
 
-The spectrum analyzer needs between 0.25 microseconds and 250 milliseconds per spectrum point. The speed depends on filter settling time and slows down when using very narrow resolution bandwith filter values. So for 500 points the analyzer needs between some milliseconds and ~120 seconds for a complete scan. 
+The most important time factor is filter settling time. There are two filters (Resolution Bandwith Filter RBW and Video Bandwidth Filter VBW.
+RBW settle time is between 0.6uS (3Mhz bandwith) and 6ms (300Hz Bandwidth). VBW settle time is between 0.25uS (2Mhz) and 250ms (3Hz). 
+Time values are per measurement, i.e. per spectrum point.
+The speed slows down when using very narrow resolution bandwith filter values. So for 500 points the analyzer needs between some milliseconds and ~120 seconds for a complete scan. 
 
-So the bottleneck is usually the analyzer, not the network transmission and browser code.
+To summarize, the bottleneck is usually the analyzer, not the network transmission and browser code.
 
 
 ## State of code:

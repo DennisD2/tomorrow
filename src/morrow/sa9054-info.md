@@ -259,11 +259,14 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 - Check if VISA_SendCommand() is really ok reimplemented or if it must be converted back to ORIG version; it should only
   use vi* functions. Ok, it seems to run ok.
 - rearrange MeasureAmplWithFreq with if vbwmode/rbwmode 
+- A 40 point sweep needs ~30 seconds. This is way too long. The manual says that settling times etc. are in millisecond range. So why
+  are the aquisitions run that long? Analyze timing and find out where all the time is lost.
+  This was analyzed and it was found out that RBW Step calculation goes wrong leading to a 3Hz wide Video Bandwidth filter. This
+  setting has 250ms settle time. The issue was improved (not yet completely corrected), see Todos.
+
 
 ## Todos
 - GetRBWwide() is reimplemented correctly, but the code then fails. Correct this.
-- A 40 point sweep needs ~30 seconds. This is way too long. The manual says that settling times etc. are in millisecond range. So why
-  are the aquisitions run that long? Analyze timing and find out where all the time is lost.
 - Make dd_readEngineStatus() original again(find out original name and make code use vi* only)
 - Fix Error mapping ENG->SW domain
 - Check all "DD XXX" and "TODO" notes and solve the issues
@@ -275,9 +278,9 @@ dennis@dennis-pc:~/git/tomorrow/src/morrow> wc -l pnp.c sa.c visa.c
 - mr90xx_init() OK with tweaks
 - mr90xx_setEngine() OK 
 - mr90xx_initGuiSweep() OK with tweaks
-- mr90xx_MeasureAmplWithFreq(): Runs ok and sets analyzer to run sweeping and fetches amplitude and frequency data.
+- mr90xx_MeasureAmplWithFreq(): OK with tweaks
 
-At this time I did 2 things:
+At some time when mr90xx_MeasureAmplWithFreq() run but dumped nonsense, I did 2 things:
 - Copied main.c to main2.c and changed the frequency range there to 1..2Mhz.
 - Hooked the Spectrum Analyzer input to my frequency generator, with 0db attenuation.
 
@@ -409,28 +412,25 @@ And hey, after some fiddling around I got:
 
 ```
 
-So  amplitude and frequency seems to be retrieved correctly!
+So amplitude and frequency seems to be retrieved correctly!
 
 ## Ongoing work
 
 What I have:
 
-- A web page that can display 1024 point traces with 40 frames per second, written in JavaScript, using protl.ly and WebSockets. This page can be displayed in any Browser.
+- A web page that can display 1024 point traces with 40 frames per second, written in JavaScript, using HTML5 Canvas and WebSockets. This page can be displayed in any Web Browser.
 
-- A WebSockets server application that calls via TCP IP the "instrument server". The WebSockets server can be accessed by any WebSockets client like Browsers. Sub project is named vxi-ws-server
+- A WebSockets server application that calls via TCP IP the "instrument server". The WebSockets server can be accessed by any WebSockets client like Web Browsers. Sub project is named vxi-ws-server.
 
 - A TCP/IP server to be run on the VXI controller. This server
-calls the device, gets the trace data and allows a calling client to retrieve the trace data. This project is called instr-server
+calls the device, gets the trace data and allows a calling client to retrieve the trace data. This project is called instr-server.
 instr-server is called by vxi-ws-server.
 
 In tests without the spectrum analyzer, I was able to produce 1024-point samples in the instr-server and to transfer and display them with a 40 frames per second framerate at the browser. So the chain of two servers and the web browser are not slowing down the display of analyzer data.
 
-Topic for ongoing work:
+##Topic for ongoing work:
 
-- The code fails currently because the analyzer can not cope with 40 calls per seconds. I have to fix that. 
-
-
-Make JavaScript frontend that accesses the device via TCP / Web Sockets.
+Improve JavaScript frontend that accesses the device via TCP / Web Sockets.
 
 cmake -DCMAKE_C_COMPILER=/usr/local/pa11_32/bin/gcc
 
