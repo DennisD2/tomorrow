@@ -15,7 +15,6 @@
 
 static int32_t g3 = 0; // ebp
 static int32_t g5 = 0; // ecx
-//static int32_t g4 = 0; // esi
 static int32_t g6 = 0; // edi
 static int32_t g7 = 0; // edx
 static int32_t g8 = 0; // esi
@@ -41,15 +40,7 @@ static SET9052 *session[PNP_MAXSESSIONS];
 // was: g60
 static SET9052 *prepared_session[PNP_MAXSESSIONS];
 
-//static int32_t g62 = 0;
-//static int32_t g63 = 0;
-
-//static int32_t g93 = 0;
 static int32_t g94 = 0;
-//static int32_t g95 = 0;
-//static int32_t g96 = 0;
-//static int32_t g97 = 0;
-//static int32_t g98 = 0;
 
 
 static int32_t mapVisaErrorToAPIError(int16_t errorCode);
