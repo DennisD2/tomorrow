@@ -1,21 +1,66 @@
  <meta charset="UTF-8"> 
 <html>
+	<head>
+		<title>VXI WebSockets Server</title>
+	</head>
 	<body>
-	
-		<img src="libwebsockets.org-logo.png" width=100><br>
-	
-		<p>Canvas connected to WebSocket Server.</p>
-		<button id=b onclick="sendmsg1();">Send</button>
+		<h5>VXI WebSockets Server</h5>
+		<button id="bsweepstate" onclick="modifySweepState();">Sweep</button>
+		Start:<input type=text id="istart" size="10" value="1000000" onclick="modifySweepState();" />
+		Stop:<input type=text id="istop" size="10" value="2000000" onclick="modifySweepState();" />
+		Points:<input type=text id="ipoints" size="5" value="200" onclick="modifySweepState();" />
+		
+		RBW:
+		<select id="irbw">
+		  <option value="300Hz">300Hz</option>
+		  <option value="3KHz">3KHz</option>
+		  <option value="30KHz">30KHz</option>
+		  <option value="300KHz">300KHz</option>
+		  <option value="3MHz">3MHz</option>
+		</select id="ivbw"> 
+		VBW:
+		<select>
+		  <option value="3Hz">3Hz</option>
+		  <option value="3Hz">30Hz</option>
+		  <option value="300Hz">300Hz</option>
+		  <option value="3KHz">3KHz</option>
+		  <option value="30KHz">30KHz</option>
+		  <option value="300KHz">300KHz</option>
+		  <option value="3MHz">3MHz</option>
+		</select> 
+		
+		</br>
+		
+		Ref.level [dB]:<input type=text id="ireflevel" size="3" value="20"  onclick="modifySweepState();" />
+		
+		Min/Max:
+		<select>
+		  <option value="Min">Min</option>
+		  <option value="Max">Max</option>
+		</select> 
+				
+		Format:
+		<select>
+		  <option value="dBm">dBm</option>
+		  <option value="nV">nV</option>
+		</select> 
+		
 		<p></p>
 
 		<canvas id="myCanvas" width="1024" height="800" style="border:1px solid #000000;">
 				Your browser does not support the HTML5 canvas tag.</canvas>
+				
+		<br>
+		<small><small><a href="http://spurtikus.de">spurtikus.de</a></small></small><img src="libwebsockets.org-logo.png" width=100></img>
+
 	</body>
 	
 	
 <script>
 
 var last = new Date();
+
+var sweeping=false;
 
 function get_appropriate_ws_url(extra_url)
 {
@@ -55,7 +100,7 @@ var ws = new_ws(get_appropriate_ws_url(""), "lws-minimal");
 try {
 	ws.onopen = function() {
 		//document.getElementById("m").disabled = 0;
-		document.getElementById("b").disabled = 0;
+		document.getElementById("bsweepstate").disabled = 0;
 	} 
 
 	ws.onmessage =function got_packet(msg) {
@@ -79,21 +124,26 @@ try {
 	alert('<p>Error' + exception);  
 }
 
-function sendmsg()
+/*function sendmsg()
 {
 	ws.send(document.getElementById("m").value);
 	document.getElementById("m").value = "";
-}
+}*/
 
-function sendmsg1()
+function modifySweepState()
 {
-	ws.send("test");
-
+	sweeping = !sweeping;
+	console.log("Sweeping: " +  sweeping);
 }
 
-var intervalTime = 500000; // 25;
+function theLoop() {
+	if (sweeping) {
+		ws.send("test");
+	}
+}
+var intervalTime = 5000; // 25;
 
-setInterval( sendmsg1, intervalTime );
+setInterval( theLoop, intervalTime );
 
 function calcY(height, hi, lo) {
 	sign = hi & 0x80;
@@ -179,8 +229,7 @@ function redrawCanvas(data, fps) {
 	ctx.stroke(); 
 	ctx.closePath();
 	
-	// call again
-	sendmsg1();
+
 }
 
 

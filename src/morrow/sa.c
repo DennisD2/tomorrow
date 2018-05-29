@@ -51,21 +51,20 @@ static int32_t g107 = 0;
 static int32_t g129 = 0;
 
 float80_t frequencyLimit = 0.0L; // st0 vbw????
-//static float80_t frequencyLimit_rbwFrequency = 0.0L; // st0
-static float80_t g160_currentStepWidth = 0.0L; // st1
+//static float80_t g160_currentStepWidth = 0.0L; // st1
 
 char *__nh_malloc(int32_t numBytes, int32_t a2) {
 	return (char *) malloc(numBytes);
 }
 
 int32_t InitEngine(SET9052 *a1) {
-	dlog( LOG_DEBUG, "InitEngine\n");
+	dlog( LOG_DEBUG, "InitEngine()\n");
 	SET9052 *v1 = a1; // 0x10003c79
 	g3 = v1;
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003c7d
 	g3 = v2;
 	int32_t result; // 0x10003cd0
-	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
+	if (v2 < 1) {
 		/* InitEngine call */
 		result = VISA_InitEngine(a1);
 	} else {
@@ -75,13 +74,13 @@ int32_t InitEngine(SET9052 *a1) {
 }
 
 int32_t ResetEngine(SET9052 *a1) {
-	dlog( LOG_DEBUG, "ResetEngine\n");
+	dlog( LOG_DEBUG, "ResetEngine()\n");
 	SET9052 *v1 = a1; // 0x10003cd5
 	g3 = v1;
 	int32_t v2 = TestFuncStatusAndPtr(v1); // 0x10003cd9
 	g3 = v2;
 	int32_t result; // 0x10003d2c
-	if (v2 < 1 /*(0x10000 * v2 || 0xffff) < 0x1ffff*/) {
+	if (v2 < 1) {
 		/* InitEngine call */
 		result = VISA_ResetEngine(a1);
 	} else {
@@ -124,15 +123,15 @@ int32_t TestFuncStatusAndPtr(SET9052 *a1) {
 	g3 = a1;
 	int32_t v1 = RdEngOption(a1, ENG_OPT_2 /*2*/); // 0x10001437
 	g3 = v1;
-	int32_t v2 = /* 0x10000 * */ v1; // 0x1000143f
-	g6 = v2 /* / 0x10000 */;
-	if (v2 < 1 /*(v2 || 0xffff) < 0x1ffff*/) {
+	int32_t v2 = v1; // 0x1000143f
+	g6 = v2 ;
+	if (v2 < 1) {
 		//dlog( LOG_DEBUG, "TestFuncStatusAndPtr() --> %x, %x\n", v1, v2);
 		return 0; // v1 & -0x10000;
 	}
 	g8 = a1;
 	int32_t status = GetFuncStatusCode(a1); // 0x1000144f
-	int32_t v4 = /* 0x10000 * */ status /* / 0x10000 */; // 0x1000145b
+	int32_t v4 = status; // 0x1000145b
 	int32_t result; // 0x1000146f
 	if ((int16_t) status >= 0) {
 		result = 0; //v4 & -0x10000;
@@ -199,7 +198,6 @@ int32_t RdEngOption(SET9052 *a1, int32_t option) {
 	if (a1 == 0) {
 		return /*g3 & -0x10000 |*/ 0xfff6;
 	}
-	//g3 = a1;
 	a1->func_status_code = 0;
 	g6 = option;
 	if (option == ENG_OPT_0) {
@@ -333,10 +331,7 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 	g4 = &v1;
 	int32_t result;
 	if (a1 != 0) {
-		//*(int16_t *) (a1 + 196) = 0;
 		a1->interfaceType = 0;
-		// DD: (int16_t *)(a1 + 2) equals a1->engine_model
-		// int16_t * v2 = (int16_t *)(a1 + 2); // 0x10004bb5
 		int16_t v2 = a1->engine_model;
 		// DD: 256 = 0x100 = SA9052, 512=0x200=SA9054, 1024=0x400=SA9034, 768=0x300=SA9085
 		if (v2 != SA9052 /*256*/) {
@@ -357,70 +352,45 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 		//*(int32_t *)(a1 + 20) = 0x41a7d784;
 		a1->stop = 200000000.0;
 
-		//*(int16_t *) (a1 + 204) = 0; //func_status_code
 		a1->func_status_code = 0;
-		//*(int16_t *) (a1 + 206) = 0; //engine_reply_code
 		a1->engine_reply_code = 0;
 
-		// DD: a1+4 = a1->swp_in_prog
-		//*(int16_t *)(a1 + 4) = 0;
 		a1->swp_in_prog = IE_FALSE;
 
 		//*(int32_t *)(a1 + 24) = 0;
 		//*(int32_t *)(a1 + 28) = 0x40e86a00;
 		a1->step = 50000.0;
 
-		//*(int16_t *)(a1 + 32) = 1;
 		a1->step_mode = 1;
-		//*(int16_t *)(a1 + 34) = 1;
 		a1->time_mode = 1;
 
-		//*(int16_t *)(a1 + 64) = 1;
 		a1->cell_mode = IE_TRUE;
-		//*(int16_t *)(a1 + 66) = 1;
 		a1->auto_cell = IE_ON;
-		//*(int32_t *)(a1 + 36) = 0;
 		a1->dwell_time = 0;
-		// *(int32_t *)(a1 + 40) = 0;
 		a1->settle_time = 0;
 
-		//*(int32_t *)(a1 + 48) = 0;
-		//*(int32_t *)(a1 + 52) = 0;
 		a1->sweep_time = 0;
 
-		//*(int32_t *)(a1 + 60) = 120;
 		a1->synth_time = 120;
-		//*(int16_t *)(a1 + 72) = 4;
 		a1->rbw_code = RBW_3MHZ;
-		//*(int16_t *)(a1 + 74) = 1;
 		a1->auto_rbw = IE_ON;
 
-		//*(int16_t *)(a1 + 76) = 7;
 		a1->vbw_code = VBW_3MHZ;
 
-		//*(int16_t *)(a1 + 78) = 1;
 		a1->auto_vbw = IE_ON;
-		//*(int16_t *)(a1 + 80) = 0;
 		a1->filter_code = 0;
 
 		//*(int32_t *)(a1 + 88) = -0x66666666;
 		//*(int32_t *)(a1 + 92) = 0x3fb99999;
 		a1->filter_ratio = 0.1;
 
-		//*(int16_t *)(a1 + 96) = 20;
 		a1->attenuation = 20;
-		//*(int16_t *)(a1 + 98) = 0;
 		a1->ref_level = 0;
-		//*(int16_t *)(a1 + 108) = 0;
+
 		a1->trig_code = 0;
-		//*(int16_t *)(a1 + 110) = 1;
 		a1->trig_norm_flag = IE_TRUE;
-		//*(int32_t *)(a1 + 112) = 0;
 		a1->trig_delay = 0;
-
-		//*(int16_t *)(a1 + 116) = 0;
 		a1->trig_thresh = 0;
-
 		//*(int32_t *)(a1 + 120) = 0;
 		//*(int32_t *)(a1 + 124) = 0;
 		a1->trig_freq = 0;
@@ -430,84 +400,54 @@ int32_t InitInstrData(/*int32_t a1*/SET9052 *a1) {
 		// *(int16_t *)(a1 + 130) = 5; // 5 = 0x1 + 0x4
 		a1->sweep_code = SWP_CONT | SWP_MAX;
 
-		//*(int32_t *)(a1 + 132) = 501;
 		a1->num_cells = 501;
-		//*(int16_t *)(a1 + 136) = 0;
 		a1->intr_code = 0;
 
 		//*(int32_t *)(a1 + 144) = 0;
 		//*(int32_t *)(a1 + 148) = 0x411e8480;
 		a1->zspan_freq = 500000.0;
 
-		//*(int32_t *)(a1 + 160) = 0;
-		a1->sweepIndex = 0; //ok
+		a1->sweepIndex = 0;
 
-		//*(int32_t *)(a1 + 68) = 501;
 		a1->deflt_pt_cnt = 501;
 
-		//*(int32_t *)(a1 + 152) = 501;
-		a1->num_samples = 501; //ok
+		a1->num_samples = 501;
 
 		SetZSamplRate(a1, 1000000 /*0xf4240*/);
 
-		//*(int32_t *)(a1 + 164) = 501;
-		a1->num_swp_pts = 501; //ok
+		a1->num_swp_pts = 501;
 
-		//*(int32_t *)(a1 + 168) = 501;//num_step_pts
 		a1->num_step_pts = 501;
-		//*(int32_t *)(a1 + 172) = 501;//num_hop_pts
 		a1->num_hop_pts = 501;
-		//*(int16_t *)(a1 + 176) = 50;//impedance
 		a1->impedance = 50;
 
-		//*(int16_t *)(a1 + 184) = 0;//extern_ref
 		a1->extern_ref = 0;
-		//*(int32_t *)(a1 + 188) = 0;//z_cell_size added by me
 		a1->z_cell_size = 0;
 
-		//*(int32_t *) (a1 + 192) = 0; //err_status
 		a1->err_status = 0;
-		//*(int32_t *) (a1 + 180) = 55; //ie_duration
 		a1->ie_duration = 55;
-		//*(int32_t *) (a1 + 200) = 0; //eng_options
 		a1->eng_options = 0;
 
-		//*(int32_t *) (a1 + 468) = 0;//session_handle
 		a1->session_handle = 0;
-		//*(int16_t *) (a1 + 472) = 880;//data_port
 		a1->data_port = 880;
-		//*(int16_t *) (a1 + 474) = 5;  //irq_num
 		a1->irq_num = 5;
-		//*(int16_t *) (a1 + 476) = 127;//logical_addr
 		a1->logical_addr = 127;
-		//*(int32_t *) (a1 + 480) = 0;//commHandle
 		a1->commHandle = 0;
 
-		// start of values not settled so far
-		//*(int16_t *) (a1 + 532) = -1; // commNumber
 		a1->commNumber = -1;
-		//*(int16_t *) (a1 + 536) = -1;
 		a1->comm_irq = -1;
-		//*(int16_t *) (a1 + 534) = -1;
 		a1->comm_addr = -1;
-		//*(int16_t *) (a1 + 538) = -1;
 		a1->commRateCode = -1;
-		//*(int16_t *) (a1 + 540) = 0;
 		a1->commDialMeth = -1;
-		//*(int16_t *) (a1 + 542) = 1;
 		a1->commSpeakMode = -1;
 
-		//*(char *) (a1 + 544) = 0; // commPhoneNum
 		a1->commPhoneNum[0] = '\0';
 		//*(char *) (a1 + 594) = 0; // must be commInitString but offset is wrong by 6 bytes
 		a1->commInitString[0] = '\0';
 		// end of not settled values
 
-		//*(int16_t *)(a1 + 100) = 0;//PreampAvailable
 		a1->PreampAvailable = 0;
-		//*(int16_t *)(a1 + 102) = 0;//PreampEnabled
 		a1->PreampEnabled = 0;
-		//*(int16_t *)(a1 + 104) = 10;//PreampGain
 		a1->PreampGain = 10;
 		recalcStep(a1);
 		result = recalcSweepAndSettleTime(a1) & -0x10000;
@@ -571,7 +511,7 @@ int32_t recalcStep(SET9052 *a1) {
 	// Next line gives negative value; after examining with IDA, I assume decompiled wrong.
 	float64_t v6 = (float80_t) v5 - (float80_t) v3; // 0x10001754
 #else
-	float64_t v6 = v3 - v5;
+	float64_t span = v3 - v5;
 #endif
 	if (v3 > v5 /* ((int32_t) a1 & 256)a1->op_mode == 0*/) {
 		int32_t *deflt_pt_cntPtr = &a1->deflt_pt_cnt;
@@ -579,23 +519,23 @@ int32_t recalcStep(SET9052 *a1) {
 		*num_swp_ptsPtr = *deflt_pt_cntPtr;
 		int32_t *num_step_ptsPtr = &a1->num_step_pts;
 		*num_step_ptsPtr = *deflt_pt_cntPtr;
-		g8 = a1;
+		//g8 = a1;
 		int16_t step_mode = a1->step_mode;
 		if (step_mode != MR90XX_AUTO_ON /*1*/) {
 			if (step_mode == MR90XX_STEPCNT /*2*/) {
 				//int32_t v111 = *num_step_ptsPtr; // 0x10001aaa
-				g8 = a1;
+				//g8 = a1;
 #ifdef ORIG
 				// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
 				a1->step = (float64_t) ((float80_t) (*num_step_ptsPtr - 1) / (float80_t) v6);
 #else
-				a1->step = (float64_t) (v6 / (*num_step_ptsPtr - 1));
+				a1->step = (float64_t) (span / (*num_step_ptsPtr - 1));
 #endif
 				if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/== MR90XX_AUTO_ON /*1*/) {
 					recalcRBW(a1);
 				}
 				if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */== MR90XX_AUTO_ON /*1*/) {
-					g8 = a1;
+					//g8 = a1;
 					recalcVBW(a1);
 				}
 			} else {
@@ -603,18 +543,18 @@ int32_t recalcStep(SET9052 *a1) {
 					g11 = v4;
 					int32_t v12 = __ftol((int32_t) step_mode) + 1; // 0x10001a57
 					*num_step_ptsPtr = v12;
-					g8 = v12;
+					//g8 = v12;
 					*num_swp_ptsPtr = v12;
 					if (a1->auto_rbw /* *(int16_t *)(a1 + 74)*/ == MR90XX_AUTO_ON /*1*/) {
 						recalcRBW(a1);
 					}
 					if (a1->auto_vbw /* *(int16_t *)(a1 + 78) */ == MR90XX_AUTO_ON /*1*/) {
-						g8 = a1;
+						//g8 = a1;
 						recalcVBW(a1);
 					}
 				}
 			}
-			g160_currentStepWidth = (float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
+			//g160_currentStepWidth = (float80_t) a1->step /* *(float64_t *)(a1 + 24)*/;
 			g4 = v1;
 			dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 			return (int32_t) a1 & -0x10000;
@@ -653,7 +593,7 @@ int32_t recalcStep(SET9052 *a1) {
 					/ 3; // 0x10001956
 			float64_t * v18 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001961
 			*v18 = (float64_t) v17;
-			float80_t v19 = v6; // 0x10001967
+			float80_t v19 = span; // 0x10001967
 			g11--;
 			int32_t v20 = __ftol(v17); // 0x10001973
 			*num_step_ptsPtr = v20;
@@ -668,7 +608,7 @@ int32_t recalcStep(SET9052 *a1) {
 #endif
 			}
 			*num_swp_ptsPtr = *num_step_ptsPtr;
-			g8 = a1;
+			//g8 = a1;
 			if (0x10000 * IsValidStep(a1) != 0x10000) {
 				int32_t v22 = *num_step_ptsPtr + 10; // 0x100019eb
 				*num_step_ptsPtr = v22;
@@ -680,7 +620,7 @@ int32_t recalcStep(SET9052 *a1) {
 				*v18 = (float64_t) (v19 / (float80_t) (*num_step_ptsPtr - 1));
 #endif
 				int32_t v23 = 0x10000 * IsValidStep(a1); // 0x10001a30
-				g8 = v23 / 0x10000;
+				//g8 = v23 / 0x10000;
 				while (v23 != 0x10000) {
 					v22 = *num_step_ptsPtr + 10;
 					*num_step_ptsPtr = v22;
@@ -692,67 +632,69 @@ int32_t recalcStep(SET9052 *a1) {
 					*v18 = (float64_t) (v19 / (float80_t) (*num_step_ptsPtr - 1));
 #endif
 					v23 = 0x10000 * IsValidStep(a1);
-					g8 = v23 / 0x10000;
+					//g8 = v23 / 0x10000;
 				}
 				recalcSweepAndSettleTime(a1);
-				g160_currentStepWidth = (float80_t) a1->step; // *(float64_t *)(a1 + 24);
+				//g160_currentStepWidth = (float80_t) a1->step; // *(float64_t *)(a1 + 24);
 				g4 = v1;
 				dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 				return (int32_t) a1 & -0x10000;
 			}
 		} else {
-			int32_t v24 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10001857
-			int32_t v25 = v24/3; // (0x100000000 * (int64_t) (v24 >> 31) | (int64_t) v24) / 3; // 0x10001865
-			float64_t *v26 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001870
-			*v26 = (float64_t) v25;
-			float80_t v27 = v6; // 0x10001876
-			g11--;
-			int32_t v28 = __ftol(v25); // 0x10001882
-			*num_step_ptsPtr = v28;
-			int32_t *v29 = &a1->num_cells; // (int32_t *)(a1 + 132); // 0x1000189c
-			if (v28 < *v29) {
-				int32_t v30 = *v29; // 0x100018aa
-				*num_step_ptsPtr = v30;
+			int32_t rbww = GetRBWwide(a1->rbw_code); // 0x10001857
+			int32_t rbww_div_3 = rbww/3; // (0x100000000 * (int64_t) (v24 >> 31) | (int64_t) v24) / 3; // 0x10001865
+			//float64_t *v26 = &a1->step; // (float64_t *)(a1 + 24); // 0x10001870
+			a1->step = (float64_t) rbww_div_3;
+			//float80_t v27 = span; // 0x10001876
+			//g11--;
+			int32_t rbww_div_3_as_long = __ftol(rbww_div_3); // 0x10001882
+			a1->num_step_pts = /* *num_step_ptsPtr */ rbww_div_3_as_long;
+			//int32_t *v29 = &a1->num_cells; // (int32_t *)(a1 + 132); // 0x1000189c
+			// DDD XXX TODO: I reversed the comparator from '<' to '>' to make the code work. maybe the change is not correct
+			// Recheck with IDA!
+			if (rbww_div_3_as_long > a1->num_cells /* *v29*/) {
+				int32_t num_cells = a1->num_cells /**v29*/; // 0x100018aa
+				a1->num_step_pts = /* *num_step_ptsPtr */ num_cells;
 #ifdef ORIG
 				// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
-				*v26 = (float64_t) ((float80_t) (v30 - 1) / v27);
+				*v26 = (float64_t) ((float80_t) (num_cells - 1) / span);
 #else
-				*v26 = (float64_t) (v27 / (float80_t) (v30 - 1));
+				a1->step = span / (num_cells - 1);
 #endif
 			}
-			*num_swp_ptsPtr = *num_step_ptsPtr;
-			g8 = a1;
-			if (IsValidStep(a1) != 0x1) {
-				int32_t v31 = *num_step_ptsPtr; // 0x100018fa
-				*num_step_ptsPtr = v31 + 10;
+			a1->num_swp_pts = a1->num_step_pts; // *num_swp_ptsPtr = *num_step_ptsPtr;
+			//g8 = a1;
+			if (IsValidStep(a1) != IE_TRUE /*0x1*/) {
+				//int32_t v31 = *num_step_ptsPtr; // 0x100018fa
+				a1->num_step_pts = a1->num_step_pts + 10;
 #ifdef ORIG
-				*v26 = (float64_t) ((float80_t) (v31 + 9) / v27);
+				*v26 = (float64_t) ((float80_t) (a1->num_step_pts + 9) / span);
 #else
-				*v26 =  v27 / (v31 + 9);
+				a1->step = span / (a1->num_step_pts + 9);
 #endif
 				int32_t v32 = IsValidStep(a1); // 0x10001933
-				g8 = v32 ;
+				//g8 = v32 ;
 				while (v32 != 0x1) {
-					v31 = *num_step_ptsPtr;
-					*num_step_ptsPtr = v31 + 10;
+					//a1->num_step_pts = *num_step_ptsPtr;
+					a1->num_step_pts = a1->num_step_pts + 10;
 #ifdef ORIG
 					// Division is wrong way around. after examining with IDA, I assume decompiled wrong. FDIVR opcode handled wrong.
-					*v26 = (float64_t) ((float80_t) (v31 + 9) / v27);
+					*v26 = (float64_t) ((float80_t) (a1->num_step_pts + 9) / span);
 #else
-					*v26 = (float64_t) (v27 / (float80_t) (v31 + 9));
+					a1->step = span / (a1->num_step_pts + 9);
 #endif
 					v32 = IsValidStep(a1);
-					g8 = v32 ;
+					//g8 = v32 ;
 				}
 				recalcSweepAndSettleTime(a1);
-				g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
-				g4 = v1;
+				//g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
+				//g4 = v1;
 				dlog( LOG_DEBUG, "recalcStep(), step set to %f\n", a1->step);
 				return (int32_t) a1 & -0x10000;
 			}
 		}
 		recalcSweepAndSettleTime(a1);
-		g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
+		//g160_currentStepWidth = a1->step; // (float80_t)*(float64_t *)(a1 + 24);
 		result = (int32_t) a1 & -0x10000;
 	} else {
 		result = (int32_t) a1 & -0x10000 | 0xfffb;
@@ -801,7 +743,7 @@ int32_t recalcSweepAndSettleTime(SET9052 *a1) {
 		int32_t v8 = *v5 + a1->synth_time /* *(int32_t *)(result2 + 60)*/+ v7; // 0x10001bed
 		g8 = v8;
 		float80_t v9 = v8; // 0x10001bf3
-		g160_currentStepWidth = v9;
+		//g160_currentStepWidth = v9;
 		g6 = a1;
 		// *(float64_t *)(result2 + 48) = (float64_t)((float80_t)v3 * v9);
 		a1->sweep_time = (float64_t) ((float80_t) v3 * v9);
@@ -862,7 +804,7 @@ int32_t recalcSweepAndSettleTime(SET9052 *a1) {
 		int32_t v18 = *v13 + a1->synth_time /* *(int32_t *)(result2 + 60) */
 		+ v17; // 0x10001cec
 		float80_t v19 = v18; // 0x10001cf2
-		g160_currentStepWidth = v19;
+		//g160_currentStepWidth = v19;
 		g8 = a1;
 		// *(float64_t *)(result2 + 48) = (float64_t)((float80_t)v3 * v19);
 		a1->sweep_time = (float64_t) ((float80_t) v3 * v19);
@@ -882,7 +824,7 @@ int32_t recalcRBW(SET9052 *a1) {
 	g8 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001d2d
 	int32_t result = v2; // 0x10001e97
-	if (v2 < 1 /*(v2 || 0xffff) < 0x1ffff*/) {
+	if (v2 < 1) {
 		int16_t auto_rbw = a1->auto_rbw; // *(int16_t *)(a1 + 74); // 0x10001d3c
 		g8 = auto_rbw;
 		if (auto_rbw == AUTO_ON /*!= AUTO_OFF 0*/) {
@@ -896,25 +838,26 @@ int32_t recalcRBW(SET9052 *a1) {
 #endif
 			int16_t *v7 = &a1->cell_mode; // (int16_t *)(a1 + 64); // 0x10001d5b
 			float64_t cell_width;
-			if (*v7 != IE_FALSE /*0*/) {
-				if (*v7 == IE_TRUE /*1*/) {
-					int32_t v9 = a1->num_step_pts; // *(int32_t *)(a1 + 168); // 0x10001d92
+			if (a1->cell_mode != IE_FALSE /*0*/) {
+				if (a1->cell_mode == IE_TRUE /*1*/) {
+					int32_t num_step_pts = a1->num_step_pts; // *(int32_t *)(a1 + 168); // 0x10001d92
 #ifdef ORIG
 					// Decompiled wrong.
 					cell_width = (float80_t) (v9 - 1) / (float80_t) span;
 #else
-					cell_width = span / (v9 - 1) ;
+					cell_width = span / (num_step_pts - 1) ;
 #endif
 				} else {
 					cell_width = 0.0;
 				}
 			} else {
-				int32_t v10 = a1->num_swp_pts /* *(int32_t *)(a1 + 164) */- 1; // 0x10001d72
+				// if cell_mode is boolean, we should never get here !?!
+				//int32_t v10 = a1->num_swp_pts /* *(int32_t *)(a1 + 164) */- 1; // 0x10001d72
 #ifdef ORIG
 				// Decompiled wrong.
 				cell_width = (float80_t) v10 / (float80_t) span;
 #else
-				cell_width = span / v10;
+				cell_width = span / (a1->num_swp_pts - 1);
 #endif
 			}
 
@@ -958,7 +901,7 @@ int32_t recalcRBW(SET9052 *a1) {
 				a1->rbw_code = RBW_30KHZ /*2*/;
 			}
 
-			int32_t v18 = GetRBWwide(RBW_3MHZ /*3*/); // 0x10001e39
+			int32_t v18 = GetRBWwide(RBW_300KHZ /*3*/); // 0x10001e39
 #ifdef ORIG
 			int32_t v19 = (0x100000000 * (int64_t) (v18 >> 31) | (int64_t) v18)
 					/ 3; // 0x10001e47
@@ -968,10 +911,12 @@ int32_t recalcRBW(SET9052 *a1) {
 			//if ((v19 & 256) != 0) {
 			if (v19 < cell_width) {
 				//*(int16_t *)(a1 + 72) = 4;
-				a1->rbw_code = RBW_3MHZ;
-			} else {
-				//*(int16_t *)(a1 + 72) = 3;
 				a1->rbw_code = RBW_300KHZ;
+			}
+			// Added code DD
+			v18 = GetRBWwide(RBW_3MHZ) / 3;
+			if (v18 < cell_width) {
+				a1->rbw_code = RBW_3MHZ;
 			}
 
 			//*(int32_t *)(a1 + 24) = (int32_t)(float32_t)v8;
@@ -984,8 +929,8 @@ int32_t recalcRBW(SET9052 *a1) {
 				result = recalcVBW(a1);
 			}
 			g4 = v1;
-			dlog(LOG_DEBUG, "recalcRBW() 1 --> %d, based on cell width %llf\n", a1->rbw_code, cell_width);
-			a1->rbw_code = RBW_3KHZ;
+			dlog(LOG_DEBUG, "recalcRBW() 1 --> %d, based on cell width %lf\n", a1->rbw_code, cell_width);
+			//a1->rbw_code = RBW_3KHZ;
 			dlog(LOG_ERROR, "XXX Patching rbw_code to %d\n", a1->rbw_code);
 			return result;
 		}
@@ -1636,18 +1581,21 @@ int32_t SetInterfaceType(SET9052* a1, /*int16_t*/InterfaceEnum type, int32_t a3)
 	return result;
 }
 
+/**
+ * A step is valid, if the RBW frequency divided by three is smaller than the step size.
+ */
 int32_t IsValidStep(SET9052 *a1) {
 	int32_t v1 = g9; // 0x10006dd2
 	g3 = a1;
 	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10006dd7
-	if (v2 >= 1 /*(0x10000 * v2 || 0xffff) >= 0x1ffff*/) {
+	if (v2 >= 1) {
 		g9 = v1;
 		dlog( LOG_DEBUG, "IsValidStep() -> %d\n", v2 | 0xffff);
 		return v2 | 0xffff;
 	}
-	int32_t v3 = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10006df7
+	int32_t rbww = GetRBWwide(a1->rbw_code /* *(int16_t *)(a1 + 72) */); // 0x10006df7
 	//int64_t v4 = 0x100000000 * (int64_t) (v3 >> 31) | (int64_t) v3; // 0x10006e05
-	int64_t v4 = (int64_t)v3;
+	int64_t v4 = (int64_t)rbww;
 	int32_t v5 = v4 / 3; // 0x10006e05
 #ifdef ORIG
 	g8 = v4 % 3;
@@ -1667,10 +1615,9 @@ int32_t IsValidStep(SET9052 *a1) {
 	}
 #endif
 	if (result==0) {
-		dlog( LOG_WARN, "IsValidStep() -> step=%lf, faked %d to 1\n", a1->step, result);
 		float64_t newStep =  (a1->stop - a1->start)/(a1->num_cells-1);
+		dlog( LOG_WARN, "IsValidStep() -> faked step from %lf to %lf. Faked result %d to 1\n", a1->step, newStep, result);
 		a1->step = newStep;
-		dlog( LOG_WARN, "IsValidStep() -> faked step to %lf\n", a1->step);
 		result=1;
 	}
 	dlog( LOG_DEBUG, "IsValidStep() step=%lf -> %d\n", a1->step, result);
@@ -1678,12 +1625,10 @@ int32_t IsValidStep(SET9052 *a1) {
 }
 
 /**
- * Get resolution Bandwidth wide. Whatever that means.
+ * Get resolution Bandwidth wide. Whatever that means. From IDA, I see that frequencies are returned.
+ * But why not use RBWFreqFromCode for that?
  * Returns -3 on error.
  * Accepted input range 0..4.
- * XORIG: in #else-part, I have the correct code derived from IDA. But that leads to errors due to wrong step size.
- * So I leave it in the first version which returns always '1' for input. This is wrong, but the overall process works.
- * TODO: Needs to be analyzed deeper and corrected.
  */
 int32_t GetRBWwide(int16_t value) {
 	int32_t v1 = g4; // 0x1000d3b4
@@ -3431,7 +3376,7 @@ int32_t VBWCodeFromFreq(float64_t frequency) {
 		float64_t start = vbw_frequencies[i];
 		float64_t end = vbw_frequencies[i + 1];
 		if (frequency >= start && frequency <= end) {
-			dlog( LOG_DEBUG, "VBWCodeFromFreq(%f) --> %d\n", frequency, i);
+			dlog( LOG_DEBUG, "VBWCodeFromFreq(%f) --> %d\n", frequency, i+1);
 			return i;
 		}
 	}
@@ -4919,7 +4864,7 @@ int32_t SetNumCells(SET9052 *a1, uint32_t num_cells) {
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x1000612c
 	g3 = v1;
 	int32_t result; // 0x10006185
-	if ((0x10000 * v1 || 0xffff) < 0x1ffff) {
+	if (v1 < 1 /*(0x10000 * v1 || 0xffff) < 0x1ffff*/) {
 		int32_t v2 = v1; // 0x1000617e
 		int32_t v3 = -3;
 		if (num_cells >= 1) {
@@ -5128,57 +5073,6 @@ int32_t SetRBWmode(SET9052 *a1, int16_t mode) {
 	}
 	return result;
 }
-
-#ifdef NOT
-int32_t function_10001e98(SET9052 *a1) {
-	int32_t v1 = g4; // bp-4
-	g4 = &v1;
-	g3 = a1;
-	int32_t v2 = TestFuncStatusAndPtr(a1); // 0x10001eb0
-	int32_t result = v2; // 0x10001f52
-	if ((0x10000 * v2 || 0xffff) < 0x1ffff) {
-		g8 = a1;
-		int16_t v3 = a1->auto_vbw; // *(int16_t *) (a1 + 78); // 0x10001ec7
-		if (v3 != VI_FALSE /*0*/) {
-			float64_t rbw_freq = RBWFreqFromCode((int16_t) RdRBW(a1));
-			// TODO: Code below looks wrong decompiled. Chec with IDA.
-			float64_t v4 = a1->filter_ratio; // *(float64_t *) (a1 + 88); // 0x10001ee9
-			g11++;
-			int32_t v5 = VBWFreqFromCode(VBW_3MHZ /*7*/); // 0x10001ef1
-			g11++;
-			int32_t v6 = v5; // 0x10001f5211
-			int16_t v7 = 7;
-			if ((v5 & 0x4100) == 0) {
-				int32_t v8 = VBWFreqFromCode(VBW_3HZ /*1*/); // 0x10001f0d
-				g11++;
-				if ((v8 & 256) != 0) {
-					g3 = 0;
-					int32_t v9 = VBWCodeFromFreq(
-							(float64_t) ((float80_t) v4 * frequencyLimit), 0); // 0x10001f2f
-					v6 = v9;
-					v7 = v9;
-				} else {
-					v6 = v8;
-					v7 = 1;
-				}
-			}
-			g8 = v7;
-			if (v7 != -1) {
-				//*(int16_t *) (a1 + 76) = v7;
-				a1->vbw_code = v7;
-				result = a1;
-			} else {
-				result = v6;
-			}
-			g4 = v1;
-			return result;
-		}
-		result = v3;
-	}
-	g4 = v1;
-	return result;
-}
-#endif
 
 int32_t SetRBW(SET9052 *a1, int16_t code) {
 	dlog(LOG_DEBUG, "SetRBW(0x%x)\n", code);
@@ -5684,7 +5578,7 @@ int32_t MeasureAmplWithFreq(SET9052 *a1, int16_t rbw, int32_t vbw,
 		 */
 		int32_t v25 = SetRBWmode(a1, AUTO_ON /*1*/); // 0x1000a41b
 		if ((int16_t) v25 != 0) {
-			return 0x10000 * v25 / 0x10000 | 0xffff;
+			return v25; // 0x10000 * v25 / 0x10000 | 0xffff;
 		}
 		if (vbw != VBW_AUTO /*0x10000 * vbw != 0x80000*/) {
 			/*
