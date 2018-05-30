@@ -145,7 +145,6 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 
 	case LWS_CALLBACK_SERVER_WRITEABLE:
 		//lwsl_debug("LWS_CALLBACK_SERVER_WRITEABLE\n");
-
 		if (!vhd->amsg.payload)
 			break;
 
@@ -167,6 +166,8 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		// lwsl_debug("LWS_CALLBACK_RECEIVE\n");
 		if (vhd->amsg.payload)
 			__minimal_destroy_message(&vhd->amsg);
+
+		lwsl_debug("in: %s\n", in);
 
 		unsigned char image[2*1024+1024];
 		unsigned char encodedImage[3*1024+1*1024];
@@ -207,7 +208,7 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 
 		memcpy((char *)vhd->amsg.payload + LWS_PRE, in, len);
 		vhd->current++;
-
+		
 		/*
 		 * let everybody know we want to write something on them
 		 * as soon as they are ready
