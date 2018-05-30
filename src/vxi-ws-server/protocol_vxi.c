@@ -21,6 +21,8 @@
 
 #include "../instr-server/datagram.h"
 
+#define MAX_COMMAND_LEN 256
+
 extern int readSocket(char* command, unsigned char* server_reply);
 extern void initSocket() ;
 
@@ -171,18 +173,18 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		if (vhd->amsg.payload)
 			__minimal_destroy_message(&vhd->amsg);
 
-		lwsl_debug("in: %s\n", in);
+		lwsl_debug("in: %s\n", (char *)in);
 
+		char command[MAX_COMMAND_LEN];
 		if (startsWith(in, "getsample")) {
 			// TODO: 1. extract this if content to a function
 			// TODO: 2. change GETIMAGE to getsample
-			// TODO: 3. Make 1024, 100 etc. dynamically or at least #defines.
+			// TODO: 3. Make 1024 etc. dynamically or at least #defines.
 			lwsl_debug("getsample");
 			unsigned char image[2*1024+1024];
 			unsigned char encodedImage[3*1024+1*1024];
 
 			TDatagram_t dg;
-			char command[100];
 			dg_packString("GETIMAGE", &dg);
 			dg_write(&dg, command);
 
@@ -208,14 +210,28 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		if (startsWith(in, "setconf")) {
 			lwsl_debug("setconf");
 			TDatagram_t dg;
-			char command[100];
-			dg_packString("setconf", &dg);
+			dg_packString(in, &dg);
 			dg_write(&dg, command);
 
+			// TODO: harmonize code duplication!
 			// Send configuration to instr_server
-
-			// What useful thing to do with in and len values?
-
+			unsigned char server_reply[1024];
+			int rlen = readSocket(command, server_reply);
+			//lwsl_user("rlen: %d\n", rlen);
+			if (rlen == 0) {
+				lwsl_err("ERROR reading from backend service. Retrying...\n");
+				//return -1;
+				int tries = 0;
+				while (rlen <= 0) {
+					lwsl_user("Retry: %d ...\n", tries++);
+					initSocket();
+					rlen = readSocket(command, server_reply);
+					sleep(1);
+				}
+				lwsl_user("Retry successful.\n");
+			}
+			in = server_reply;
+			len = rlen;
 		}
 
 		vhd->amsg.len = len;
