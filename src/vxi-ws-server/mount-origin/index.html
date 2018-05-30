@@ -38,14 +38,14 @@
 		
 		Min/Max:
 		<select id="iminmax" onchange="changeFunc('iminmax', value);">
-		  <option value="Min">Min</option>
-		  <option value="Max">Max</option>
+		  <option value="min">Min</option>
+		  <option value="max">Max</option>
 		</select> 
 				
 		Format:
 		<select id="iformat" onchange="changeFunc('iformat', value);">
-		  <option value="dBm">dBm</option>
-		  <option value="nV">nV</option>
+		  <option value="dbm">dBm</option>
+		  <option value="nv">nV</option>
 		</select> 
 		</small></small>
 		<p></p>
@@ -84,6 +84,19 @@ function configure() {
 	console.log("start:" + start + ", stop:" + stop + ", points:" + points);
 	console.log("rbw:" + rbw + ", vbw:" + vbw + ", reflevel:" + refLevel);
 	console.log("minmax:" + min_max + ", format:" + format);
+	
+	if (sweeping) {
+		sweeping = false;
+		if (waiting) {
+			console.log("Waiting for end of transmission. Ignoring configure call.");
+			alert("Waiting for end of transmission. Ignoring configure call.");
+			return;
+		}
+	}
+	console.log("sending configuration");
+	var params = " start="+start + ";stop="+stop + ";points="+points + ";rbw="+rbw + ";vbw="+vbw;
+	params += ";reflevel="+refLevel + ";minmax="+min_max + ";format="+format; 
+	ws.send("setconf" + params);
 }
 
 var last = new Date();
@@ -165,7 +178,7 @@ function modifySweepState()
 function theLoop() {
 	if (!waiting && sweeping) {
 		console.log("Request data");
-		ws.send("test");
+		ws.send("getsample");
 		waiting=true;
 	}
 }
