@@ -64,6 +64,10 @@ void base64_encode(const unsigned char *data,
         encoded_data[*output_length - 1 - i] = '=';
 }
 
+int startsWith(const char *str, const char *pre) {
+    return strncmp(pre, str, strlen(pre)) == 0;
+}
+
 /* one of these created for each message */
 struct msg {
 	void *payload; /* is malloc'd */
@@ -169,34 +173,50 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 
 		lwsl_debug("in: %s\n", in);
 
-		unsigned char image[2*1024+1024];
-		unsigned char encodedImage[3*1024+1*1024];
+		if (startsWith(in, "getsample")) {
+			// TODO: 1. extract this if content to a function
+			// TODO: 2. change GETIMAGE to getsample
+			// TODO: 3. Make 1024, 100 etc. dynamically or at least #defines.
+			lwsl_debug("getsample");
+			unsigned char image[2*1024+1024];
+			unsigned char encodedImage[3*1024+1*1024];
 
-		TDatagram_t dg;
-		char command[100];
-		dg_packString("GETIMAGE", &dg);
-		dg_write(&dg, command);
-		//dg_packString("open,126", &dg);
-		//dg_write(&dg, command);
+			TDatagram_t dg;
+			char command[100];
+			dg_packString("GETIMAGE", &dg);
+			dg_write(&dg, command);
 
-		int rlen = readSocket(command, image);
-		//lwsl_user("rlen: %d\n", rlen);
-		if (rlen == 0 ) {
-			lwsl_err("ERROR reading from backend service. Retrying...\n");
-			//return -1;
-			int tries = 0;
-			while (rlen <= 0) {
-				lwsl_user("Retry: %d ...\n", tries++);
-				initSocket();
-				rlen = readSocket(command, image);
-				sleep(1);
+			int rlen = readSocket(command, image);
+			//lwsl_user("rlen: %d\n", rlen);
+			if (rlen == 0) {
+				lwsl_err("ERROR reading from backend service. Retrying...\n");
+				//return -1;
+				int tries = 0;
+				while (rlen <= 0) {
+					lwsl_user("Retry: %d ...\n", tries++);
+					initSocket();
+					rlen = readSocket(command, image);
+					sleep(1);
+				}
+				lwsl_user("Retry successful.\n");
 			}
-			lwsl_user("Retry successful.\n");
+			size_t outLen;
+			base64_encode(image, rlen, encodedImage, &outLen);
+			in = encodedImage;
+			len = outLen;
 		}
-		size_t outLen;
-		base64_encode(image, rlen, encodedImage, &outLen);
-		in = encodedImage;
-		len = outLen;
+		if (startsWith(in, "setconf")) {
+			lwsl_debug("setconf");
+			TDatagram_t dg;
+			char command[100];
+			dg_packString("setconf", &dg);
+			dg_write(&dg, command);
+
+			// Send configuration to instr_server
+
+			// What useful thing to do with in and len values?
+
+		}
 
 		vhd->amsg.len = len;
 		/* notice we over-allocate by LWS_PRE */
