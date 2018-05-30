@@ -931,6 +931,7 @@ int32_t recalcRBW(SET9052 *a1) {
 			g4 = v1;
 			dlog(LOG_DEBUG, "recalcRBW() 1 --> %d, based on cell width %lf\n", a1->rbw_code, cell_width);
 			//a1->rbw_code = RBW_3KHZ;
+			a1->rbw_code = RBW_30KHZ;
 			dlog(LOG_ERROR, "XXX Patching rbw_code to %d\n", a1->rbw_code);
 			return result;
 		}

@@ -5,46 +5,49 @@
 	</head>
 	<body>
 		<h5>VXI WebSockets Server</h5>
+		<button id="bconf" onclick="configure();">Configure</button>
 		<button id="bsweepstate" onclick="modifySweepState();">Sweep</button>
-		Start:<input type=text id="istart" size="10" value="1000000" onclick="modifySweepState();" />
-		Stop:<input type=text id="istop" size="10" value="2000000" onclick="modifySweepState();" />
-		Points:<input type=text id="ipoints" size="5" value="200" onclick="modifySweepState();" />
-		
-		RBW:
-		<select id="irbw">
-		  <option value="300Hz">300Hz</option>
-		  <option value="3KHz">3KHz</option>
-		  <option value="30KHz">30KHz</option>
-		  <option value="300KHz">300KHz</option>
-		  <option value="3MHz">3MHz</option>
-		</select id="ivbw"> 
-		VBW:
-		<select>
-		  <option value="3Hz">3Hz</option>
-		  <option value="3Hz">30Hz</option>
-		  <option value="300Hz">300Hz</option>
-		  <option value="3KHz">3KHz</option>
-		  <option value="30KHz">30KHz</option>
-		  <option value="300KHz">300KHz</option>
-		  <option value="3MHz">3MHz</option>
-		</select> 
 		
 		</br>
 		
-		Ref.level [dB]:<input type=text id="ireflevel" size="3" value="20"  onclick="modifySweepState();" />
+		<small><small>
+		Start:<input type=text id="istart" size="10" value="1000000" />
+		Stop:<input type=text id="istop" size="10" value="2000000" />
+		Points:<input type=text id="ipoints" size="5" value="200" />
+		
+		RBW:
+		<select id="irbw" onchange="changeFunc('irbw',value);">
+		  <option value="300">300Hz</option>
+		  <option value="3000">3KHz</option>
+		  <option value="30000">30KHz</option>
+		  <option value="300000">300KHz</option>
+		  <option value="3000000">3MHz</option>
+		</select id="ivbw"> 
+		VBW:
+		<select id="ivbw" onchange="changeFunc('ivbw', value);">
+		  <option value="3">3Hz</option>
+		  <option value="30">30Hz</option>
+		  <option value="300">300Hz</option>
+		  <option value="3000">3KHz</option>
+		  <option value="30000">30KHz</option>
+		  <option value="300000">300KHz</option>
+		  <option value="3000000">3MHz</option>
+		</select> 
+		
+		Ref.level [dB]:<input type=text id="ireflevel" size="3" value="20" />
 		
 		Min/Max:
-		<select>
+		<select id="iminmax" onchange="changeFunc('iminmax', value);">
 		  <option value="Min">Min</option>
 		  <option value="Max">Max</option>
 		</select> 
 				
 		Format:
-		<select>
+		<select id="iformat" onchange="changeFunc('iformat', value);">
 		  <option value="dBm">dBm</option>
 		  <option value="nV">nV</option>
 		</select> 
-		
+		</small></small>
 		<p></p>
 
 		<canvas id="myCanvas" width="1024" height="800" style="border:1px solid #000000;">
@@ -57,6 +60,31 @@
 	
 	
 <script>
+
+function changeFunc(menuId, option) {
+    //var selectBox = document.getElementById(menuId);
+    // var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+    console.log(menuId + ": " + option);
+}
+
+function configure() {
+	var start, stop, points;
+	var rbw, vbw;
+	var refLevel, min_max, format;
+	
+	start = document.getElementById("istart").value;
+	stop = document.getElementById("istop").value;
+	points = document.getElementById("ipoints").value;
+	rbw = document.getElementById("irbw").options[document.getElementById("irbw").selectedIndex].value;
+	vbw = document.getElementById("ivbw").options[document.getElementById("ivbw").selectedIndex].value;
+	refLevel = document.getElementById("ireflevel").value;
+	min_max = document.getElementById("iminmax").options[document.getElementById("iminmax").selectedIndex].value;
+	format = document.getElementById("iformat").options[document.getElementById("iformat").selectedIndex].value;
+	
+	console.log("start:" + start + ", stop:" + stop + ", points:" + points);
+	console.log("rbw:" + rbw + ", vbw:" + vbw + ", reflevel:" + refLevel);
+	console.log("minmax:" + min_max + ", format:" + format);
+}
 
 var last = new Date();
 
