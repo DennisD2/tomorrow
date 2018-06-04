@@ -184,7 +184,7 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 			unsigned char encodedImage[3*1024+1*1024];
 
 			TDatagram_t dg;
-			dg_packString("GETIMAGE", &dg);
+			dg_packString("getsample", &dg);
 			dg_write(&dg, command);
 
 			int rlen = readSocket(command, image);
@@ -207,7 +207,7 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 			len = outLen;
 		}
 		if (startsWith(in, "setconf")) {
-			lwsl_debug("setconf");
+			lwsl_debug("setconf\n");
 			TDatagram_t dg;
 			dg_packString(in, &dg);
 			dg_write(&dg, command);

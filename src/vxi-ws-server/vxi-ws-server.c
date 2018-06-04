@@ -106,11 +106,13 @@ void initSocket() {
     lwsl_debug("Connected.\n");
 }
 
+#define MAX_COMMAND_LEN 256
+
 int readSocket(char* command, unsigned char* server_reply) {
 	if (serverInfo.targetSocket == 0) {
 		return 0;
 	}
-   	char message[32];
+   	char message[MAX_COMMAND_LEN];
  	strcpy(message, command);
 	// Send command
 	if(send(serverInfo.targetSocket, message, strlen(message), 0) < 0) {

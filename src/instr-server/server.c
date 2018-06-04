@@ -1,8 +1,8 @@
-#include<stdio.h>
-#include<string.h>    //strlen
-#include<sys/socket.h>
-#include<arpa/inet.h> //inet_addr
-#include<unistd.h>    //write
+#include <stdio.h>
+#include <string.h>    //strlen, strtok
+#include <sys/socket.h>
+#include <arpa/inet.h> //inet_addr
+#include <unistd.h>    //write
 
 #include <math.h>
 #include <stdlib.h> // rand()
@@ -33,15 +33,15 @@
 #define NUM_POINTS 200
 
 typedef struct _DeviceControl_t {
-	ViInt16 	rbw;
-	ViInt16	 	vbw;
-	ViReal64 	start;
-	ViReal64 	stop;
-	uint16_t 	num_points;
-	ViInt16 	ref_level;
-	uint16_t 	minmax;
-	uint16_t 	format;
-	ViSession 	sessionId;
+	ViInt16 rbw;
+	ViInt16 vbw;
+	ViReal64 start;
+	ViReal64 stop;
+	uint16_t num_points;
+	ViInt16 ref_level;
+	uint16_t minmax;
+	uint16_t format;
+	ViSession sessionId;
 } DeviceControl_t;
 
 DeviceControl_t deviceControl;
@@ -83,14 +83,14 @@ int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 	//}
 
 	// Prologue: number of points UINT16_t
-	i=0;
+	i = 0;
 	bytes[i++] = (number_points >> 8) & 0xff;
 	bytes[i++] = number_points & 0xff;
 
-	i=0;
-	int j=2;
+	i = 0;
+	int j = 2;
 	for ( /* no init */; i < number_points; i++, j += 2) {
-		int amplitude = (int) (amp_array[i]*100);
+		int amplitude = (int) (amp_array[i] * 100);
 		bytes[j] = amplitude >> 8; // HI
 		bytes[j + 1] = amplitude & 0xff; // LO
 		//printf("amplitude[%d]=%d=0x%x, bytes[%d,%d] = 0x%02x%02x\n", i, amplitude, amplitude, j, j+1, bytes[j], bytes[j+1]);
@@ -163,16 +163,156 @@ int doMeasurement(uint16_t number_points, ViReal64 amp_array[],
 	setLogLevel(LOG_INFO);
 
 	ViStatus mr90xxStatus = mr90xx_MeasureAmplWithFreq(deviceControl.sessionId,
-			deviceControl.rbw, deviceControl.vbw,
-			deviceControl.start, deviceControl.stop,
-			deviceControl.ref_level, deviceControl.num_points,
-			deviceControl.minmax, deviceControl.format, amp_array, freq_array);
+			deviceControl.rbw, deviceControl.vbw, deviceControl.start,
+			deviceControl.stop, deviceControl.ref_level,
+			deviceControl.num_points, deviceControl.minmax,
+			deviceControl.format, amp_array, freq_array);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
 		dlog(LOG_ERROR, "Error mr90xx_MeasureAmplWithFreq\n");
 	} else {
 		dlog(LOG_INFO, "mr90xx_MeasureAmplWithFreq OK\n");
 	}
 	return mr90xxStatus;
+}
+
+int startsWith(const char *str, const char *pre) {
+	return strncmp(pre, str, strlen(pre)) == 0;
+}
+
+#define MAXKEYLEN 32
+#define MAXVALUELEN 64
+
+int parseKV(char* kv, char* k, char* v) {
+	char *p = strchr(kv, '=');
+	if (p == NULL) {
+		dlog(LOG_ERROR, "No '=' in conf string: %s", kv);
+		return 0;
+	}
+	*p = '\0';
+	strcpy(k, kv);
+	strcpy(v, (p + 1));
+	return 1;
+}
+
+void setValue(char *k, char *v) {
+	dlog(LOG_INFO, "%s = %s\n", k, v);
+	int ival;
+	ViReal64 rval;
+	if (strcmp(k, "rbw") == 0) {
+		int c;
+		ival = atoi(v);
+		switch (ival) {
+		case 0:
+			c = MR90XX_RBW_AUTO;
+			break;
+		case 300:
+			c = MR90XX_RBW_300HZ;
+			break;
+		case 3000:
+			c = MR90XX_RBW_3KHZ;
+			break;
+		case 30000:
+			c = MR90XX_RBW_30KHZ;
+			break;
+		case 300000:
+			c = MR90XX_RBW_300KHZ;
+			break;
+		case 3000000:
+			c = MR90XX_RBW_3MHZ;
+			break;
+		}
+		dlog(LOG_INFO, "RBW = %d\n", c );
+		deviceControl.rbw = c;
+	}
+	if (strcmp(k, "vbw") == 0) {
+		int c;
+		ival = atoi(v);
+		switch (ival) {
+		case 0:
+			c = MR90XX_VBW_AUTO;
+			break;
+		case 3:
+			c = MR90XX_VBW_3HZ;
+			break;
+		case 30:
+			c = MR90XX_VBW_30HZ;
+			break;
+		case 300:
+			c = MR90XX_VBW_300HZ;
+			break;
+		case 3000:
+			c = MR90XX_VBW_3KHZ;
+			break;
+		case 30000:
+			c = MR90XX_VBW_30KHZ;
+			break;
+		case 300000:
+			c = MR90XX_VBW_300KHZ;
+			break;
+		case 3000000:
+			c = MR90XX_VBW_3MHZ;
+			break;
+		}
+		dlog(LOG_INFO, "VBW = %d\n", c );
+		deviceControl.rbw = c;
+
+	}
+	if (strcmp(k, "start") == 0) {
+		rval = atof(v);
+		dlog(LOG_INFO, "start = %f\n", rval );
+		deviceControl.start = rval;
+	}
+	if (strcmp(k, "stop") == 0) {
+		rval = atof(v);
+		dlog(LOG_INFO, "stop = %f\n", rval );
+		deviceControl.stop = rval;
+	}
+	if (strcmp(k, "points") == 0) {
+		ival = atoi(v);
+		dlog(LOG_INFO, "points = %d\n", ival );
+		deviceControl.num_points = ival;
+	}
+	if (strcmp(k, "reflevel") == 0) {
+		ival = atoi(v);
+		dlog(LOG_INFO, "reflevel = %d\n", ival );
+		deviceControl.ref_level = ival;
+	}
+	if (strcmp(k, "minmax") == 0) {
+		if (strcmp(v, "min") == 0) {
+			ival = MR90XX_SWP_MIN;
+		} else {
+			ival = MR90XX_SWP_MAX;
+		}
+		dlog(LOG_INFO, "minmax= %d\n", ival );
+		deviceControl.format = ival;
+	}
+	if (strcmp(k, "format") == 0) {
+		if (strcmp(v, "nv") == 0) {
+			ival = MR90XX_NV_FORMAT;
+		} else {
+			ival = MR90XX_DBM_FORMAT;
+		}
+		dlog(LOG_INFO, "format= %d\n", ival );
+		deviceControl.format = ival;
+	}
+}
+
+int setConfig(char *cmd) {
+	char *delim = "; ";
+	char *p = strtok(cmd, delim);
+	char key[MAXKEYLEN];
+	char value[MAXVALUELEN];
+	while (p != 0) {
+		if (startsWith(p, "setconf")) {
+			p = strtok(NULL, delim);
+			continue;
+		}
+		if (parseKV(p, key, value)) {
+			setValue(key, value);
+		}
+		p = strtok(NULL, delim);
+	}
+	return 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -249,19 +389,23 @@ int main(int argc, char *argv[]) {
 			char cmd[128];
 			read_command(&request, cmd);
 
-			if (strncmp(cmd, "GETDATA", strlen("GETDATA")) == 0) {
-				puts("GETDATA command");
-				int n = getCurrentData(deviceControl.num_points , bytes);
+			if (startsWith(cmd, "setconf")) {
+				puts("setconf command");
+				int n = setConfig(cmd);
 				TDatagram_t response;
-				dg_packBinary(bytes, n, &response);
+				response.len = 3;
+				char *status = "OK";
+				response.data = status;
+				response.type = DG_ASCII;
+				dg_packString(bytes, &response);
 				dg_write(&response, response_message);
 				write(client_sock, response_message, n + 3);
 				handled = 1;
 			}
 
-			if (strncmp(cmd, "GETIMAGE", strlen("GETIMAGE")) == 0) {
-				puts("GETIMAGE command");
-				int n = getCurrentData(deviceControl.num_points , bytes);
+			if (startsWith(cmd, "getsample")) {
+				puts("getsample command");
+				int n = getCurrentData(deviceControl.num_points, bytes);
 				TDatagram_t response;
 				dg_packBinary(bytes, n, &response);
 				dg_write(&response, response_message);
@@ -271,18 +415,6 @@ int main(int argc, char *argv[]) {
 				//}
 				write(client_sock, response_message, n + 3);
 				handled = 1;
-			}
-
-			// 'open,126'
-			if (strncmp(cmd, "open", strlen("open")) == 0) {
-				int device;
-				read_intParam(&request, 1, &device);
-				printf("open,%d\n", device);
-				write(client_sock, "ok", strlen("ok"));
-				//shutdown(client_sock, 2);
-				//shutdown(socket_desc, 2);
-				handled = 1;
-				return 0;
 			}
 
 			// unknown command
