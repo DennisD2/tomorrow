@@ -33,11 +33,15 @@
 #define NUM_POINTS 200
 
 typedef struct _DeviceControl_t {
-	ViReal64 start;
-	ViReal64 stop;
-	uint16_t num_points;
-	ViInt16 ref_level;
-	ViSession sessionId;
+	ViInt16 	rbw;
+	ViInt16	 	vbw;
+	ViReal64 	start;
+	ViReal64 	stop;
+	uint16_t 	num_points;
+	ViInt16 	ref_level;
+	uint16_t 	minmax;
+	uint16_t 	format;
+	ViSession 	sessionId;
 } DeviceControl_t;
 
 DeviceControl_t deviceControl;
@@ -111,10 +115,14 @@ int initDevice(uint16_t number_points) {
 	ViSession sessionId;
 
 	// Initialize device control struct
+	deviceControl.rbw = RBW_AUTO;
+	deviceControl.vbw = VBW_AUTO;
 	deviceControl.start = start_freq;
 	deviceControl.stop = stop_freq;
 	deviceControl.num_points = number_points;
 	deviceControl.ref_level = ref_level;
+	deviceControl.minmax = MR90XX_SWP_MIN;
+	deviceControl.format = MR90XX_DBM_FORMAT;
 
 	char sessionString[50];
 
@@ -155,11 +163,10 @@ int doMeasurement(uint16_t number_points, ViReal64 amp_array[],
 	setLogLevel(LOG_INFO);
 
 	ViStatus mr90xxStatus = mr90xx_MeasureAmplWithFreq(deviceControl.sessionId,
-			MR90XX_RBW_AUTO,
-			MR90XX_VBW_AUTO, deviceControl.start, deviceControl.stop,
+			deviceControl.rbw, deviceControl.vbw,
+			deviceControl.start, deviceControl.stop,
 			deviceControl.ref_level, deviceControl.num_points,
-			MR90XX_SWP_MIN,
-			MR90XX_DBM_FORMAT, amp_array, freq_array);
+			deviceControl.minmax, deviceControl.format, amp_array, freq_array);
 	if (mr90xxStatus != MR90XX_IE_SUCCESS) {
 		dlog(LOG_ERROR, "Error mr90xx_MeasureAmplWithFreq\n");
 	} else {
