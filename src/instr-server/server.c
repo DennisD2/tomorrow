@@ -33,9 +33,9 @@
 #define NUM_POINTS 200
 
 typedef struct _DeviceControl_t {
-	uint16_t num_points;
 	ViReal64 start;
 	ViReal64 stop;
+	uint16_t num_points;
 	ViInt16 ref_level;
 	ViSession sessionId;
 } DeviceControl_t;
@@ -56,7 +56,7 @@ int inMeasurement = 0;
 int getCurrentData(uint16_t number_points, unsigned char *bytes) {
 	int i;
 	ViReal64 amp_array[number_points], freq_array[number_points];
-#define REAL_DEVICE
+//#define REAL_DEVICE
 #ifdef REAL_DEVICE
 	if (inMeasurement) {
 		for (i=0; i<number_points; i++) {
@@ -111,9 +111,9 @@ int initDevice(uint16_t number_points) {
 	ViSession sessionId;
 
 	// Initialize device control struct
-	deviceControl.num_points = number_points;
 	deviceControl.start = start_freq;
 	deviceControl.stop = stop_freq;
+	deviceControl.num_points = number_points;
 	deviceControl.ref_level = ref_level;
 
 	char sessionString[50];
@@ -169,17 +169,15 @@ int doMeasurement(uint16_t number_points, ViReal64 amp_array[],
 }
 
 int main(int argc, char *argv[]) {
-	uint16_t number_points = NUM_POINTS;
-
 	int socket_desc, client_sock, read_size;
 	unsigned int c;
 	struct sockaddr_in server, client;
 	char client_request[512];
 
-	unsigned char bytes[2 * number_points + 1024];
-	unsigned char response_message[2 * number_points + 1024];
+	unsigned char bytes[2 * NUM_POINTS + 1024];
+	unsigned char response_message[2 * NUM_POINTS + 1024];
 
-	initDevice(number_points);
+	initDevice(NUM_POINTS);
 
 	// Intializes random number generator
 	time_t t;
@@ -246,7 +244,7 @@ int main(int argc, char *argv[]) {
 
 			if (strncmp(cmd, "GETDATA", strlen("GETDATA")) == 0) {
 				puts("GETDATA command");
-				int n = getCurrentData(number_points, bytes);
+				int n = getCurrentData(deviceControl.num_points , bytes);
 				TDatagram_t response;
 				dg_packBinary(bytes, n, &response);
 				dg_write(&response, response_message);
@@ -256,12 +254,12 @@ int main(int argc, char *argv[]) {
 
 			if (strncmp(cmd, "GETIMAGE", strlen("GETIMAGE")) == 0) {
 				puts("GETIMAGE command");
-				int n = getCurrentData(number_points, bytes);
+				int n = getCurrentData(deviceControl.num_points , bytes);
 				TDatagram_t response;
 				dg_packBinary(bytes, n, &response);
 				dg_write(&response, response_message);
 				//int ii;
-				//for (ii=0; ii<NUM_POINTS; ii+=2) {
+				//for (ii=0; ii<deviceControl.num_points ; ii+=2) {
 				//	printf("%x,%x\n", response_message[ii], response_message[ii+1]);
 				//}
 				write(client_sock, response_message, n + 3);

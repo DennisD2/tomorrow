@@ -178,7 +178,6 @@ static int callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		char command[MAX_COMMAND_LEN];
 		if (startsWith(in, "getsample")) {
 			// TODO: 1. extract this if content to a function
-			// TODO: 2. change GETIMAGE to getsample
 			// TODO: 3. Make 1024 etc. dynamically or at least #defines.
 			lwsl_debug("getsample");
 			unsigned char image[2*1024+1024];
