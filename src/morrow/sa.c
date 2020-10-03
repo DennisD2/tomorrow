@@ -4129,6 +4129,7 @@ int32_t function_1000ce50(int64_t a1, int32_t a2) {
 
 int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
 	dlog( LOG_DEBUG, "SetEngineModel(0x%x)\n", engine_model);
+#ifdef OLD_WAVE1
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008698
 	g3 = v1;
@@ -4150,8 +4151,27 @@ int32_t SetEngineModel(SET9052 *a1, int16_t engine_model) {
 	} else {
 		result = GetFuncStatusCode(a1);
 	}
+#else
+    int32_t result; // 0x100086f8
+    if (TestFuncStatusAndPtr(a1) != 0) {
+        return GetFuncStatusCode(a1);
+    }
+    switch (engine_model) {
+        case SA9052:
+        case SA9054:
+        case SA9085:
+        case SA9034:
+         a1->engine_model = engine_model;
+         result = engine_model & -0x10000;
+         break;
+        default:
+         result = IE_ERR_VALS; // 0xfffd
+         break;
+     }
+#endif
 	return result;
 }
+
 
 int32_t __amsg_exit(int32_t a1) {
 	// also called by sa.c
@@ -4429,22 +4449,23 @@ int32_t FreqInRange(SET9052 * a1, float64_t freq) {
 	int32_t v1 = g4; // bp-4
 	g4 = &v1;
 	int32_t v2 = TestFuncStatusAndPtr(a1);
-	if (v2 < 1) {
-		g8 = a1;
-		SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
-		RdMinFreqLimit(a1);
-		float80_t fmin = frequencyLimit;
-		g11++;
-		RdMaxFreqLimit(a1); // 0x10008a3d
-		float80_t fmax = frequencyLimit;
-		if (freq >= fmin && freq <= fmax) {
-			dlog(LOG_DEBUG, "FreqInRange(%f) -> %d\n", freq, VI_TRUE);
-			return VI_TRUE;
-		} else {
-			dlog(LOG_DEBUG, "FreqInRange(%f) -> %d\n", freq, VI_FALSE);
-			return VI_FALSE;
-		}
+	if (v2 != 0) {
+	    return -1;
 	}
+    g8 = a1;
+    SetFuncStatusCode(a1, IE_SUCCESS /*0*/);
+    RdMinFreqLimit(a1);
+    float80_t fmin = frequencyLimit;
+    g11++;
+    RdMaxFreqLimit(a1); // 0x10008a3d
+    float80_t fmax = frequencyLimit;
+    if (freq >= fmin && freq <= fmax) {
+        dlog(LOG_DEBUG, "FreqInRange(%f) -> %d\n", freq, VI_TRUE);
+        return VI_TRUE;
+    } else {
+        dlog(LOG_DEBUG, "FreqInRange(%f) -> %d\n", freq, VI_FALSE);
+        return VI_FALSE;
+    }
 #endif
 }
 
@@ -4453,7 +4474,7 @@ int32_t RdMaxFreqLimit(SET9052 *a1) {
 	g3 = a1;
 	int32_t result = TestFuncStatusAndPtr(a1); // 0x10008770
 	g3 = result;
-	if ((0x10000 * result || 0xffff) >= 0x1ffff) {
+	if ((result & 0xffff) != 0) {
 		frequencyLimit = -1.0L;
 		g11--;
 		return result;
@@ -4556,6 +4577,7 @@ int32_t RdMinFreqLimit(SET9052 *a1) {
 	return result2;
 }
 
+#ifdef OLD_WAVE1
 int32_t RdEngineModel(SET9052 *a1) {
 	g3 = a1;
 	int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008666
@@ -4572,6 +4594,21 @@ int32_t RdEngineModel(SET9052 *a1) {
 		result = v1 & -0x10000;
 	}
 	return result;
+}
+#endif
+int32_t RdEngineModel(SET9052* a1) {
+    int32_t v1 = TestFuncStatusAndPtr(a1); // 0x10008666
+    int32_t result; // 0x1000865f
+    if ((v1 & 0xffff) == 0) {
+        // 0x1000867a
+        SetFuncStatusCode(a1, IE_SUCCESS /* W9902 0 */ );
+        result = a1->engine_model; // result = a1 & -0x10000 | (int32_t)*(int16_t *)&(a1->engine_model) /* W9901 a1+2 */;
+    } else {
+        // 0x10008675
+        result = v1 & -0x10000;
+    }
+    // 0x1000868f
+    return result;
 }
 
 int32_t SetDetectLog(SET9052 *a1, int32_t mode_unused) {
